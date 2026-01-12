@@ -78,7 +78,7 @@ function App() {
           </div>
         </footer>
 
-        {/* --- FLOATING CTA --- */}
+        {/* --- FLOATING CTA WITH ROTATING GLOW --- */}
         <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-[90] pointer-events-none flex justify-center md:justify-end">
           <motion.a
             href={DRIVE_UPLOAD_URL}
@@ -88,20 +88,30 @@ function App() {
             animate={{ y: 0, opacity: 1 }}
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}
-            className="pointer-events-auto flex items-center gap-4 bg-white border border-zinc-200 text-zinc-900 px-5 md:px-7 py-3 md:py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all group w-full md:w-auto md:min-w-[320px]">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300 shrink-0">
-              <UploadCloud className="w-5 h-5 md:w-6 md:h-6 text-blue-600 group-hover:text-white" />
-            </div>
+            className="relative pointer-events-auto group w-full md:w-auto md:min-w-[320px] p-[1.5px] overflow-hidden rounded-2xl flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+            {/* Animated Gradient Border (The Glow) */}
+            <div className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_25%,#E2E8F0_50%,#3B82F6_75%,#E2E8F0_100%)] opacity-40 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="flex flex-col text-left uppercase overflow-hidden">
-              <h2 className="text-[13px] md:text-[15px] font-extrabold leading-tight truncate">Unggah Bukti Dukung</h2>
-              <p className="text-[10px] md:text-[11px] text-zinc-400 font-medium tracking-tight">Google Drive Kubar</p>
-            </div>
+            {/* Main Button Body (Inner) */}
+            <div className="relative flex items-center gap-4 bg-white text-zinc-900 px-5 md:px-7 py-3 md:py-4 rounded-[calc(1rem-1.5px)] w-full transition-all">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300 shrink-0">
+                <UploadCloud className="w-5 h-5 md:w-6 md:h-6 text-blue-600 group-hover:text-white" />
+              </div>
 
-            <div className="ml-auto pl-2 md:pl-4 border-l border-zinc-100 flex items-center">
-              <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-zinc-300 group-hover:text-blue-600" />
-              </motion.div>
+              <div className="flex flex-col text-left uppercase overflow-hidden">
+                <h2 className="text-[13px] md:text-[15px] font-extrabold leading-tight truncate">
+                  Unggah Bukti Dukung
+                </h2>
+                <p className="text-[10px] md:text-[11px] text-zinc-400 font-medium tracking-tight">
+                  Google Drive Kubar
+                </p>
+              </div>
+
+              <div className="ml-auto pl-2 md:pl-4 border-l border-zinc-100 flex items-center">
+                <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                  <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-zinc-300 group-hover:text-blue-600 transition-colors" />
+                </motion.div>
+              </div>
             </div>
           </motion.a>
         </div>
