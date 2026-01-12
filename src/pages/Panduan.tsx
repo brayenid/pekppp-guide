@@ -5,13 +5,13 @@ import { Search, FolderOpen, Type, ArrowRight, CheckCircle2, AlertTriangle } fro
 const STEPS = [
   {
     title: 'Pelajari Referensi',
-    desc: "Buka halaman 'Katalog' di depan. Lihat contoh foto atau dokumen pada indikator yang dituju. Pastikan dokumen Anda sudah sesuai dengan kriteria yang diminta.",
+    desc: "Buka halaman 'Katalog Contoh Bukti Dukung' di depan. Lihat contoh foto atau dokumen pada indikator yang dituju. Pastikan dokumen Anda sudah sesuai dengan kriteria yang diminta.",
     icon: <Search className="w-5 h-5" />,
     color: 'bg-blue-600'
   },
   {
-    title: 'Masuk ke Folder UPP',
-    desc: 'Buka tautan Drive. Masuk ke folder sesuai nama Instansi/UPP Anda (Contoh: Dinas A, Dinas B). Jangan mengunggah di luar folder instansi Anda.',
+    title: 'Masuk ke Folder OPP',
+    desc: 'Buka tautan Drive. Masuk ke folder sesuai nama Instansi/OPP Anda (Contoh: Dinas A, Dinas B). Jangan mengunggah di luar folder instansi Anda.',
     icon: <FolderOpen className="w-5 h-5" />,
     color: 'bg-amber-500'
   },
@@ -35,7 +35,7 @@ export default function Panduan() {
       {/* Header - Diselaraskan dengan pola Home.tsx */}
       <header className="mb-12">
         <h1 className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
-          SOP <span className="text-zinc-400 font-normal">Pengunggahan</span>
+          Panduan <span className="text-zinc-400 font-normal">Pengunggahan</span>
         </h1>
         <p className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
           Penting: Kesalahan penginputan atau penempatan berkas akan menyebabkan kesulitan penilaian dan berpotensi

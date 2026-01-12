@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Home from './pages/Home'
 import Panduan from './pages/Panduan'
 import DataRegulasi from './pages/DataRegulasi'
+import ScrollToTop from './components/ScrollToTop'
 
 const DRIVE_UPLOAD_URL = 'YOUR_GOOGLE_DRIVE_LINK'
 
@@ -12,13 +13,15 @@ const DRIVE_UPLOAD_URL = 'YOUR_GOOGLE_DRIVE_LINK'
 const NAV_ITEMS = [
   { path: '/', label: 'Beranda', icon: <HomeIcon className="w-4 h-4" /> },
   { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
-  { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> }
+  { path: '/data', label: 'Data', icon: <BookText className="w-4 h-4" /> }
 ]
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-200">
+        {/* Subtle Grid Background */}
+        <div className="fixed inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
         {/* --- NAVIGATION BAR --- */}
         <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-zinc-100 z-[100]">
           <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
@@ -55,12 +58,25 @@ function App() {
 
         {/* --- ROUTES CONTAINER --- */}
         <main className="pt-16 min-h-screen">
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/panduan" element={<Panduan />} />
-            <Route path="/regulasi" element={<DataRegulasi />} />
+            <Route path="/data" element={<DataRegulasi />} />
           </Routes>
         </main>
+
+        {/* --- SIMPLE FOOTER --- */}
+        <footer className="max-w-5xl mx-auto px-6 py-16 mt-12 border-t border-zinc-100 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-1 bg-zinc-100 rounded-full mb-2" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Official Portal</p>
+            <p className="text-sm font-bold text-zinc-900">
+              Dikelola oleh <span className="text-blue-600">Bagian Organisasi Kutai Barat</span>
+            </p>
+            <p className="text-[10px] text-zinc-400 font-medium mt-2">© 2026 Pemerintah Kabupaten Kutai Barat</p>
+          </div>
+        </footer>
 
         {/* --- FLOATING CTA --- */}
         <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-[90] pointer-events-none flex justify-center md:justify-end">
