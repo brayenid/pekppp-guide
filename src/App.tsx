@@ -1,193 +1,96 @@
 // src/App.tsx
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Info, LayoutGrid, Search, Sparkles, X } from 'lucide-react'
-import { type PekpppIndikator, type PekpppImage } from './types/pekppp'
-import dataRaw from './data/pekppp.json'
-import { ImageGallery } from './components/ImageGallery'
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom'
+import { LayoutGrid, UploadCloud, ExternalLink, BookText, Home as HomeIcon, Info } from 'lucide-react'
+import { motion } from 'framer-motion'
+import Home from './pages/Home'
+import Panduan from './pages/Panduan'
+import DataRegulasi from './pages/DataRegulasi'
 
-const dataPekppp = dataRaw as PekpppIndikator[]
+const DRIVE_UPLOAD_URL = 'YOUR_GOOGLE_DRIVE_LINK'
+
+// Konfigurasi Navigasi agar mudah diolah
+const NAV_ITEMS = [
+  { path: '/', label: 'Beranda', icon: <HomeIcon className="w-4 h-4" /> },
+  { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
+  { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> }
+]
 
 function App() {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [filter, setFilter] = useState<string>('Semua')
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // State untuk Modal Gambar
-  const [activeImage, setActiveImage] = useState<PekpppImage | null>(null)
-
-  const categories = ['Semua', ...new Set(dataPekppp.map((i) => i.aspek))]
-
-  const filteredData = dataPekppp.filter((i) => {
-    const matchesFilter = filter === 'Semua' || i.aspek === filter
-    const matchesSearch =
-      i.pertanyaan.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      i.aspek.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesFilter && matchesSearch
-  })
-
   return (
-    <div
-      className={`min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-200 ${
-        activeImage ? 'overflow-hidden' : ''
-      }`}>
-      {/* Subtle Grid Background */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+    <Router>
+      <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-200">
+        {/* --- NAVIGATION BAR --- */}
+        <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-zinc-100 z-[100]">
+          <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+            {/* Logo */}
+            <NavLink
+              to="/"
+              className="flex items-center gap-2 font-bold text-zinc-900 uppercase tracking-tighter shrink-0">
+              <div className="p-1.5 bg-zinc-900 rounded-md">
+                <LayoutGrid className="text-white w-4 h-4" />
+              </div>
+              <span className="hidden sm:inline">
+                PEKPPP <span className="text-zinc-400 font-normal">Docs</span>
+              </span>
+            </NavLink>
 
-      <div className="relative max-w-5xl mx-auto px-6 py-20">
-        {/* Header Section (Sama seperti sebelumnya) */}
-        <header className="mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 mb-4">
-            <div className="p-1.5 bg-zinc-900 rounded-md">
-              <LayoutGrid className="text-white w-4 h-4" />
+            {/* Nav Links - Mobile Friendly Scrollable */}
+            <div className="flex bg-zinc-100 p-1 rounded-xl ml-4 overflow-x-auto no-scrollbar">
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 md:px-4 py-1.5 text-[11px] font-bold uppercase rounded-lg transition-all whitespace-nowrap ${
+                      isActive ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-400 hover:text-zinc-600'
+                    }`
+                  }>
+                  {item.icon}
+                  {item.label}
+                </NavLink>
+              ))}
             </div>
-            <span className="text-[11px] font-bold tracking-[0.2em] text-zinc-400 uppercase">
-              Standar Evaluasi 2026
-            </span>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
-            PEKPPP <span className="text-zinc-400 font-normal">Docs</span>
-          </motion.h1>
-          <p className="text-base text-zinc-500 max-w-xl leading-relaxed">
-            Website panduan komprehensif penyiapan bukti dukung digital untuk OPP Kabupaten Kutai Barat. Dikelola oleh
-            Bagian Organisasi.
-          </p>
-        </header>
-
-        {/* Action Bar & Filter Chips (Sama seperti sebelumnya) */}
-        <div className="space-y-6 mb-12">
-          <div className="relative group max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
-            <input
-              type="text"
-              placeholder="Cari indikator..."
-              className="w-full bg-zinc-50 border border-zinc-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
           </div>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => {
-                  setFilter(cat)
-                  setSelectedId(null)
-                }}
-                className={`px-4 py-1.5 rounded-md text-[13px] font-medium border transition-all ${
-                  filter === cat
-                    ? 'bg-zinc-900 text-white border-zinc-900'
-                    : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400'
-                }`}>
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+        </nav>
 
-        {/* Content List */}
-        <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
-          {filteredData.map((item) => (
-            <div key={item.id} className="border-b border-zinc-100 last:border-none">
-              <button
-                onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
-                className="w-full flex items-center gap-6 p-5 text-left hover:bg-zinc-50/50 transition-colors">
-                <span className="font-mono text-[11px] font-bold text-zinc-300">{item.id.padStart(2, '0')}</span>
-                <div className="flex-1">
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{item.aspek}</span>
-                  <h3 className="text-sm font-semibold text-zinc-800">{item.pertanyaan}</h3>
-                </div>
-                <ChevronRight
-                  className={`w-4 h-4 text-zinc-300 transition-transform ${selectedId === item.id ? 'rotate-90' : ''}`}
-                />
-              </button>
+        {/* --- ROUTES CONTAINER --- */}
+        <main className="pt-16 min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/panduan" element={<Panduan />} />
+            <Route path="/regulasi" element={<DataRegulasi />} />
+          </Routes>
+        </main>
 
-              <AnimatePresence>
-                {selectedId === item.id && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-zinc-50/30">
-                    <div className="px-6 md:px-16 pb-10 pt-2">
-                      <div className="flex gap-4 p-5 rounded-xl border border-zinc-200 bg-white shadow-sm mb-8">
-                        <Info className="w-4 h-4 text-zinc-900 mt-1 shrink-0" />
-                        <div>
-                          <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Kriteria bukti</p>
-                          <p className="text-sm text-zinc-600 leading-relaxed font-medium">{item.buktiDukung}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-zinc-400">
-                          <Sparkles className="w-3 h-3" />
-                          <p className="text-[10px] font-bold uppercase tracking-widest">Contoh bukti dukung</p>
-                        </div>
-                        {/* Mengirimkan fungsi setActiveImage ke ImageGallery */}
-                        <ImageGallery images={item.images} onImageClick={(img) => setActiveImage(img)} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+        {/* --- FLOATING CTA --- */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-[90] pointer-events-none flex justify-center md:justify-end">
+          <motion.a
+            href={DRIVE_UPLOAD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            className="pointer-events-auto flex items-center gap-4 bg-white border border-zinc-200 text-zinc-900 px-5 md:px-7 py-3 md:py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all group w-full md:w-auto md:min-w-[320px]">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300 shrink-0">
+              <UploadCloud className="w-5 h-5 md:w-6 md:h-6 text-blue-600 group-hover:text-white" />
             </div>
-          ))}
+
+            <div className="flex flex-col text-left uppercase overflow-hidden">
+              <h2 className="text-[13px] md:text-[15px] font-extrabold leading-tight truncate">Unggah Bukti Dukung</h2>
+              <p className="text-[10px] md:text-[11px] text-zinc-400 font-medium tracking-tight">Google Drive Kubar</p>
+            </div>
+
+            <div className="ml-auto pl-2 md:pl-4 border-l border-zinc-100 flex items-center">
+              <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-zinc-300 group-hover:text-blue-600" />
+              </motion.div>
+            </div>
+          </motion.a>
         </div>
       </div>
-
-      {/* --- MODAL IMAGE --- */}
-      <AnimatePresence>
-        {activeImage && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveImage(null)}
-              className="absolute inset-0 bg-white/90 backdrop-blur-md"
-            />
-
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-5xl bg-white border border-zinc-200 shadow-2xl rounded-2xl overflow-hidden">
-              <div className="absolute top-4 right-4 z-10">
-                <button
-                  onClick={() => setActiveImage(null)}
-                  className="p-2 bg-white/80 backdrop-blur border border-zinc-200 rounded-full hover:bg-zinc-100 transition-colors">
-                  <X className="w-5 h-5 text-zinc-900" />
-                </button>
-              </div>
-
-              <div className="p-2">
-                <img
-                  src={activeImage.url}
-                  alt={activeImage.caption}
-                  className="w-full h-auto max-h-[75vh] object-contain rounded-lg"
-                />
-              </div>
-
-              <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex justify-between items-center">
-                <p className="text-sm font-bold text-zinc-900 uppercase tracking-widest">{activeImage.caption}</p>
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-2 py-1 bg-zinc-200 rounded">
-                  Contoh Dokumen
-                </span>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+    </Router>
   )
 }
 
