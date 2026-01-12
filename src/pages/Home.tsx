@@ -116,7 +116,7 @@ const Home = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-900 font-bold italic underline decoration-blue-300 decoration-2 hover:text-blue-700 hover:decoration-blue-500 transition-all inline-flex items-center gap-1">
-                  Folder Drive UPP
+                  Folder Drive OPP
                   <ExternalLink className="w-3 h-3" />
                 </a>{' '}
                 sesuai dengan instansi masing-masing untuk dilakukan verifikasi.
