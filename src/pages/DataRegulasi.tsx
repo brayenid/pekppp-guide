@@ -33,7 +33,7 @@ const REGULASI_DATA = [
 
 export default function DataRegulasi() {
   return (
-    <div className="relative max-w-5xl mx-auto px-6 py-12 pb-40">
+    <div className="relative max-w-5xl mx-auto px-6 py-12">
       {/* Header - Diselaraskan dengan pola Home.tsx */}
       <header className="mb-12">
         <h1 className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">

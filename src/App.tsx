@@ -7,7 +7,7 @@ import Panduan from './pages/Panduan'
 import DataRegulasi from './pages/DataRegulasi'
 import ScrollToTop from './components/ScrollToTop'
 
-const DRIVE_UPLOAD_URL = 'YOUR_GOOGLE_DRIVE_LINK'
+export const DRIVE_UPLOAD_URL = 'YOUR_GOOGLE_DRIVE_LINK'
 
 // Konfigurasi Navigasi agar mudah diolah
 const NAV_ITEMS = [
