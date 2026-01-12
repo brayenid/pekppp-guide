@@ -1,0 +1,226 @@
+[
+  {
+    "id": "1",
+    "aspek": "Kebijakan Pelayanan",
+    "pertanyaan": "Apakah Standar Pelayanan (SP) telah ditetapkan untuk seluruh jenis layanan?",
+    "buktiDukung": "SK Penetapan SP yang mencakup 14 komponen standar pelayanan bagi seluruh jenis layanan yang ada.",
+    "images": [
+      { "url": "/images/sk-sp-cover.jpg", "caption": "Cover SK Penetapan SP" },
+      { "url": "/images/sp-detail.jpg", "caption": "Lampiran 14 Komponen per Layanan" }
+    ]
+  },
+  {
+    "id": "2",
+    "aspek": "Kebijakan Pelayanan",
+    "pertanyaan": "Apakah telah dilaksanakan Forum Konsultasi Publik (FKP)?",
+    "buktiDukung": "Laporan pelaksanaan FKP, Undangan (melibatkan tokoh masyarakat/akademisi), Daftar Hadir, dan Berita Acara.",
+    "images": [
+      { "url": "/images/foto-fkp.jpg", "caption": "Dokumentasi Kegiatan FKP" },
+      { "url": "/images/ba-fkp.jpg", "caption": "Berita Acara Kesepakatan FKP" }
+    ]
+  },
+  {
+    "id": "3",
+    "aspek": "Kebijakan Pelayanan",
+    "pertanyaan": "Apakah Maklumat Pelayanan telah dipublikasikan?",
+    "buktiDukung": "Foto Maklumat Pelayanan yang dipajang di ruang tunggu dan bukti publikasi di media sosial/website.",
+    "images": [
+      { "url": "/images/maklumat-fisik.jpg", "caption": "Maklumat di Ruang Layanan" },
+      { "url": "/images/maklumat-digital.jpg", "caption": "Maklumat di Website/Medsos" }
+    ]
+  },
+  {
+    "id": "4",
+    "aspek": "Kebijakan Pelayanan",
+    "pertanyaan": "Apakah dilakukan Survei Kepuasan Masyarakat (SKM)?",
+    "buktiDukung": "Laporan hasil SKM per semester atau per tahun sesuai aturan yang berlaku.",
+    "images": [
+      { "url": "/images/laporan-skm.jpg", "caption": "Cover Laporan SKM" },
+      { "url": "/images/metode-skm.jpg", "caption": "Bukti Kuisioner/Metode Survei" }
+    ]
+  },
+  {
+    "id": "5",
+    "aspek": "Kebijakan Pelayanan",
+    "pertanyaan": "Apakah dilakukan tindak lanjut atas hasil SKM?",
+    "buktiDukung": "Dokumen rencana tindak lanjut dan bukti perbaikan yang telah dilakukan berdasarkan keluhan masyarakat.",
+    "images": [
+      { "url": "/images/rtl-skm.jpg", "caption": "Rencana Tindak Lanjut" },
+      { "url": "/images/bukti-perbaikan.jpg", "caption": "Foto Perubahan/Perbaikan Layanan" }
+    ]
+  },
+  {
+    "id": "6",
+    "aspek": "Kebijakan Pelayanan",
+    "pertanyaan": "Apakah hasil SKM dipublikasikan secara luas?",
+    "buktiDukung": "Foto infografis nilai SKM yang dipajang di gedung atau tangkapan layar di website.",
+    "images": [{ "url": "/images/baliho-skm.jpg", "caption": "Infografis SKM di Ruang Publik" }]
+  },
+  {
+    "id": "7",
+    "aspek": "Profesionalisme SDM",
+    "pertanyaan": "Bagaimana kompetensi pegawai dalam memberikan layanan?",
+    "buktiDukung": "Sertifikat diklat/bimtek pelayanan prima atau bukti briefing pagi (morning briefing).",
+    "images": [
+      { "url": "/images/sertifikat-diklat.jpg", "caption": "Sertifikat Kompetensi" },
+      { "url": "/images/briefing.jpg", "caption": "Dokumentasi Briefing Pagi" }
+    ]
+  },
+  {
+    "id": "8",
+    "aspek": "Profesionalisme SDM",
+    "pertanyaan": "Apakah tersedia aturan perilaku dan kode etik?",
+    "buktiDukung": "Dokumen standar perilaku petugas layanan dan pakta integritas.",
+    "images": [{ "url": "/images/kode-etik.jpg", "caption": "Banner Aturan Perilaku" }]
+  },
+  {
+    "id": "9",
+    "aspek": "Profesionalisme SDM",
+    "pertanyaan": "Bagaimana penerapan budaya pelayanan (5S)?",
+    "buktiDukung": "Foto interaksi petugas (Senyum, Sapa, Salam, Sopan, Santun) dan ketersediaan atribut pendukung.",
+    "images": [{ "url": "/images/foto-pelayanan.jpg", "caption": "Petugas Melayani dengan Ramah" }]
+  },
+  {
+    "id": "10",
+    "aspek": "Profesionalisme SDM",
+    "pertanyaan": "Apakah petugas menggunakan atribut identitas yang jelas?",
+    "buktiDukung": "Foto petugas menggunakan seragam, ID Card, dan papan nama (name tag).",
+    "images": [{ "url": "/images/petugas-lengkap.jpg", "caption": "Atribut Identitas Petugas" }]
+  },
+  {
+    "id": "11",
+    "aspek": "Profesionalisme SDM",
+    "pertanyaan": "Apakah terdapat sistem pemberian penghargaan (reward)?",
+    "buktiDukung": "SK atau Piagam Penghargaan untuk 'Employee of the Month' atau petugas berkinerja terbaik.",
+    "images": [{ "url": "/images/reward.jpg", "caption": "Piagam Petugas Teladan" }]
+  },
+  {
+    "id": "12",
+    "aspek": "Profesionalisme SDM",
+    "pertanyaan": "Apakah terdapat sistem pemberian sanksi (punishment)?",
+    "buktiDukung": "Dokumen teguran atau catatan evaluasi bagi petugas yang melanggar aturan layanan.",
+    "images": [{ "url": "/images/punishment.jpg", "caption": "Dokumen Evaluasi/Teguran" }]
+  },
+  {
+    "id": "13",
+    "aspek": "Sarana Prasarana",
+    "pertanyaan": "Bagaimana kondisi fasilitas parkir?",
+    "buktiDukung": "Foto lahan parkir yang memadai, aman, bersih, dan memiliki marka yang jelas.",
+    "images": [{ "url": "/images/parkir.jpg", "caption": "Area Parkir Kendaraan" }]
+  },
+  {
+    "id": "14",
+    "aspek": "Sarana Prasarana",
+    "pertanyaan": "Bagaimana kondisi ruang tunggu?",
+    "buktiDukung": "Foto ruang tunggu yang bersih, memiliki kursi yang layak, AC/Kipas, dan TV informasi.",
+    "images": [{ "url": "/images/ruang-tunggu.jpg", "caption": "Kenyamanan Ruang Tunggu" }]
+  },
+  {
+    "id": "15",
+    "aspek": "Sarana Prasarana",
+    "pertanyaan": "Apakah tersedia jalur landai/ramp untuk kelompok rentan?",
+    "buktiDukung": "Foto jalur landai dengan kemiringan yang sesuai dan memiliki pegangan tangan (handrail).",
+    "images": [{ "url": "/images/ramp.jpg", "caption": "Jalur Landai Disabilitas" }]
+  },
+  {
+    "id": "16",
+    "aspek": "Sarana Prasarana",
+    "pertanyaan": "Apakah tersedia toilet khusus disabilitas?",
+    "buktiDukung": "Foto toilet dengan ruang putar kursi roda, pegangan besi, dan simbol disabilitas.",
+    "images": [{ "url": "/images/toilet-disabilitas.jpg", "caption": "Interior Toilet Khusus" }]
+  },
+  {
+    "id": "17",
+    "aspek": "Sarana Prasarana",
+    "pertanyaan": "Apakah tersedia sarana penunjang lain (Laktasi/Playground)?",
+    "buktiDukung": "Foto ruang menyusui yang tertutup dan area bermain anak yang aman.",
+    "images": [
+      { "url": "/images/laktasi.jpg", "caption": "Ruang Laktasi" },
+      { "url": "/images/playground.jpg", "caption": "Area Bermain Anak" }
+    ]
+  },
+  {
+    "id": "18",
+    "aspek": "Sarana Prasarana",
+    "pertanyaan": "Bagaimana kualitas meja informasi/loket?",
+    "buktiDukung": "Foto front office yang rapi, informatif, dan mudah diakses oleh pengguna layanan.",
+    "images": [{ "url": "/images/front-office.jpg", "caption": "Meja Informasi Utama" }]
+  },
+  {
+    "id": "19",
+    "aspek": "Sistem Informasi Pelayanan Publik",
+    "pertanyaan": "Apakah unit menggunakan portal SIPP Nasional?",
+    "buktiDukung": "Screenshot profil unit pada website sippn.menpan.go.id yang aktif.",
+    "images": [{ "url": "/images/sippn.jpg", "caption": "Tampilan Unit di SIPPN" }]
+  },
+  {
+    "id": "20",
+    "aspek": "Sistem Informasi Pelayanan Publik",
+    "pertanyaan": "Apakah tersedia sistem informasi pelayanan secara elektronik?",
+    "buktiDukung": "Alamat URL website layanan atau aplikasi mobile yang dimiliki unit.",
+    "images": [{ "url": "/images/web-layanan.jpg", "caption": "Halaman Utama Website" }]
+  },
+  {
+    "id": "21",
+    "aspek": "Sistem Informasi Pelayanan Publik",
+    "pertanyaan": "Apakah sistem informasi selalu diperbarui (update)?",
+    "buktiDukung": "Bukti riwayat update berita atau data layanan pada website (log update).",
+    "images": [{ "url": "/images/log-update.jpg", "caption": "Riwayat Pembaruan Data" }]
+  },
+  {
+    "id": "22",
+    "aspek": "Sistem Informasi Pelayanan Publik",
+    "pertanyaan": "Apakah sistem informasi bersifat interaktif?",
+    "buktiDukung": "Tersedianya fitur tracking dokumen, chatbot, atau kolom tanya jawab.",
+    "images": [{ "url": "/images/tracking.jpg", "caption": "Fitur Tracking Layanan" }]
+  },
+  {
+    "id": "23",
+    "aspek": "Konsultasi dan Pengaduan",
+    "pertanyaan": "Apa saja sarana pengaduan yang disediakan?",
+    "buktiDukung": "Foto kotak saran, nomor WhatsApp, email, dan media sosial pengaduan.",
+    "images": [{ "url": "/images/sarana-aduan.jpg", "caption": "Kanal Pengaduan Unit" }]
+  },
+  {
+    "id": "24",
+    "aspek": "Konsultasi dan Pengaduan",
+    "pertanyaan": "Apakah terhubung dengan aplikasi SP4N-LAPOR!?",
+    "buktiDukung": "Screenshot dashboard admin SP4N-LAPOR! yang menunjukkan akun unit.",
+    "images": [{ "url": "/images/lapor.jpg", "caption": "Koneksi ke SP4N-LAPOR!" }]
+  },
+  {
+    "id": "25",
+    "aspek": "Konsultasi dan Pengaduan",
+    "pertanyaan": "Bagaimana ketepatan waktu respon pengaduan?",
+    "buktiDukung": "Laporan rekapitulasi pengaduan yang mencatat tanggal masuk dan tanggal ditanggapi.",
+    "images": [{ "url": "/images/rekap-aduan.jpg", "caption": "Statistik Kecepatan Respon" }]
+  },
+  {
+    "id": "26",
+    "aspek": "Konsultasi dan Pengaduan",
+    "pertanyaan": "Bagaimana penyelesaian pengaduan yang dilakukan?",
+    "buktiDukung": "Dokumen berita acara penyelesaian pengaduan atau screenshot balasan solusi kepada user.",
+    "images": [{ "url": "/images/solusi-aduan.jpg", "caption": "Bukti Jawaban Pengaduan" }]
+  },
+  {
+    "id": "27",
+    "aspek": "Inovasi",
+    "pertanyaan": "Apakah terdapat inovasi pelayanan publik?",
+    "buktiDukung": "Dokumen proposal inovasi atau video singkat cara kerja inovasi tersebut.",
+    "images": [{ "url": "/images/inovasi.jpg", "caption": "Poster/Video Inovasi" }]
+  },
+  {
+    "id": "28",
+    "aspek": "Inovasi",
+    "pertanyaan": "Apakah inovasi memberikan dampak efisiensi?",
+    "buktiDukung": "Data perbandingan waktu/biaya sebelum dan sesudah adanya inovasi.",
+    "images": [{ "url": "/images/dampak-inovasi.jpg", "caption": "Grafik Efisiensi Layanan" }]
+  },
+  {
+    "id": "29",
+    "aspek": "Inovasi",
+    "pertanyaan": "Apakah inovasi tersebut berkelanjutan?",
+    "buktiDukung": "Bukti bahwa inovasi masih digunakan hingga saat ini (laporan operasional terbaru).",
+    "images": [{ "url": "/images/keberlanjutan.jpg", "caption": "Laporan Penggunaan Inovasi 2024/2025" }]
+  }
+]
