@@ -131,7 +131,9 @@ const Home = () => {
         {/* Tambahan Label di atas Search */}
         <div className="flex items-center gap-2">
           <div className="w-1 h-4 bg-blue-600 rounded-full" /> {/* Aksen garis vertikal */}
-          <h2 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-600">Contoh Bukti Dukung</h2>
+          <h2 ref={indicatorListRef} className="text-sm font-black uppercase tracking-[0.2em] text-zinc-600">
+            Contoh Bukti Dukung
+          </h2>
         </div>
 
         <div className="relative max-w-md group">
@@ -165,9 +167,7 @@ const Home = () => {
       </div>
 
       {/* List Indikator - Diberi Ref untuk Scroll Target */}
-      <div
-        ref={indicatorListRef}
-        className="scroll-mt-24 bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="scroll-mt-24 bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
         {filteredData.length > 0 ? (
           filteredData.map((item, index) => (
             <div key={index} className="border-b border-zinc-100 last:border-none">
