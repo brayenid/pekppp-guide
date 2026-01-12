@@ -101,8 +101,8 @@ const Home = () => {
 
           {/* Box Informasi Akses Drive */}
           <div className="flex items-start gap-3 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl shadow-sm group">
-            <div className="p-2 bg-white rounded-lg border border-blue-100 shadow-sm group-hover:bg-blue-600 transition-colors">
-              <FolderOpen className="w-4 h-4 text-blue-600 group-hover:text-white transition-colors" />
+            <div className="p-2 bg-white rounded-lg border border-blue-100 shadow-sm  transition-colors">
+              <FolderOpen className="w-4 h-4 text-blue-600 transition-colors" />
             </div>
             <div>
               <p className="text-[11px] font-bold text-blue-900 uppercase tracking-tight mb-0.5 flex items-center gap-2">
