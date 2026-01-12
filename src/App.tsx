@@ -32,7 +32,7 @@ function App() {
         activeImage ? 'overflow-hidden' : ''
       }`}>
       {/* Subtle Grid Background */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
       <div className="relative max-w-5xl mx-auto px-6 py-20">
         {/* Header Section (Sama seperti sebelumnya) */}
@@ -56,7 +56,8 @@ function App() {
             PEKPPP <span className="text-zinc-400 font-normal">Docs</span>
           </motion.h1>
           <p className="text-base text-zinc-500 max-w-xl leading-relaxed">
-            Website panduan komprehensif penyiapan bukti dukung digital untuk OPP Kabupaten Kutai Barat.
+            Website panduan komprehensif penyiapan bukti dukung digital untuk OPP Kabupaten Kutai Barat. Dikelola oleh
+            Bagian Organisasi.
           </p>
         </header>
 
@@ -119,7 +120,7 @@ function App() {
                       <div className="flex gap-4 p-5 rounded-xl border border-zinc-200 bg-white shadow-sm mb-8">
                         <Info className="w-4 h-4 text-zinc-900 mt-1 shrink-0" />
                         <div>
-                          <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Evidence Criteria</p>
+                          <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Kriteria bukti</p>
                           <p className="text-sm text-zinc-600 leading-relaxed font-medium">{item.buktiDukung}</p>
                         </div>
                       </div>
@@ -127,7 +128,7 @@ function App() {
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 text-zinc-400">
                           <Sparkles className="w-3 h-3" />
-                          <p className="text-[10px] font-bold uppercase tracking-widest">Visual Reference</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest">Contoh bukti dukung</p>
                         </div>
                         {/* Mengirimkan fungsi setActiveImage ke ImageGallery */}
                         <ImageGallery images={item.images} onImageClick={(img) => setActiveImage(img)} />
