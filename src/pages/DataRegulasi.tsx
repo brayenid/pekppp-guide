@@ -36,13 +36,20 @@ export default function DataRegulasi() {
     <div className="relative max-w-5xl mx-auto px-6 py-12">
       {/* Header - Diselaraskan dengan pola Home.tsx */}
       <header className="mb-12">
-        <h1 className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
+        <motion.h1
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
           Data & <span className="text-zinc-400 font-normal">Regulasi</span>
-        </h1>
-        <p className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
           Daftar dokumen bukti dukung (evidence) beserta dasar hukum pengaturannya. Pastikan dokumen yang Anda siapkan
           merujuk pada ketentuan berikut.
-        </p>
+        </motion.p>
       </header>
 
       {/* Tabel Data Section - Menggunakan Pola Desain List/Table yang Clean */}

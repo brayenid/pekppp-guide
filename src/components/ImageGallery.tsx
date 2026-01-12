@@ -34,7 +34,7 @@ export const ImageGallery: React.FC<Props> = ({ images, onImageClick }) => {
           </div>
 
           <div className="absolute bottom-0 inset-x-0 bg-white border-t border-zinc-100 p-2">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider truncate text-center">
+            <p className="text-[11px] font-medium text-zinc-600 uppercase tracking-wider truncate text-center">
               {img.caption}
             </p>
           </div>

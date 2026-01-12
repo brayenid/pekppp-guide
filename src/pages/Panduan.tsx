@@ -5,7 +5,7 @@ import { Search, FolderOpen, Type, ArrowRight, CheckCircle2, AlertTriangle } fro
 const STEPS = [
   {
     title: 'Pelajari Referensi',
-    desc: "Buka halaman 'Katalog Contoh Bukti Dukung' di depan. Lihat contoh foto atau dokumen pada indikator yang dituju. Pastikan dokumen Anda sudah sesuai dengan kriteria yang diminta.",
+    desc: "Buka halaman 'Katalog Contoh Bukti Dukung' di halaman depan. Lihat contoh foto atau dokumen pada indikator yang dituju. Pastikan dokumen Anda sudah sesuai dengan kriteria yang diminta.",
     icon: <Search className="w-5 h-5" />,
     color: 'bg-blue-600'
   },
@@ -34,13 +34,20 @@ export default function Panduan() {
     <div className="relative max-w-5xl mx-auto px-6 py-12">
       {/* Header - Diselaraskan dengan pola Home.tsx */}
       <header className="mb-12">
-        <h1 className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
+        <motion.h1
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
           Panduan <span className="text-zinc-400 font-normal">Pengunggahan</span>
-        </h1>
-        <p className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
           Penting: Kesalahan penginputan atau penempatan berkas akan menyebabkan kesulitan penilaian dan berpotensi
           mengurangi skor evaluasi.
-        </p>
+        </motion.p>
       </header>
 
       {/* Timeline Steps - Pola Akordion/List */}
