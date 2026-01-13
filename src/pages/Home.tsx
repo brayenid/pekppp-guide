@@ -291,9 +291,6 @@ const Home = () => {
                     {activeImage.caption}
                   </p>
                 </div>
-                <div className="px-4 py-1.5 bg-zinc-50 rounded-full text-[10px] font-bold text-zinc-400 uppercase tracking-widest border border-zinc-100">
-                  Referensi Resmi
-                </div>
               </div>
             </motion.div>
           </div>

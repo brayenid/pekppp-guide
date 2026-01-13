@@ -19,7 +19,7 @@ export const ImageGallery: React.FC<Props> = ({ images, onImageClick }) => {
           <img
             src={img.url}
             alt={img.caption}
-            className="w-full h-48 object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-90"
+            className="w-full h-56 object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-90"
             loading="lazy"
             onError={(e) => {
               ;(e.target as HTMLImageElement).src = 'https://via.placeholder.com/600x400?text=Dokumen+PEKPPP'

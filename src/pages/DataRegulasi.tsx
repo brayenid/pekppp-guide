@@ -79,7 +79,7 @@ export default function DataRegulasi() {
                   transition={{ delay: idx * 0.05 }}
                   className="group hover:bg-zinc-50/50 transition-colors">
                   <td className="px-6 py-5 text-center">
-                    <span className="font-mono text-xs font-bold text-zinc-300 group-hover:text-zinc-500 transition-colors">
+                    <span className="font-mono text-xs font-bold text-zinc-400 group-hover:text-zinc-500 transition-colors">
                       {item.no.toString().padStart(2, '0')}
                     </span>
                   </td>
@@ -88,7 +88,7 @@ export default function DataRegulasi() {
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2 text-zinc-500 group-hover:text-amber-600 transition-colors">
-                      <span className="text-[12px] font-medium italic">{item.ketentuan}</span>
+                      <span className="text-[12px]">{item.ketentuan}</span>
                       <Book className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
                     </div>
                   </td>

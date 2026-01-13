@@ -70,16 +70,15 @@ function App() {
         <footer className="max-w-5xl mx-auto px-6 py-16 mt-12 border-t border-zinc-100 text-center">
           <div className="flex flex-col items-center gap-2">
             <div className="w-8 h-1 bg-zinc-100 rounded-full mb-2" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Official Portal</p>
             <p className="text-sm font-bold text-zinc-900">
               Dikelola oleh <span className="text-blue-600">Bagian Organisasi Kutai Barat</span>
             </p>
-            <p className="text-[10px] text-zinc-400 font-medium mt-2">© 2026 Pemerintah Kabupaten Kutai Barat</p>
+            <p className="text-[11px] text-zinc-500 mt-2">© 2026 Bagian Organisasi Kabupaten Kutai Barat</p>
           </div>
         </footer>
 
         {/* --- FLOATING CTA WITH ROTATING GLOW --- */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-[90] pointer-events-none flex justify-center md:justify-end">
+        <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-90 pointer-events-none flex justify-center md:justify-end">
           <motion.a
             href={DRIVE_UPLOAD_URL}
             target="_blank"
