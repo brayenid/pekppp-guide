@@ -5,8 +5,13 @@
     "pertanyaan": "Tersedia Standar Pelayanan (SP) sesuai dengan ketentuan perundang-undangan yang berlaku",
     "buktiDukung": "Meliputi: Daftar jenis pelayanan yang diselenggarakan; Dokumen Standar Pelayanan yang telah ditetapkan (SK); Berita Acara, foto, dan notulensi untuk bukti keterlibatan masyarakat dalam penyusunan; Laporan pelaksanaan FKP.",
     "images": [
-      { "url": "/images/sk-sp-cover.jpg", "caption": "Cover SK Penetapan SP" },
-      { "url": "/images/sp-detail.jpg", "caption": "Lampiran 14 Komponen per Layanan" }
+      { "url": "/images/kebijakan-pelayanan/1/sp-ditampilkan.png", "caption": "Standar Pelayanan" },
+      { "url": "/images/kebijakan-pelayanan/1/sp-ditampilkan2.png", "caption": "Standar Pelayanan" },
+      { "url": "/images/kebijakan-pelayanan/1/contoh-sk-sp.png", "caption": "SK Standar Pelayanan" },
+      {
+        "url": "/images/kebijakan-pelayanan/1/contoh-notula-penyusunan-sp.png",
+        "caption": "Notula Penyusunan Standar Pelayanan"
+      }
     ]
   },
   {
@@ -15,8 +20,8 @@
     "pertanyaan": "Proses penyusunan dan perubahan Standar Pelayanan (SP) telah melibatkan unsur masyarakat",
     "buktiDukung": "Meliputi: Berita Acara; Daftar hadir penyusunan SP, Notulen; Foto kegiatan; Laporan pelaksanaan FKP.",
     "images": [
-      { "url": "/images/foto-fkp.jpg", "caption": "Dokumentasi Kegiatan FKP" },
-      { "url": "/images/ba-fkp.jpg", "caption": "Berita Acara Kesepakatan FKP" }
+      { "url": "/images/kebijakan-pelayanan/2/ba-fkp.png", "caption": "Berita Acara FKP" },
+      { "url": "/images/kebijakan-pelayanan/2/ba-fkp-ttd.png", "caption": "Berita Acara Kesepakatan FKP" }
     ]
   },
   {
@@ -25,8 +30,8 @@
     "pertanyaan": "Jumlah media publikasi untuk komponen service delivery",
     "buktiDukung": "Foto atau screenshoot dari berbagai bentuk/media publikasi SP yang dimiliki; Screenshot publikasi di SIPPN.",
     "images": [
-      { "url": "/images/maklumat-fisik.jpg", "caption": "Maklumat di Ruang Layanan" },
-      { "url": "/images/maklumat-digital.jpg", "caption": "Maklumat di Website/Medsos" }
+      { "url": "/images/kebijakan-pelayanan/3/ss-sippn.png", "caption": "SS SIPPN" },
+      { "url": "/images/kebijakan-pelayanan/3/ss-ig.png", "caption": "SS Instagram" }
     ]
   },
   {
@@ -35,8 +40,8 @@
     "pertanyaan": "Telah dilakukan peninjauan ulang secara berkala terhadap Standar Pelayanan",
     "buktiDukung": "Meliputi: Berita Acara FKP peninjauan SP; Laporan yang berisi Berita Acara, Rencana Aksi, dan pelaksanaan dari Rencana Aksi; Foto kegiatan.",
     "images": [
-      { "url": "/images/laporan-skm.jpg", "caption": "Cover Laporan SKM" },
-      { "url": "/images/metode-skm.jpg", "caption": "Bukti Kuisioner/Metode Survei" }
+      { "url": "/images/kebijakan-pelayanan/4/fkp-tanggal.png", "caption": "Peninjauan Dengan Tanggal Terbaru" },
+      { "url": "/images/kebijakan-pelayanan/4/fkp-tanggal-2.png", "caption": "Peninjauan Dengan Tanggal Terbaru" }
     ]
   },
   {
@@ -45,8 +50,9 @@
     "pertanyaan": " Pemenuhan siklus Maklumat Pelayanan (ketersediaan, penetapan, dan publikasi)",
     "buktiDukung": "Dokumen pengesahan Maklumat Pelayanan; Foto atau screenshot dari berbagai bentuk publikasi Maklumat Pelayan yang dimiliki.",
     "images": [
-      { "url": "/images/rtl-skm.jpg", "caption": "Rencana Tindak Lanjut" },
-      { "url": "/images/bukti-perbaikan.jpg", "caption": "Foto Perubahan/Perbaikan Layanan" }
+      { "url": "/images/kebijakan-pelayanan/5/maklumat.png", "caption": "Maklumat Pelayanan" },
+      { "url": "/images/kebijakan-pelayanan/5/maklumat-ig.png", "caption": "Maklumat Pelayanan di Instagram" },
+      { "url": "/kebijakan-pelayanan/5/maklumat-fisik.png", "caption": "Maklumat Pelayanan Fisik" }
     ]
   },
   {
@@ -54,7 +60,11 @@
     "aspek": "Kebijakan Pelayanan",
     "pertanyaan": "SKM yang dilaksanakan sesuai dengan PermenPANRB",
     "buktiDukung": "Meliputi: Dokumen atau foto pelaksanaan SKM dan media yang digunakan (misalnya alat bantu SKM elektronik dan/atau kuesioner manual).",
-    "images": [{ "url": "/images/baliho-skm.jpg", "caption": "Infografis SKM di Ruang Publik" }]
+    "images": [
+      { "url": "/images/kebijakan-pelayanan/6/skm-laporan.png", "caption": "Laporan SKM" },
+      { "url": "/images/kebijakan-pelayanan/6/rtl-skm.png", "caption": "Rencana Tindak Lanjut SKM" },
+      { "url": "/images/kebijakan-pelayanan/6/publikasi-skm.png", "caption": "Publikasi SKM" }
+    ]
   },
   {
     "id": "7",
@@ -62,8 +72,8 @@
     "pertanyaan": "Jumlah media publikasi hasil SKM",
     "buktiDukung": "Meliputi: Foto atau screenshot dari berbagai bentuk publikasi hasil SKM yang dimiliki. Publikasi informasi SKM adalah tersedianya informasi terkait metode, proses, dan hasil SKM untuk diketahui seluruh lapisan masyarakat. Media Publikasi dapat diakses melalui: Media cetak berupa brosur, leaflet, majalah, pamflet, buku saku, papan pengumuman; Media elektronik berupa TV, monitor, Kios-K;Media sosial berupa Facebook, Instagram, Twitter, Whatsapp, dll; Website; Aplikasi yang bisa diunduh; Papan reklame berupa Videotron, billboard, baliho, dll.",
     "images": [
-      { "url": "/images/sertifikat-diklat.jpg", "caption": "Sertifikat Kompetensi" },
-      { "url": "/images/briefing.jpg", "caption": "Dokumentasi Briefing Pagi" }
+      { "url": "/images/kebijakan-pelayanan/7/skm-web.png", "caption": "Media Publikasi SKM di Website" },
+      { "url": "/images/kebijakan-pelayanan/7/skm-fb.png", "caption": "Media Publikasi SKM di Facebook" }
     ]
   },
   {
@@ -71,63 +81,97 @@
     "aspek": "Kebijakan Pelayanan",
     "pertanyaan": "Tindak lanjut hasil SKM dan kedalaman ruang lingkup untuk setiap jenis pelayanan.",
     "buktiDukung": "Meliputi: Laporan SKM yang memuat rencana tindak lanjut dan Laporan tindak lanjut. Tindak lanjut Hasil SKM adalah hasil survei yang diolah, dianalisis yang menghasilkan rekomendasi yang kemudian dijadikan referensi kebijakan perbaikan layanan. Hasil SKM seluruh jenis pelayanan dalam bentuk saran dan rekomendasi ditindaklanjuti dan dipergunakan sebagai acuan perbaikan layanan dan kebijakan layanan oleh pimpinan daerah maupun pimpinan penyelenggara. Ruang lingkup SKM meliputi: persyaratan, prosedur, waktu, produk pelayanan, biaya, kompetensi perilaku dan maklumat pelayanan serta pengelolaan pengaduan (merujuk pada peraturan Menteri yang berlaku)",
-    "images": [{ "url": "/images/kode-etik.jpg", "caption": "Banner Aturan Perilaku" }]
+    "images": [
+      {
+        "url": "/images/kebijakan-pelayanan/8/persentase-rtl-skm.png",
+        "caption": "Persentase Rencana Tindak Lanjut SKM"
+      }
+    ]
   },
   {
     "id": "9",
     "aspek": "Kebijakan Pelayanan",
     "pertanyaan": "Kecepatan tindak lanjut hasil SKM seluruh jenis pelayanan",
     "buktiDukung": "Meliputi: Laporan SKM yang memuat rencana tindak lanjut dan Laporan tindak lanjut. Kecepatan tindak lanjut rekomendasi hasil SKM guna melihat keseriusanunit lokusdalammelaksanakanSKM. Apakah hasil SKM segera ditindaklanjuti atau tidak.Adapun kecepatan tindak lanjut ini dilihat dari laporan pelaksanaan SKM oleh unit pelayanan pada 2 tahun terakhir serta laporan tindak lanjutnya.",
-    "images": [{ "url": "/images/foto-pelayanan.jpg", "caption": "Petugas Melayani dengan Ramah" }]
+    "images": [
+      { "url": "/images/kebijakan-pelayanan/9/kecepatan-tindak-lanjut.png", "caption": "Kecepatan Tindak Lanjut" }
+    ]
   },
   {
     "id": "10",
     "aspek": "Profesionalisme SDM",
     "pertanyaan": "Tersedia waktu pelayanan yang memudahkan pengguna layanan",
     "buktiDukung": "Meliputi: Surat perintah lembur (nota dinas/memo/dll), Surat Tugas pemberian pelayanan pada hari libur, dan Foto kegiatan.",
-    "images": [{ "url": "/images/petugas-lengkap.jpg", "caption": "Atribut Identitas Petugas" }]
+    "images": [{ "url": "/images/profesionalisme-sdm/10/sk-jam-kerja.png", "caption": "SK Jam Kerja" }]
   },
   {
     "id": "11",
     "aspek": "Profesionalisme SDM",
     "pertanyaan": " Tersedia Kode Etik dan Kode Perilaku Pelaksana dan/atau Budaya Pelayanan di lingkungan instansi",
     "buktiDukung": "Meliputi: Dokumen kode etik dan kode perilaku. Aturan Perilaku dan Kode Etik Pelaksana Pelayanan adalah pedoman sikap, perilaku, perbuatan,tulisan dan ucapan pegawai,serta hak dan kewajiban pelaksana layanan dalam menjalankan tugas-tugas pelayanankepada pengguna layanan. Unsur kode etikmeliputi: (1) Hak dan kewajiban, (2) larangan KKN, (3) larangan diskriminasi, (4) sanksi, (5) penghargaan.",
-    "images": [{ "url": "/images/reward.jpg", "caption": "Piagam Petugas Teladan" }]
+    "images": [
+      { "url": "/images/profesionalisme-sdm/11/sk-kode-etik.png", "caption": "SK Kode Etik dan Kode Perilaku" }
+    ]
   },
   {
     "id": "12",
     "aspek": "Profesionalisme SDM",
     "pertanyaan": "Tersedia mekanisme yang dibangun unit kerja untuk menjaga dan meningkatkan motivasi kerja Pelaksana pelayanan",
     "buktiDukung": " Meliputi: Dokumentasi pelaksanaan program/kegiatan; Peraturan; Video; Informasi lainnya yang relevan. Motivasi Kerja dapat diartikan sebagai daya pendorong/penggerak yang menciptakan kemauan Pelaksana pelayanan untuk bekerja secara efektif, dan terintegrasi dengan segala daya upayanya untuk menciptakan kepuasan pengguna layanan.",
-    "images": [{ "url": "/images/punishment.jpg", "caption": "Dokumen Evaluasi/Teguran" }]
+    "images": [
+      {
+        "url": "/images/profesionalisme-sdm/12/peningkatan-motivasi.png",
+        "caption": "Mekanisme Peningkatan Motivasi Kerja"
+      }
+    ]
   },
   {
     "id": "13",
     "aspek": "Profesionalisme SDM",
     "pertanyaan": " Tersedia kriteria pemberian penghargaan bagi pelaksana layanan yang berprestasi",
     "buktiDukung": "Meliputi: Bukti Dukung: SK yang mengatur mengenai pemberian penghargaan. Dalam melaksanakan kegiatan pemberian penghargaan, ada kriteria-kriteria tertentu yang digunakan unit layanan sebagai dasar pelaksanaan kegiatan. Kriteria pemberian penghargaan adalah ukuran/indikator yang digunakan oleh UPP dalam menilai/menentukan prestasi petugas pelayanan yang terdiri dari unsur kehadiran, kinerja berupa kualitas hasil kerja yaitu menyelesaikan tugas sesuai dengan ketentuan yang diberikan atasan, kerja sama, inovatif/kreatif dalam kemampuan mengeluarkan ide, penampilan dalam penggunaan atribut, pakaian, dan lain-lain yang sudah ditetapkan, serta tidak pernah menerima komplain yang bersifat personal.",
-    "images": [{ "url": "/images/parkir.jpg", "caption": "Area Parkir Kendaraan" }]
+    "images": [
+      {
+        "url": "/images/profesionalisme-sdm/13/kriterima-pemberian-penghargaan.png",
+        "caption": "Kriteria Pemberian Penghargaan"
+      }
+    ]
   },
   {
     "id": "14",
     "aspek": "Profesionalisme SDM",
     "pertanyaan": "Bagaimana budaya pelayanan yang diterapkan oleh unit layanan dan diperlihatkan oleh Pelaksana layanan?",
     "buktiDukung": "Meliputi: Foto bukti dukung pegawai menerapkan budaya pelayanan. Komponen identitas petugas pelayanan terdiri dari seragam sebagai pakaian atau atribut yang membedakan antara petugas layanan dan masyarakat atau pengguna layanan, identitas nama yang dapat berupa name tag, ID card, dan sejenisnya, serta PIN, atribut, atau logo unit pelayanan yang merupakan berbagai atribut khas unit pelayanan yang dikenakan oleh pegawai seperti pin petugas pelayanan, selempang, dan sebagainya; selain itu, terdapat pula aturan penerapan 5S yang merupakan kebijakan terkait penerapan 5S oleh petugas yang berlaku, serta nilai-nilai budaya layanan yang dapat diwujudkan dalam bentuk slogan, motto, maskot, dan sebagainya.",
-    "images": [{ "url": "/images/ruang-tunggu.jpg", "caption": "Kenyamanan Ruang Tunggu" }]
+    "images": [
+      {
+        "url": "/images/profesionalisme-sdm/14/penerapan-budaya-pelayanan.png",
+        "caption": "Penerapan Budaya Pelayanan"
+      }
+    ]
   },
   {
     "id": "15",
     "aspek": "Sarana Prasarana",
     "pertanyaan": " Tersedia tempat parkir dengan fasilitas pendukung.",
     "buktiDukung": "Meliputi: Foto tempat parkir dan seluruh fasilitas parkir yang ada. Sarana tempat parkir merupakan sarana pendukung yang terdiri dari fasilitas dan petugas khusus untuk memberikan layanan tempat, keamanan kendaraan, serta kenyamanan kepada masyarakat melalui akses yang mudah, perlakuan yang sama, serta tidak diskriminatif dengan tetap memberikan perhatian khusus bagi kelompok berkebutuhan khusus; adapun fasilitas pendukungnya mencakup ketersediaan parkir roda dua dan roda empat dengan pemisahan marka yang jelas, petugas parkir yang berjaga di area, pemeriksaan karcis atau kartu parkir sebagai bukti kepemilikan kendaraan, pemasangan CCTV yang aktif dan terpantau melalui monitor, penyediaan tempat penitipan jaket atau helm, penggunaan pelindung seperti kanopi atau atap bahan lainnya, hingga penyediaan layanan drive thru.",
-    "images": [{ "url": "/images/ramp.jpg", "caption": "Jalur Landai Disabilitas" }]
+    "images": [
+      { "url": "/images/sarana-prasarana/15/penitipan-helm.png", "caption": "Penitipan Helm" },
+      { "url": "/images/sarana-prasarana/15/lap-parkir.png", "caption": "Tempat Parkir" },
+      { "url": "/images/sarana-prasarana/15/cctv.png", "caption": "CCTV" }
+    ]
   },
   {
     "id": "16",
     "aspek": "Sarana Prasarana",
     "pertanyaan": "Kelayakan fasilitas ruang tunggu pelayanan",
     "buktiDukung": "Meliputi: Foto/Video fasilitas ruang tunggu/data dukung.",
-    "images": [{ "url": "/images/toilet-disabilitas.jpg", "caption": "Interior Toilet Khusus" }]
+    "images": [
+      { "url": "/images/sarana-prasarana/16/no-antrian.png", "caption": "Nomor Antrian" },
+      { "url": "/images/sarana-prasarana/16/kursi.png", "caption": "Kursi" },
+      { "url": "/images/sarana-prasarana/16/kipas-angin.png", "caption": "Kipas Angin" },
+      { "url": "/images/sarana-prasarana/16/charging-area.png", "caption": "Charging Area" },
+      { "url": "/images/sarana-prasarana/16/air-minum.png", "caption": "Air Minum" }
+    ]
   },
   {
     "id": "17",
@@ -135,8 +179,11 @@
     "pertanyaan": "Tersedia sarana toilet pengguna layanan yang layak pakai",
     "buktiDukung": "Foto/video toilet pengguna layanan dan seluruh fasilitas yang ada.",
     "images": [
-      { "url": "/images/laktasi.jpg", "caption": "Ruang Laktasi" },
-      { "url": "/images/playground.jpg", "caption": "Area Bermain Anak" }
+      { "url": "/images/sarana-prasarana/17/wastafel.png", "caption": "Wastafel" },
+      { "url": "/images/sarana-prasarana/17/toilet.png", "caption": "Toilet" },
+      { "url": "/images/sarana-prasarana/17/tempat-sampah.png", "caption": "Tempat Sampah" },
+      { "url": "/images/sarana-prasarana/17/pemisahan.png", "caption": "Pemisahan Toilet" },
+      { "url": "/images/sarana-prasarana/17/monev.png", "caption": "Monitoring Evaluasi Kebersihan" }
     ]
   },
   {
@@ -144,97 +191,114 @@
     "aspek": "Sarana Prasarana",
     "pertanyaan": "Tersedia sarana prasarana bagi pengguna layanan kelompok rentan",
     "buktiDukung": "Meliputi: Foto sarana prasarana kelompok rentan/data dukung.",
-    "images": [{ "url": "/images/front-office.jpg", "caption": "Meja Informasi Utama" }]
+    "images": [
+      { "url": "/images/sarana-prasarana/18/ruang-tunggu-khusus.png", "caption": "Ruang Tunggu Khusus" },
+      { "url": "/images/sarana-prasarana/18/ruang-laktasi.png", "caption": "Ruang Laktasi" },
+      { "url": "/images/sarana-prasarana/18/pintu-masuk.png", "caption": "Pintu Masuk" },
+      { "url": "/images/sarana-prasarana/18/kursi-roda.png", "caption": "Kursi Roda" },
+      { "url": "/images/sarana-prasarana/18/jalan-landai.png", "caption": "Jalan Landai" }
+    ]
   },
   {
     "id": "19",
     "aspek": "Sarana Prasarana",
     "pertanyaan": "Tersedia sarana prasarana penunjang",
     "buktiDukung": "Meliputi: Foto/Video sarpras penunjang/data dukung. Sarana prasarana penunjang lainnya adalah fasilitas khusus layak pakai bagi pengguna layanan yang tidak langsung terkait pengurusan pelayanan",
-    "images": [{ "url": "/images/sippn.jpg", "caption": "Tampilan Unit di SIPPN" }]
+    "images": [
+      { "url": "/images/sarana-prasarana/19/titik-kumpul.png", "caption": "Titik Kumpul" },
+      { "url": "/sarana-prasarana/19/p3k.png", "caption": "Perangkat P3K" },
+      { "url": "/sarana-prasarana/19/mushola.png", "caption": "Mushola" },
+      { "url": "/images/sarana-prasarana/19/apar.png", "caption": "Alat Pemadam Api Ringan (APAR)" }
+    ]
   },
   {
     "id": "20",
     "aspek": "Sarana Prasarana",
     "pertanyaan": "Fasilitas pada Sarana Front Office (FO) bagian Informas idi unit layanan.",
     "buktiDukung": "Meliputi: Foto/Video front office bagian layanan informasi. Sarana Front Office bagian informasi adalah fasilitas/tempat khusus yang disediakan untuk layanan informasi tatap muka langsung di kantor pelayanan. Dapat berupa ruang khusus atau meja layanan khusus.",
-    "images": [{ "url": "/images/web-layanan.jpg", "caption": "Halaman Utama Website" }]
+    "images": [{ "url": "/images/sarana-prasarana/20/petugas-khusus.png", "caption": "Petugas Khusus" }]
   },
   {
     "id": "21",
     "aspek": "Sistem Informasi Pelayanan Publik",
     "pertanyaan": "Apakah tersedia sistem informasi pelayanan publik (SIPP)?",
     "buktiDukung": "Meliputi: Akun pengguna pada SIPPN Screenshot tampilan akun unit layanan pada SIPPN yang menampilkan jumlah layanan yang telah diinput pada SIPPN.",
-    "images": [{ "url": "/images/log-update.jpg", "caption": "Riwayat Pembaruan Data" }]
+    "images": [{ "url": "/images/sipp/21/ss-sippn.png", "caption": "SS SIPPN" }]
   },
   {
     "id": "22",
     "aspek": "Sistem Informasi Pelayanan Publik",
     "pertanyaan": "Sistem informasi pelayanan publik pendukung operasional pelayanan",
     "buktiDukung": "SIPP didukung dengan sistem informasi yang minimal memenuhi unsur data pendukung pelayanan, yang meliputi pengelolaan pengaduan melalui SP4N-LAPOR, pelaksanaan Survei Kepuasan Masyarakat, pengelolaan SDM melalui aplikasi atau website kepegawaian, penyediaan FAQ, pengelolaan keuangan pelayanan publik khususnya bagi layanan berbayar, serta berbagai unsur pendukung relevan lainnya.",
-    "images": [{ "url": "/images/tracking.jpg", "caption": "Fitur Tracking Layanan" }]
+    "images": [{ "url": "/images/sipp/22/pendukung-layanan.png", "caption": "Pendukung Layanan" }]
   },
   {
     "id": "23",
     "aspek": "Sistem Informasi Pelayanan Publik",
     "pertanyaan": "Kualitas penggunaan SIPP Elektronik",
     "buktiDukung": "Kualitas kegunaan SIPP Elektronik berbasis website/aplikasi adalah mutu yang berhubungan dengan rancangan website/aplikasi seperti kemudahan penggunaan, navigasi, kanal resmi, dan kompatibel.",
-    "images": [{ "url": "/images/sarana-aduan.jpg", "caption": "Kanal Pengaduan Unit" }]
+    "images": [{ "url": "/images/sipp/23/sipp-dimiliki.png", "caption": "SIPP Yang Dimiliki (Boleh sertai SS SIPPN)" }]
   },
   {
     "id": "24",
     "aspek": "Sistem Informasi Pelayanan Publik",
     "pertanyaan": "Pemutakhiran data dan informasi kanal digital",
     "buktiDukung": "Pemutakhiran data dan informasi kanal digital adalah pembaruan data, informasi dan aplikasi yang disajikan dalam situs unit pelayanan.",
-    "images": [{ "url": "/images/lapor.jpg", "caption": "Koneksi ke SP4N-LAPOR!" }]
+    "images": [{ "url": "/images/sipp/24/pemuktahiran-data.png", "caption": "Pemuktahiran Data Pada Kanal Digital" }]
   },
   {
     "id": "25",
     "aspek": "Konsultasi dan Pengaduan",
     "pertanyaan": "Fasilitas sarana & prasarana konsultasi dan pengaduan",
     "buktiDukung": "Meliputi: Foto sarana/ media konsultasi dan pengaduan yang tersedia dan SK Petugas Khusus.",
-    "images": [{ "url": "/images/rekap-aduan.jpg", "caption": "Statistik Kecepatan Respon" }]
+    "images": [
+      { "url": "/images/konsultasi-pengaduan/25/sk-petugas-pengaduan.png", "caption": "SK Petugas Pengaduan" },
+      { "url": "/images/konsultasi-pengaduan/25/mekanisme-pengaduan.png", "caption": "Mekanisme Pengaduan" },
+      { "url": "/images/konsultasi-pengaduan/25/kotak-saran.png", "caption": "Kotak Saran" }
+    ]
   },
   {
     "id": "26",
     "aspek": "Konsultasi dan Pengaduan",
     "pertanyaan": "Tersedia sarana konsultasi dan pengaduan yang terdapat pada Unit Lokus",
-    "buktiDukung": "Meliputi: Foto sarana/ media konsultasi dan pengaduanyang tersedia, Data SP4N-LAPOR!, dan Surat Keputusan.",
-    "images": [{ "url": "/images/solusi-aduan.jpg", "caption": "Bukti Jawaban Pengaduan" }]
+    "buktiDukung": "Meliputi: Foto sarana/ media konsultasi dan pengaduan yang tersedia, Data SP4N-LAPOR!, dan Surat Keputusan.",
+    "images": [{ "url": "/images/konsultasi-pengaduan/26/pengaduan.png", "caption": "Dokumentasi Pengaduan" }]
   },
   {
     "id": "27",
     "aspek": "Konsultasi dan Pengaduan",
     "pertanyaan": "Tersedia akuntabilitas hasil konsultasi dan/atau pengaduan",
-    "buktiDukung": "Meliputi: Dokumentasi kegiatan konsultasi dan pengaduan, screenshot dokumentasi pada website, aplikasi mobil dan SP4N-LAPOR!, dan Laporan berkala.",
-    "images": [{ "url": "/images/inovasi.jpg", "caption": "Poster/Video Inovasi" }]
+    "buktiDukung": "Meliputi: Dokumentasi kegiatan konsultasi dan pengaduan, screenshot dokumentasi pada website, aplikasi mobile dan SP4N-LAPOR!, dan Laporan berkala.",
+    "images": [
+      { "url": "/images/konsultasi-pengaduan/27/pengelolaan-pengaduan.png", "caption": "Pengelolaan Pengaduan" }
+    ]
   },
   {
     "id": "28",
     "aspek": "Konsultasi dan Pengaduan",
     "pertanyaan": "Berapa persen(%) pengaduan yang masuk ditindaklanjuti hingga selesai dalam satu tahun yang lalu (Januari-Desember)",
     "buktiDukung": "Meliputi: Dokumentasi konsultasi dan pengaduan serta tindak lanjutnya, dan Screenshot tampilan pada  SP4N- LAPOR! yang menunjukkan jumlah konsultasi dan pengaduan yang masuk dan yang telah ditindaklanjuti.",
-    "images": [{ "url": "/images/dampak-inovasi.jpg", "caption": "Grafik Efisiensi Layanan" }]
+    "images": [{ "url": "/images/konsultasi-pengaduan/28/persentase-pengaduan.png", "caption": "Persentase Pengaduan" }]
   },
   {
     "id": "29",
     "aspek": "Inovasi Pelayanan Publik",
     "pertanyaan": "Apakah terdapat inovasi pelayanan publik?",
     "buktiDukung": "Meliputi: Proposal Inovasi Pelayanan Publik,Dokumentasi pelaksanaan Inovasi (foto, daftar hadir,dll),Bukti keikutsertaan dan/atau piagam penghargaan yang diperoleh atas inovasi yang dimiliki dalam suatu kompetisi inovasi pelayanan publik.",
-    "images": [{ "url": "/images/keberlanjutan.jpg", "caption": "Laporan Penggunaan Inovasi 2024/2025" }]
+    "images": [{ "url": "/images/inovasi/29/bentuk-inovasi.png", "caption": "Bentuk Inovasi" }]
   },
   {
     "id": "30",
     "aspek": "Inovasi Pelayanan Publik",
     "pertanyaan": "Tersedia sumber daya yang mendukung keberlanjutan Inovasi Pelayanan Publik",
     "buktiDukung": "Tersedia sumber daya yang mendukung keberlanjutan Inovasi Pelayanan Publik",
-    "images": [{ "url": "/images/keberlanjutan.jpg", "caption": "Laporan Penggunaan Inovasi 2024/2025" }]
+    "images": [{ "url": "/images/inovasi/30/dukungan-inovasi.png", "caption": "Dukungan Terhadap Inovasi" }]
   },
   {
     "id": "31",
     "aspek": "Tambahan",
     "pertanyaan": "Sistem Antrian",
     "buktiDukung": "Sistem antrian yaitu mekanisme urutan penerima layanan yang mendapat giliran dilayani di loket pelayanan.",
-    "images": [{ "url": "/images/keberlanjutan.jpg", "caption": "Laporan Penggunaan Inovasi 2024/2025" }]
+    "images": []
   }
 ]
