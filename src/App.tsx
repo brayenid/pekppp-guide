@@ -7,7 +7,8 @@ import Panduan from './pages/Panduan'
 import DataRegulasi from './pages/DataRegulasi'
 import ScrollToTop from './components/ScrollToTop'
 
-export const DRIVE_UPLOAD_URL = 'YOUR_GOOGLE_DRIVE_LINK'
+export const DRIVE_UPLOAD_URL =
+  'https://drive.google.com/drive/folders/1MsD9yZy1pQNdu1G8sIGYCdEOUeHnBUlj?usp=drive_link  '
 
 // Konfigurasi Navigasi agar mudah diolah
 const NAV_ITEMS = [
@@ -23,7 +24,7 @@ function App() {
         {/* Subtle Grid Background */}
         <div className="fixed inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
         {/* --- NAVIGATION BAR --- */}
-        <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-zinc-100 z-[100]">
+        <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-zinc-100 z-100">
           <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
             {/* Logo */}
             <NavLink

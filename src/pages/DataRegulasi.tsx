@@ -105,7 +105,7 @@ export default function DataRegulasi() {
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-amber-200/30 blur-3xl rounded-full" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-          <div className="p-4 bg-white rounded-3xl shadow-xl shadow-amber-200/50 border border-amber-100 flex-shrink-0">
+          <div className="p-4 bg-white rounded-3xl shadow-xl shadow-amber-200/50 border border-amber-100 shrink-0">
             <ShieldCheck className="w-10 h-10 text-amber-500" />
           </div>
 
