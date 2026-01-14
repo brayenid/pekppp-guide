@@ -1,7 +1,7 @@
 // src/pages/Home.tsx
 import { useState, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Info, Search, X, Sparkles, ExternalLink, MousePointerClick } from 'lucide-react'
+import { ChevronRight, Info, Search, X, Sparkles, ExternalLink, MousePointerClick, ArrowRight } from 'lucide-react'
 import { type PekpppIndikator, type PekpppImage } from '../types/pekppp'
 import dataRaw from '../data/pekppp.json'
 import { ImageGallery } from '../components/ImageGallery'
@@ -167,90 +167,144 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="bg-white border border-zinc-100 rounded-4xl overflow-hidden shadow-sm">
-          {filteredData.length > 0 ? (
-            filteredData.map((item) => (
-              <div key={item.id} className="border-b border-zinc-50 last:border-none">
-                <button
-                  onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
-                  className="w-full flex items-start md:items-center gap-5 p-6 text-left hover:bg-zinc-50/50 transition-all group">
-                  <div className="mt-1 md:mt-0 font-mono text-sm font-medium text-zinc-500 group-hover:text-blue-400 shrink-0">
-                    {item.id.padStart(2, '0')}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                      <span className="text-[11px] font-semibold text-zinc-600 uppercase tracking-[0.2em]">
-                        {item.aspek}
-                      </span>
-                      <span className="w-1 h-1 bg-zinc-200 rounded-full" />
-                      <span className="text-[10px] font-medium text-blue-500 uppercase tracking-wider flex items-center gap-1">
-                        <MousePointerClick className="w-2.5 h-2.5" />
-                        Klik untuk detail
-                      </span>
-                    </div>
-                    <h3 className="text-[16px] font-medium text-zinc-700 leading-snug group-hover:text-zinc-900 transition-colors">
-                      {item.pertanyaan}
-                    </h3>
-                  </div>
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-white border border-zinc-200 rounded-3xl overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
+            {filteredData.length > 0 ? (
+              filteredData.map((item, index) => {
+                const isOpen = selectedId === item.id
+
+                return (
                   <div
-                    className={`mt-1 md:mt-0 p-2 rounded-full transition-all ${
-                      selectedId === item.id
-                        ? 'bg-zinc-900 text-white rotate-90'
-                        : 'text-zinc-300 group-hover:text-zinc-500'
+                    key={item.id}
+                    className={`transition-colors duration-300 ${isOpen ? 'bg-zinc-50/50' : 'bg-white'} ${
+                      index !== filteredData.length - 1 ? 'border-b border-zinc-100' : ''
                     }`}>
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </button>
-
-                <AnimatePresence>
-                  {selectedId === item.id && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                      className="overflow-hidden bg-zinc-50/30">
-                      <div className="px-6 md:px-16 py-10 border-t border-zinc-100/50">
-                        <div className="flex gap-4 p-6 rounded-2xl border border-zinc-200 bg-white shadow-sm mb-8">
-                          <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-zinc-50 rounded-lg">
-                            <Info className="w-4 h-4 text-zinc-500" />
-                          </div>
-                          <div>
-                            <p className="text-[12px] font-bold text-zinc-600 uppercase mb-1 tracking-widest">
-                              Kriteria Dokumen
-                            </p>
-                            <p className="text-[14px] leading-relaxed text-zinc-700">{item.buktiDukung}</p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-6">
-                          <div className="flex items-center gap-2 text-zinc-600">
-                            <Sparkles className="w-3.5 h-3.5" />
-                            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em]">
-                              Referensi Gambar Contoh
-                            </h4>
-                          </div>
-                          <ImageGallery images={item.images} onImageClick={setActiveImage} />
-                        </div>
+                    {/* Header / Trigger */}
+                    <button
+                      onClick={() => setSelectedId(isOpen ? null : item.id)}
+                      className="w-full flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 p-6 md:p-8 text-left group transition-all">
+                      {/* ID & Badge Section */}
+                      <div className="flex items-center gap-4 w-full md:w-auto shrink-0">
+                        <span className="font-mono text-xs font-bold text-zinc-400 group-hover:text-blue-500 transition-colors">
+                          {item.id.padStart(2, '0')}
+                        </span>
+                        <div className="h-px w-8 bg-zinc-100 hidden md:block" />
+                        <span className="md:hidden text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-zinc-100 px-2 py-1 rounded">
+                          {item.aspek}
+                        </span>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+
+                      {/* Title Section */}
+                      <div className="flex-1 space-y-2">
+                        <div className="hidden md:flex items-center gap-3">
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
+                            {item.aspek}
+                          </span>
+                          {!isOpen && (
+                            <span className="flex items-center gap-1.5 text-[10px] font-medium text-blue-600 uppercase tracking-wider animate-pulse">
+                              <MousePointerClick className="w-3 h-3" />
+                              Klik Detail
+                            </span>
+                          )}
+                        </div>
+                        <h3
+                          className={`text-lg md:text-xl font-semibold tracking-tight transition-all duration-300 ${
+                            isOpen ? 'text-blue-600' : 'text-zinc-800 group-hover:text-zinc-900'
+                          }`}>
+                          {item.pertanyaan}
+                        </h3>
+                      </div>
+
+                      {/* Icon Indicator */}
+                      <div
+                        className={`hidden md:flex p-2.5 rounded-full transition-all duration-500 ${
+                          isOpen
+                            ? 'bg-blue-600 text-white rotate-90 shadow-lg shadow-blue-200'
+                            : 'bg-zinc-50 text-zinc-400 group-hover:bg-zinc-100 group-hover:text-zinc-600'
+                        }`}>
+                        <ChevronRight className="w-5 h-5" />
+                      </div>
+                    </button>
+
+                    {/* Content Area */}
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden">
+                          <div className="px-6 md:px-24 pb-10 pt-2 space-y-10">
+                            {/* Info Card */}
+                            <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-blue-50/30 p-6">
+                              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
+                              <div className="flex gap-4">
+                                <div className="shrink-0 flex items-center justify-center w-10 h-10 bg-white rounded-xl shadow-sm">
+                                  <Info className="w-5 h-5 text-blue-500" />
+                                </div>
+                                <div>
+                                  <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2">
+                                    Kriteria Dokumen
+                                  </h4>
+                                  <p className="text-[15px] leading-relaxed text-zinc-700 font-medium">
+                                    {item.buktiDukung}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Image Gallery Section */}
+                            <div className="space-y-6">
+                              <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="p-1.5 bg-zinc-900 rounded-lg">
+                                    <Sparkles className="w-4 h-4 text-white" />
+                                  </div>
+                                  <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-800">
+                                    Referensi Visual
+                                  </h4>
+                                </div>
+                                <span className="text-[10px] text-zinc-400 font-medium italic">
+                                  Klik gambar untuk memperbesar
+                                </span>
+                              </div>
+
+                              <div className="group/gallery">
+                                <ImageGallery images={item.images} onImageClick={setActiveImage} />
+                              </div>
+                            </div>
+
+                            {/* Mobile Close Button */}
+                            <button
+                              onClick={() => setSelectedId(null)}
+                              className="md:hidden w-full py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest border border-zinc-200 rounded-xl">
+                              Tutup Detail
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )
+              })
+            ) : (
+              <div className="py-32 px-10 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-zinc-50 rounded-full mb-6">
+                  <ArrowRight className="w-6 h-6 text-zinc-300 rotate-45" />
+                </div>
+                <p className="text-zinc-500 font-medium mb-4">Ups! Data yang kamu cari tidak ditemukan.</p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setFilter('Semua')
+                  }}
+                  className="px-6 py-2.5 bg-zinc-900 text-white text-xs font-bold rounded-full hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-200">
+                  Reset Pencarian
+                </button>
               </div>
-            ))
-          ) : (
-            <div className="p-20 text-center">
-              <p className="text-sm font-medium text-zinc-400 italic">Data tidak ditemukan.</p>
-              <button
-                onClick={() => {
-                  setSearchQuery('')
-                  setFilter('Semua')
-                }}
-                className="mt-2 text-xs text-blue-500 font-bold hover:underline">
-                Reset Pencarian
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
 

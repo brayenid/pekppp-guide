@@ -68,7 +68,7 @@ function App() {
         </main>
 
         {/* --- SIMPLE FOOTER --- */}
-        <footer className="max-w-5xl mx-auto px-6 py-16 mt-12 border-t border-zinc-100 text-center">
+        <footer className="max-w-5xl mx-auto px-6 py-16 border-t border-zinc-100 text-center">
           <div className="flex flex-col items-center gap-2">
             <div className="w-8 h-1 bg-zinc-100 rounded-full mb-2" />
             <p className="text-sm font-bold text-zinc-900">
