@@ -160,14 +160,12 @@ const Home = () => {
         <div className="flex items-center justify-between mb-6 px-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-700">Contoh Bukti Dukung</h2>
+            <h2 className="font-semibold uppercase tracking-[0.2em] text-zinc-700">Contoh Bukti Dukung</h2>
           </div>
-          <p className="text-[10px] font-medium text-zinc-400 tracking-wide">
-            {filteredData.length} Indikator Ditemukan
-          </p>
+          <p className="text-sm font-medium text-zinc-400 tracking-wide">{filteredData.length} Indikator Ditemukan</p>
         </div>
 
-        <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="w-full mx-auto py-8">
           <div className="bg-white border border-zinc-200 rounded-3xl overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => {
