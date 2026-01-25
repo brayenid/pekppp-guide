@@ -1,34 +1,70 @@
 import { motion } from 'framer-motion'
 import { Book, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react'
 
+// Data diperbarui dengan URL ke peraturan.bpk.go.id
 const REGULASI_DATA = [
-  { no: 1, evidence: 'Penyusunan dan Penetapan Standar Pelayanan', ketentuan: 'Permenpan No.15 Tahun 2014' },
-  { no: 2, evidence: 'Penyusunan dan Penetapan Maklumat Pelayanan', ketentuan: 'Permenpan No.15 Tahun 2014' },
+  {
+    no: 1,
+    evidence: 'Penyusunan dan Penetapan Standar Pelayanan',
+    ketentuan: 'Permenpan No.15 Tahun 2014',
+    url: 'https://peraturan.bpk.go.id/Details/132734/permen-pan-rb-no-15-tahun-2014'
+  },
+  {
+    no: 2,
+    evidence: 'Penyusunan dan Penetapan Maklumat Pelayanan',
+    ketentuan: 'Permenpan No.15 Tahun 2014',
+    url: 'https://peraturan.bpk.go.id/Details/132734/permen-pan-rb-no-15-tahun-2014'
+  },
   {
     no: 3,
     evidence: 'Media Pengelolaan Pengaduan dan Tindak lanjut hasil pengelolaan pengaduan',
-    ketentuan: 'Permenpan No.46 Tahun 2020'
+    ketentuan: 'Permenpan No.46 Tahun 2020',
+    url: 'https://peraturan.bpk.go.id/Details/143742/permen-pan-rb-no-46-tahun-2020'
   },
   {
     no: 4,
     evidence: 'Pengelolaan Informasi (SIPPN) dan Website Informasi Pelayanan Publik',
-    ketentuan: 'Permenpan No.13 Tahun 2017'
+    ketentuan: 'Permenpan No.13 Tahun 2017',
+    url: 'https://peraturan.bpk.go.id/Details/132599/permen-pan-rb-no-13-tahun-2017'
   },
   {
     no: 5,
     evidence:
       'Pelibatan Masyarakat dalam pengambilan keputusan / Penyusunan Kebijakan melalui Forum Konsultasi Publik (FKP)',
-    ketentuan: 'Permenpan No.16 Tahun 2017'
+    ketentuan: 'Permenpan No.16 Tahun 2017',
+    url: 'https://peraturan.bpk.go.id/Details/132602/permen-pan-rb-no-16-tahun-2017'
   },
   {
     no: 6,
     evidence: 'Pemberian penghargaan kepada pelaksana',
-    ketentuan: 'PP No. 30 Tahun 2019 dan PP. 94 Tahun 2021'
+    ketentuan: 'PP No. 30 Tahun 2019 dan PP. 94 Tahun 2021',
+    // Mengarahkan ke PP 30/2019 sebagai referensi utama dalam satu tautan
+    url: 'https://peraturan.bpk.go.id/Details/107573/pp-no-30-tahun-2019'
   },
-  { no: 7, evidence: 'Pemberian sanksi kepada pelaksana', ketentuan: 'PP No. 30 Tahun 2019 dan PP. 94 Tahun 2021' },
-  { no: 8, evidence: 'Penyediaan Pelayanan Publik Ramah kelompok rentan', ketentuan: 'Permenpan No.11 Tahun 2024' },
-  { no: 9, evidence: 'Pelaksanaan Survei Kepuasan Masyarakat', ketentuan: 'Permenpan No.14 Tahun 2017' },
-  { no: 10, evidence: 'Pelaksanaan Inovasi Pelayanan Publik', ketentuan: 'Permenpan No.91 Tahun 2021' }
+  {
+    no: 7,
+    evidence: 'Pemberian sanksi kepada pelaksana',
+    ketentuan: 'PP No. 30 Tahun 2019 dan PP. 94 Tahun 2021',
+    url: 'https://peraturan.bpk.go.id/Details/107573/pp-no-30-tahun-2019'
+  },
+  {
+    no: 8,
+    evidence: 'Penyediaan Pelayanan Publik Ramah kelompok rentan',
+    ketentuan: 'Permenpan No.11 Tahun 2024',
+    url: 'https://peraturan.bpk.go.id/Details/305594/permen-panrb-no-11-tahun-2024'
+  },
+  {
+    no: 9,
+    evidence: 'Pelaksanaan Survei Kepuasan Masyarakat',
+    ketentuan: 'Permenpan No.14 Tahun 2017',
+    url: 'https://peraturan.bpk.go.id/Details/132600/permen-pan-rb-no-14-tahun-2017'
+  },
+  {
+    no: 10,
+    evidence: 'Pelaksanaan Inovasi Pelayanan Publik',
+    ketentuan: 'Permenpan No.91 Tahun 2021',
+    url: 'https://peraturan.bpk.go.id/Details/202224/permen-pan-rb-no-91-tahun-2021'
+  }
 ]
 
 export default function DataRegulasi() {
@@ -87,10 +123,18 @@ export default function DataRegulasi() {
                     <h3 className="text-sm font-semibold text-zinc-800 leading-snug">{item.evidence}</h3>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2 text-zinc-500 group-hover:text-amber-600 transition-colors">
+                    {/* MODIFIED: Mengubah div menjadi a (anchor) untuk tautan eksternal.
+                      Tetap mempertahankan styling flex yang sama agar layout tidak berubah.
+                      Menambahkan rel="noopener noreferrer" untuk keamanan (security best practice).
+                    */}
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-end gap-2 text-zinc-500 group-hover:text-amber-600 transition-colors cursor-pointer hover:underline decoration-amber-600/30 underline-offset-4">
                       <span className="text-[12px]">{item.ketentuan}</span>
                       <Book className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
-                    </div>
+                    </a>
                   </td>
                 </motion.tr>
               ))}
