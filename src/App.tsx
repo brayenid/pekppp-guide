@@ -144,7 +144,7 @@ function AppContent() {
           rel="noopener noreferrer"
           whileHover={{ scale: 1.05, rotate: -2 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-3 px-6 py-4 bg-[#57E7FB] border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[12px_12px_0px_0px_#000] hover:-translate-y-1 transition-all group">
+          className="flex items-center gap-3 px-3 py-3 bg-[#57E7FB] border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[12px_12px_0px_0px_#000] hover:-translate-y-1 transition-all group">
           <div className="bg-black text-white p-2 border-2 border-transparent group-hover:bg-white group-hover:text-black group-hover:border-black transition-colors">
             <UploadCloud className="w-6 h-6" />
           </div>
