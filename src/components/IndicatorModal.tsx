@@ -29,24 +29,31 @@ export const IndicatorModal = ({ data, onClose, onImageClick }: IndicatorModalPr
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] flex flex-col">
-        {/* Header (Sticky agar tetap terlihat saat scroll) */}
-        <div className="sticky top-0 z-10 bg-[#FFDE59] border-b-4 border-black p-6 flex justify-between items-start">
-          <div className="pr-4">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="bg-black text-white px-3 py-1 text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(255,255,255,0.5)]">
+        {/* Header (Sticky) */}
+        {/* Perubahan: z-index dinaikkan jadi 50, dan items-center agar sejajar vertikal */}
+        <div className="sticky top-0 z-50 bg-[#FFDE59] border-b-4 border-black p-4 md:p-6 flex justify-between items-center gap-4">
+          {/* Container Teks: Tambahkan flex-1 dan min-w-0 agar tidak mendorong tombol */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="bg-black text-white px-2 py-1 text-[10px] md:text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(255,255,255,0.5)]">
                 {data.aspek}
               </span>
-              <span className="font-mono font-bold text-black opacity-70">ID: {data.id}</span>
+              <span className="font-mono font-bold text-black opacity-70 text-xs md:text-sm">ID: {data.id}</span>
             </div>
-            <Marquee delay={1} className="text-xl md:text-xl font-black text-black overflow-hidden">
-              {/* Bungkus teks dengan span dan beri margin kanan (mr-8 atau mr-12) */}
-              <span className="mr-12">{data.pertanyaan}</span>
-            </Marquee>
+
+            {/* Marquee Wrapper */}
+            <div className="w-full overflow-hidden">
+              <Marquee delay={1} className="text-lg md:text-xl font-black text-black">
+                <span className="mr-12">{data.pertanyaan}</span>
+              </Marquee>
+            </div>
           </div>
+
+          {/* Tombol Close: shrink-0 wajib ada agar ukuran tidak menciut */}
           <button
             onClick={onClose}
-            className="shrink-0 p-2 bg-red-500 border-2 border-black text-white hover:bg-red-600 hover:shadow-[4px_4px_0px_0px_#000] transition-all active:translate-y-1 active:shadow-none">
-            <X className="w-6 h-6 stroke-[3]" />
+            className="shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-red-500 border-2 border-black text-white hover:bg-red-600 hover:shadow-[4px_4px_0px_0px_#000] transition-all active:translate-y-1 active:shadow-none">
+            <X className="w-5 h-5 md:w-6 md:h-6 stroke-[3]" />
           </button>
         </div>
 

@@ -47,7 +47,7 @@ const Home = () => {
       className={`relative min-h-screen font-sans text-black ${selectedIndicator || activeImage ? 'overflow-hidden h-screen' : ''}`}>
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
         {/* === SECTION 1: HEADER & SEARCH === */}
-        <section className="mb-20">
+        <section className="mb-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 mb-12">
             {/* Title Area */}
             <div className="max-w-2xl">
@@ -94,7 +94,7 @@ const Home = () => {
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex gap-3 w-full px-1 overflow-x-auto flex-nowrap pb-4 md:flex-wrap md:overflow-visible md:pb-0 no-scrollbar">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -102,7 +102,8 @@ const Home = () => {
                   setFilter(cat)
                   scrollToIndicators()
                 }}
-                className={`px-6 py-2 text-sm font-bold border-2 border-black transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000] active:translate-y-0 active:shadow-none ${
+                // Tambahkan 'shrink-0' agar tombol tidak gepeng saat di mode mobile
+                className={`shrink-0 whitespace-nowrap px-6 py-2 text-sm font-bold border-2 border-black transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000] active:translate-y-0 active:shadow-none ${
                   filter === cat
                     ? 'bg-black text-white shadow-[4px_4px_0px_0px_#888]'
                     : 'bg-white text-black shadow-[4px_4px_0px_0px_#000]'
@@ -114,7 +115,7 @@ const Home = () => {
         </section>
 
         {/* === SECTION 2: 3-STEP INFO === */}
-        <section className="mb-20 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Step 1 */}
           <div className="p-6 bg-[#FF90E8] border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <LayoutGrid className="w-8 h-8 mb-3 text-black" />
