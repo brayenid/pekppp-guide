@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { X, Info, Sparkles } from 'lucide-react'
 import type { PekpppIndikator, PekpppImage } from '../types/pekppp'
 import { ImageGallery } from './ImageGallery' // Pastikan component ImageGallery Anda sudah ada
+import Marquee from 'react-fast-marquee'
 
 interface IndicatorModalProps {
   data: PekpppIndikator
@@ -37,7 +38,10 @@ export const IndicatorModal = ({ data, onClose, onImageClick }: IndicatorModalPr
               </span>
               <span className="font-mono font-bold text-black opacity-70">ID: {data.id}</span>
             </div>
-            <h2 className="text-xl md:text-2xl font-black leading-tight text-black">{data.pertanyaan}</h2>
+            <Marquee delay={1} className="text-xl md:text-xl font-black text-black overflow-hidden">
+              {/* Bungkus teks dengan span dan beri margin kanan (mr-8 atau mr-12) */}
+              <span className="mr-12">{data.pertanyaan}</span>
+            </Marquee>
           </div>
           <button
             onClick={onClose}
