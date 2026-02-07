@@ -27,7 +27,7 @@ export const DRIVE_UPLOAD_URL =
 const NAV_ITEMS = [
   { path: '/', label: 'Beranda', icon: <HomeIcon className="w-4 h-4" /> },
   { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
-  { path: '/data', label: 'Data', icon: <BookText className="w-4 h-4" /> },
+  { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> },
   { path: '/contoh', label: 'Contoh File', icon: <FileText className="w-4 h-4" /> }
 ]
 
@@ -59,7 +59,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-[#f4f4f0] text-black font-sans selection:bg-[#FFDE59] selection:text-black">
       {/* Background Grid Pattern */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:24px_24px] opacity-5 pointer-events-none" />
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-size-[24px_24px] opacity-5 pointer-events-none" />
 
       {/* --- NAVIGATION BAR --- */}
       <nav className="fixed top-0 left-0 right-0 bg-white border-b-4 border-black z-50">
@@ -120,7 +120,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/panduan" element={<Panduan />} />
-          <Route path="/data" element={<DataRegulasi />} />
+          <Route path="/regulasi" element={<DataRegulasi />} />
           <Route path="/contoh" element={<ContohSurat />} />
         </Routes>
       </main>
