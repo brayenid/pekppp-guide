@@ -1,121 +1,168 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom'
-import { LayoutGrid, UploadCloud, ExternalLink, BookText, Home as HomeIcon, Info } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom'
+import {
+  LayoutGrid,
+  UploadCloud,
+  ExternalLink,
+  BookText,
+  Home as HomeIcon,
+  Info,
+  Menu,
+  X,
+  FileText
+} from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
+// Pastikan halaman ini ada atau buat placeholder dummy jika belum ada
 import Panduan from './pages/Panduan'
 import DataRegulasi from './pages/DataRegulasi'
 import ScrollToTop from './components/ScrollToTop'
+import ContohSurat from './pages/ContohSurat'
 
 export const DRIVE_UPLOAD_URL =
-  'https://drive.google.com/drive/folders/1MsD9yZy1pQNdu1G8sIGYCdEOUeHnBUlj?usp=drive_link  '
+  'https://drive.google.com/drive/folders/1MsD9yZy1pQNdu1G8sIGYCdEOUeHnBUlj?usp=drive_link'
 
-// Konfigurasi Navigasi agar mudah diolah
 const NAV_ITEMS = [
   { path: '/', label: 'Beranda', icon: <HomeIcon className="w-4 h-4" /> },
   { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
-  { path: '/data', label: 'Data', icon: <BookText className="w-4 h-4" /> }
+  { path: '/data', label: 'Data', icon: <BookText className="w-4 h-4" /> },
+  { path: '/contoh', label: 'Contoh File', icon: <FileText className="w-4 h-4" /> }
 ]
+
+// Component Helper untuk NavLink agar rapi
+const NavItem = ({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) => (
+  <NavLink
+    to={to}
+    onClick={onClick}
+    className={({ isActive }) =>
+      `flex items-center gap-3 px-4 py-2 font-bold uppercase tracking-wide border-2 border-black transition-all ${
+        isActive
+          ? 'bg-[#FFDE59] shadow-[4px_4px_0px_0px_#000] -translate-y-1'
+          : 'bg-white hover:bg-gray-50 hover:shadow-[2px_2px_0px_0px_#000] hover:-translate-y-0.5'
+      }`
+    }>
+    {children}
+  </NavLink>
+)
+
+function AppContent() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const location = useLocation()
+
+  // Tutup menu mobile setiap kali pindah halaman
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [location])
+
+  return (
+    <div className="min-h-screen bg-[#f4f4f0] text-black font-sans selection:bg-[#FFDE59] selection:text-black">
+      {/* Background Grid Pattern */}
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:24px_24px] opacity-5 pointer-events-none" />
+
+      {/* --- NAVIGATION BAR --- */}
+      <nav className="fixed top-0 left-0 right-0 bg-white border-b-4 border-black z-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <NavLink to="/" className="flex items-center gap-2 group">
+            <div className="p-2 bg-black border-2 border-black text-white rounded-none group-hover:bg-[#FFDE59] group-hover:text-black transition-colors">
+              <LayoutGrid className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="font-black text-xl tracking-tighter">PEKPPP</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-1">Docs</span>
+            </div>
+          </NavLink>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-4">
+            {NAV_ITEMS.map((item) => (
+              <NavItem key={item.path} to={item.path}>
+                {item.icon}
+                {item.label}
+              </NavItem>
+            ))}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 border-2 border-black bg-white active:bg-black active:text-white transition-colors">
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden border-t-4 border-black bg-white overflow-hidden">
+              <div className="flex flex-col p-4 gap-3 pb-6">
+                {NAV_ITEMS.map((item) => (
+                  <NavItem key={item.path} to={item.path}>
+                    {item.icon}
+                    {item.label}
+                  </NavItem>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      {/* --- MAIN CONTENT --- */}
+      <main className="pt-24 min-h-screen pb-32">
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/panduan" element={<Panduan />} />
+          <Route path="/data" element={<DataRegulasi />} />
+          <Route path="/contoh" element={<ContohSurat />} />
+        </Routes>
+      </main>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-black text-white py-12 border-t-4 border-black mt-auto">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <div className="inline-block p-3 border-2 border-white mb-4 rotate-3">
+            <LayoutGrid className="w-6 h-6" />
+          </div>
+          <p className="text-sm font-bold uppercase tracking-widest mb-2">Bagian Organisasi Setkab Kutai Barat</p>
+          <p className="text-xs text-gray-400 font-mono">© 2026 Dibangun Oleh Tim PPTL</p>
+        </div>
+      </footer>
+
+      {/* --- FLOATING CTA (Neo Brutalism Style) --- */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <motion.a
+          href={DRIVE_UPLOAD_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ scale: 1.05, rotate: -2 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-3 px-6 py-4 bg-[#57E7FB] border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[12px_12px_0px_0px_#000] hover:-translate-y-1 transition-all group">
+          <div className="bg-black text-white p-2 border-2 border-transparent group-hover:bg-white group-hover:text-black group-hover:border-black transition-colors">
+            <UploadCloud className="w-6 h-6" />
+          </div>
+          <div className="flex flex-col text-left">
+            <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Google Drive</span>
+            <span className="text-sm font-black uppercase leading-none">Unggah Berkas</span>
+          </div>
+          <ExternalLink className="w-4 h-4 ml-2" />
+        </motion.a>
+      </div>
+    </div>
+  )
+}
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-200">
-        {/* Subtle Grid Background */}
-        <div className="fixed inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-        {/* --- NAVIGATION BAR --- */}
-        <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-zinc-100 z-100">
-          <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-            {/* Logo */}
-            <NavLink
-              to="/"
-              className="flex items-center gap-2 font-bold text-zinc-900 uppercase tracking-tighter shrink-0">
-              <div className="p-1.5 bg-zinc-900 rounded-md">
-                <LayoutGrid className="text-white w-4 h-4" />
-              </div>
-              <span className="hidden sm:inline">
-                PEKPPP <span className="text-zinc-400 font-normal">Docs</span>
-              </span>
-            </NavLink>
-
-            {/* Nav Links - Mobile Friendly Scrollable */}
-            <div className="flex bg-zinc-100 p-1 rounded-xl ml-4 overflow-x-auto no-scrollbar">
-              {NAV_ITEMS.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 md:px-4 py-1.5 text-[11px] font-bold uppercase rounded-lg transition-all whitespace-nowrap ${
-                      isActive ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-400 hover:text-zinc-600'
-                    }`
-                  }>
-                  {item.icon}
-                  {item.label}
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        </nav>
-
-        {/* --- ROUTES CONTAINER --- */}
-        <main className="pt-16 min-h-screen">
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/panduan" element={<Panduan />} />
-            <Route path="/data" element={<DataRegulasi />} />
-          </Routes>
-        </main>
-
-        {/* --- SIMPLE FOOTER --- */}
-        <footer className="max-w-5xl mx-auto px-6 py-16 border-t border-zinc-100 text-center">
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-8 h-1 bg-zinc-100 rounded-full mb-2" />
-            <p className="text-sm font-bold text-zinc-900">
-              Dikelola oleh <span className="text-blue-600">Bagian Organisasi Kutai Barat</span>
-            </p>
-            <p className="text-[11px] text-zinc-500 mt-2">© 2026 Bagian Organisasi Kabupaten Kutai Barat</p>
-          </div>
-        </footer>
-
-        {/* --- FLOATING CTA WITH ROTATING GLOW --- */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-90 pointer-events-none flex justify-center md:justify-end">
-          <motion.a
-            href={DRIVE_UPLOAD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            whileHover={{ y: -4 }}
-            whileTap={{ scale: 0.98 }}
-            className="relative pointer-events-auto group w-full md:w-auto md:min-w-[320px] p-[1.5px] overflow-hidden rounded-2xl flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            {/* Animated Gradient Border (The Glow) */}
-            <div className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_25%,#E2E8F0_50%,#3B82F6_75%,#E2E8F0_100%)] opacity-40 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Main Button Body (Inner) */}
-            <div className="relative flex items-center gap-4 bg-white text-zinc-900 px-5 md:px-7 py-3 md:py-4 rounded-[calc(1rem-1.5px)] w-full transition-all">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300 shrink-0">
-                <UploadCloud className="w-5 h-5 md:w-6 md:h-6 text-blue-600 group-hover:text-white" />
-              </div>
-
-              <div className="flex flex-col text-left uppercase overflow-hidden">
-                <h2 className="text-[13px] md:text-[15px] font-extrabold leading-tight truncate">
-                  Unggah Bukti Dukung
-                </h2>
-                <p className="text-[10px] md:text-[11px] text-zinc-400 font-medium tracking-tight">
-                  Google Drive Kubar
-                </p>
-              </div>
-
-              <div className="ml-auto pl-2 md:pl-4 border-l border-zinc-100 flex items-center">
-                <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                  <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-zinc-300 group-hover:text-blue-600 transition-colors" />
-                </motion.div>
-              </div>
-            </div>
-          </motion.a>
-        </div>
-      </div>
+      <AppContent />
     </Router>
   )
 }

@@ -1,148 +1,177 @@
 // src/pages/Panduan.tsx
 import { motion } from 'framer-motion'
-import { Search, FolderOpen, Type, ArrowRight, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Search, FolderOpen, Type, CheckCircle2, AlertTriangle, XCircle, FileWarning, FileCheck } from 'lucide-react'
 
 const STEPS = [
   {
     title: 'Pelajari Referensi',
-    desc: "Buka halaman 'Katalog Contoh Bukti Dukung' di halaman depan. Lihat contoh foto atau dokumen pada indikator yang dituju. Pastikan dokumen Anda sudah sesuai dengan kriteria yang diminta.",
-    icon: <Search className="w-5 h-5" />,
-    color: 'bg-blue-600'
+    desc: "Buka halaman 'Beranda' dan cari indikator yang dituju. Lihat contoh foto atau dokumen agar bukti dukung Anda valid.",
+    icon: <Search className="w-6 h-6" />,
+    color: 'bg-[#57E7FB]', // Cyan
+    rotate: 'rotate-1'
   },
   {
     title: 'Masuk ke Folder OPP',
-    desc: 'Buka tautan Drive. Masuk ke folder sesuai nama Instansi/OPP Anda (Contoh: Dinas A, Dinas B). Jangan mengunggah di luar folder instansi Anda.',
-    icon: <FolderOpen className="w-5 h-5" />,
-    color: 'bg-amber-500'
+    desc: 'Buka tautan Drive. Cari folder sesuai nama Instansi/OPP Anda. Jangan mengunggah di folder tetangga!',
+    icon: <FolderOpen className="w-6 h-6" />,
+    color: 'bg-[#FF90E8]', // Pink
+    rotate: '-rotate-1'
   },
   {
     title: 'Pilih Folder Indikator',
-    desc: 'Di dalam folder instansi Anda, sudah tersedia folder khusus untuk setiap pertanyaan. Masuk ke folder yang mewakili pertanyaan tersebut.',
-    icon: <CheckCircle2 className="w-5 h-5" />,
-    color: 'bg-emerald-600'
+    desc: 'Di dalam folder instansi Anda, sudah tersedia folder untuk setiap nomor pertanyaan. Masuk ke sana.',
+    icon: <CheckCircle2 className="w-6 h-6" />,
+    color: 'bg-[#FFDE59]', // Yellow
+    rotate: 'rotate-2'
   },
   {
     title: 'Atur Nama File & Unggah',
-    desc: 'Judul file harus jelas dan mewakili isi berkas. Dilarang menggunakan nama file random hasil download atau kiriman WhatsApp.',
-    icon: <Type className="w-5 h-5" />,
-    color: 'bg-zinc-900'
+    desc: 'Wajib Rename! Judul file harus jelas. Dilarang menggunakan nama file random (misal: "IMG_2024.jpg").',
+    icon: <Type className="w-6 h-6" />,
+    color: 'bg-[#98fb98]', // Mint Green
+    rotate: '-rotate-2'
   }
 ]
 
 export default function Panduan() {
   return (
-    <div className="relative max-w-5xl mx-auto px-6 py-12">
-      {/* Header - Diselaraskan dengan pola Home.tsx */}
-      <header className="mb-12">
+    <div className="relative max-w-7xl mx-auto px-6 py-16 font-sans text-black">
+      {/* Header */}
+      <header className="mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-block bg-black text-white px-4 py-1 mb-4 border-2 border-transparent shadow-[4px_4px_0px_0px_#888]">
+          <span className="text-sm font-black uppercase tracking-widest">SOP Pengunggahan</span>
+        </motion.div>
+
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
-          Panduan <span className="text-zinc-400 font-normal">Pengunggahan</span>
+          className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
+          PANDUAN{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
+            UPLOAD
+          </span>
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
-          Penting: Kesalahan penginputan atau penempatan berkas akan menyebabkan kesulitan penilaian dan berpotensi
-          mengurangi skor evaluasi.
-        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_#000] max-w-2xl">
+          <p className="text-lg font-bold leading-tight">Jangan sampai nilai turun karena salah upload!</p>
+          <p className="text-base text-gray-600 font-medium mt-2">
+            Ikuti 4 langkah mudah di bawah ini agar dokumen Anda diverifikasi dengan cepat oleh tim evaluator.
+          </p>
+        </motion.div>
       </header>
 
-      {/* Timeline Steps - Pola Akordion/List */}
-      <div className="space-y-4 mb-16">
+      {/* Steps Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
         {STEPS.map((step, idx) => (
           <motion.div
             key={idx}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: idx * 0.1 }}
-            className="group flex flex-col md:flex-row gap-6 p-6 bg-white border border-zinc-200 rounded-2xl shadow-sm hover:border-zinc-300 transition-all">
-            {/* Step Indicator */}
-            <div className="flex shrink-0 items-center justify-center">
-              <div
-                className={`w-12 h-12 rounded-xl ${step.color} text-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform`}>
-                {step.icon}
-              </div>
+            className={`group relative flex flex-col p-8 bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[12px_12px_0px_0px_#000] hover:-translate-y-1 transition-all ${step.rotate}`}>
+            {/* Number Badge */}
+            <div className="absolute -top-5 -left-5 w-12 h-12 bg-black text-white flex items-center justify-center font-black text-xl border-2 border-white shadow-[4px_4px_0px_0px_#888]">
+              {idx + 1}
             </div>
 
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Langkah {idx + 1}</span>
-                <ArrowRight className="w-3 h-3 text-zinc-200" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-800 mb-2">{step.title}</h3>
-              <p className="text-sm text-zinc-500 leading-relaxed font-medium">{step.desc}</p>
+            {/* Icon */}
+            <div
+              className={`w-14 h-14 ${step.color} border-2 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_#000]`}>
+              {step.icon}
             </div>
+
+            <h3 className="text-2xl font-black text-black mb-3 uppercase leading-none">{step.title}</h3>
+            <p className="text-base font-bold text-gray-600 leading-relaxed">{step.desc}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Penamaan File Section - Aksen Amber tetap dipertahankan namun lebih clean */}
-      <section className="bg-amber-50 rounded-[2.5rem] p-8 md:p-12 border border-amber-200 overflow-hidden relative shadow-sm">
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-amber-200/30 blur-3xl rounded-full" />
+      {/* Naming Convention Section */}
+      <section className="relative">
+        {/* Decorative Tape */}
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-40 h-8 bg-[#FFDE59] border-2 border-black rotate-2 z-10 flex items-center justify-center font-black text-xs uppercase tracking-widest shadow-[2px_2px_0px_0px_#000]">
+          Penting
+        </div>
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-amber-500 rounded-2xl shadow-lg shadow-amber-200">
-              <Type className="w-6 h-6 text-white" />
+        <div className="bg-white border-4 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_#000]">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-10 border-b-4 border-black pb-8">
+            <div className="p-4 bg-black text-white border-2 border-transparent">
+              <Type className="w-8 h-8" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-zinc-900 uppercase tracking-tight">Standardisasi Nama File</h2>
-              <p className="text-xs text-amber-700 font-medium italic">
+              <h2 className="text-3xl font-black uppercase tracking-tight mb-2">Aturan Nama File</h2>
+              <p className="text-base font-bold text-gray-500">
                 Sistem penilaian bergantung pada kerapian dokumentasi Anda.
               </p>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
             {/* Sisi SALAH */}
             <div className="space-y-4">
-              <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Contoh Salah
-              </p>
-              <div className="space-y-2">
-                {['whatsapp-image-2024.jpg', 'IMG_00234.pdf', 'final_oke.png'].map((err) => (
+              <div className="flex items-center gap-3 mb-4">
+                <XCircle className="w-8 h-8 text-red-500 fill-black" />
+                <h3 className="font-black text-xl uppercase text-red-600 underline decoration-4 underline-offset-4">
+                  Jangan Tiru
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                {['whatsapp-image-2024.jpg', 'IMG_00234.pdf', 'final_oke_banget.png'].map((err) => (
                   <div
                     key={err}
-                    className="bg-white border border-red-100 text-red-500 px-4 py-3 rounded-xl text-xs font-mono shadow-sm flex items-center gap-3">
-                    <span className="opacity-40">✕</span>
-                    {err}
+                    className="flex items-center justify-between bg-red-50 border-2 border-red-500 p-3 shadow-[4px_4px_0px_0px_#ef4444]">
+                    <span className="font-mono font-bold text-red-600 text-sm truncate">{err}</span>
+                    <FileWarning className="w-5 h-5 text-red-500" />
                   </div>
                 ))}
               </div>
+              <p className="text-xs font-bold text-red-500 mt-2">
+                *File dengan nama random sulit dilacak dan berisiko tidak ternilai.
+              </p>
             </div>
 
             {/* Sisi BENAR */}
             <div className="space-y-4">
-              <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Contoh Benar
-              </p>
-              <div className="space-y-2">
-                {['01_SK_SP_DINAS_A.pdf', '04_LAPORAN_SKM.pdf', '23_FOTO_SARANA.jpg'].map((ok) => (
+              <div className="flex items-center gap-3 mb-4">
+                <CheckCircle2 className="w-8 h-8 text-green-500 fill-black" />
+                <h3 className="font-black text-xl uppercase text-green-600 underline decoration-4 underline-offset-4">
+                  Wajib Tiru
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                {['01_SK_TIM_PEKPPP.pdf', '04_LAPORAN_SKM_TW1.pdf', '23_FOTO_RUANG_TUNGGU.jpg'].map((ok) => (
                   <div
                     key={ok}
-                    className="bg-white border border-emerald-100 text-emerald-600 px-4 py-3 rounded-xl text-xs font-mono shadow-sm flex items-center gap-3">
-                    <span className="font-bold">✓</span>
-                    {ok}
+                    className="flex items-center justify-between bg-green-50 border-2 border-green-600 p-3 shadow-[4px_4px_0px_0px_#16a34a]">
+                    <span className="font-mono font-bold text-green-700 text-sm truncate">{ok}</span>
+                    <FileCheck className="w-5 h-5 text-green-600" />
                   </div>
                 ))}
               </div>
+              <p className="text-xs font-bold text-green-600 mt-2">*Gunakan format: [NOMOR]_[NAMA DOKUMEN]</p>
             </div>
           </div>
 
           {/* Warning Box */}
-          <div className="mt-10 flex items-start gap-4 p-5 bg-amber-500 rounded-2xl border border-amber-600/10 shadow-lg shadow-amber-200/50">
-            <AlertTriangle className="w-5 h-5 text-white shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="text-[11px] text-white leading-relaxed font-bold uppercase tracking-widest">
-                Catatan Penting Evaluator
-              </p>
-              <p className="text-sm text-amber-50 leading-relaxed font-medium">
-                Judul file harus mewakili isi berkas secara eksplisit. Hal ini sangat menentukan kecepatan dan kemudahan
-                Evaluator dalam memverifikasi bukti dukung Anda.
+          <div className="mt-12 bg-[#FFDE59] border-4 border-black p-6 flex flex-col md:flex-row items-start gap-4 shadow-[6px_6px_0px_0px_#000]">
+            <div className="bg-black p-2 shrink-0">
+              <AlertTriangle className="w-6 h-6 text-[#FFDE59]" />
+            </div>
+            <div>
+              <h4 className="font-black text-lg uppercase mb-1">Catatan Evaluator</h4>
+              <p className="font-bold text-sm leading-relaxed">
+                "Judul file harus mewakili isi berkas secara eksplisit. Kami tidak akan membuka file satu per satu jika
+                namanya tidak jelas."
               </p>
             </div>
           </div>

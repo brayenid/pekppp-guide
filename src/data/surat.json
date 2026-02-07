@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "judul": "Kuesioner SKM",
+    "kategori": "SKM",
+    "deskripsi": "Kuesioner untuk menilai kualitas pelayanan publik.",
+    "tipe": "DOCX",
+    "ukuran": "103 KB   ",
+    "url": "https://docs.google.com/document/d/1tX0mZgZeAd6lNebgc4qpBvwVGWA7UwhX/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
+  },
+  {
+    "id": 2,
+    "judul": "Format Laporan Tindak Lanjut SKM",
+    "kategori": "SKM",
+    "deskripsi": "Template Laporan Tindak Lanjut SKM.",
+    "tipe": "DOCX",
+    "ukuran": "22 KB",
+    "url": "https://docs.google.com/document/d/1yYKGlQdbOLibvGe2l8BP0x0oswFvem71/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
+  },
+  {
+    "id": 3,
+    "judul": "Contoh SK Jam Kerja",
+    "kategori": "SK",
+    "deskripsi": "Contoh ini merupakan referensi, isi tetap dapat disesuaikan dan disarankan untuk relevan.",
+    "tipe": "DOCX",
+    "ukuran": "69 KB",
+    "url": "https://docs.google.com/document/d/1ZdydhtTBRE4D9PpgmO6q_QXl3cqOW38Z/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
+  },
+  {
+    "id": 4,
+    "judul": "Contoh SK Kode Etik",
+    "kategori": "SK",
+    "deskripsi": "Contoh SK Kode Etik yang dapat digunakan sebagai referensi.",
+    "tipe": "DOCX",
+    "ukuran": "72 KB",
+    "url": "https://docs.google.com/document/d/1i2DVSxT9LnP8IjWbM7xizLZE-IblID3v/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
+  },
+  {
+    "id": 5,
+    "judul": "Format Laporan SKM",
+    "kategori": "SKM",
+    "deskripsi": "Contoh format Laporan SKM.",
+    "tipe": "DOCX",
+    "ukuran": "1 MB",
+    "url": "https://docs.google.com/document/d/18d1lgOx1fbE6SYjOEiiM8Zcj-ZMb7jb8/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
+  }
+]

@@ -1,5 +1,6 @@
+// src/pages/DataRegulasi.tsx
 import { motion } from 'framer-motion'
-import { Book, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react'
+import { ShieldCheck, AlertCircle, Link as LinkIcon } from 'lucide-react'
 
 // Data diperbarui dengan URL ke peraturan.bpk.go.id
 const REGULASI_DATA = [
@@ -69,71 +70,77 @@ const REGULASI_DATA = [
 
 export default function DataRegulasi() {
   return (
-    <div className="relative max-w-5xl mx-auto px-6 py-12">
-      {/* Header - Diselaraskan dengan pola Home.tsx */}
-      <header className="mb-12">
+    <div className="relative max-w-7xl mx-auto px-6 py-16 font-sans text-black">
+      {/* Header */}
+      <header className="mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-block bg-[#FF90E8] border-2 border-black px-4 py-1 mb-4 shadow-[4px_4px_0px_0px_#000]">
+          <span className="text-sm font-black uppercase tracking-widest">Dasar Hukum</span>
+        </motion.div>
+
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-5xl font-semibold tracking-tight text-zinc-900 mb-6">
-          Data & <span className="text-zinc-400 font-normal">Regulasi</span>
+          className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
+          DATA &{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
+            REGULASI
+          </span>
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-base text-zinc-500 max-w-xl leading-relaxed font-medium">
-          Daftar dokumen bukti dukung (evidence) beserta dasar hukum pengaturannya. Pastikan dokumen yang Anda siapkan
-          merujuk pada ketentuan berikut.
-        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_#000] max-w-2xl">
+          <p className="text-lg font-bold leading-tight">Pastikan dokumen Anda valid secara hukum.</p>
+          <p className="text-base text-gray-600 font-medium mt-2">
+            Berikut adalah daftar regulasi yang menjadi acuan penilaian. Klik pada nama peraturan untuk melihat
+            detailnya.
+          </p>
+        </motion.div>
       </header>
 
-      {/* Tabel Data Section - Menggunakan Pola Desain List/Table yang Clean */}
-      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm mb-12">
+      {/* Tabel Data Section */}
+      <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] mb-20 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-zinc-50/50 border-b border-zinc-100">
-                <th className="px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-widest w-20 text-center">
+              <tr className="bg-black text-white">
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest w-20 text-center border-r-2 border-white/20">
                   No
                 </th>
-                <th className="px-4 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest border-r-2 border-white/20">
                   Evidence / Data
                 </th>
-                <th className="px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-widest text-right">
-                  Dasar Hukum
-                </th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest text-right">Dasar Hukum</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y-2 divide-black">
               {REGULASI_DATA.map((item, idx) => (
                 <motion.tr
                   key={item.no}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.05 }}
-                  className="group hover:bg-zinc-50/50 transition-colors">
-                  <td className="px-6 py-5 text-center">
-                    <span className="font-mono text-xs font-bold text-zinc-400 group-hover:text-zinc-500 transition-colors">
-                      {item.no.toString().padStart(2, '0')}
-                    </span>
+                  className="group hover:bg-[#FFDE59] transition-colors">
+                  <td className="px-6 py-5 text-center border-r-2 border-black font-black text-lg">
+                    {item.no.toString().padStart(2, '0')}
                   </td>
-                  <td className="px-4 py-5">
-                    <h3 className="text-sm font-semibold text-zinc-800 leading-snug">{item.evidence}</h3>
+                  <td className="px-6 py-5 border-r-2 border-black">
+                    <h3 className="text-base font-bold leading-snug">{item.evidence}</h3>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    {/* MODIFIED: Mengubah div menjadi a (anchor) untuk tautan eksternal.
-                      Tetap mempertahankan styling flex yang sama agar layout tidak berubah.
-                      Menambahkan rel="noopener noreferrer" untuk keamanan (security best practice).
-                    */}
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-end gap-2 text-zinc-500 group-hover:text-amber-600 transition-colors cursor-pointer hover:underline decoration-amber-600/30 underline-offset-4">
-                      <span className="text-[12px]">{item.ketentuan}</span>
-                      <Book className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-black text-xs font-bold uppercase hover:bg-black hover:text-white hover:shadow-[4px_4px_0px_0px_#888] transition-all">
+                      <span className="truncate max-w-[150px] md:max-w-none">{item.ketentuan}</span>
+                      <LinkIcon className="w-3 h-3" />
                     </a>
                   </td>
                 </motion.tr>
@@ -143,31 +150,28 @@ export default function DataRegulasi() {
         </div>
       </div>
 
-      {/* Info Card - Aksen Amber tetap dipertahankan namun lebih clean */}
-      <section className="bg-amber-50 rounded-[2.5rem] p-8 md:p-12 border border-amber-200 overflow-hidden relative shadow-sm">
-        {/* Aksen Dekoratif di Background */}
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-amber-200/30 blur-3xl rounded-full" />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-          <div className="p-4 bg-white rounded-3xl shadow-xl shadow-amber-200/50 border border-amber-100 shrink-0">
-            <ShieldCheck className="w-10 h-10 text-amber-500" />
+      {/* Info Card - Neo Brutalism Style */}
+      <section className="relative">
+        {/* Card Body */}
+        <div className="bg-[#57E7FB] border-4 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_#000] flex flex-col md:flex-row items-center gap-8">
+          {/* Icon Box */}
+          <div className="shrink-0 p-6 bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000]">
+            <ShieldCheck className="w-12 h-12 text-black" />
           </div>
 
           <div className="flex-1 text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-              <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em]">Kesesuaian Data</span>
-              <ArrowRight className="w-3 h-3 text-amber-300" />
+            <div className="inline-block bg-black text-white px-2 py-1 text-xs font-black uppercase tracking-widest mb-3">
+              Penting
             </div>
-            <h2 className="text-xl font-bold text-zinc-900 mb-2 text-balance">Validitas Substansi Dokumen</h2>
-            <p className="text-sm text-zinc-500 leading-relaxed font-medium">
-              Setiap bukti dukung (evidence) yang diunggah wajib mencantumkan konsiderans atau merujuk pada regulasi
-              yang tertera dalam tabel di atas. Dokumen yang tidak sesuai dengan dasar hukum terbaru dapat mempengaruhi
-              hasil validasi penilaian.
+            <h2 className="text-3xl font-black text-black mb-4 leading-none">VALIDITAS DOKUMEN</h2>
+            <p className="text-base font-bold text-gray-800 leading-relaxed border-l-4 border-black pl-4">
+              "Setiap bukti dukung (evidence) yang diunggah wajib mencantumkan konsiderans atau merujuk pada regulasi di
+              atas. Dokumen tanpa dasar hukum yang jelas berisiko <u>tidak dinilai</u>."
             </p>
           </div>
 
-          <div className="shrink-0 p-3 bg-amber-500 rounded-2xl shadow-lg shadow-amber-200">
-            <AlertCircle className="w-6 h-6 text-white" />
+          <div className="hidden md:block shrink-0">
+            <AlertCircle className="w-16 h-16 text-black opacity-20 rotate-12" />
           </div>
         </div>
       </section>
