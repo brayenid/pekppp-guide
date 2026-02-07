@@ -64,7 +64,7 @@ const Home = () => {
                 className="text-5xl md:text-7xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
                 PEKPPP{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
-                  DOCS
+                  KUBAR
                 </span>
               </motion.h1>
 
