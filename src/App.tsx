@@ -28,7 +28,7 @@ const NAV_ITEMS = [
   { path: '/', label: 'Beranda', icon: <HomeIcon className="w-4 h-4" /> },
   { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
   { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> },
-  { path: '/contoh', label: 'Contoh File', icon: <FileText className="w-4 h-4" /> }
+  { path: '/contoh', label: 'Contoh Surat', icon: <FileText className="w-4 h-4" /> }
 ]
 
 // Component Helper untuk NavLink agar rapi
