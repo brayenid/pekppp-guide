@@ -23,19 +23,7 @@ import { downloadBA } from '../components/BeritaAcaraPDF'
 // KONFIGURASI: Edit array ini untuk menentukan OPD mana saja yang ditampilkan.
 // Kosongkan array (VISIBLE_OPDS = []) untuk menampilkan semua OPD.
 // ─────────────────────────────────────────────────────────────────────────────
-const VISIBLE_OPDS: string[] = [
-  'Dinas Kesehatan',
-  'Dinas Kependudukan dan Pencatatan Sipil',
-  'Dinas Penanaman Modal dan PTSP',
-  'Dinas Komunikasi dan Informatika',
-  'Dinas Pendidikan dan Kebudayaan',
-  'Badan Kepegawaian dan Pengembangan SDM',
-  'Puskesmas Melak',
-  'Puskesmas Barong Tongkok',
-  'Puskesmas Long Iram',
-  'Kecamatan Melak',
-  'Kecamatan Barong Tongkok'
-]
+const VISIBLE_OPDS: string[] = []
 
 // ─────────────────────────────────────────────────────────────────────────────
 // KONFIGURASI: Google Sheets
@@ -437,7 +425,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
         </div>
 
         {/* ── Panel footer ── */}
-        <div className="shrink-0 border-t-4 border-black p-4 bg-gray-50 flex items-center justify-between">
+        <div className="shrink-0 border-t-4 border-black p-4 bg-gray-50 flex items-center justify-between flex-col gap-3 sm:flex-row">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
             {opd.rows.length} indikator · Data bersifat sementara
           </span>
