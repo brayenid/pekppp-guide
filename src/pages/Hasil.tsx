@@ -771,7 +771,7 @@ export default function HasilPenilaian() {
               ))}
             </div>
 
-            <div className="flex flex-wrap gap-2 items-center">
+            {/* <div className="flex flex-wrap gap-2 items-center">
               <BarChart3 className="w-4 h-4 text-gray-400 shrink-0" />
               <span className="text-xs font-black uppercase tracking-wider text-gray-600 mr-1">Indikator:</span>
               {allSections.map((sec) => {
@@ -786,7 +786,7 @@ export default function HasilPenilaian() {
                   </button>
                 )
               })}
-            </div>
+            </div> */}
 
             <div className="text-sm font-bold text-gray-400">
               Menampilkan <span className="text-black font-black">{displayed.length}</span> unit
