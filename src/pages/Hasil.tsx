@@ -761,7 +761,7 @@ export default function HasilPenilaian() {
             <div className="flex flex-wrap gap-2 items-center">
               <Filter className="w-4 h-4 text-gray-400 shrink-0" />
               <span className="text-xs font-black uppercase tracking-wider text-gray-600 mr-1">Kategori:</span>
-              {(['Semua', 'OPD & Rumah Sakit', 'Puskesmas', 'Kecamatan'] as const).map((k) => (
+              {(['Semua', 'OPD', 'Puskesmas', 'Kecamatan'] as const).map((k) => (
                 <button
                   key={k}
                   onClick={() => setKategori(k)}
