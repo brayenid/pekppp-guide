@@ -20,6 +20,7 @@ import Panduan from './pages/Panduan'
 import DataRegulasi from './pages/DataRegulasi'
 import ScrollToTop from './components/ScrollToTop'
 import ContohSurat from './pages/ContohSurat'
+import HasilPenilaian from './pages/Hasil'
 
 export const DRIVE_UPLOAD_URL =
   'https://drive.google.com/drive/folders/1MsD9yZy1pQNdu1G8sIGYCdEOUeHnBUlj?usp=drive_link'
@@ -28,7 +29,8 @@ const NAV_ITEMS = [
   { path: '/', label: 'Beranda', icon: <HomeIcon className="w-4 h-4" /> },
   { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
   { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> },
-  { path: '/contoh', label: 'Contoh Surat', icon: <FileText className="w-4 h-4" /> }
+  { path: '/contoh', label: 'Contoh Surat', icon: <FileText className="w-4 h-4" /> },
+  { path: '/hasil', label: 'Hasil', icon: <FileText className="w-4 h-4" /> }
 ]
 
 // Component Helper untuk NavLink agar rapi
@@ -63,7 +65,7 @@ function AppContent() {
 
       {/* --- NAVIGATION BAR --- */}
       <nav className="fixed top-0 left-0 right-0 bg-white border-b-4 border-black z-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-2 group">
             <div className="p-2 bg-black border-2 border-black text-white rounded-none group-hover:bg-[#FFDE59] group-hover:text-black transition-colors">
@@ -76,7 +78,7 @@ function AppContent() {
           </NavLink>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             {NAV_ITEMS.map((item) => (
               <NavItem key={item.path} to={item.path}>
                 {item.icon}
@@ -88,7 +90,7 @@ function AppContent() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 border-2 border-black bg-white active:bg-black active:text-white transition-colors">
+            className="lg:hidden p-2 border-2 border-black bg-white active:bg-black active:text-white transition-colors">
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -100,7 +102,7 @@ function AppContent() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden border-t-4 border-black bg-white overflow-hidden">
+              className="lg:hidden border-t-4 border-black bg-white overflow-hidden">
               <div className="flex flex-col p-4 gap-3 pb-6">
                 {NAV_ITEMS.map((item) => (
                   <NavItem key={item.path} to={item.path}>
@@ -122,6 +124,7 @@ function AppContent() {
           <Route path="/panduan" element={<Panduan />} />
           <Route path="/regulasi" element={<DataRegulasi />} />
           <Route path="/contoh" element={<ContohSurat />} />
+          <Route path="/hasil" element={<HasilPenilaian />} />
         </Routes>
       </main>
 
