@@ -562,10 +562,10 @@ export default function HasilPenilaian() {
   // ── DERIVED ───────────────────────────────────────────────────────────────
   const summaries = useMemo(() => buildSummaries(rawRows, VISIBLE_OPDS), [rawRows])
 
-  const allSections = useMemo(() => {
-    const s = new Set(rawRows.map((r) => r.section))
-    return ['Semua', ...Array.from(s)]
-  }, [rawRows])
+  // const allSections = useMemo(() => {
+  //   const s = new Set(rawRows.map((r) => r.section))
+  //   return ['Semua', ...Array.from(s)]
+  // }, [rawRows])
 
   const displayed = useMemo(() => {
     let list = summaries
