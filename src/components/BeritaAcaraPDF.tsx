@@ -17,6 +17,7 @@ interface RawRow {
   keterangan: string
   sumber_data: string
   nilai_maks: number
+  nilai_skala5: number | null
 }
 
 interface OpdSummary {
@@ -25,6 +26,7 @@ interface OpdSummary {
   total: number
   maks: number
   persen: number
+  skala5: number // ← nilai dalam skala 0–5 dari data Excel
   bySection: Record<string, { total: number; maks: number }>
   rows: RawRow[]
 }
@@ -42,9 +44,9 @@ const SECTION_LABEL: Record<string, string> = {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STYLES — font 10pt, kolom lebih lebar
+// STYLES
 // ─────────────────────────────────────────────────────────────────────────────
-const F = 10 // base font size
+const F = 10
 const S = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
@@ -95,6 +97,52 @@ const S = StyleSheet.create({
     fontSize: F
   },
 
+  // ── Ringkasan skor (4 kotak) ──
+  summaryBox: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#000',
+    marginBottom: 12
+  },
+  summaryCell: {
+    flex: 1,
+    padding: 8,
+    alignItems: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#000'
+  },
+  summaryCellLast: {
+    flex: 1,
+    padding: 8,
+    alignItems: 'center'
+  },
+  summaryLabel: {
+    fontSize: 8,
+    color: '#666',
+    textTransform: 'uppercase',
+    marginBottom: 3,
+    textAlign: 'center'
+  },
+  summaryValue: {
+    fontSize: 15,
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center'
+  },
+  summaryUnit: {
+    fontSize: 8,
+    color: '#666',
+    textAlign: 'center'
+  },
+  // Highlight untuk sel Skala 5
+  summaryCellHighlight: {
+    flex: 1,
+    padding: 8,
+    alignItems: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#000',
+    backgroundColor: '#EBF5FB'
+  },
+
   // ── Tabel ──
   table: {
     borderWidth: 1,
@@ -120,62 +168,18 @@ const S = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#000'
   },
-  sectionHeaderLeft: {
-    flex: 1,
-    padding: 5
-  },
-  sectionHeaderRight: {
-    width: 100,
-    padding: 5,
-    borderLeftWidth: 1,
-    borderLeftColor: '#000'
-  },
-  sectionText: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: F,
-    textTransform: 'uppercase',
-    color: '#1F4E79'
-  },
-  sectionScore: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: F,
-    color: '#1F4E79',
-    textAlign: 'right'
-  },
+  sectionHeaderLeft: { flex: 1, padding: 5 },
+  sectionHeaderRight: { width: 100, padding: 5, borderLeftWidth: 1, borderLeftColor: '#000' },
+  sectionText: { fontFamily: 'Helvetica-Bold', fontSize: F, textTransform: 'uppercase', color: '#1F4E79' },
+  sectionScore: { fontFamily: 'Helvetica-Bold', fontSize: F, color: '#1F4E79', textAlign: 'right' },
 
-  // Data rows — tiap indikator = 1 baris
-  dataRow: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: '#ddd'
-  },
-  dataRowAlt: {
-    backgroundColor: '#F5F9FF'
-  },
-  tdNo: {
-    width: 30,
-    padding: 5,
-    borderRightWidth: 1,
-    borderRightColor: '#000',
-    alignItems: 'center'
-  },
-  tdAspek: {
-    width: 130,
-    padding: 5,
-    borderRightWidth: 1,
-    borderRightColor: '#000'
-  },
-  tdNilai: {
-    width: 100,
-    padding: 5,
-    borderRightWidth: 1,
-    borderRightColor: '#000',
-    alignItems: 'center'
-  },
-  tdRekom: {
-    flex: 1,
-    padding: 5
-  },
+  // Data rows
+  dataRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#ddd' },
+  dataRowAlt: { backgroundColor: '#F5F9FF' },
+  tdNo: { width: 30, padding: 5, borderRightWidth: 1, borderRightColor: '#000', alignItems: 'center' },
+  tdAspek: { width: 130, padding: 5, borderRightWidth: 1, borderRightColor: '#000' },
+  tdNilai: { width: 100, padding: 5, borderRightWidth: 1, borderRightColor: '#000', alignItems: 'center' },
+  tdRekom: { flex: 1, padding: 5 },
 
   cellNo: { fontSize: F, textAlign: 'center', color: '#555' },
   cellAspek: { fontSize: F, lineHeight: 1.4 },
@@ -226,6 +230,13 @@ function nilaiColor(nilai: number | null): string {
   return '#dc2626'
 }
 
+function scoreColor(persen: number): string {
+  if (persen >= 80) return '#16a34a'
+  if (persen >= 60) return '#d97706'
+  if (persen >= 40) return '#f59e0b'
+  return '#dc2626'
+}
+
 function getTodayString(): string {
   return new Date().toLocaleDateString('id-ID', {
     day: 'numeric',
@@ -239,6 +250,7 @@ function getTodayString(): string {
 // ─────────────────────────────────────────────────────────────────────────────
 function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
   const today = getTodayString()
+  const color = scoreColor(opd.persen)
 
   const grouped = opd.rows.reduce<Record<string, RawRow[]>>((acc, row) => {
     ;(acc[row.section] ??= []).push(row)
@@ -287,6 +299,31 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
           }
         </Text>
 
+        {/* ── RINGKASAN SKOR (4 kotak: Total, Maks, Persen, Skala 5) ── */}
+        <View style={S.summaryBox}>
+          <View style={S.summaryCell}>
+            <Text style={S.summaryLabel}>Total Nilai</Text>
+            <Text style={[S.summaryValue, { color }]}>{opd.total}</Text>
+            <Text style={S.summaryUnit}>poin</Text>
+          </View>
+          <View style={S.summaryCell}>
+            <Text style={S.summaryLabel}>Nilai Maksimal</Text>
+            <Text style={S.summaryValue}>{opd.maks}</Text>
+            <Text style={S.summaryUnit}>poin</Text>
+          </View>
+          <View style={S.summaryCell}>
+            <Text style={S.summaryLabel}>Persentase</Text>
+            <Text style={[S.summaryValue, { color }]}>{opd.persen.toFixed(1)}%</Text>
+            <Text style={S.summaryUnit}>capaian</Text>
+          </View>
+          {/* Skala 5 — dibaca dari data Excel, bukan dihitung ulang */}
+          <View style={S.summaryCellHighlight}>
+            <Text style={[S.summaryLabel, { color: '#1F4E79', fontFamily: 'Helvetica-Bold' }]}>Nilai Skala 5</Text>
+            <Text style={[S.summaryValue, { color: '#1F4E79' }]}>{opd.skala5.toFixed(2)}</Text>
+            <Text style={[S.summaryUnit, { color: '#1F4E79' }]}>dari 5</Text>
+          </View>
+        </View>
+
         {/* ── TABEL ── */}
         <View style={S.table}>
           {/* Header kolom */}
@@ -315,7 +352,7 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
 
             return (
               <View key={sec}>
-                {/* Sub-header seksi — ikut wrap, tidak dipaksa stay bersama */}
+                {/* Sub-header seksi */}
                 <View style={S.sectionHeaderRow}>
                   <View style={S.sectionHeaderLeft}>
                     <Text style={S.sectionText}>
@@ -331,30 +368,21 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
 
                 {/* Satu baris per indikator */}
                 {secRows.map((row, i) => {
-                  // Cari rekomendasi untuk indikator ini
                   const rekom = rekomendasiRows.find((r) => r.kode_indikator === row.kode_indikator)
-
                   return (
                     <View key={row.kode_indikator} style={[S.dataRow, i % 2 !== 0 ? S.dataRowAlt : {}]} wrap={false}>
-                      {/* No. indikator (urut dalam seksi) */}
                       <View style={S.tdNo}>
                         <Text style={S.cellNo}>{i + 1}</Text>
                       </View>
-
-                      {/* Nama indikator */}
                       <View style={S.tdAspek}>
                         <Text style={S.cellKode}>{row.kode_indikator}</Text>
                         <Text style={S.cellAspek}>{row.nama_indikator}</Text>
                       </View>
-
-                      {/* Nilai */}
                       <View style={S.tdNilai}>
                         <Text style={[S.cellNilai, { color: nilaiColor(row.nilai) }]}>
                           {row.nilai !== null ? String(row.nilai) : '—'}
                         </Text>
                       </View>
-
-                      {/* Rekomendasi */}
                       <View style={S.tdRekom}>
                         {rekom ? (
                           <Text style={S.cellRekom}>{rekom.keterangan}</Text>

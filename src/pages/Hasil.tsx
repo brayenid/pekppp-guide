@@ -28,7 +28,7 @@ const VISIBLE_OPDS: string[] = []
 // ─────────────────────────────────────────────────────────────────────────────
 // KONFIGURASI: Google Sheets
 // ─────────────────────────────────────────────────────────────────────────────
-const SPREADSHEET_ID = '1giNgZAzefNfz3RbvL1oTG6zKd0fzq0YxqawOX_PUlOw'
+const SPREADSHEET_ID = '1Wz8lejVHuJ2v73dINhYiM6gbnA-zAMMGG6HMk5coQG4'
 const SHEET_NAME = 'EXPORT_API'
 const GS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`
 
@@ -45,6 +45,7 @@ interface RawRow {
   keterangan: string
   sumber_data: string
   nilai_maks: number
+  nilai_skala5: number | null // ← dari kolom baru EXPORT_API (nilai unit-level, sama tiap baris)
 }
 
 interface OpdSummary {
@@ -53,6 +54,7 @@ interface OpdSummary {
   total: number
   maks: number
   persen: number
+  skala5: number // ← nilai dalam skala 0–5 (dibaca dari data Excel)
   bySection: Record<string, { total: number; maks: number }>
   rows: RawRow[]
 }
@@ -87,6 +89,20 @@ function detectKategori(name: string): OpdSummary['kategori'] {
   return 'OPD'
 }
 
+// Helper untuk memastikan nilai adalah number
+function toNumber(val: unknown): number {
+  if (val === null || val === undefined || val === '') return 0
+  const num = typeof val === 'number' ? val : parseFloat(String(val))
+  return isNaN(num) ? 0 : num
+}
+
+// Helper untuk nilai yang bisa null
+function toNumberOrNull(val: unknown): number | null {
+  if (val === null || val === undefined || val === '') return null
+  const num = typeof val === 'number' ? val : parseFloat(String(val))
+  return isNaN(num) ? null : num
+}
+
 function parseGvizJson(raw: string): RawRow[] {
   const jsonStr = raw.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, '')
   const data = JSON.parse(jsonStr)
@@ -98,14 +114,29 @@ function parseGvizJson(raw: string): RawRow[] {
       cols.forEach((col, i) => {
         obj[col] = r.c[i]?.v ?? null
       })
-      return obj as unknown as RawRow
+
+      // Pastikan semua nilai numerik di-parse dengan benar
+      return {
+        opd_id: toNumber(obj.opd_id),
+        opd_name: String(obj.opd_name ?? ''),
+        section: String(obj.section ?? ''),
+        kode_indikator: String(obj.kode_indikator ?? ''),
+        nama_indikator: String(obj.nama_indikator ?? ''),
+        nilai: toNumberOrNull(obj.nilai),
+        keterangan: String(obj.keterangan ?? ''),
+        sumber_data: String(obj.sumber_data ?? ''),
+        nilai_maks: toNumber(obj.nilai_maks) || 5, // Default 5 jika tidak ada
+        nilai_skala5: toNumberOrNull(obj.nilai_skala5)
+      } as RawRow
     })
 }
 
 function buildSummaries(rows: RawRow[], visibleFilter: string[]): OpdSummary[] {
   const map = new Map<string, OpdSummary>()
+
   for (const row of rows) {
     if (visibleFilter.length > 0 && !visibleFilter.includes(row.opd_name)) continue
+
     if (!map.has(row.opd_name)) {
       map.set(row.opd_name, {
         opd_name: row.opd_name,
@@ -113,20 +144,45 @@ function buildSummaries(rows: RawRow[], visibleFilter: string[]): OpdSummary[] {
         total: 0,
         maks: 0,
         persen: 0,
+        skala5: 0,
         bySection: {},
         rows: []
       })
     }
+
     const entry = map.get(row.opd_name)!
-    const nilai = row.nilai ?? 0
+
+    // Pastikan nilai adalah number sebelum dijumlahkan
+    const nilai = toNumber(row.nilai)
+    const nilaiMaks = toNumber(row.nilai_maks) || 5
+
     entry.total += nilai
-    entry.maks += row.nilai_maks ?? 5
+    entry.maks += nilaiMaks
     entry.rows.push(row)
-    if (!entry.bySection[row.section]) entry.bySection[row.section] = { total: 0, maks: 0 }
+
+    // Inisialisasi section jika belum ada
+    if (!entry.bySection[row.section]) {
+      entry.bySection[row.section] = { total: 0, maks: 0 }
+    }
     entry.bySection[row.section].total += nilai
-    entry.bySection[row.section].maks += row.nilai_maks ?? 5
+    entry.bySection[row.section].maks += nilaiMaks
+
+    // nilai_skala5 adalah nilai unit-level — sama untuk semua baris OPD yang sama.
+    // Ambil dari baris pertama yang memiliki nilai valid.
+    if (entry.skala5 === 0 && row.nilai_skala5 !== null && row.nilai_skala5 > 0) {
+      entry.skala5 = toNumber(row.nilai_skala5)
+    }
   }
-  for (const e of map.values()) e.persen = e.maks > 0 ? (e.total / e.maks) * 100 : 0
+
+  // Hitung persentase dan skala5 fallback
+  for (const e of map.values()) {
+    e.persen = e.maks > 0 ? (e.total / e.maks) * 100 : 0
+    // Fallback: hitung manual jika kolom nilai_skala5 belum ada / semua kosong
+    if (e.skala5 === 0 && e.maks > 0) {
+      e.skala5 = (e.total / e.maks) * 5
+    }
+  }
+
   return Array.from(map.values()).sort((a, b) => b.persen - a.persen)
 }
 
@@ -185,7 +241,7 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
       exit={{ opacity: 0, scale: 0.97 }}
       whileHover={{ y: -4 }}
       onClick={onClick}
-      className="group relative w-full text-left bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-200 flex flex-col p-0 overflow-hidden">
+      className="group relative w-full text-left bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-200 flex flex-col p-0 overflow-hidden cursor-pointer">
       {/* Top color strip */}
       <div className="h-1.5 w-full shrink-0" style={{ backgroundColor: color }} />
 
@@ -199,29 +255,34 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
             </div>
             <div className="flex items-center gap-1 bg-gray-100 border border-black px-2 py-0.5">
               <KategoriIcon kategori={opd.kategori} />
-              <span className="text-[10px] font-black uppercase tracking-wider">{opd.kategori}</span>
+              <span className="text-sm font-black uppercase tracking-wider">{opd.kategori}</span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-black group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5" />
         </div>
 
         {/* Name */}
-        <h3 className="font-black text-sm leading-tight line-clamp-2 group-hover:underline decoration-2 underline-offset-2">
+        <h3 className="font-black leading-tight line-clamp-2 group-hover:underline decoration-2 underline-offset-2">
           {opd.opd_name}
         </h3>
 
         {/* Score */}
         <div className="mt-auto space-y-1.5">
           <div className="flex justify-between items-baseline">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nilai</span>
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Nilai</span>
             <span className="font-black text-lg tabular-nums leading-none" style={{ color }}>
               {opd.persen.toFixed(1)}
-              <span className="text-xs text-gray-400 font-bold">%</span>
+              <span className="text-xs text-gray-600 font-bold">%</span>
             </span>
           </div>
           <MiniBar persen={opd.persen} color={color} />
-          <div className="text-[10px] font-bold text-gray-400 text-right tabular-nums">
-            {opd.total} / {opd.maks} poin
+          {/* Skala 5 — dibaca dari data Excel */}
+          <div className="flex justify-between items-baseline">
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Skala 5</span>
+            <span className="text-sm font-black tabular-nums" style={{ color }}>
+              {opd.skala5.toFixed(2)}
+              <span className="text-xs text-gray-600 font-bold"> / 5</span>
+            </span>
           </div>
         </div>
 
@@ -328,7 +389,15 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
                 {opd.persen.toFixed(1)}
                 <span className="text-xl text-gray-400">%</span>
               </div>
-              <div className="text-xs font-bold text-gray-400 tabular-nums mt-1">
+              {/* Skala 5 dari data Excel */}
+              <div className="flex items-baseline justify-end gap-1 mt-1">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Skala 5</span>
+                <span className="font-black text-lg tabular-nums" style={{ color }}>
+                  {opd.skala5.toFixed(2)}
+                </span>
+                <span className="text-xs font-bold text-gray-400">/ 5</span>
+              </div>
+              <div className="text-xs font-bold text-gray-400 tabular-nums mt-0.5">
                 {opd.total} / {opd.maks} poin
               </div>
             </div>
@@ -348,18 +417,18 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
               const sc = scoreColor(pct)
               return (
                 <div key={sec} className="border-2 border-black p-2 bg-gray-50 shrink-0 min-w-52">
-                  <div className="text-[9px] font-black uppercase tracking-wide text-gray-500 mb-1 leading-tight">
+                  <div className="text-xs font-black uppercase tracking-wide text-gray-500 mb-1 leading-tight">
                     {SECTION_SHORT[sec] ?? sec}
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="flex-1 h-2 bg-gray-200 border border-black overflow-hidden">
                       <div className="h-full" style={{ width: `${pct}%`, backgroundColor: bg }} />
                     </div>
-                    <span className="text-[10px] font-black tabular-nums" style={{ color: sc }}>
+                    <span className="text-xs font-black tabular-nums" style={{ color: sc }}>
                       {pct.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="text-[9px] text-gray-400 font-bold mt-0.5">
+                  <div className="text-xs text-gray-400 font-bold mt-0.5">
                     {s.total}/{s.maks}
                   </div>
                 </div>
@@ -372,6 +441,9 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
           {Object.entries(grouped).map(([sec, secRows]) => {
             const bg = SECTION_COLORS[sec] ?? '#e5e7eb'
+            // Hitung total per section dengan benar
+            const secTotal = secRows.reduce((s, r) => s + toNumber(r.nilai), 0)
+            const secMaks = secRows.reduce((s, r) => s + (toNumber(r.nilai_maks) || 5), 0)
             return (
               <div key={sec}>
                 {/* Sticky section header */}
@@ -380,8 +452,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
                   style={{ backgroundColor: bg }}>
                   <span className="text-[11px] font-black uppercase tracking-widest">{sec}</span>
                   <span className="text-[10px] font-bold">
-                    {secRows.reduce((s, r) => s + (r.nilai ?? 0), 0)} /{' '}
-                    {secRows.reduce((s, r) => s + (r.nilai_maks ?? 5), 0)}
+                    {secTotal} / {secMaks}
                   </span>
                 </div>
 
@@ -426,14 +497,12 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
 
         {/* ── Panel footer ── */}
         <div className="shrink-0 border-t-4 border-black p-4 bg-gray-50 flex items-center justify-between flex-col gap-3 sm:flex-row">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            {opd.rows.length} indikator · Data bersifat sementara
-          </span>
+          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Data bersifat sementara</span>
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="flex items-center gap-2 px-4 py-2 border-2 border-black font-black text-xs uppercase bg-[#FF9F1C] hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-[3px_3px_0px_0px_#000]">
+              className="flex items-center gap-2 px-4 py-2 border-2 border-black font-black text-xs uppercase bg-[#FF9F1C] hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-[3px_3px_0px_0px_#000] cursor-pointer">
               {downloading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -448,7 +517,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 border-2 border-black font-black text-xs uppercase bg-white hover:bg-black hover:text-white transition-colors shadow-[3px_3px_0px_0px_#000]">
+              className="px-4 py-2 border-2 border-black font-black text-xs uppercase bg-white hover:bg-black hover:text-white transition-colors shadow-[3px_3px_0px_0px_#000] cursor-pointer">
               Tutup
             </button>
           </div>
@@ -492,6 +561,7 @@ export default function HasilPenilaian() {
 
   // ── DERIVED ───────────────────────────────────────────────────────────────
   const summaries = useMemo(() => buildSummaries(rawRows, VISIBLE_OPDS), [rawRows])
+
   const allSections = useMemo(() => {
     const s = new Set(rawRows.map((r) => r.section))
     return ['Semua', ...Array.from(s)]
@@ -520,9 +590,10 @@ export default function HasilPenilaian() {
   const stats = useMemo(() => {
     if (!summaries.length) return null
     const avg = summaries.reduce((s, o) => s + o.persen, 0) / summaries.length
+    const avgSkala5 = summaries.reduce((s, o) => s + o.skala5, 0) / summaries.length
     const best = summaries[0]
     const filled = summaries.filter((o) => o.total > 0).length
-    return { avg, best, filled, total: summaries.length }
+    return { avg, avgSkala5, best, filled, total: summaries.length }
   }, [summaries])
 
   const rankMap = useMemo(() => {
@@ -558,8 +629,9 @@ export default function HasilPenilaian() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="text-lg font-bold text-gray-600 max-w-2xl leading-relaxed">
-          Rekapitulasi hasil evaluasi kinerja penyelenggara pelayanan publik. Data bersifat sementara dan belum final.
-          Klik kartu untuk melihat rincian penilaian per indikator.
+          Rekapitulasi hasil evaluasi kinerja penyelenggara pelayanan publik. Data bersifat{' '}
+          <span className="bg-rose-300 p-0.5 px-1">sementara</span> dan belum final. Klik kartu untuk melihat rincian
+          penilaian per indikator.
         </motion.p>
       </header>
 
@@ -611,7 +683,8 @@ export default function HasilPenilaian() {
                     value: `${stats.avg.toFixed(1)}%`,
                     color: '#FF9F1C',
                     small: false,
-                    sub: undefined
+                    // Tampilkan rata-rata skala 5 dari data Excel
+                    sub: `Skala 5: ${stats.avgSkala5.toFixed(2)} / 5`
                   },
                   {
                     icon: <Award className="w-6 h-6" />,
@@ -619,7 +692,7 @@ export default function HasilPenilaian() {
                     value: stats.best.opd_name,
                     color: '#22c55e',
                     small: true,
-                    sub: `${stats.best.persen.toFixed(1)}%`
+                    sub: `${stats.best.persen.toFixed(1)}% · Skala 5: ${stats.best.skala5.toFixed(2)}`
                   },
                   {
                     icon: <TrendingUp className="w-6 h-6" />,
@@ -648,7 +721,7 @@ export default function HasilPenilaian() {
                     {stat.icon}
                   </div>
                   <div className="text-[11px] font-black uppercase tracking-widest text-gray-400">{stat.label}</div>
-                  <div className={`font-black leading-tight ${stat.small ? 'text-sm' : 'text-2xl'} text-black`}>
+                  <div className={`font-black leading-tight ${stat.small ? '' : 'text-2xl'} text-black`}>
                     {stat.value}
                   </div>
                   {stat.sub && <div className="text-xs font-bold text-gray-500">{stat.sub}</div>}
@@ -666,14 +739,14 @@ export default function HasilPenilaian() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Cari nama OPD..."
+                  placeholder="Cari nama OPP..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border-4 border-black py-3 pl-12 pr-4 font-bold placeholder:font-medium placeholder:text-gray-300 focus:outline-none focus:shadow-[8px_8px_0px_0px_#000] transition-all"
+                  className="w-full bg-white border-4 border-black py-3 pl-12 pr-4 font-bold placeholder:font-medium placeholder:text-gray-600 focus:outline-none focus:shadow-[8px_8px_0px_0px_#000] transition-all"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-gray-500">Urut:</span>
+                <span className="text-xs font-black uppercase tracking-wider text-gray-600">Urut:</span>
                 {(['rank', 'az'] as const).map((s) => (
                   <button
                     key={s}
@@ -687,8 +760,8 @@ export default function HasilPenilaian() {
 
             <div className="flex flex-wrap gap-2 items-center">
               <Filter className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="text-xs font-black uppercase tracking-wider text-gray-500 mr-1">Kategori:</span>
-              {(['Semua', 'OPD', 'Puskesmas', 'Kecamatan'] as const).map((k) => (
+              <span className="text-xs font-black uppercase tracking-wider text-gray-600 mr-1">Kategori:</span>
+              {(['Semua', 'OPD & Rumah Sakit', 'Puskesmas', 'Kecamatan'] as const).map((k) => (
                 <button
                   key={k}
                   onClick={() => setKategori(k)}
@@ -700,7 +773,7 @@ export default function HasilPenilaian() {
 
             <div className="flex flex-wrap gap-2 items-center">
               <BarChart3 className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="text-xs font-black uppercase tracking-wider text-gray-500 mr-1">Seksi:</span>
+              <span className="text-xs font-black uppercase tracking-wider text-gray-600 mr-1">Indikator:</span>
               {allSections.map((sec) => {
                 const color = sec !== 'Semua' ? (SECTION_COLORS[sec] ?? '#e5e7eb') : undefined
                 return (
