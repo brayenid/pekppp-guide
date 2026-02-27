@@ -372,10 +372,10 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <div
-                  className={`w-7 h-7 border-2 border-black flex items-center justify-center font-black text-xs shadow-[2px_2px_0px_0px_#000] shrink-0 ${rankBg}`}>
+                  className={`w-7 h-7 border-2 border-black flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_#000] shrink-0 ${rankBg}`}>
                   {rank}
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 border border-black px-2 py-0.5 flex items-center gap-1">
+                <span className="text-sm font-black uppercase tracking-widest bg-gray-100 border border-black px-2 py-0.5 flex items-center gap-1">
                   <KategoriIcon kategori={opd.kategori} />
                   {opd.kategori}
                 </span>
@@ -385,20 +385,21 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
 
             {/* Big score */}
             <div className="text-right shrink-0">
-              <div className="font-black text-4xl tabular-nums leading-none" style={{ color }}>
-                {opd.persen.toFixed(1)}
-                <span className="text-xl text-gray-400">%</span>
+              <div className="font-black text-2xl tabular-nums leading-none" style={{ color }}>
+                {opd.skala5.toFixed(2)}
               </div>
               {/* Skala 5 dari data Excel */}
-              <div className="flex items-baseline justify-end gap-1 mt-1">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Skala 5</span>
-                <span className="font-black text-lg tabular-nums" style={{ color }}>
-                  {opd.skala5.toFixed(2)}
-                </span>
-                <span className="text-xs font-bold text-gray-400">/ 5</span>
-              </div>
-              <div className="text-xs font-bold text-gray-400 tabular-nums mt-0.5">
-                {opd.total} / {opd.maks} poin
+              <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-baseline justify-end gap-1 mt-1">
+                  <span className="font-bold tabular-nums" style={{ color }}>
+                    {opd.persen.toFixed(1)}
+                    <span className="text-gray-400"> %</span>
+                  </span>
+                  <div className="text-slate-300">|</div>
+                </div>
+                <div className="font-bold text-gray-400 tabular-nums mt-0.5">
+                  {opd.total} / {opd.maks} poin
+                </div>
               </div>
             </div>
 
@@ -511,7 +512,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
               ) : (
                 <>
                   <FileDown className="w-4 h-4" />
-                  Unduh Berita Acara
+                  Berita Acara
                 </>
               )}
             </button>
@@ -674,7 +675,7 @@ export default function HasilPenilaian() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14">
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-14">
               {(
                 [
                   {
@@ -720,7 +721,7 @@ export default function HasilPenilaian() {
                     style={{ backgroundColor: stat.color }}>
                     {stat.icon}
                   </div>
-                  <div className="text-[11px] font-black uppercase tracking-widest text-gray-400">{stat.label}</div>
+                  <div className="text-[11px] font-black uppercase tracking-widest text-gray-600">{stat.label}</div>
                   <div className={`font-black leading-tight ${stat.small ? '' : 'text-2xl'} text-black`}>
                     {stat.value}
                   </div>
