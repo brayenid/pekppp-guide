@@ -267,7 +267,9 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
       <Page size="A4" style={S.page}>
         {/* ── JUDUL ── */}
         <Text style={S.docTitle}>Berita Acara Evaluasi</Text>
-        <Text style={S.docSubTitle}>Pemantauan dan Evaluasi Kinerja Penyelenggara Pelayanan Publik (PEKPPP) 2026</Text>
+        <Text style={S.docSubTitle}>
+          Pemantauan dan Evaluasi Kinerja Penyelenggara Pelayanan Publik (PEKPPP) 2026 Kab. Kutai Barat
+        </Text>
         <View style={S.divider} />
 
         {/* ── INFO UNIT ── */}
@@ -276,7 +278,7 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
             [
               ['Nama Unit', opd.opd_name],
               ['Kategori', opd.kategori],
-              ['Tanggal', today],
+              ['Dicetak Pada', today],
               ['Evaluator', '____________________________']
             ] as [string, string][]
           ).map(([label, val]) => (
@@ -406,7 +408,7 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
 
         {/* ── FOOTER ── */}
         <Text style={S.footerNote} fixed>
-          Dokumen ini digenerate secara otomatis oleh Sistem PEKPPP Kabupaten Kutai Barat · {today}
+          Dokumen ini di-generate secara otomatis oleh Sistem PEKPPP Bagian Organisasi Kabupaten Kutai Barat · {today}
         </Text>
         <Text
           style={S.pageNumber}
