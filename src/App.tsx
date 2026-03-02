@@ -11,7 +11,8 @@ import {
   Info,
   Menu,
   X,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
@@ -21,6 +22,7 @@ import DataRegulasi from './pages/DataRegulasi'
 import ScrollToTop from './components/ScrollToTop'
 import ContohSurat from './pages/ContohSurat'
 import HasilPenilaian from './pages/Hasil'
+import Wiki from './pages/Wiki'
 
 export const DRIVE_UPLOAD_URL =
   'https://drive.google.com/drive/folders/1MsD9yZy1pQNdu1G8sIGYCdEOUeHnBUlj?usp=drive_link'
@@ -30,6 +32,7 @@ const NAV_ITEMS = [
   { path: '/panduan', label: 'Panduan', icon: <Info className="w-4 h-4" /> },
   { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> },
   { path: '/contoh', label: 'Contoh Surat', icon: <FileText className="w-4 h-4" /> },
+  { path: '/wiki', label: 'Wiki', icon: <BookOpen className="w-4 h-4" /> },
   { path: '/hasil', label: 'Hasil', icon: <FileText className="w-4 h-4" /> }
 ]
 
@@ -39,7 +42,7 @@ const NavItem = ({ to, children, onClick }: { to: string; children: React.ReactN
     to={to}
     onClick={onClick}
     className={({ isActive }) =>
-      `flex items-center gap-3 px-4 py-2 font-bold uppercase tracking-wide border-2 border-black transition-all ${
+      `flex items-center gap-3 px-3 py-2 font-bold uppercase tracking-wide border-2 border-black transition-all text-sm ${
         isActive
           ? 'bg-[#FFDE59] shadow-[4px_4px_0px_0px_#000] -translate-y-1'
           : 'bg-white hover:bg-gray-50 hover:shadow-[2px_2px_0px_0px_#000] hover:-translate-y-0.5'
@@ -50,6 +53,9 @@ const NavItem = ({ to, children, onClick }: { to: string; children: React.ReactN
 )
 
 function AppContent() {
+  const { pathname } = useLocation()
+  const isWiki = pathname === '/wiki'
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -78,7 +84,7 @@ function AppContent() {
           </NavLink>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
             {NAV_ITEMS.map((item) => (
               <NavItem key={item.path} to={item.path}>
                 {item.icon}
@@ -125,6 +131,7 @@ function AppContent() {
           <Route path="/regulasi" element={<DataRegulasi />} />
           <Route path="/contoh" element={<ContohSurat />} />
           <Route path="/hasil" element={<HasilPenilaian />} />
+          <Route path="/wiki" element={<Wiki />} />
         </Routes>
       </main>
 
@@ -140,15 +147,16 @@ function AppContent() {
       </footer>
 
       {/* --- FLOATING CTA (Neo Brutalism Style) --- */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div
+        className={`fixed right-6 z-40 transition-all duration-300 ${isWiki ? 'bottom-12 lg:bottom-3' : 'bottom-3'}`}>
         <motion.a
           href={DRIVE_UPLOAD_URL}
           target="_blank"
           rel="noopener noreferrer"
           whileHover={{ scale: 1.05, rotate: -2 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-3 px-3 py-3 bg-[#57E7FB] border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[12px_12px_0px_0px_#000] hover:-translate-y-1 transition-all group">
-          <div className="bg-black text-white p-2 border-2 border-transparent group-hover:bg-white group-hover:text-black group-hover:border-black transition-colors">
+          className="flex items-center gap-3 px-2 py-2 bg-[#57E7FB] border-4 border-black shadow-[2px_2px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-y-1 transition-all group">
+          <div className="bg-black text-white p-1 border-2 border-transparent group-hover:bg-white group-hover:text-black group-hover:border-black transition-colors">
             <UploadCloud className="w-6 h-6" />
           </div>
           <div className="flex flex-col text-left">

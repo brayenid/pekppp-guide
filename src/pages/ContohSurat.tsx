@@ -41,7 +41,7 @@ export default function ContohSurat() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="inline-block bg-[#FF9F1C] border-2 border-black px-4 py-1 mb-4 shadow-[4px_4px_0px_0px_#000]">
-          <span className="text-sm font-black uppercase tracking-widest">Bank Data</span>
+          <span className="text-sm font-black uppercase tracking-widest">Contoh</span>
         </motion.div>
 
         <motion.h1
@@ -60,7 +60,7 @@ export default function ContohSurat() {
           transition={{ delay: 0.2 }}
           className="text-lg font-bold text-gray-600 max-w-2xl leading-relaxed">
           Kumpulan template surat dinas siap pakai. Unduh, edit sesuai kebutuhan, dan gunakan. Jangan lupa sesuaikan KOP
-          instansi Anda.
+          OPP Anda.
         </motion.p>
       </header>
 
@@ -76,7 +76,7 @@ export default function ContohSurat() {
             placeholder="Cari surat (misal: Undangan)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border-4 border-black py-4 pl-12 pr-4 font-bold placeholder:font-medium placeholder:text-gray-300 focus:outline-none focus:shadow-[8px_8px_0px_0px_#000] transition-all"
+            className="w-full bg-white border-4 border-black py-4 pl-12 pr-4 font-bold placeholder:font-medium placeholder:text-gray-600 focus:outline-none focus:shadow-[8px_8px_0px_0px_#000] transition-all"
           />
         </div>
 

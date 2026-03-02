@@ -83,7 +83,7 @@ const Home = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Cari indikator (cth: kebijakan)..."
+                  placeholder="Cari pertanyaan (cth: kebijakan)..."
                   className="w-full bg-white border-2 border-black py-4 pl-12 pr-4 text-base font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-[6px_6px_0px_0px_#000] transition-all shadow-[4px_4px_0px_0px_#000]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -119,7 +119,7 @@ const Home = () => {
           {/* Step 1 */}
           <div className="p-6 bg-[#FF90E8] border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <LayoutGrid className="w-8 h-8 mb-3 text-black" />
-            <h3 className="font-black text-lg">1. Pilih Indikator</h3>
+            <h3 className="font-black text-lg">1. Pilih Pertanyaan</h3>
             <p className="text-sm font-semibold mt-1">Cari pertanyaan yang ingin Anda lengkapi datanya.</p>
           </div>
           {/* Step 2 */}
@@ -149,7 +149,7 @@ const Home = () => {
           <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-4">
             <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3">
               <LayoutGrid className="w-6 h-6 md:w-8 md:h-8" />
-              Daftar Indikator
+              Daftar Pertanyaan
             </h2>
             <div className="bg-black text-white px-3 py-1 font-mono font-bold text-sm shadow-[4px_4px_0px_0px_#888]">
               {filteredData.length} ITEM

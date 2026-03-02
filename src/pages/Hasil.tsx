@@ -418,7 +418,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
               const sc = scoreColor(pct)
               return (
                 <div key={sec} className="border-2 border-black p-2 bg-gray-50 shrink-0 min-w-52">
-                  <div className="text-xs font-black uppercase tracking-wide text-gray-500 mb-1 leading-tight">
+                  <div className="text-sm font-black uppercase tracking-wide text-gray-600 mb-1 leading-tight">
                     {SECTION_SHORT[sec] ?? sec}
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -429,7 +429,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
                       {pct.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="text-xs text-gray-400 font-bold mt-0.5">
+                  <div className="text-xs text-gray-600 font-bold mt-0.5">
                     {s.total}/{s.maks}
                   </div>
                 </div>
@@ -632,7 +632,7 @@ export default function HasilPenilaian() {
           className="text-lg font-bold text-gray-600 max-w-2xl leading-relaxed">
           Rekapitulasi hasil evaluasi kinerja penyelenggara pelayanan publik. Data bersifat{' '}
           <span className="bg-rose-300 p-0.5 px-1">sementara</span> dan belum final. Klik kartu untuk melihat rincian
-          penilaian per indikator.
+          penilaian per pertanyaan.
         </motion.p>
       </header>
 
@@ -697,7 +697,7 @@ export default function HasilPenilaian() {
                   },
                   {
                     icon: <TrendingUp className="w-6 h-6" />,
-                    label: 'Unit Dinilai',
+                    label: 'OPP Dinilai',
                     value: `${stats.filled}/${stats.total}`,
                     color: '#4ECDC4',
                     small: false,
@@ -705,7 +705,7 @@ export default function HasilPenilaian() {
                   },
                   {
                     icon: <Layers className="w-6 h-6" />,
-                    label: 'Total Indikator',
+                    label: 'Total Pertanyaan',
                     value: '30',
                     color: '#C77DFF',
                     small: false,
@@ -790,7 +790,7 @@ export default function HasilPenilaian() {
             </div> */}
 
             <div className="text-sm font-bold text-gray-400">
-              Menampilkan <span className="text-black font-black">{displayed.length}</span> unit
+              Menampilkan <span className="text-black font-black">{displayed.length}</span> OPP
               {searchQuery && ` · "${searchQuery}"`}
             </div>
           </section>

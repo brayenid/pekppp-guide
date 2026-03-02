@@ -42,7 +42,7 @@ export default function Panduan() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="inline-block bg-black text-white px-4 py-1 mb-4 border-2 border-transparent shadow-[4px_4px_0px_0px_#888]">
-          <span className="text-sm font-black uppercase tracking-widest">SOP Pengunggahan</span>
+          <span className="text-sm font-black uppercase tracking-widest">Panduan</span>
         </motion.div>
 
         <motion.h1
@@ -51,7 +51,7 @@ export default function Panduan() {
           className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
           PANDUAN{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
-            UPLOAD
+            PENGUNGGAHAN
           </span>
         </motion.h1>
 
@@ -60,7 +60,7 @@ export default function Panduan() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_#000] max-w-2xl">
-          <p className="text-lg font-bold leading-tight">Jangan sampai nilai turun karena salah upload!</p>
+          <p className="text-lg font-bold leading-tight">Jangan sampai nilai turun karena salah unggah!</p>
           <p className="text-base text-gray-600 font-medium mt-2">
             Ikuti 4 langkah mudah di bawah ini agar dokumen Anda diverifikasi dengan cepat oleh tim evaluator.
           </p>
@@ -170,8 +170,8 @@ export default function Panduan() {
             <div>
               <h4 className="font-black text-lg uppercase mb-1">Catatan Evaluator</h4>
               <p className="font-bold text-sm leading-relaxed">
-                "Judul file harus mewakili isi berkas secara eksplisit. Kami tidak akan membuka file satu per satu jika
-                namanya tidak jelas."
+                "Judul file harus mewakili isi berkas secara eksplisit. Evaluator tidak akan membuka file satu per satu
+                jika namanya tidak jelas."
               </p>
             </div>
           </div>

@@ -113,7 +113,7 @@ export default function DataRegulasi() {
                   No
                 </th>
                 <th className="px-6 py-4 text-sm font-black uppercase tracking-widest border-r-2 border-white/20">
-                  Evidence / Data
+                  Dokumen
                 </th>
                 <th className="px-6 py-4 text-sm font-black uppercase tracking-widest text-right">Dasar Hukum</th>
               </tr>
@@ -165,8 +165,7 @@ export default function DataRegulasi() {
             </div>
             <h2 className="text-3xl font-black text-black mb-4 leading-none">VALIDITAS DOKUMEN</h2>
             <p className="text-base font-bold text-gray-800 leading-relaxed border-l-4 border-black pl-4">
-              "Setiap bukti dukung (evidence) yang diunggah wajib mencantumkan konsiderans atau merujuk pada regulasi di
-              atas. Dokumen tanpa dasar hukum yang jelas berisiko <u>tidak dinilai</u>."
+              "Setiap bukti dukung (evidence) yang diunggah dapat merujuk pada regulasi di atas."
             </p>
           </div>
 

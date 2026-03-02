@@ -1,0 +1,309 @@
+[
+  {
+    "id": "cat-1",
+    "kategori": "Pengertian Dasar & Regulasi",
+    "warna": "#FFDE59",
+    "ikon": "📋",
+    "istilah": [
+      {
+        "id": "t-001",
+        "singkatan": "PEKPPP",
+        "kepanjangan": "Pemantauan dan Evaluasi Kinerja Penyelenggara Pelayanan Publik",
+        "definisi": "Proses penilaian sistematis terhadap unit kerja pemberi layanan untuk memperoleh gambaran kinerja pelayanan publik di Indonesia. Dilaksanakan secara periodik sesuai PermenPANRB 4/2023.",
+        "tag": ["Dasar", "Regulasi"]
+      },
+      {
+        "id": "t-002",
+        "singkatan": "IPP",
+        "kepanjangan": "Indeks Pelayanan Publik",
+        "definisi": "Angka hasil akhir evaluasi PEKPPP dalam skala 1-5 yang merepresentasikan kualitas pelayanan pada suatu instansi atau wilayah. Semakin tinggi nilai IPP, semakin baik kualitas pelayanan.",
+        "tag": ["Indeks", "Penilaian"]
+      },
+      {
+        "id": "t-003",
+        "singkatan": "PermenPANRB 4/2023",
+        "kepanjangan": "Peraturan Menteri Pendayagunaan Aparatur Negara dan Reformasi Birokrasi Nomor 4 Tahun 2023",
+        "definisi": "Dasar hukum terbaru yang mengatur periodisasi dan tata cara pelaksanaan PEKPPP yang lebih dinamis. Menggantikan regulasi sebelumnya dan memberikan fleksibilitas dalam siklus evaluasi.",
+        "tag": ["Regulasi", "Hukum"]
+      },
+      {
+        "id": "t-004",
+        "singkatan": "Lokus Evaluasi",
+        "kepanjangan": "-",
+        "definisi": "Unit kerja tertentu yang dipilih untuk menjadi objek penilaian PEKPPP. Contohnya: Disdukcapil, Puskesmas, atau PTSP. Lokus dipilih berdasarkan kriteria tertentu dan menjadi fokus utama dalam proses evaluasi.",
+        "tag": ["Teknis", "Dasar"]
+      },
+      {
+        "id": "t-005",
+        "singkatan": "OPP",
+        "kepanjangan": "Organisasi Penyelenggara Pelayanan Publik",
+        "definisi": "Satuan kerja yang memberikan pelayanan langsung kepada masyarakat. OPP adalah subjek utama yang dinilai dalam PEKPPP dan bertanggung jawab menyiapkan seluruh bukti dukung.",
+        "tag": ["Kelembagaan", "Dasar"]
+      }
+    ]
+  },
+  {
+    "id": "cat-2",
+    "kategori": "Aktor & Kelembagaan",
+    "warna": "#FF90E8",
+    "ikon": "🏛️",
+    "istilah": [
+      {
+        "id": "t-007",
+        "singkatan": "KemenPANRB",
+        "kepanjangan": "Kementerian Pendayagunaan Aparatur Negara dan Reformasi Birokrasi",
+        "definisi": "Pembina pelayanan publik nasional sekaligus koordinator utama PEKPPP. Bertanggung jawab menetapkan kebijakan, instrumen penilaian, dan mengumumkan hasil evaluasi nasional.",
+        "tag": ["Kelembagaan", "Pusat"]
+      },
+      {
+        "id": "t-008",
+        "singkatan": "Biro / Ortal / Bagian Organisasi",
+        "kepanjangan": "Bagian Organisasi",
+        "definisi": "Unit di tingkat pusat atau daerah yang bertindak sebagai Evaluator Internal atau pendamping unit lokus. Berperan penting dalam koordinasi persiapan dokumen dan pengawasan proses evaluasi.",
+        "tag": ["Kelembagaan", "Internal"]
+      },
+      {
+        "id": "t-009",
+        "singkatan": "Evaluator",
+        "kepanjangan": "-",
+        "definisi": "Pihak yang melakukan verifikasi lapangan dan penilaian dokumen. Dapat berasal dari KemenPANRB atau Pemerintah Daerah itu sendiri. Evaluator mengisi F-02 berdasarkan hasil observasi.",
+        "tag": ["Kelembagaan", "Penilai"]
+      }
+    ]
+  },
+  {
+    "id": "cat-3",
+    "kategori": "Instrumen & Formulir Teknis",
+    "warna": "#57E7FB",
+    "ikon": "📝",
+    "istilah": [
+      {
+        "id": "t-011",
+        "singkatan": "F-01",
+        "kepanjangan": "Formulir Self-Assessment",
+        "definisi": "Formulir yang diisi oleh OPP secara mandiri untuk mengklaim capaian. Merupakan langkah pertama dalam proses PEKPPP di mana unit menilai dirinya sendiri.",
+        "tag": ["Formulir", "Self-Assessment"]
+      },
+      {
+        "id": "t-012",
+        "singkatan": "F-02",
+        "kepanjangan": "Formulir Evaluasi",
+        "definisi": "Formulir penilaian yang diisi oleh Evaluator setelah melakukan observasi dan verifikasi terhadap F-01. Nilai akhir IPP ditentukan berdasarkan pengisian F-02 oleh evaluator.",
+        "tag": ["Formulir", "Penilaian"]
+      },
+      {
+        "id": "t-013",
+        "singkatan": "F-03",
+        "kepanjangan": "Formulir Survei Masyarakat",
+        "definisi": "Instrumen untuk menjaring persepsi langsung dari pengguna layanan (masyarakat) mengenai kualitas yang mereka rasakan. Hasilnya berkontribusi pada penilaian aspek kepuasan masyarakat.",
+        "tag": ["Formulir", "Survei"]
+      },
+      {
+        "id": "t-014",
+        "singkatan": "SIPP / SIPPN",
+        "kepanjangan": "Sistem Informasi Pelayanan Publik Nasional",
+        "definisi": "Portal nasional di sippn.menpan.go.id tempat instansi wajib mempublikasikan standar layanannya. Keaktifan entri di SIPPN menjadi salah satu bukti dukung penilaian Aspek Kebijakan.",
+        "tag": ["Sistem", "Portal"]
+      },
+      {
+        "id": "t-015",
+        "singkatan": "Evidence / Bukti Dukung",
+        "kepanjangan": "-",
+        "definisi": "Dokumen otentik (SK, Foto, Video, Notulensi, Screenshot) yang diunggah ke portal PEKPPP untuk membuktikan capaian yang diklaim. Kualitas dan relevansi bukti sangat mempengaruhi penilaian evaluator.",
+        "tag": ["Teknis", "Dokumen"]
+      }
+    ]
+  },
+  {
+    "id": "cat-4",
+    "kategori": "6 Aspek Penilaian PEKPPP",
+    "warna": "#B8F4B8",
+    "ikon": "⭐",
+    "istilah": [
+      {
+        "id": "t-016",
+        "singkatan": "Aspek 1: Kebijakan Pelayanan",
+        "kepanjangan": "-",
+        "definisi": "Menilai kualitas regulasi dan kebijakan yang mendasari penyelenggaraan layanan. Mencakup keberadaan Standar Pelayanan (SP) yang ditetapkan melalui Forum Konsultasi Publik (FKP) dan dipublikasikan.",
+        "tag": ["Aspek", "Kebijakan"]
+      },
+      {
+        "id": "t-017",
+        "singkatan": "SP",
+        "kepanjangan": "Standar Pelayanan",
+        "definisi": "14 komponen standar yang wajib disusun dan ditetapkan melalui FKP, meliputi persyaratan, prosedur, waktu, biaya, produk layanan, sarana, kompetensi petugas, pengawasan, penanganan pengaduan, jaminan pelayanan, jaminan keamanan, dan evaluasi kinerja.",
+        "tag": ["Kebijakan", "Aspek 1"]
+      },
+      {
+        "id": "t-018",
+        "singkatan": "Maklumat Pelayanan",
+        "kepanjangan": "-",
+        "definisi": "Pernyataan kesanggupan penyelenggara untuk melayani sesuai standar pelayanan yang telah ditetapkan. Harus ditandatangani oleh kepala unit dan dipajang di ruang publik yang mudah dilihat masyarakat.",
+        "tag": ["Kebijakan", "Aspek 1"]
+      },
+      {
+        "id": "t-019",
+        "singkatan": "FKP",
+        "kepanjangan": "Forum Konsultasi Publik",
+        "definisi": "Dialog dua arah antara penyelenggara dan masyarakat untuk menyusun atau merevisi kebijakan layanan. Wajib dilaksanakan minimal sekali dalam setahun dan didokumentasikan dengan notulensi, daftar hadir, dan foto.",
+        "tag": ["Kebijakan", "Aspek 1"]
+      },
+      {
+        "id": "t-020",
+        "singkatan": "Aspek 2: Profesionalisme SDM",
+        "kepanjangan": "-",
+        "definisi": "Menilai kompetensi, perilaku, dan profesionalisme aparatur dalam melayani. Mencakup kode etik, budaya pelayanan 5S, penggunaan atribut (ID card, seragam), dan kompetensi teknis petugas.",
+        "tag": ["Aspek", "SDM"]
+      },
+      {
+        "id": "t-021",
+        "singkatan": "5S",
+        "kepanjangan": "Senyum, Sapa, Salam, Sopan, Santun",
+        "definisi": "Prinsip budaya pelayanan prima yang harus diterapkan oleh seluruh petugas layanan. Penerapannya dibuktikan melalui foto, video, atau penilaian evaluator saat verifikasi lapangan.",
+        "tag": ["SDM", "Aspek 2"]
+      },
+      {
+        "id": "t-022",
+        "singkatan": "Aspek 3: Sarana Prasarana",
+        "kepanjangan": "-",
+        "definisi": "Menilai ketersediaan dan kelayakan fasilitas fisik pendukung pelayanan. Mencakup ruang tunggu, toilet, parkir, fasilitas khusus kelompok rentan, dan ruang pengaduan.",
+        "tag": ["Aspek", "Sarpras"]
+      },
+      {
+        "id": "t-023",
+        "singkatan": "Sarana Kelompok Rentan",
+        "kepanjangan": "-",
+        "definisi": "Fasilitas wajib yang harus tersedia untuk disabilitas, lansia, ibu hamil, dan anak. Contohnya: rampa akses kursi roda, kursi prioritas, ruang laktasi, dan toilet difabel.",
+        "tag": ["Sarpras", "Aspek 3", "Inklusi"]
+      },
+      {
+        "id": "t-024",
+        "singkatan": "Aspek 4: Sistem Informasi",
+        "kepanjangan": "Sistem Informasi Pelayanan Publik",
+        "definisi": "Menilai pemanfaatan teknologi informasi dan sarana komunikasi dalam penyampaian layanan. Mencakup sistem elektronik (website, aplikasi, medsos) dan non-elektronik (papan info, leaflet, banner). Siklus pembaruan informasi setiap hari menjadi penilaian penting pada aspek ini.",
+        "tag": ["Aspek", "Teknologi"]
+      },
+      {
+        "id": "t-025",
+        "singkatan": "Aspek 5: Konsultasi & Pengaduan",
+        "kepanjangan": "-",
+        "definisi": "Menilai kualitas pengelolaan pengaduan dan kepuasan masyarakat. Mencakup integrasi dengan SP4N-LAPOR!, pelaksanaan SKM, dan tindak lanjut terhadap pengaduan yang masuk.",
+        "tag": ["Aspek", "Pengaduan"]
+      },
+      {
+        "id": "t-026",
+        "singkatan": "SP4N-LAPOR!",
+        "kepanjangan": "Sistem Pengelolaan Pengaduan Pelayanan Publik Nasional - Layanan Aspirasi dan Pengaduan Online Rakyat",
+        "definisi": "Platform pengaduan nasional yang terintegrasi dan wajib diaktifkan oleh setiap instansi. Pengelolaan aktif (responsif, tindak lanjut) menjadi penilaian penting pada Aspek 5.",
+        "tag": ["Pengaduan", "Aspek 5", "Portal"]
+      },
+      {
+        "id": "t-027",
+        "singkatan": "SKM",
+        "kepanjangan": "Survei Kepuasan Masyarakat",
+        "definisi": "Pengukuran kepuasan pengguna layanan secara berkala, minimal setahun sekali. Hasilnya wajib dipublikasikan dan digunakan sebagai dasar perbaikan layanan. Berkaitan erat dengan F-03.",
+        "tag": ["Survei", "Aspek 5"]
+      },
+      {
+        "id": "t-028",
+        "singkatan": "Aspek 6: Inovasi",
+        "kepanjangan": "-",
+        "definisi": "Menilai keberadaan terobosan unik yang mempercepat, mempermudah, atau mempermudah layanan. Inovasi harus sudah berjalan minimal 1 tahun dan memiliki dampak terukur bagi masyarakat.",
+        "tag": ["Aspek", "Inovasi"]
+      }
+    ]
+  },
+  {
+    "id": "cat-5",
+    "kategori": "Proses & Tahapan Evaluasi",
+    "warna": "#FFB347",
+    "ikon": "🔄",
+    "istilah": [
+      {
+        "id": "t-029",
+        "singkatan": "Desk Evaluation",
+        "kepanjangan": "-",
+        "definisi": "Penilaian dokumen bukti dukung secara daring (online) sebelum verifikasi lapangan. Evaluator memeriksa kelengkapan dan kesesuaian dokumen yang diunggah OPP melalui portal PEKPPP.",
+        "tag": ["Proses", "Evaluasi"]
+      },
+      {
+        "id": "t-030",
+        "singkatan": "Verlap",
+        "kepanjangan": "Verifikasi Lapangan",
+        "definisi": "Kunjungan langsung evaluator ke kantor OPP untuk memastikan kecocokan dokumen dengan kondisi nyata. Verlap biasanya mencakup observasi fisik, wawancara petugas, dan simulasi layanan.",
+        "tag": ["Proses", "Evaluasi"]
+      },
+      {
+        "id": "t-031",
+        "singkatan": "TL",
+        "kepanjangan": "Tindak Lanjut",
+        "definisi": "Aksi nyata yang dilakukan unit lokus berdasarkan rekomendasi evaluator dari exit meeting. Bukti TL (foto, dokumen kebijakan baru) bisa menjadi nilai tambah pada evaluasi berikutnya.",
+        "tag": ["Proses", "Perbaikan"]
+      },
+      {
+        "id": "t-032",
+        "singkatan": "Quick Wins",
+        "kepanjangan": "-",
+        "definisi": "Perbaikan-perbaikan kecil yang dapat langsung dilakukan saat atau segera setelah verlap tanpa membutuhkan anggaran besar. Contoh: memasang nomor antrian, menambah signage, merapikan ruang tunggu.",
+        "tag": ["Proses", "Perbaikan"]
+      }
+    ]
+  },
+  {
+    "id": "cat-6",
+    "kategori": "Nilai IPP & Predikat",
+    "warna": "#E8D5FF",
+    "ikon": "🏆",
+    "istilah": [
+      {
+        "id": "t-033",
+        "singkatan": "A - Pelayanan Prima",
+        "kepanjangan": "Nilai 4.51 - 5.00",
+        "definisi": "Predikat tertinggi dalam IPP. Instansi dianggap telah mengimplementasikan seluruh komponen pelayanan publik secara optimal dan konsisten. Menjadi benchmark bagi instansi lainnya.",
+        "tag": ["Predikat", "Nilai"]
+      },
+      {
+        "id": "t-034",
+        "singkatan": "A- - Sangat Baik",
+        "kepanjangan": "Nilai 4.01 - 4.50",
+        "definisi": "Instansi telah mengimplementasikan hampir seluruh komponen dengan baik namun masih ada beberapa area yang perlu ditingkatkan untuk mencapai predikat Pelayanan Prima.",
+        "tag": ["Predikat", "Nilai"]
+      },
+      {
+        "id": "t-035",
+        "singkatan": "B - Baik",
+        "kepanjangan": "Nilai 3.51 - 4.00",
+        "definisi": "Instansi telah mengimplementasikan sebagian besar komponen dengan baik. Masih terdapat celah yang perlu diperbaiki, terutama pada aspek inovasi dan pengaduan.",
+        "tag": ["Predikat", "Nilai"]
+      },
+      {
+        "id": "t-036",
+        "singkatan": "B- - Baik dengan Catatan",
+        "kepanjangan": "Nilai 3.01 - 3.50",
+        "definisi": "Instansi telah menjalankan layanan dasar namun masih banyak komponen yang belum terpenuhi. Diperlukan perbaikan sistematis berdasarkan rekomendasi evaluator.",
+        "tag": ["Predikat", "Nilai"]
+      },
+      {
+        "id": "t-037",
+        "singkatan": "C - Cukup",
+        "kepanjangan": "Nilai 2.51 - 3.00",
+        "definisi": "Pelayanan baru memenuhi standar minimum. Banyak komponen yang masih lemah dan memerlukan perhatian serius dari pimpinan unit.",
+        "tag": ["Predikat", "Nilai"]
+      },
+      {
+        "id": "t-038",
+        "singkatan": "D - Buruk",
+        "kepanjangan": "Nilai 2.01 - 2.50",
+        "definisi": "Implementasi pelayanan masih sangat rendah. Diperlukan intervensi mendalam dan komitmen pimpinan untuk perbaikan secara menyeluruh.",
+        "tag": ["Predikat", "Nilai"]
+      },
+      {
+        "id": "t-039",
+        "singkatan": "E - Sangat Buruk",
+        "kepanjangan": "Nilai 0.00 - 2.00",
+        "definisi": "Predikat terendah yang menunjukkan pelayanan publik belum terselenggara dengan layak. Instansi wajib mendapatkan pendampingan intensif dari KemenPANRB.",
+        "tag": ["Predikat", "Nilai"]
+      }
+    ]
+  }
+]
