@@ -61,9 +61,9 @@ const Home = () => {
               <motion.h1
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-5xl md:text-7xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
+                className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
                 PEKPPP{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
                   KUBAR
                 </span>
               </motion.h1>

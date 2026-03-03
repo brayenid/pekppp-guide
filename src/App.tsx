@@ -79,7 +79,7 @@ function AppContent() {
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-black text-xl tracking-tighter">PEKPPP</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-1">Docs</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-1">Kubar</span>
             </div>
           </NavLink>
 
