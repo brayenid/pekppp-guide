@@ -147,8 +147,8 @@ const Home = () => {
         {/* === SECTION 3: GRID LIST (KARTU) === */}
         <section ref={indicatorListRef} className="scroll-mt-10">
           <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-4">
-            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3">
-              <LayoutGrid className="w-6 h-6 md:w-8 md:h-8" />
+            <h2 className=" sm:text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3">
+              <LayoutGrid className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" />
               Daftar Pertanyaan
             </h2>
             <div className="bg-black text-white px-3 py-1 font-mono font-bold text-sm shadow-[4px_4px_0px_0px_#888]">
