@@ -6,6 +6,7 @@ import { type PekpppIndikator, type PekpppImage } from '../types/pekppp'
 import dataRaw from '../data/pekppp.json' // Pastikan path JSON benar
 import { DRIVE_UPLOAD_URL } from '../App' // Pastikan konstanta URL Drive benar
 import { IndicatorModal } from '../components/IndicatorModal'
+import { InfoBox } from '../components/InfoBox'
 
 // Casting data agar sesuai tipe
 const dataPekppp = dataRaw as PekpppIndikator[]
@@ -69,10 +70,10 @@ const Home = () => {
               </motion.h1>
 
               <div className="bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_#000]">
-                <p className="text-lg md:text-xl font-bold leading-tight">Bingung cara menyiapkan dokumen?</p>
+                <p className="text-lg md:text-xl font-bold leading-tight">Tentang Portal</p>
                 <p className="text-sm md:text-base text-gray-600 mt-2 font-medium">
-                  Portal ini adalah "Cheat Sheet" Anda. Klik kartu di bawah untuk melihat detail kriteria dan contoh
-                  visual.
+                  Portal ini adalah "Cheat Sheet" atau panduan Anda dalam menyiapkan bukti dukung pada penilaian PEKPPP
+                  2026. Klik kartu di bawah untuk melihat detail kriteria dan contoh visual.
                 </p>
               </div>
             </div>
@@ -143,7 +144,7 @@ const Home = () => {
             </a>
           </div>
         </section>
-
+        <InfoBox />
         {/* === SECTION 3: GRID LIST (KARTU) === */}
         <section ref={indicatorListRef} className="scroll-mt-10">
           <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-4">

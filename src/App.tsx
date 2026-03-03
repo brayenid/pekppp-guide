@@ -2,18 +2,7 @@
 // src/App.tsx
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom'
-import {
-  LayoutGrid,
-  UploadCloud,
-  ExternalLink,
-  BookText,
-  Home as HomeIcon,
-  Info,
-  Menu,
-  X,
-  FileText,
-  BookOpen
-} from 'lucide-react'
+import { LayoutGrid, BookText, Home as HomeIcon, Info, Menu, X, FileText, BookOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
 // Pastikan halaman ini ada atau buat placeholder dummy jika belum ada
@@ -23,6 +12,7 @@ import ScrollToTop from './components/ScrollToTop'
 import ContohSurat from './pages/ContohSurat'
 import HasilPenilaian from './pages/Hasil'
 import Wiki from './pages/Wiki'
+import { FloatingUploadCTA } from './components/Floatinguploadcta'
 
 export const DRIVE_UPLOAD_URL =
   'https://drive.google.com/drive/folders/1MsD9yZy1pQNdu1G8sIGYCdEOUeHnBUlj?usp=drive_link'
@@ -147,25 +137,13 @@ function AppContent() {
       </footer>
 
       {/* --- FLOATING CTA (Neo Brutalism Style) --- */}
-      <div
-        className={`fixed right-6 z-40 transition-all duration-300 ${isWiki ? 'bottom-12 lg:bottom-3' : 'bottom-3'}`}>
-        <motion.a
-          href={DRIVE_UPLOAD_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          whileHover={{ scale: 1.05, rotate: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-3 px-2 py-2 bg-[#57E7FB] border-4 border-black shadow-[2px_2px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-y-1 transition-all group">
-          <div className="bg-black text-white p-1 border-2 border-transparent group-hover:bg-white group-hover:text-black group-hover:border-black transition-colors">
-            <UploadCloud className="w-6 h-6" />
-          </div>
-          <div className="flex flex-col text-left">
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Google Drive</span>
-            <span className="text-sm font-black uppercase leading-none">Unggah Berkas</span>
-          </div>
-          <ExternalLink className="w-4 h-4 ml-2" />
-        </motion.a>
-      </div>
+      <FloatingUploadCTA
+        uploadUrl={DRIVE_UPLOAD_URL}
+        isWiki={isWiki}
+        bobbing={true}
+        bobbingVisibleMs={12000} // tampil 7 detik
+        bobbingHiddenMs={4000} // nyelam 5 detik
+      />
     </div>
   )
 }
