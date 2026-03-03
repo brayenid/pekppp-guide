@@ -212,7 +212,7 @@ const Wiki = () => {
                             </span>
                             {item.kepanjangan !== '-' && (
                               <span className="text-sm font-bold text-gray-500">
-                                — <Highlight text={item.kepanjangan} query={searchQuery} />
+                                - <Highlight text={item.kepanjangan} query={searchQuery} />
                               </span>
                             )}
                           </dt>
