@@ -1,6 +1,24 @@
 [
   {
     "id": 1,
+    "judul": "Form F-01",
+    "kategori": "PEKPPP",
+    "deskripsi": "Form yang digunakan untuk melakukan penilaian mandiri oleh lokus terhadap kondisi penyelenggaraan pelayanan publik.",
+    "tipe": "PDF",
+    "ukuran": "319 KB",
+    "url": "https://drive.google.com/file/d/1yaKZM5oTCl1xv_3AdW3L8QT9F1kmJTTo/view?usp=drive_link"
+  },
+  {
+    "id": 2,
+    "judul": "Form F-03",
+    "kategori": "PEKPPP",
+    "deskripsi": "Form yang digunakan untuk mendapatkan persepsi masyarakat terhadap pelayanan publik.",
+    "tipe": "PDF",
+    "ukuran": "161 KB",
+    "url": "https://drive.google.com/file/d/1lrZt28c8Lezw2ils9ibNxNDV0jCrp5t2/view?usp=drive_link"
+  },
+  {
+    "id": 3,
     "judul": "Kuesioner SKM",
     "kategori": "SKM",
     "deskripsi": "Kuesioner untuk menilai kualitas pelayanan publik.",
@@ -9,7 +27,7 @@
     "url": "https://docs.google.com/document/d/1tX0mZgZeAd6lNebgc4qpBvwVGWA7UwhX/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
   },
   {
-    "id": 2,
+    "id": 4,
     "judul": "Format Laporan Tindak Lanjut SKM",
     "kategori": "SKM",
     "deskripsi": "Template Laporan Tindak Lanjut SKM.",
@@ -18,7 +36,7 @@
     "url": "https://docs.google.com/document/d/1yYKGlQdbOLibvGe2l8BP0x0oswFvem71/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
   },
   {
-    "id": 3,
+    "id": 5,
     "judul": "Contoh SK Jam Kerja",
     "kategori": "SK",
     "deskripsi": "Contoh ini merupakan referensi, isi tetap dapat disesuaikan dan disarankan untuk relevan.",
@@ -27,7 +45,7 @@
     "url": "https://docs.google.com/document/d/1ZdydhtTBRE4D9PpgmO6q_QXl3cqOW38Z/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
   },
   {
-    "id": 4,
+    "id": 6,
     "judul": "Contoh SK Kode Etik",
     "kategori": "SK",
     "deskripsi": "Contoh SK Kode Etik yang dapat digunakan sebagai referensi.",
@@ -36,7 +54,7 @@
     "url": "https://docs.google.com/document/d/1i2DVSxT9LnP8IjWbM7xizLZE-IblID3v/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
   },
   {
-    "id": 5,
+    "id": 7,
     "judul": "Format Laporan SKM",
     "kategori": "SKM",
     "deskripsi": "Contoh format Laporan SKM.",
@@ -45,12 +63,21 @@
     "url": "https://docs.google.com/document/d/18d1lgOx1fbE6SYjOEiiM8Zcj-ZMb7jb8/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
   },
   {
-    "id": 6,
+    "id": 8,
     "judul": "Format Standar Pelayanan",
     "kategori": "Standar Pelayanan",
     "deskripsi": "Contoh format Standar Pelayanan.",
     "tipe": "DOCX",
     "ukuran": "90 KB",
     "url": "https://docs.google.com/document/d/1haWwStiQo5hNfNslfAnchPMzC9lTt6Mw/edit?usp=drive_link&ouid=111860646737097839798&rtpof=true&sd=true"
+  },
+  {
+    "id": 9,
+    "judul": "Format Penghitungan Nilai SKM",
+    "kategori": "SKM",
+    "deskripsi": "Format penghitungan yang digunakan untuk menghitung nilai SKM.",
+    "tipe": "XLSX",
+    "ukuran": "224 KB",
+    "url": "https://docs.google.com/spreadsheets/d/1-e_g6HjRDI1qAnMXmg8qSA1uiFrINo5v/edit?usp=sharing&ouid=111860646737097839798&rtpof=true&sd=true"
   }
 ]
