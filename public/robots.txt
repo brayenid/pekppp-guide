@@ -1,0 +1,9 @@
+# robots.txt - pekppp2026kubar.netlify.app
+# Panduan Bukti Dukung PEKPPP 2026 | Kab. Kutai Barat
+# Generated: 2026-04-24
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://pekppp2026kubar.netlify.app/sitemap.xml
