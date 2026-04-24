@@ -8,7 +8,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 2,
@@ -17,7 +19,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 3,
@@ -26,9 +30,21 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 4, "nama": "Dinas Kesehatan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 4,
+      "nama": "Dinas Kesehatan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 5,
       "nama": "Dinas Pekerjaan Umum dan Penataan Ruang",
@@ -36,9 +52,21 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
-    { "id": 6, "nama": "Dinas Sosial", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    {
+      "id": 6,
+      "nama": "Dinas Sosial",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 7,
       "nama": "Dinas Arsip dan Perpustakaan",
@@ -46,7 +74,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 8,
@@ -55,9 +85,21 @@
       "FKP": false,
       "SP": true,
       "SOP": true,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 9, "nama": "Dinas Lingkungan Hidup", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 9,
+      "nama": "Dinas Lingkungan Hidup",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 10,
       "nama": "Dinas Perdagangan, Koperasi dan UKM",
@@ -65,7 +107,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
     {
       "id": 11,
@@ -74,11 +118,43 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 12, "nama": "Dinas Ketahanan Pangan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 13, "nama": "Dinas Pertanian", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 14, "nama": "Dinas Perikanan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 12,
+      "nama": "Dinas Ketahanan Pangan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 13,
+      "nama": "Dinas Pertanian",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 14,
+      "nama": "Dinas Perikanan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 15,
       "nama": "Dinas Tenaga Kerja dan Transmigrasi",
@@ -86,9 +162,21 @@
       "FKP": false,
       "SP": true,
       "SOP": true,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 16, "nama": "Dinas Pariwisata", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    {
+      "id": 16,
+      "nama": "Dinas Pariwisata",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 17,
       "nama": "Dinas Perumahan, Kawasan Pemukiman dan Pertanahan",
@@ -96,7 +184,9 @@
       "FKP": false,
       "SP": false,
       "SOP": true,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SOP": "" },
+      "lastUpdated": ""
     },
     {
       "id": 18,
@@ -105,9 +195,21 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 19, "nama": "Dinas Perhubungan", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    {
+      "id": 19,
+      "nama": "Dinas Perhubungan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 20,
       "nama": "Dinas Komunikasi dan Informatika",
@@ -115,7 +217,9 @@
       "FKP": false,
       "SP": true,
       "SOP": true,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 21,
@@ -124,7 +228,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
     {
       "id": 22,
@@ -133,7 +239,9 @@
       "FKP": false,
       "SP": false,
       "SOP": true,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 23,
@@ -142,9 +250,21 @@
       "FKP": false,
       "SP": true,
       "SOP": true,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 24, "nama": "Badan Pendapatan Daerah", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    {
+      "id": 24,
+      "nama": "Badan Pendapatan Daerah",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 25,
       "nama": "Badan Kesatuan Bangsa dan Politik",
@@ -152,7 +272,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
     {
       "id": 26,
@@ -161,11 +283,43 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
-    { "id": 27, "nama": "Sekretariat Daerah", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
-    { "id": 28, "nama": "Sekretariat DPRD", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
-    { "id": 29, "nama": "Inspektorat Daerah", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 27,
+      "nama": "Sekretariat Daerah",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 28,
+      "nama": "Sekretariat DPRD",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 29,
+      "nama": "Inspektorat Daerah",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 30,
       "nama": "Rumah Sakit Umum Daerah HIS",
@@ -173,7 +327,9 @@
       "FKP": false,
       "SP": true,
       "SOP": true,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 31,
@@ -182,7 +338,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     }
   ],
   "bagian_setda": [
@@ -193,9 +351,21 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 2, "nama": "Bagian Hukum", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 2,
+      "nama": "Bagian Hukum",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 3,
       "nama": "Bagian Kesejahteraan Rakyat",
@@ -203,10 +373,32 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 4, "nama": "Bagian Kerjasama", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
-    { "id": 5, "nama": "Bagian Perekonomian", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    {
+      "id": 4,
+      "nama": "Bagian Kerjasama",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 5,
+      "nama": "Bagian Perekonomian",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 6,
       "nama": "Bagian Administrasi Pembangunan",
@@ -214,7 +406,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
     {
       "id": 7,
@@ -223,7 +417,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
     {
       "id": 8,
@@ -232,9 +428,21 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 9, "nama": "Bagian Umum", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 9,
+      "nama": "Bagian Umum",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 10,
       "nama": "Bagian Protokol dan Komunikasi Pimpinan",
@@ -242,9 +450,21 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
-    { "id": 11, "nama": "Bagian Organisasi", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 11,
+      "nama": "Bagian Organisasi",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 12,
       "nama": "Bagian Perencanaan dan Keuangan",
@@ -252,7 +472,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     }
   ],
   "kecamatan": [
@@ -263,19 +485,131 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
-    { "id": 2, "nama": "Kecamatan Melak", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 3, "nama": "Kecamatan Sekolaq Darat", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 4, "nama": "Kecamatan Bongan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 5, "nama": "Kecamatan Muara Pahu", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 6, "nama": "Kecamatan Penyinggahan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
-    { "id": 7, "nama": "Kecamatan Jempang", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
-    { "id": 8, "nama": "Kecamatan Siluq Ngurai", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 9, "nama": "Kecamatan Bentian Besar", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 10, "nama": "Kecamatan Damai", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 11, "nama": "Kecamatan Muara Lawa", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
-    { "id": 12, "nama": "Kecamatan Nyuatan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 2,
+      "nama": "Kecamatan Melak",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 3,
+      "nama": "Kecamatan Sekolaq Darat",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 4,
+      "nama": "Kecamatan Bongan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 5,
+      "nama": "Kecamatan Muara Pahu",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 6,
+      "nama": "Kecamatan Penyinggahan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 7,
+      "nama": "Kecamatan Jempang",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 8,
+      "nama": "Kecamatan Siluq Ngurai",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 9,
+      "nama": "Kecamatan Bentian Besar",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 10,
+      "nama": "Kecamatan Damai",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 11,
+      "nama": "Kecamatan Muara Lawa",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 12,
+      "nama": "Kecamatan Nyuatan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 13,
       "nama": "Kecamatan Linggang Bigung",
@@ -283,10 +617,32 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": { "SP": "" },
+      "lastUpdated": ""
     },
-    { "id": 14, "nama": "Kecamatan Tering", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
-    { "id": 15, "nama": "Kecamatan Long Iram", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 14,
+      "nama": "Kecamatan Tering",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 15,
+      "nama": "Kecamatan Long Iram",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
     {
       "id": 16,
       "nama": "Kecamatan Mook Manaar Bulant",
@@ -294,7 +650,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     }
   ],
   "puskesmas": [
@@ -305,13 +663,65 @@
       "FKP": false,
       "SP": false,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
     },
-    { "id": 2, "nama": "Puskesmas Muara Pahu", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
-    { "id": 3, "nama": "Puskesmas Resak", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
-    { "id": 4, "nama": "Puskesmas Long Iram", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
-    { "id": 5, "nama": "Puskesmas Melak", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
-    { "id": 6, "nama": "Puskesmas Damai", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    {
+      "id": 2,
+      "nama": "Puskesmas Muara Pahu",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
+    {
+      "id": 3,
+      "nama": "Puskesmas Resak",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
+    {
+      "id": 4,
+      "nama": "Puskesmas Long Iram",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
+    {
+      "id": 5,
+      "nama": "Puskesmas Melak",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 6,
+      "nama": "Puskesmas Damai",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
     {
       "id": 7,
       "nama": "Puskesmas Penyinggahan",
@@ -319,10 +729,32 @@
       "FKP": false,
       "SP": false,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
     },
-    { "id": 8, "nama": "Puskesmas Barong Tongkok", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
-    { "id": 9, "nama": "Puskesmas Lambing", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    {
+      "id": 8,
+      "nama": "Puskesmas Barong Tongkok",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true,
+      "links": { "SP": "", "SOP": "", "SIPPN": "" },
+      "lastUpdated": ""
+    },
+    {
+      "id": 9,
+      "nama": "Puskesmas Lambing",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
     {
       "id": 10,
       "nama": "Puskesmas Dilang Puti",
@@ -330,7 +762,9 @@
       "FKP": false,
       "SP": false,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
     },
     {
       "id": 11,
@@ -339,7 +773,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 12,
@@ -348,10 +784,32 @@
       "FKP": false,
       "SP": false,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
     },
-    { "id": 13, "nama": "Puskesmas Dempar", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
-    { "id": 14, "nama": "Puskesmas Belusuh", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    {
+      "id": 13,
+      "nama": "Puskesmas Dempar",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
+    {
+      "id": 14,
+      "nama": "Puskesmas Belusuh",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
     {
       "id": 15,
       "nama": "Puskesmas Sekolaq Darat",
@@ -359,7 +817,9 @@
       "FKP": false,
       "SP": true,
       "SOP": false,
-      "SIPPN": true
+      "SIPPN": true,
+      "links": { "SP": "", "SIPPN": "" },
+      "lastUpdated": ""
     },
     {
       "id": 16,
@@ -368,7 +828,9 @@
       "FKP": false,
       "SP": false,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
     },
     {
       "id": 17,
@@ -377,9 +839,31 @@
       "FKP": false,
       "SP": false,
       "SOP": false,
-      "SIPPN": false
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
     },
-    { "id": 18, "nama": "Puskesmas Besiq", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
-    { "id": 19, "nama": "Puskesmas Jambuk", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false }
+    {
+      "id": 18,
+      "nama": "Puskesmas Besiq",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    },
+    {
+      "id": 19,
+      "nama": "Puskesmas Jambuk",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false,
+      "links": {},
+      "lastUpdated": ""
+    }
   ]
 }

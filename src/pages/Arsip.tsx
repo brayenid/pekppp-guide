@@ -162,7 +162,7 @@ function ExportDropdown({ activeTab }: { activeTab: string }) {
               initial={{ opacity: 0, y: 6, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 4, scale: 0.97 }}
-              className="absolute right-0 top-full mt-2 z-50 bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] min-w-64">
+              className="absolute left-0 md:left-auto md:right-0 top-full mt-2 z-50 bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] min-w-64">
               <div className="px-4 py-2 border-b-2 border-black bg-gray-50">
                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
                   Pilih Cakupan Ekspor
@@ -250,14 +250,15 @@ function StatBar({ label, count, total, color }: { label: string; count: number;
   )
 }
 
-function DataRow({ row, index }: { row: any; index: number }) {
+function DataRow({ row, index, onClick }: { row: any; index: number; onClick: () => void }) {
   const score = completionScore(row)
   return (
     <motion.tr
+      onClick={onClick}
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.018 }}
-      className={`border-b-2 border-black hover:bg-yellow-50 transition-colors ${index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
+      className={`border-b-2 border-black hover:bg-yellow-50 transition-colors cursor-pointer ${index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
       <td className="px-4 py-3 font-black text-xs text-gray-400 tabular-nums">{row.id}</td>
       <td className="px-4 py-3 font-bold text-sm leading-snug">{row.nama}</td>
       {KOLOM.map((k) => (
@@ -278,7 +279,15 @@ function DataRow({ row, index }: { row: any; index: number }) {
   )
 }
 
-function DataTable({ rows, searchQuery }: { rows: any[]; searchQuery: string }) {
+function DataTable({
+  rows,
+  searchQuery,
+  onRowClick
+}: {
+  rows: any[]
+  searchQuery: string
+  onRowClick: (row: any) => void
+}) {
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) return rows
     const q = searchQuery.toLowerCase()
@@ -322,7 +331,7 @@ function DataTable({ rows, searchQuery }: { rows: any[]; searchQuery: string }) 
                   </td>
                 </tr>
               ) : (
-                filtered.map((row, i) => <DataRow key={row.id} row={row} index={i} />)
+                filtered.map((row, i) => <DataRow key={row.id} row={row} index={i} onClick={() => onRowClick(row)} />)
               )}
             </tbody>
           </AnimatePresence>
@@ -339,15 +348,26 @@ function DataTable({ rows, searchQuery }: { rows: any[]; searchQuery: string }) 
 }
 
 // Row variant with kelompok badge for "Semua" tab
-function AllDataRow({ row, index, kelompok }: { row: any; index: number; kelompok: string }) {
+function AllDataRow({
+  row,
+  index,
+  kelompok,
+  onClick
+}: {
+  row: any
+  index: number
+  kelompok: string
+  onClick: () => void
+}) {
   const score = completionScore(row)
   const kelColor = KELOMPOK_COLORS[kelompok] ?? '#e5e7eb'
   return (
     <motion.tr
+      onClick={onClick}
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: Math.min(index * 0.008, 0.3) }}
-      className={`border-b-2 border-black hover:bg-yellow-50 transition-colors ${index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
+      className={`border-b-2 border-black hover:bg-yellow-50 transition-colors cursor-pointer ${index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
       <td className="px-3 py-2.5 font-black text-xs text-gray-400 tabular-nums w-10">{row.id}</td>
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-2">
@@ -377,7 +397,7 @@ function AllDataRow({ row, index, kelompok }: { row: any; index: number; kelompo
   )
 }
 
-function AllDataTable({ searchQuery }: { searchQuery: string }) {
+function AllDataTable({ searchQuery, onRowClick }: { searchQuery: string; onRowClick: (row: any) => void }) {
   const allRows = useMemo(() => DATA_TABS.flatMap((key) => DATA[key].map((r: any) => ({ ...r, _kelompok: key }))), [])
 
   const filtered = useMemo(() => {
@@ -432,7 +452,13 @@ function AllDataTable({ searchQuery }: { searchQuery: string }) {
                       </td>
                     </tr>
                     {groupRows.map((row, i) => (
-                      <AllDataRow key={`${key}-${row.id}`} row={row} index={i} kelompok={key} />
+                      <AllDataRow
+                        key={`${key}-${row.id}`}
+                        row={row}
+                        index={i}
+                        kelompok={key}
+                        onClick={() => onRowClick(row)}
+                      />
                     ))}
                   </>
                 )
@@ -475,7 +501,7 @@ function LegendDropdown() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 6 }}
-              className="absolute right-0 top-full mt-2 z-50 bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-4 min-w-72">
+              className="absolute left-0 md:left-auto md:right-0 top-full mt-2 z-50 bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-4 min-w-72">
               {KOLOM.map((k) => (
                 <div key={k} className="flex items-start gap-3 mb-2 last:mb-0">
                   <div
@@ -495,11 +521,99 @@ function LegendDropdown() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// DETAIL MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function DetailModal({ unit, onClose }: { unit: any; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b-4 border-black bg-gray-50">
+          <div>
+            <h2 className="text-xl font-black uppercase tracking-tight">{unit.nama}</h2>
+            {unit._kelompok && (
+              <span className="inline-block mt-1 text-[10px] font-black px-2 py-0.5 border border-black uppercase tracking-wider bg-gray-200">
+                {TAB_CONFIG.find((t) => t.key === unit._kelompok)?.label || unit._kelompok}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-200 transition-colors border-2 border-transparent hover:border-black cursor-pointer">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto flex-1 bg-white">
+          <div className="space-y-6">
+            {KOLOM.map((k) => (
+              <div key={k} className="p-4 border-2 border-black relative">
+                <div className="absolute -top-3 left-3 bg-white px-2 flex items-center gap-2">
+                  <CheckBadge checked={unit[k]} kolom={k} />
+                  <span className="font-black text-sm">{k}</span>
+                </div>
+
+                <div className="mt-4">
+                  <div className="text-xs font-bold text-gray-500 mb-3">{KOLOM_LABEL[k]}</div>
+                  {unit[k] ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-widest mb-1.5">
+                          Tautan Berkas
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="Belum ada tautan"
+                          value={unit[k + '_link'] || ''}
+                          readOnly
+                          className="w-full border-2 border-black px-3 py-2 text-sm font-bold bg-gray-100 text-gray-600 focus:outline-none transition-all cursor-default"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-widest mb-1.5">
+                          Terakhir Diperbaharui
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Belum ada data"
+                          value={unit[k + '_date'] || ''}
+                          readOnly
+                          className="w-full border-2 border-black px-3 py-2 text-sm font-bold bg-gray-100 text-gray-600 focus:outline-none transition-all cursor-default"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-bold text-gray-400 italic">Berkas tidak tersedia</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-4 border-t-4 border-black bg-gray-50 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 border-2 border-black font-black text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer">
+            Tutup
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN
 // ─────────────────────────────────────────────────────────────────────────────
 export default function KetersediaanBerkas() {
   const [activeTab, setActiveTab] = useState('perangkat_daerah')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedUnit, setSelectedUnit] = useState<any | null>(null)
 
   const currentTab = TAB_CONFIG.find((t) => t.key === activeTab)
   const currentData = activeTab === 'semua' ? [] : (DATA[activeTab] ?? [])
@@ -531,7 +645,7 @@ export default function KetersediaanBerkas() {
           animate={{ opacity: 1, x: 0 }}
           className="text-4xl md:text-6xl font-black tracking-tighter mb-4 leading-[0.9]">
           KETERSEDIAAN{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 underline decoration-black decoration-4 underline-offset-8">
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-500 to-pink-500 underline decoration-black decoration-4 underline-offset-8">
             BERKAS
           </span>
         </motion.h1>
@@ -680,13 +794,21 @@ export default function KetersediaanBerkas() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}>
             {activeTab === 'semua' ? (
-              <AllDataTable searchQuery={searchQuery} />
+              <AllDataTable searchQuery={searchQuery} onRowClick={setSelectedUnit} />
             ) : (
-              <DataTable rows={currentData} searchQuery={searchQuery} />
+              <DataTable
+                rows={currentData}
+                searchQuery={searchQuery}
+                onRowClick={(row) => setSelectedUnit({ ...row, _kelompok: activeTab })}
+              />
             )}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {selectedUnit && <DetailModal unit={selectedUnit} onClose={() => setSelectedUnit(null)} />}
+      </AnimatePresence>
     </div>
   )
 }
