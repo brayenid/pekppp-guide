@@ -1,0 +1,385 @@
+{
+  "meta": { "judul": "Ketersediaan Berkas SP dan SIPPN", "tahun": 2026 },
+  "perangkat_daerah": [
+    {
+      "id": 1,
+      "nama": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    {
+      "id": 2,
+      "nama": "Dinas Kependudukan dan Pencatatan Sipil",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    {
+      "id": 3,
+      "nama": "Dinas Pendidikan dan Kebudayaan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 4, "nama": "Dinas Kesehatan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 5,
+      "nama": "Dinas Pekerjaan Umum dan Penataan Ruang",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 6, "nama": "Dinas Sosial", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    {
+      "id": 7,
+      "nama": "Dinas Arsip dan Perpustakaan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    {
+      "id": 8,
+      "nama": "Dinas Pemberdayaan Masyarakat dan Kampung",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true
+    },
+    { "id": 9, "nama": "Dinas Lingkungan Hidup", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 10,
+      "nama": "Dinas Perdagangan, Koperasi dan UKM",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 11,
+      "nama": "Dinas Pemuda dan Olahraga",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 12, "nama": "Dinas Ketahanan Pangan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 13, "nama": "Dinas Pertanian", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 14, "nama": "Dinas Perikanan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 15,
+      "nama": "Dinas Tenaga Kerja dan Transmigrasi",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true
+    },
+    { "id": 16, "nama": "Dinas Pariwisata", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    {
+      "id": 17,
+      "nama": "Dinas Perumahan, Kawasan Pemukiman dan Pertanahan",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": true,
+      "SIPPN": false
+    },
+    {
+      "id": 18,
+      "nama": "Dinas Pengendalian Penduduk, KB, PP dan PA",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 19, "nama": "Dinas Perhubungan", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    {
+      "id": 20,
+      "nama": "Dinas Komunikasi dan Informatika",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true
+    },
+    {
+      "id": 21,
+      "nama": "Badan Keuangan dan Aset Daerah",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 22,
+      "nama": "Badan Kepegawaian dan Pengembangan SDM",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": true,
+      "SIPPN": true
+    },
+    {
+      "id": 23,
+      "nama": "Badan Perencanaan Pembangunan Litbang Daerah",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true
+    },
+    { "id": 24, "nama": "Badan Pendapatan Daerah", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    {
+      "id": 25,
+      "nama": "Badan Kesatuan Bangsa dan Politik",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 26,
+      "nama": "Satuan Polisi Pamong Praja",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 27, "nama": "Sekretariat Daerah", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    { "id": 28, "nama": "Sekretariat DPRD", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    { "id": 29, "nama": "Inspektorat Daerah", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 30,
+      "nama": "Rumah Sakit Umum Daerah HIS",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": true,
+      "SIPPN": true
+    },
+    {
+      "id": 31,
+      "nama": "Badan Penanggulangan Bencana Daerah",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    }
+  ],
+  "bagian_setda": [
+    {
+      "id": 1,
+      "nama": "Bagian Tata Pemerintahan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 2, "nama": "Bagian Hukum", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 3,
+      "nama": "Bagian Kesejahteraan Rakyat",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 4, "nama": "Bagian Kerjasama", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    { "id": 5, "nama": "Bagian Perekonomian", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    {
+      "id": 6,
+      "nama": "Bagian Administrasi Pembangunan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 7,
+      "nama": "Bagian Sumber Daya Alam",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 8,
+      "nama": "Bagian Pengadaan Barang/Jasa",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 9, "nama": "Bagian Umum", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 10,
+      "nama": "Bagian Protokol dan Komunikasi Pimpinan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    { "id": 11, "nama": "Bagian Organisasi", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 12,
+      "nama": "Bagian Perencanaan dan Keuangan",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    }
+  ],
+  "kecamatan": [
+    {
+      "id": 1,
+      "nama": "Kecamatan Barong Tongkok",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 2, "nama": "Kecamatan Melak", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 3, "nama": "Kecamatan Sekolaq Darat", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 4, "nama": "Kecamatan Bongan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 5, "nama": "Kecamatan Muara Pahu", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 6, "nama": "Kecamatan Penyinggahan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    { "id": 7, "nama": "Kecamatan Jempang", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    { "id": 8, "nama": "Kecamatan Siluq Ngurai", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 9, "nama": "Kecamatan Bentian Besar", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 10, "nama": "Kecamatan Damai", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 11, "nama": "Kecamatan Muara Lawa", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": false },
+    { "id": 12, "nama": "Kecamatan Nyuatan", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 13,
+      "nama": "Kecamatan Linggang Bigung",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 14, "nama": "Kecamatan Tering", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    { "id": 15, "nama": "Kecamatan Long Iram", "SKM": false, "FKP": false, "SP": true, "SOP": false, "SIPPN": true },
+    {
+      "id": 16,
+      "nama": "Kecamatan Mook Manaar Bulant",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    }
+  ],
+  "puskesmas": [
+    {
+      "id": 1,
+      "nama": "Puskesmas Tanjung Isuy",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 2, "nama": "Puskesmas Muara Pahu", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    { "id": 3, "nama": "Puskesmas Resak", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    { "id": 4, "nama": "Puskesmas Long Iram", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    { "id": 5, "nama": "Puskesmas Melak", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    { "id": 6, "nama": "Puskesmas Damai", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    {
+      "id": 7,
+      "nama": "Puskesmas Penyinggahan",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 8, "nama": "Puskesmas Barong Tongkok", "SKM": false, "FKP": false, "SP": true, "SOP": true, "SIPPN": true },
+    { "id": 9, "nama": "Puskesmas Lambing", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    {
+      "id": 10,
+      "nama": "Puskesmas Dilang Puti",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 11,
+      "nama": "Puskesmas Linggang Bigung",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    {
+      "id": 12,
+      "nama": "Puskesmas Tering Seberang",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 13, "nama": "Puskesmas Dempar", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    { "id": 14, "nama": "Puskesmas Belusuh", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    {
+      "id": 15,
+      "nama": "Puskesmas Sekolaq Darat",
+      "SKM": false,
+      "FKP": false,
+      "SP": true,
+      "SOP": false,
+      "SIPPN": true
+    },
+    {
+      "id": 16,
+      "nama": "Puskesmas Gunung Rampah",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false
+    },
+    {
+      "id": 17,
+      "nama": "Puskesmas Muara Kedang",
+      "SKM": false,
+      "FKP": false,
+      "SP": false,
+      "SOP": false,
+      "SIPPN": false
+    },
+    { "id": 18, "nama": "Puskesmas Besiq", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false },
+    { "id": 19, "nama": "Puskesmas Jambuk", "SKM": false, "FKP": false, "SP": false, "SOP": false, "SIPPN": false }
+  ]
+}

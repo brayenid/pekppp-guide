@@ -2,7 +2,7 @@
 // src/App.tsx
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom'
-import { LayoutGrid, BookText, Home as HomeIcon, Info, Menu, X, FileText, BookOpen } from 'lucide-react'
+import { LayoutGrid, BookText, Home as HomeIcon, Info, Menu, X, FileText, BookOpen, Archive } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
 // Pastikan halaman ini ada atau buat placeholder dummy jika belum ada
@@ -12,6 +12,7 @@ import ScrollToTop from './components/ScrollToTop'
 import ContohSurat from './pages/ContohSurat'
 import HasilPenilaian from './pages/Hasil'
 import Wiki from './pages/Wiki'
+import Arsip from './pages/Arsip'
 import { FloatingUploadCTA } from './components/Floatinguploadcta'
 
 export const DRIVE_UPLOAD_URL =
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { path: '/regulasi', label: 'Regulasi', icon: <BookText className="w-4 h-4" /> },
   { path: '/contoh', label: 'Contoh Surat', icon: <FileText className="w-4 h-4" /> },
   { path: '/wiki', label: 'Wiki', icon: <BookOpen className="w-4 h-4" /> },
+  { path: '/arsip', label: 'Arsip', icon: <Archive className="w-4 h-4" /> },
   { path: '/hasil', label: 'Hasil', icon: <FileText className="w-4 h-4" /> }
 ]
 
@@ -122,6 +124,7 @@ function AppContent() {
           <Route path="/contoh" element={<ContohSurat />} />
           <Route path="/hasil" element={<HasilPenilaian />} />
           <Route path="/wiki" element={<Wiki />} />
+          <Route path="/arsip" element={<Arsip />} />
         </Routes>
       </main>
 
