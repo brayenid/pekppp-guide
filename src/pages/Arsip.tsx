@@ -50,13 +50,6 @@ const TAB_CONFIG = [
 
 const DATA_TABS = ['perangkat_daerah', 'bagian_setda', 'kecamatan', 'puskesmas']
 
-const KELOMPOK_COLORS: Record<string, string> = {
-  perangkat_daerah: '#FF9F1C',
-  bagian_setda: '#4ECDC4',
-  kecamatan: '#C77DFF',
-  puskesmas: '#FF6B6B'
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -212,22 +205,22 @@ function CheckBadge({ checked, kolom }: { checked: boolean; kolom: string }) {
     <div
       title={checked ? `✓ ${KOLOM_LABEL[kolom]}` : `— ${KOLOM_LABEL[kolom]} belum ada`}
       className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-sm transition-all ${
-        checked
-          ? 'bg-[#0f172a] text-white shadow-sm'
-          : 'bg-slate-50 text-slate-300 border border-slate-100'
+        checked ? 'bg-[#0f172a] text-white shadow-sm' : 'bg-slate-50 text-slate-300 border border-slate-100'
       }`}>
       {checked ? '✓' : '–'}
     </div>
   )
 }
 
-function StatBar({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
+function StatBar({ label, count, total }: { label: string; count: number; total: number; color: string }) {
   const pct = total > 0 ? (count / total) * 100 : 0
   return (
     <div className="flex-1 min-w-28">
       <div className="flex justify-between items-baseline mb-1">
         <span className="text-xs font-bold uppercase tracking-widest text-slate-600">{label}</span>
-        <span className="text-xs text-slate-400">{count}/{total}</span>
+        <span className="text-xs text-slate-400">
+          {count}/{total}
+        </span>
       </div>
       <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
         <motion.div
@@ -237,7 +230,8 @@ function StatBar({ label, count, total, color }: { label: string; count: number;
           className="h-full rounded-full bg-gov-blue"
         />
       </div>
-      <div className="text-xs font-bold mt-0.5"
+      <div
+        className="text-xs font-bold mt-0.5"
         style={{ color: pct === 100 ? '#16a34a' : pct >= 50 ? '#d97706' : '#ef4444' }}>
         {pct.toFixed(0)}%
       </div>
@@ -266,9 +260,13 @@ function DataRow({ row, index, onClick }: { row: any; index: number; onClick: ()
       <td className="px-4 py-3 text-center">
         <div
           className={`inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-sm ${
-            scoreColor(score) === '#16a34a' ? 'bg-green-100 text-green-700' :
-            scoreColor(score) === '#d97706' ? 'bg-amber-100 text-amber-700' :
-            scoreColor(score) === '#ef4444' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
+            scoreColor(score) === '#16a34a'
+              ? 'bg-green-100 text-green-700'
+              : scoreColor(score) === '#d97706'
+                ? 'bg-amber-100 text-amber-700'
+                : scoreColor(score) === '#ef4444'
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-slate-100 text-slate-500'
           }`}>
           {score}
         </div>
@@ -354,7 +352,6 @@ function AllDataRow({
   onClick: () => void
 }) {
   const score = completionScore(row)
-  const kelColor = KELOMPOK_COLORS[kelompok] ?? '#e5e7eb'
   return (
     <motion.tr
       onClick={onClick}
@@ -381,9 +378,13 @@ function AllDataRow({
       <td className="px-3 py-2.5 text-center">
         <div
           className={`inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-sm ${
-            scoreColor(score) === '#16a34a' ? 'bg-green-100 text-green-700' :
-            scoreColor(score) === '#d97706' ? 'bg-amber-100 text-amber-700' :
-            scoreColor(score) === '#ef4444' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
+            scoreColor(score) === '#16a34a'
+              ? 'bg-green-100 text-green-700'
+              : scoreColor(score) === '#d97706'
+                ? 'bg-amber-100 text-amber-700'
+                : scoreColor(score) === '#ef4444'
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-slate-100 text-slate-500'
           }`}>
           {score}
         </div>
@@ -633,10 +634,7 @@ export default function KetersediaanBerkas() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-4 leading-tight">
-          Ketersediaan{' '}
-          <span className="text-gov-gold">
-            Berkas
-          </span>
+          Ketersediaan <span className="text-gov-gold">Berkas</span>
         </motion.h1>
 
         <motion.p
@@ -701,9 +699,10 @@ export default function KetersediaanBerkas() {
               }`}>
               <span className="flex items-center opacity-70">{tab.icon}</span>
               {tab.label}
-              <span className={`ml-1 flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-              }`}>
+              <span
+                className={`ml-1 flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                }`}>
                 {isSemua ? rows.length : `${filled}/${rows.length}`}
               </span>
             </button>

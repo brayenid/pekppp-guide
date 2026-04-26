@@ -441,15 +441,13 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
         {/* ── Scrollable indikator list ── */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
           {Object.entries(grouped).map(([sec, secRows]) => {
-            const bg = SECTION_COLORS[sec] ?? '#e5e7eb'
             // Hitung total per section dengan benar
             const secTotal = secRows.reduce((s, r) => s + toNumber(r.nilai), 0)
             const secMaks = secRows.reduce((s, r) => s + (toNumber(r.nilai_maks) || 5), 0)
             return (
               <div key={sec}>
                 {/* Sticky section header */}
-                <div
-                  className="sticky top-0 z-10 px-5 py-2 border-b border-slate-200 bg-slate-100 flex items-center justify-between">
+                <div className="sticky top-0 z-10 px-5 py-2 border-b border-slate-200 bg-slate-100 flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">{sec}</span>
                   <span className="text-[10px] font-bold">
                     {secTotal} / {secMaks}
@@ -618,10 +616,7 @@ export default function HasilPenilaian() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
-          Hasil{' '}
-          <span className="text-gov-gold">
-            Penilaian
-          </span>
+          Hasil <span className="text-gov-gold">Penilaian</span>
         </motion.h1>
 
         <motion.p
@@ -654,8 +649,8 @@ export default function HasilPenilaian() {
           </div>
           <p className="font-bold text-red-600 mb-2">{error}</p>
           <p className="text-sm font-medium text-gray-600 mb-6">
-            Pastikan <code className="bg-slate-100 text-slate-700 px-1 rounded">SPREADSHEET_ID</code> sudah diisi dan sheet{' '}
-            <code className="bg-slate-100 text-slate-700 px-1 rounded">EXPORT_API</code> sudah dipublish ke web.
+            Pastikan <code className="bg-slate-100 text-slate-700 px-1 rounded">SPREADSHEET_ID</code> sudah diisi dan
+            sheet <code className="bg-slate-100 text-slate-700 px-1 rounded">EXPORT_API</code> sudah dipublish ke web.
           </p>
           <button
             onClick={fetchData}
@@ -712,11 +707,8 @@ export default function HasilPenilaian() {
                   }
                 ] as const
               ).map((stat, i) => (
-                <div
-                  key={i}
-                  className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm flex flex-col gap-2">
-                  <div
-                    className="w-10 h-10 rounded-lg bg-slate-100 text-gov-blue flex items-center justify-center">
+                <div key={i} className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm flex flex-col gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 text-gov-blue flex items-center justify-center">
                     {stat.icon}
                   </div>
                   <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{stat.label}</div>
