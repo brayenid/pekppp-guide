@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 're
 import { LayoutGrid, BookText, Home as HomeIcon, Info, Menu, X, FileText, BookOpen, Archive } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
-// Pastikan halaman ini ada atau buat placeholder dummy jika belum ada
 import Panduan from './pages/Panduan'
 import DataRegulasi from './pages/DataRegulasi'
 import ScrollToTop from './components/ScrollToTop'
@@ -28,16 +27,15 @@ const NAV_ITEMS = [
   { path: '/hasil', label: 'Hasil', icon: <FileText className="w-4 h-4" /> }
 ]
 
-// Component Helper untuk NavLink agar rapi
 const NavItem = ({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) => (
   <NavLink
     to={to}
     onClick={onClick}
     className={({ isActive }) =>
-      `flex items-center gap-3 px-3 py-2 font-bold uppercase tracking-wide border-2 border-black transition-all text-sm ${
+      `flex items-center gap-2 px-4 py-2 font-medium transition-all rounded-md text-sm ${
         isActive
-          ? 'bg-[#FFDE59] shadow-[4px_4px_0px_0px_#000] -translate-y-1'
-          : 'bg-white hover:bg-gray-50 hover:shadow-[2px_2px_0px_0px_#000] hover:-translate-y-0.5'
+          ? 'bg-gov-blue text-white shadow-md'
+          : 'bg-transparent text-slate-700 hover:bg-slate-100 hover:text-gov-blue'
       }`
     }>
     {children}
@@ -51,32 +49,31 @@ function AppContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const location = useLocation()
 
-  // Tutup menu mobile setiap kali pindah halaman
   useEffect(() => {
     setIsMobileMenuOpen(false)
   }, [location])
 
   return (
-    <div className="min-h-screen bg-[#f4f4f0] text-black font-sans selection:bg-[#FFDE59] selection:text-black">
-      {/* Background Grid Pattern */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-size-[24px_24px] opacity-5 pointer-events-none" />
+    <div className="min-h-screen bg-gov-light text-slate-900 font-sans selection:bg-gov-gold/30 selection:text-gov-blue">
+      {/* Background Gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 to-slate-100 pointer-events-none -z-10" />
 
       {/* --- NAVIGATION BAR --- */}
-      <nav className="fixed top-0 left-0 right-0 bg-white border-b-4 border-black z-50">
-        <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-2 group">
-            <div className="p-2 bg-black border-2 border-black text-white rounded-none group-hover:bg-[#FFDE59] group-hover:text-black transition-colors">
+          <NavLink to="/" className="flex items-center gap-3 group">
+            <div className="p-2.5 bg-gradient-to-br from-gov-blue to-slate-800 text-gov-gold rounded-lg shadow-sm group-hover:shadow-md transition-all">
               <LayoutGrid className="w-5 h-5" />
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-black text-xl tracking-tighter">PEKPPP</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-1">Kubar</span>
+            <div className="flex flex-col leading-tight">
+              <span className="font-serif font-bold text-xl tracking-tight text-gov-blue">PEKPPP</span>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Kutai Barat</span>
             </div>
           </NavLink>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2">
             {NAV_ITEMS.map((item) => (
               <NavItem key={item.path} to={item.path}>
                 {item.icon}
@@ -88,7 +85,7 @@ function AppContent() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 border-2 border-black bg-white active:bg-black active:text-white transition-colors">
+            className="lg:hidden p-2 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -100,8 +97,8 @@ function AppContent() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="lg:hidden border-t-4 border-black bg-white overflow-hidden">
-              <div className="flex flex-col p-4 gap-3 pb-6">
+              className="lg:hidden border-t border-slate-200 bg-white shadow-lg overflow-hidden">
+              <div className="flex flex-col p-4 gap-2 pb-6">
                 {NAV_ITEMS.map((item) => (
                   <NavItem key={item.path} to={item.path}>
                     {item.icon}
@@ -115,7 +112,7 @@ function AppContent() {
       </nav>
 
       {/* --- MAIN CONTENT --- */}
-      <main className="pt-24 min-h-screen pb-32">
+      <main className="pt-24 min-h-screen pb-32 max-w-7xl mx-auto px-4 lg:px-8">
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -129,23 +126,20 @@ function AppContent() {
       </main>
 
       {/* --- FOOTER --- */}
-      <footer className="bg-black text-white py-12 border-t-4 border-black mt-auto">
+      <footer className="bg-gov-blue text-slate-300 py-8 border-t border-slate-800 mt-auto">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <div className="inline-block p-3 border-2 border-white mb-4 rotate-3">
-            <LayoutGrid className="w-6 h-6" />
-          </div>
-          <p className="text-sm font-bold uppercase tracking-widest mb-2">Bagian Organisasi Setkab Kutai Barat</p>
-          <p className="text-xs text-gray-400 font-mono">© 2026 Dibangun Oleh Tim PPTL</p>
+          <p className="text-sm font-serif text-white tracking-wide mb-3">Bagian Organisasi Setkab Kutai Barat</p>
+          <p className="text-xs text-slate-500 font-sans">© 2026 Dibangun Oleh Tim PPTL</p>
         </div>
       </footer>
 
-      {/* --- FLOATING CTA (Neo Brutalism Style) --- */}
+      {/* --- FLOATING CTA --- */}
       <FloatingUploadCTA
         uploadUrl={DRIVE_UPLOAD_URL}
         isWiki={isWiki}
         bobbing={true}
-        bobbingVisibleMs={12000} // tampil 7 detik
-        bobbingHiddenMs={4000} // nyelam 5 detik
+        bobbingVisibleMs={12000}
+        bobbingHiddenMs={4000}
       />
     </div>
   )

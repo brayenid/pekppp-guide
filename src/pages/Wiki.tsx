@@ -46,7 +46,7 @@ const Highlight = ({ text, query }: { text: string; query: string }) => {
     <>
       {parts.map((p, i) =>
         p.toLowerCase() === query.toLowerCase() ? (
-          <mark key={i} className="bg-[#FFDE59] text-black px-0.5">
+          <mark key={i} className="bg-gov-gold text-white px-0.5">
             {p}
           </mark>
         ) : (
@@ -108,23 +108,23 @@ const Wiki = () => {
   const showIndex = !searchQuery && filtered.length > 0
 
   return (
-    <div className="min-h-screen font-sans text-black">
+    <div className="min-h-screen font-sans text-slate-800">
       <div className="max-w-7xl mx-auto px-6 py-16">
         {/* HEADER */}
         <section className="mb-10 max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-block bg-[#57E7FB] border-2 border-black px-4 py-1 mb-4 shadow-[4px_4px_0px_0px_#000]">
-            <span className="text-sm font-black uppercase tracking-widest">Glosarium</span>
+            className="inline-block bg-[#0f172a] text-white border border-slate-200 rounded-lg px-4 py-1 mb-4 shadow-sm">
+            <span className="text-sm font-bold uppercase tracking-wider text-white">Glosarium</span>
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl md:text-6xl font-black tracking-tighter mb-6 leading-[0.9]">
+            className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
             WIKI{' '}
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
+            <span className="text-gov-gold underline decoration-black decoration-4 underline-offset-8">
               PEKPPP
             </span>
           </motion.h1>
@@ -135,11 +135,11 @@ const Wiki = () => {
 
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-800 pointer-events-none" />
             <input
               type="text"
               placeholder="Cari istilah atau singkatan..."
-              className="w-full bg-white border-2 border-black py-3 pl-11 pr-10 text-sm font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-[5px_5px_0px_0px_#000] transition-all shadow-[4px_4px_0px_0px_#000]"
+              className="w-full bg-white border border-slate-200 rounded-lg py-3 pl-11 pr-10 text-sm font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-md transition-all shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -168,11 +168,11 @@ const Wiki = () => {
                   <button
                     key={l}
                     onClick={() => scrollTo(l)}
-                    className={`w-7 h-7 border-2 border-black font-black text-xs flex items-center justify-center transition-all duration-150
+                    className={`w-7 h-7 border border-slate-200 rounded-lg font-bold text-xs flex items-center justify-center transition-all duration-150
                       ${
                         activeLetter === l
-                          ? 'bg-black text-white shadow-[2px_2px_0px_0px_#555]'
-                          : 'bg-white text-black shadow-[2px_2px_0px_0px_#000] hover:bg-[#FFDE59] hover:-translate-x-0.5'
+                          ? 'bg-gov-blue text-white shadow-sm'
+                          : 'bg-white text-slate-700 shadow-sm hover:bg-[#d4af37] hover:-translate-x-0.5'
                       }`}>
                     {l}
                   </button>
@@ -193,9 +193,9 @@ const Wiki = () => {
                     }}
                     className="scroll-mt-8">
                     {/* Label huruf */}
-                    <div className="flex items-baseline gap-3 mb-4 pb-2 border-b-4 border-black">
-                      <span className="text-4xl font-black leading-none">{letter}</span>
-                      <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                    <div className="flex items-baseline gap-3 mb-4 pb-2 border-b border-slate-200">
+                      <span className="text-4xl font-bold leading-none">{letter}</span>
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                         {grouped.get(letter)!.length} istilah
                       </span>
                     </div>
@@ -206,7 +206,7 @@ const Wiki = () => {
                         <div key={item.id} className="flex flex-col gap-0.5">
                           <dt className="flex items-baseline gap-2 flex-wrap">
                             <span
-                              className="font-black text-base uppercase tracking-tight px-1.5 py-0.5 border-2 border-black"
+                              className="font-bold text-base uppercase tracking-tight px-1.5 py-0.5 border border-slate-200 rounded-lg"
                               style={{ backgroundColor: item.warna }}>
                               <Highlight text={item.singkatan} query={searchQuery} />
                             </span>
@@ -226,19 +226,19 @@ const Wiki = () => {
                 ))}
               </div>
             ) : (
-              <div className="py-16 text-center border-2 border-black bg-white shadow-[6px_6px_0px_0px_#000]">
-                <p className="font-black text-lg mb-1">TIDAK DITEMUKAN</p>
+              <div className="py-16 text-center border border-slate-200 rounded-lg bg-white shadow-md">
+                <p className="font-bold text-lg mb-1">TIDAK DITEMUKAN</p>
                 <p className="text-sm text-gray-500 font-medium mb-5">Coba kata kunci lain.</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="px-6 py-2.5 bg-black text-white font-bold text-sm hover:bg-white hover:text-black border-2 border-black hover:shadow-[4px_4px_0px_0px_#000] transition-all">
+                  className="px-6 py-2.5 bg-gov-blue text-white font-bold text-sm hover:bg-white hover:text-slate-800 border border-slate-200 rounded-lg hover:shadow-sm transition-all">
                   RESET
                 </button>
               </div>
             )}
 
             {filtered.length > 0 && searchQuery && (
-              <p className="mt-8 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">
+              <p className="mt-8 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">
                 {filtered.length} dari {allIstilah.length} istilah
               </p>
             )}
@@ -253,14 +253,14 @@ const Wiki = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-              className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t-4 border-black overflow-x-auto">
+              className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 overflow-x-auto">
               <div className="flex min-w-full">
                 {allLetters.map((l) => (
                   <button
                     key={l}
                     onClick={() => scrollTo(l)}
-                    className={`flex-1 min-w-[2rem] h-9 border-r-2 border-black font-black text-xs flex items-center justify-center transition-colors duration-150
-                      ${activeLetter === l ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#FFDE59]'}`}>
+                    className={`flex-1 min-w-[2rem] h-9 border-r border-slate-200 font-bold text-xs flex items-center justify-center transition-colors duration-150
+                      ${activeLetter === l ? 'bg-gov-blue text-white' : 'bg-white text-slate-700 hover:bg-[#d4af37]'}`}>
                     {l}
                   </button>
                 ))}

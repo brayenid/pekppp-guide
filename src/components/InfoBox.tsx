@@ -1,5 +1,4 @@
-// InfoBox.tsx — drop ke mana saja di antara section-section di Home.tsx
-
+// InfoBox.tsx
 import { motion } from 'framer-motion'
 import { Info, FileText, ImageIcon } from 'lucide-react'
 
@@ -9,54 +8,53 @@ export const InfoBox = () => {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="mb-10">
-      <div className="relative bg-[#FFDE59] border-2 border-black shadow-[6px_6px_0px_0px_#000] p-6">
+      className="mb-10 w-full">
+      <div className="relative bg-white border border-gov-gold/30 shadow-lg shadow-gov-gold/5 rounded-2xl p-8">
         {/* Header label */}
-        <div className="flex items-center gap-2 mb-4">
-          <Info className="w-5 h-5 shrink-0 text-black" strokeWidth={2.5} />
-          <span className="text-xs font-black uppercase tracking-widest">Perhatian</span>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="bg-gov-gold/20 p-2 rounded-lg">
+            <Info className="w-6 h-6 text-gov-blue" strokeWidth={2} />
+          </div>
+          <span className="text-xl font-serif font-bold text-gov-blue">Perhatian Penting</span>
         </div>
 
         {/* Divider */}
-        <div className="border-t-2 border-black mb-5" />
+        <div className="border-t border-slate-200 mb-6" />
 
         {/* Two-card row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Card: Dokumen */}
-          <div className="flex items-start gap-3 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_#000]">
-            <span className="shrink-0 w-9 h-9 flex items-center justify-center bg-black border-2 border-black">
-              <FileText className="w-5 h-5 text-[#FFDE59]" strokeWidth={2} />
+          <div className="flex items-start gap-4 bg-slate-50 border border-slate-100 p-5 rounded-xl hover:shadow-md transition-shadow">
+            <span className="shrink-0 w-10 h-10 flex items-center justify-center bg-white shadow-sm rounded-lg">
+              <FileText className="w-5 h-5 text-gov-blue" strokeWidth={2} />
             </span>
             <div>
-              <p className="font-black text-sm uppercase tracking-wide mb-1">Bukti Dokumen</p>
-              <p className="text-sm font-semibold text-gray-700 leading-snug">
-                Bukti dukung berbentuk dokumen diunggah dalam format <span className="font-black text-black">PDF</span>.
+              <p className="font-bold text-gov-blue mb-1">Bukti Dokumen</p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Bukti dukung berbentuk dokumen diunggah dalam format <span className="font-semibold text-gov-blue">PDF</span>.
               </p>
             </div>
           </div>
 
           {/* Card: Visual */}
-          <div className="flex items-start gap-3 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_#000]">
-            <span className="shrink-0 w-9 h-9 flex items-center justify-center bg-black border-2 border-black">
-              <ImageIcon className="w-5 h-5 text-[#57E7FB]" strokeWidth={2} />
+          <div className="flex items-start gap-4 bg-slate-50 border border-slate-100 p-5 rounded-xl hover:shadow-md transition-shadow">
+            <span className="shrink-0 w-10 h-10 flex items-center justify-center bg-white shadow-sm rounded-lg">
+              <ImageIcon className="w-5 h-5 text-gov-gold" strokeWidth={2} />
             </span>
             <div>
-              <p className="font-black text-sm uppercase tracking-wide mb-1">Bukti Visual</p>
-              <p className="text-sm font-semibold text-gray-700 leading-snug">
+              <p className="font-bold text-gov-blue mb-1">Bukti Visual</p>
+              <p className="text-sm text-slate-600 leading-relaxed">
                 Bukti dukung kondisi faktual diunggah dalam format{' '}
-                <span className="font-black text-black">Gambar (JPG/PNG)</span>.
+                <span className="font-semibold text-gov-blue">Gambar (JPG/PNG)</span>.
               </p>
             </div>
           </div>
         </div>
 
         {/* Footer note */}
-        <p className="mt-4 text-xs font-bold text-black/60 uppercase tracking-widest">
-          ※ Jenis bukti dukung disesuaikan dengan kebutuhan masing-masing indikator.
+        <p className="mt-6 text-sm italic text-slate-500">
+          * Jenis bukti dukung disesuaikan dengan kebutuhan masing-masing indikator.
         </p>
-
-        {/* Decorative corner stamp */}
-        <div className="absolute -top-3 -right-3 bg-[#FF90E8] border-2 border-black w-8 h-8 rotate-12 shadow-[2px_2px_0px_0px_#000]" />
       </div>
     </motion.section>
   )

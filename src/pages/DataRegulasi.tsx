@@ -70,33 +70,30 @@ const REGULASI_DATA = [
 
 export default function DataRegulasi() {
   return (
-    <div className="relative max-w-7xl mx-auto px-6 py-16 font-sans text-black">
+    <div className="relative max-w-7xl mx-auto px-6 py-16 font-sans text-slate-900">
       {/* Header */}
-      <header className="mb-20">
+      <header className="mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-block bg-[#FF90E8] border-2 border-black px-4 py-1 mb-4 shadow-[4px_4px_0px_0px_#000]">
-          <span className="text-sm font-black uppercase tracking-widest">Dasar Hukum</span>
+          className="inline-flex items-center bg-gov-blue text-gov-gold px-4 py-1.5 rounded-full shadow-sm mb-6">
+          <span className="text-xs font-semibold uppercase tracking-wider">Dasar Hukum</span>
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
-          DATA &{' '}
-          <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
-            REGULASI
-          </span>
+          className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
+          DATA & <span className="text-gov-gold">REGULASI</span>
         </motion.h1>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_#000] max-w-2xl">
-          <p className="text-lg font-bold leading-tight">Pastikan dokumen Anda valid secara hukum.</p>
-          <p className="text-base text-gray-600 font-medium mt-2">
+          className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm max-w-3xl">
+          <p className="text-xl font-serif font-semibold text-gov-blue">Pastikan dokumen Anda valid secara hukum.</p>
+          <p className="text-slate-600 mt-3 leading-relaxed">
             Berikut adalah daftar regulasi yang menjadi acuan penilaian. Klik pada nama peraturan untuk melihat
             detailnya.
           </p>
@@ -104,21 +101,21 @@ export default function DataRegulasi() {
       </header>
 
       {/* Tabel Data Section */}
-      <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] mb-20 overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-md mb-20 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-max">
             <thead>
-              <tr className="bg-black text-white">
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest w-20 text-center border-r-2 border-white/20">
+              <tr className="bg-gov-blue text-white">
+                <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider w-20 text-center border-r border-white/10">
                   No
                 </th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest border-r-2 border-white/20">
+                <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider border-r border-white/10">
                   Dokumen
                 </th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest text-right">Dasar Hukum</th>
+                <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-right">Dasar Hukum</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-black">
+            <tbody className="divide-y divide-slate-100">
               {REGULASI_DATA.map((item, idx) => (
                 <motion.tr
                   key={item.no}
@@ -126,19 +123,19 @@ export default function DataRegulasi() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.05 }}
-                  className="group hover:bg-[#FFDE59] transition-colors">
-                  <td className="px-6 py-5 text-center border-r-2 border-black font-black text-lg">
+                  className="group hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-5 text-center border-r border-slate-100 font-bold text-lg text-slate-400 group-hover:text-gov-blue transition-colors">
                     {item.no.toString().padStart(2, '0')}
                   </td>
-                  <td className="px-6 py-5 border-r-2 border-black">
-                    <h3 className="text-base font-bold leading-snug">{item.evidence}</h3>
+                  <td className="px-6 py-5 border-r border-slate-100">
+                    <h3 className="text-sm md:text-base font-medium text-slate-800 leading-snug">{item.evidence}</h3>
                   </td>
                   <td className="px-6 py-5 text-right">
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-black text-xs font-bold uppercase hover:bg-black hover:text-white hover:shadow-[4px_4px_0px_0px_#888] transition-all">
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-xs font-semibold text-gov-blue rounded-lg hover:bg-gov-blue hover:text-white hover:border-gov-blue shadow-sm transition-all">
                       <span className="truncate max-w-[150px] md:max-w-none">{item.ketentuan}</span>
                       <LinkIcon className="w-3 h-3" />
                     </a>
@@ -150,27 +147,24 @@ export default function DataRegulasi() {
         </div>
       </div>
 
-      {/* Info Card - Neo Brutalism Style */}
+      {/* Info Card */}
       <section className="relative">
-        {/* Card Body */}
-        <div className="bg-[#57E7FB] border-4 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_#000] flex flex-col md:flex-row items-center gap-8">
-          {/* Icon Box */}
-          <div className="shrink-0 p-6 bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000]">
-            <ShieldCheck className="w-12 h-12 text-black" />
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 md:p-12 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+             <AlertCircle className="w-48 h-48 text-gov-blue" />
+          </div>
+          <div className="shrink-0 p-5 bg-white border border-slate-100 rounded-xl shadow-sm z-10">
+            <ShieldCheck className="w-10 h-10 text-gov-gold" />
           </div>
 
-          <div className="flex-1 text-center md:text-left">
-            <div className="inline-block bg-black text-white px-2 py-1 text-xs font-black uppercase tracking-widest mb-3">
+          <div className="flex-1 text-center md:text-left z-10">
+            <div className="inline-block bg-gov-blue text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider mb-4">
               Penting
             </div>
-            <h2 className="text-3xl font-black text-black mb-4 leading-none">VALIDITAS DOKUMEN</h2>
-            <p className="text-base font-bold text-gray-800 leading-relaxed border-l-4 border-black pl-4">
-              "Setiap bukti dukung (evidence) yang diunggah dapat merujuk pada regulasi di atas."
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gov-blue mb-4 leading-tight">Validitas Dokumen</h2>
+            <p className="text-base text-slate-600 leading-relaxed border-l-4 border-gov-gold pl-4 italic">
+              "Setiap bukti dukung (evidence) yang diunggah harus dapat dipertanggungjawabkan dan merujuk pada regulasi di atas."
             </p>
-          </div>
-
-          <div className="hidden md:block shrink-0">
-            <AlertCircle className="w-16 h-16 text-black opacity-20 rotate-12" />
           </div>
         </div>
       </section>

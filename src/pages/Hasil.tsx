@@ -205,7 +205,7 @@ function nilaiColor(nilai: number | null) {
 // ─────────────────────────────────────────────────────────────────────────────
 function MiniBar({ persen, color }: { persen: number; color: string }) {
   return (
-    <div className="relative h-2 bg-gray-100 border border-black w-full overflow-hidden">
+    <div className="relative h-2 bg-slate-100 rounded-full w-full overflow-hidden">
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${Math.min(persen, 100)}%` }}
@@ -241,7 +241,7 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
       exit={{ opacity: 0, scale: 0.97 }}
       whileHover={{ y: -4 }}
       onClick={onClick}
-      className="group relative w-full text-left bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-200 flex flex-col p-0 overflow-hidden cursor-pointer">
+      className="group relative w-full text-left bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col p-0 overflow-hidden cursor-pointer">
       {/* Top color strip */}
       <div className="h-1.5 w-full shrink-0" style={{ backgroundColor: color }} />
 
@@ -250,10 +250,10 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <div
-              className={`w-7 h-7 border-2 border-black flex items-center justify-center font-black text-xs shrink-0 shadow-[2px_2px_0px_0px_#000] ${rankBg}`}>
+              className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200 ${rankBg}`}>
               {rank}
             </div>
-            <div className="flex items-center gap-1 bg-gray-100 border border-black px-2 py-0.5">
+            <div className="flex items-center gap-1 bg-slate-100 rounded px-2 py-0.5">
               <KategoriIcon kategori={opd.kategori} />
               <span className="text-sm font-black uppercase tracking-wider">{opd.kategori}</span>
             </div>
@@ -262,7 +262,7 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
         </div>
 
         {/* Name */}
-        <h3 className="font-black leading-tight line-clamp-2 group-hover:underline decoration-2 underline-offset-2">
+        <h3 className="font-semibold text-slate-800 leading-tight line-clamp-2 group-hover:text-gov-blue transition-colors">
           {opd.opd_name}
         </h3>
 
@@ -270,9 +270,9 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
         <div className="mt-auto space-y-1.5">
           <div className="flex justify-between items-baseline">
             <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Nilai</span>
-            <span className="font-black text-lg tabular-nums leading-none" style={{ color }}>
+            <span className="font-bold text-lg tabular-nums leading-none" style={{ color }}>
               {opd.persen.toFixed(1)}
-              <span className="text-xs text-gray-600 font-bold">%</span>
+              <span className="text-xs text-slate-400 font-medium">%</span>
             </span>
           </div>
           <MiniBar persen={opd.persen} color={color} />
@@ -295,7 +295,7 @@ function OpdCard({ opd, rank, onClick }: { opd: OpdSummary; rank: number; onClic
               <div
                 key={sec}
                 title={`${SECTION_SHORT[sec] ?? sec}: ${pct.toFixed(0)}%`}
-                className="flex-1 h-2 border border-black relative overflow-hidden bg-gray-100">
+                className="flex-1 h-1.5 rounded-full relative overflow-hidden bg-slate-100">
                 <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: bg }} />
               </div>
             )
@@ -363,29 +363,29 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-        className="fixed top-0 right-0 h-full w-full z-50 flex flex-col bg-white border-l-4 border-black shadow-[-8px_0_0_0_#000]">
+        className="fixed top-0 right-0 h-full w-full z-50 flex flex-col bg-white border-l border-slate-200 shadow-2xl">
         {/* ── Panel Header ── */}
-        <div className="shrink-0 border-b-4 border-black">
+        <div className="shrink-0 border-b border-slate-200">
           <div className="h-2 w-full" style={{ backgroundColor: color }} />
 
           <div className="p-5 flex items-start gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <div
-                  className={`w-7 h-7 border-2 border-black flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_#000] shrink-0 ${rankBg}`}>
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 border border-slate-200 ${rankBg}`}>
                   {rank}
                 </div>
-                <span className="text-sm font-black uppercase tracking-widest bg-gray-100 border border-black px-2 py-0.5 flex items-center gap-1">
+                <span className="text-xs font-bold uppercase tracking-wider bg-slate-100 rounded px-2 py-0.5 flex items-center gap-1 text-slate-600">
                   <KategoriIcon kategori={opd.kategori} />
                   {opd.kategori}
                 </span>
               </div>
-              <h2 className="font-black text-xl leading-tight">{opd.opd_name}</h2>
+              <h2 className="font-bold text-lg text-gov-blue leading-tight">{opd.opd_name}</h2>
             </div>
 
             {/* Big score */}
             <div className="text-right shrink-0">
-              <div className="font-black text-2xl tabular-nums leading-none" style={{ color }}>
+              <div className="font-bold text-2xl tabular-nums leading-none" style={{ color }}>
                 {opd.skala5.toFixed(2)}
               </div>
               {/* Skala 5 dari data Excel */}
@@ -405,7 +405,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
 
             <button
               onClick={onClose}
-              className="shrink-0 w-9 h-9 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+              className="shrink-0 w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 transition-colors flex items-center justify-center cursor-pointer">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -417,15 +417,15 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
               const bg = SECTION_COLORS[sec] ?? '#e5e7eb'
               const sc = scoreColor(pct)
               return (
-                <div key={sec} className="border-2 border-black p-2 bg-gray-50 shrink-0 min-w-52">
-                  <div className="text-sm font-black uppercase tracking-wide text-gray-600 mb-1 leading-tight">
+                <div key={sec} className="border border-slate-200 rounded-lg p-2.5 bg-slate-50 shrink-0 min-w-52">
+                  <div className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-1 leading-tight">
                     {SECTION_SHORT[sec] ?? sec}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="flex-1 h-2 bg-gray-200 border border-black overflow-hidden">
+                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div className="h-full" style={{ width: `${pct}%`, backgroundColor: bg }} />
                     </div>
-                    <span className="text-xs font-black tabular-nums" style={{ color: sc }}>
+                    <span className="text-xs font-bold tabular-nums" style={{ color: sc }}>
                       {pct.toFixed(0)}%
                     </span>
                   </div>
@@ -449,9 +449,8 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
               <div key={sec}>
                 {/* Sticky section header */}
                 <div
-                  className="sticky top-0 z-10 px-5 py-2 border-b-2 border-black flex items-center justify-between"
-                  style={{ backgroundColor: bg }}>
-                  <span className="text-[11px] font-black uppercase tracking-widest">{sec}</span>
+                  className="sticky top-0 z-10 px-5 py-2 border-b border-slate-200 bg-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">{sec}</span>
                   <span className="text-[10px] font-bold">
                     {secTotal} / {secMaks}
                   </span>
@@ -460,18 +459,18 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
                 {secRows.map((row, i) => (
                   <div
                     key={row.kode_indikator}
-                    className={`border-b-2 border-black ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                    className={`border-b border-slate-100 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}>
                     <div className="px-5 py-3 flex items-start gap-3">
                       {/* Nilai badge */}
                       <div
-                        className="shrink-0 w-9 h-9 border-2 border-black flex items-center justify-center font-black text-base shadow-[2px_2px_0px_0px_#000] bg-white"
+                        className="shrink-0 w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center font-bold text-base bg-white shadow-sm"
                         style={{ color: nilaiColor(row.nilai) }}>
                         {row.nilai ?? '—'}
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-sm font-black text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 shrink-0">
+                          <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded px-1.5 py-0.5 shrink-0">
                             {row.kode_indikator}
                           </span>
                         </div>
@@ -497,13 +496,13 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
         </div>
 
         {/* ── Panel footer ── */}
-        <div className="shrink-0 border-t-4 border-black p-4 bg-gray-50 flex items-center justify-between flex-col gap-3 sm:flex-row">
+        <div className="shrink-0 border-t border-slate-200 p-4 bg-slate-50 flex items-center justify-between flex-col gap-3 sm:flex-row">
           <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Data bersifat sementara</span>
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="flex items-center gap-2 px-4 py-2 border-2 border-black font-black text-xs uppercase bg-[#FF9F1C] hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-[3px_3px_0px_0px_#000] cursor-pointer">
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg font-bold text-xs uppercase bg-[#0f172a] text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer">
               {downloading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -518,7 +517,7 @@ function DetailPanel({ opd, rank, onClose }: { opd: OpdSummary; rank: number; on
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 border-2 border-black font-black text-xs uppercase bg-white hover:bg-black hover:text-white transition-colors shadow-[3px_3px_0px_0px_#000] cursor-pointer">
+              className="px-4 py-2 border border-slate-200 rounded-lg font-bold text-xs uppercase bg-white hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">
               Tutup
             </button>
           </div>
@@ -611,17 +610,17 @@ export default function HasilPenilaian() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-block bg-[#FF9F1C] border-2 border-black px-4 py-1 mb-4 shadow-[4px_4px_0px_0px_#000]">
-          <span className="text-sm font-black uppercase tracking-widest">PEKPPP 2026</span>
+          className="inline-block bg-[#0f172a] text-white border border-slate-200 rounded-lg px-4 py-1 mb-4 shadow-sm">
+          <span className="text-sm font-bold uppercase tracking-wider text-white">PEKPPP 2026</span>
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
-          HASIL{' '}
-          <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-500 to-red-600 underline decoration-black decoration-4 underline-offset-8">
-            PENILAIAN
+          className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
+          Hasil{' '}
+          <span className="text-gov-gold">
+            Penilaian
           </span>
         </motion.h1>
 
@@ -648,19 +647,19 @@ export default function HasilPenilaian() {
 
       {/* ── ERROR ── */}
       {!loading && error && (
-        <div className="border-4 border-black bg-red-50 p-8 shadow-[8px_8px_0px_0px_#000] mb-12">
+        <div className="border border-red-200 bg-red-50 rounded-xl p-8 shadow-sm mb-12">
           <div className="flex items-center gap-3 mb-3">
             <AlertTriangle className="w-8 h-8 text-red-600" />
-            <h2 className="font-black text-xl text-red-700">Gagal Memuat Data</h2>
+            <h2 className="font-bold text-xl text-red-700">Gagal Memuat Data</h2>
           </div>
           <p className="font-bold text-red-600 mb-2">{error}</p>
           <p className="text-sm font-medium text-gray-600 mb-6">
-            Pastikan <code className="bg-black text-white px-1">SPREADSHEET_ID</code> sudah diisi dan sheet{' '}
-            <code className="bg-black text-white px-1">EXPORT_API</code> sudah dipublish ke web.
+            Pastikan <code className="bg-slate-100 text-slate-700 px-1 rounded">SPREADSHEET_ID</code> sudah diisi dan sheet{' '}
+            <code className="bg-slate-100 text-slate-700 px-1 rounded">EXPORT_API</code> sudah dipublish ke web.
           </p>
           <button
             onClick={fetchData}
-            className="flex items-center gap-2 bg-black text-white px-5 py-2 font-black uppercase text-sm hover:bg-[#FF9F1C] hover:text-black border-2 border-black transition-colors">
+            className="flex items-center gap-2 bg-[#0f172a] text-white px-5 py-2 rounded-lg font-bold uppercase text-xs hover:bg-slate-700 transition-colors shadow-sm cursor-pointer">
             <RefreshCw className="w-4 h-4" /> Coba Lagi
           </button>
         </div>
@@ -715,14 +714,13 @@ export default function HasilPenilaian() {
               ).map((stat, i) => (
                 <div
                   key={i}
-                  className="border-4 border-black p-4 bg-white shadow-[6px_6px_0px_0px_#000] flex flex-col gap-2">
+                  className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm flex flex-col gap-2">
                   <div
-                    className="w-10 h-10 border-2 border-black flex items-center justify-center"
-                    style={{ backgroundColor: stat.color }}>
+                    className="w-10 h-10 rounded-lg bg-slate-100 text-gov-blue flex items-center justify-center">
                     {stat.icon}
                   </div>
-                  <div className="text-[11px] font-black uppercase tracking-widest text-gray-600">{stat.label}</div>
-                  <div className={`font-black leading-tight ${stat.small ? '' : 'text-2xl'} text-black`}>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{stat.label}</div>
+                  <div className={`font-bold leading-tight text-gov-blue ${stat.small ? '' : 'text-2xl'}`}>
                     {stat.value}
                   </div>
                   {stat.sub && <div className="text-xs font-bold text-gray-500">{stat.sub}</div>}
@@ -743,7 +741,7 @@ export default function HasilPenilaian() {
                   placeholder="Cari nama OPP..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border-4 border-black py-3 pl-12 pr-4 font-bold placeholder:font-medium placeholder:text-gray-600 focus:outline-none focus:shadow-[8px_8px_0px_0px_#000] transition-all"
+                  className="w-full bg-white border border-slate-200 rounded-lg py-2.5 pl-12 pr-4 text-sm text-slate-700 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-gov-blue/20 transition-all shadow-sm"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -752,7 +750,7 @@ export default function HasilPenilaian() {
                   <button
                     key={s}
                     onClick={() => setSortBy(s)}
-                    className={`px-3 py-2 border-2 border-black font-bold text-xs uppercase tracking-wider transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_#000] ${sortBy === s ? 'bg-black text-white' : 'bg-white text-black'}`}>
+                    className={`px-3 py-2 border font-bold text-xs uppercase tracking-wider transition-all rounded-lg ${sortBy === s ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
                     {s === 'rank' ? '🏆 Ranking' : '🔤 A–Z'}
                   </button>
                 ))}
@@ -766,7 +764,7 @@ export default function HasilPenilaian() {
                 <button
                   key={k}
                   onClick={() => setKategori(k)}
-                  className={`px-4 py-2 border-2 border-black font-bold text-xs uppercase tracking-wider transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000] ${selectedKategori === k ? 'bg-black text-white' : 'bg-white text-black'}`}>
+                  className={`px-4 py-2 border font-bold text-xs uppercase tracking-wider transition-all rounded-lg ${selectedKategori === k ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
                   {k}
                 </button>
               ))}
@@ -821,7 +819,7 @@ export default function HasilPenilaian() {
                       setKategori('Semua')
                       setSection('Semua')
                     }}
-                    className="mt-4 text-sm font-bold underline text-black hover:text-[#FF9F1C]">
+                    className="mt-4 text-sm font-bold text-gov-blue hover:underline">
                     Reset Filter
                   </button>
                 </motion.div>

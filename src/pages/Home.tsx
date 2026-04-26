@@ -45,34 +45,31 @@ const Home = () => {
   // --- RENDER ---
   return (
     <div
-      className={`relative min-h-screen font-sans text-black ${selectedIndicator || activeImage ? 'overflow-hidden h-screen' : ''}`}>
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
+      className={`relative min-h-screen font-sans text-slate-900 ${selectedIndicator || activeImage ? 'overflow-hidden h-screen' : ''}`}>
+      <div className="relative z-10 py-12 md:py-20">
         {/* === SECTION 1: HEADER & SEARCH === */}
-        <section className="mb-10">
+        <section className="mb-16">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 mb-12">
             {/* Title Area */}
-            <div className="max-w-2xl">
+            <div className="max-w-3xl">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-block bg-[#FFDE59] border-2 border-black px-4 py-1 mb-4 shadow-[4px_4px_0px_0px_#000]">
-                <span className="text-sm font-black uppercase tracking-widest">Panduan Bukti Dukung</span>
+                className="inline-flex items-center bg-gov-blue text-gov-gold px-4 py-1.5 rounded-full shadow-sm mb-6">
+                <span className="text-xs font-semibold uppercase tracking-wider">Panduan Bukti Dukung</span>
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-6 leading-[0.9]">
-                PEKPPP{' '}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 underline decoration-black decoration-4 underline-offset-8">
-                  KUBAR
-                </span>
+                className="text-5xl md:text-6xl font-serif font-bold text-gov-blue mb-6 leading-tight">
+                PEKPPP <span className="text-gov-gold">Kutai Barat</span>
               </motion.h1>
 
-              <div className="bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_#000]">
-                <p className="text-lg md:text-xl font-bold leading-tight">Tentang Portal</p>
-                <p className="text-sm md:text-base text-gray-600 mt-2 font-medium">
-                  Portal ini adalah "Cheat Sheet" atau panduan Anda dalam menyiapkan bukti dukung pada penilaian PEKPPP
+              <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-xl shadow-slate-200/50">
+                <p className="text-xl font-serif font-semibold text-gov-blue">Tentang Portal</p>
+                <p className="text-slate-600 mt-3 leading-relaxed">
+                  Portal ini adalah panduan resmi dalam menyiapkan bukti dukung pada penilaian PEKPPP
                   2026. Klik kartu di bawah untuk melihat detail kriteria dan contoh visual.
                 </p>
               </div>
@@ -81,11 +78,11 @@ const Home = () => {
             {/* Search Box */}
             <div className="w-full lg:max-w-md space-y-3">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black pointer-events-none" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-gov-blue transition-colors" />
                 <input
                   type="text"
                   placeholder="Cari pertanyaan (cth: kebijakan)..."
-                  className="w-full bg-white border-2 border-black py-4 pl-12 pr-4 text-base font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-[6px_6px_0px_0px_#000] transition-all shadow-[4px_4px_0px_0px_#000]"
+                  className="w-full bg-white border border-slate-300 py-4 pl-12 pr-4 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-gov-blue/20 focus:border-gov-blue transition-all shadow-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && scrollToIndicators()}
@@ -95,7 +92,7 @@ const Home = () => {
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex gap-3 w-full px-1 overflow-x-auto flex-nowrap pb-4 md:flex-wrap md:overflow-visible md:pb-0 no-scrollbar">
+          <div className="flex gap-2 w-full px-1 overflow-x-auto flex-nowrap pb-4 md:flex-wrap md:overflow-visible md:pb-0 no-scrollbar">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -103,11 +100,10 @@ const Home = () => {
                   setFilter(cat)
                   scrollToIndicators()
                 }}
-                // Tambahkan 'shrink-0' agar tombol tidak gepeng saat di mode mobile
-                className={`shrink-0 whitespace-nowrap px-6 py-2 text-sm font-bold border-2 border-black transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000] active:translate-y-0 active:shadow-none ${
+                className={`shrink-0 whitespace-nowrap px-5 py-2.5 text-sm font-medium rounded-lg transition-all ${
                   filter === cat
-                    ? 'bg-black text-white shadow-[4px_4px_0px_0px_#888]'
-                    : 'bg-white text-black shadow-[4px_4px_0px_0px_#000]'
+                    ? 'bg-gov-blue text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-gov-blue'
                 }`}>
                 {cat}
               </button>
@@ -116,44 +112,47 @@ const Home = () => {
         </section>
 
         {/* === SECTION 2: 3-STEP INFO === */}
-        <section className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Step 1 */}
-          <div className="p-6 bg-[#FF90E8] border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-            <LayoutGrid className="w-8 h-8 mb-3 text-black" />
-            <h3 className="font-black text-lg">1. Pilih Pertanyaan</h3>
-            <p className="text-sm font-semibold mt-1">Cari pertanyaan yang ingin Anda lengkapi datanya.</p>
+        <section className="mb-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-slate-100 text-gov-blue rounded-xl flex items-center justify-center mb-5">
+              <LayoutGrid className="w-6 h-6" />
+            </div>
+            <h3 className="font-serif font-bold text-xl text-gov-blue mb-2">1. Pilih Pertanyaan</h3>
+            <p className="text-slate-600 text-sm leading-relaxed">Cari pertanyaan yang ingin Anda lengkapi datanya.</p>
           </div>
-          {/* Step 2 */}
-          <div className="p-6 bg-[#57E7FB] border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-            <FileText className="w-8 h-8 mb-3 text-black" />
-            <h3 className="font-black text-lg">2. Cek Contoh</h3>
-            <p className="text-sm font-semibold mt-1">Lihat gambar contoh agar dokumen tidak salah.</p>
+          <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-slate-100 text-gov-blue rounded-xl flex items-center justify-center mb-5">
+              <FileText className="w-6 h-6" />
+            </div>
+            <h3 className="font-serif font-bold text-xl text-gov-blue mb-2">2. Cek Contoh</h3>
+            <p className="text-slate-600 text-sm leading-relaxed">Lihat gambar contoh agar dokumen tidak salah.</p>
           </div>
-          {/* Step 3 */}
-          <div className="p-6 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] flex flex-col justify-between">
+          <div className="p-8 bg-gov-blue border border-gov-blue rounded-2xl shadow-lg flex flex-col justify-between">
             <div>
-              <Layers className="w-8 h-8 mb-3 text-black" />
-              <h3 className="font-black text-lg">3. Upload</h3>
+              <div className="w-12 h-12 bg-white/10 text-gov-gold rounded-xl flex items-center justify-center mb-5">
+                <Layers className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif font-bold text-xl text-white mb-2">3. Upload</h3>
             </div>
             <a
               href={DRIVE_UPLOAD_URL}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 flex items-center justify-center gap-2 w-full bg-black text-white py-2 font-bold hover:bg-zinc-800 transition-colors">
-              Buka Drive <ExternalLink className="w-3 h-3" />
+              className="mt-6 flex items-center justify-center gap-2 w-full bg-gov-gold text-gov-blue py-3 rounded-xl font-semibold hover:bg-white transition-colors">
+              Buka Drive <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </section>
-        <InfoBox />
+        <div className="mb-16"><InfoBox /></div>
         {/* === SECTION 3: GRID LIST (KARTU) === */}
-        <section ref={indicatorListRef} className="scroll-mt-10">
-          <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-4">
-            <h2 className=" sm:text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3">
-              <LayoutGrid className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" />
+        <section ref={indicatorListRef} className="scroll-mt-24">
+          <div className="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gov-blue flex items-center gap-3">
+              <LayoutGrid className="w-6 h-6 md:w-8 md:h-8 text-gov-gold" />
               Daftar Pertanyaan
             </h2>
-            <div className="bg-black text-white px-3 py-1 font-mono font-bold text-sm shadow-[4px_4px_0px_0px_#888]">
-              {filteredData.length} ITEM
+            <div className="bg-slate-100 text-gov-blue px-3 py-1 rounded-full font-medium text-sm border border-slate-200">
+              {filteredData.length} Item
             </div>
           </div>
 
@@ -167,26 +166,26 @@ const Home = () => {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => setSelectedIndicator(item)}
-                  className="group cursor-pointer flex flex-col justify-between bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-y-1 transition-all duration-200">
+                  className="group cursor-pointer flex flex-col justify-between bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300">
                   <div className="mb-4">
-                    <div className="flex justify-between items-start mb-4">
-                      <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 border border-black px-2 py-1 truncate max-w-[70%]">
+                    <div className="flex justify-between items-start mb-5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600 rounded-md px-2.5 py-1 truncate max-w-[70%]">
                         {item.aspek}
                       </span>
-                      <span className="shrink-0 w-8 h-8 flex items-center justify-center bg-[#FFDE59] border-2 border-black font-bold text-xs rounded-full">
+                      <span className="shrink-0 w-8 h-8 flex items-center justify-center bg-gov-blue text-gov-gold font-bold text-xs rounded-full">
                         {item.id}
                       </span>
                     </div>
-                    <h3 className="text-lg font-bold leading-tight line-clamp-3 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-medium text-slate-800 leading-snug line-clamp-3 group-hover:text-gov-blue transition-colors">
                       {item.pertanyaan}
                     </h3>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t-2 border-gray-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-black transition-colors">
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider group-hover:text-gov-blue transition-colors">
                       Lihat Detail
                     </span>
-                    <div className="bg-black text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-slate-50 text-slate-400 p-2 rounded-full group-hover:bg-gov-blue group-hover:text-white transition-all">
                       <ArrowRight className="w-3 h-3 -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                     </div>
                   </div>
@@ -195,28 +194,27 @@ const Home = () => {
             </div>
           ) : (
             /* Empty State */
-            <div className="py-20 text-center bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000]">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 border-2 border-black mb-6 rounded-full">
-                <Search className="w-8 h-8 text-gray-400" />
+            <div className="py-20 text-center bg-white border border-slate-200 rounded-2xl shadow-sm">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-50 rounded-full mb-6">
+                <Search className="w-8 h-8 text-slate-300" />
               </div>
-              <h3 className="text-xl font-black mb-2">DATA TIDAK DITEMUKAN</h3>
-              <p className="text-gray-600 font-medium mb-6">Coba kata kunci lain atau reset filter.</p>
+              <h3 className="text-xl font-serif font-bold text-gov-blue mb-2">Data Tidak Ditemukan</h3>
+              <p className="text-slate-500 mb-8">Coba kata kunci lain atau reset filter pencarian Anda.</p>
               <button
                 onClick={() => {
                   setSearchQuery('')
                   setFilter('Semua')
                 }}
-                className="px-8 py-3 bg-black text-white font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-[4px_4px_0px_0px_#000] transition-all">
-                RESET PENCARIAN
+                className="px-6 py-2.5 bg-gov-blue text-white rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm">
+                Reset Pencarian
               </button>
             </div>
           )}
         </section>
       </div>
 
-      {/* === MODALS (Global Overlay) === */}
+      {/* === MODALS === */}
       <AnimatePresence>
-        {/* 1. Modal Detail Indikator (Layer 50) */}
         {selectedIndicator && (
           <IndicatorModal
             data={selectedIndicator}
@@ -225,45 +223,38 @@ const Home = () => {
           />
         )}
 
-        {/* 2. Lightbox Image Viewer (Layer 100 - Paling Atas) */}
         {activeImage && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop Lightbox */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setActiveImage(null)}
-              className="absolute inset-0 bg-[#FFDE59]/95 backdrop-blur-md"
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"
             />
 
-            {/* Image Container */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
               <div className="pointer-events-auto relative max-w-5xl w-full flex flex-col items-center">
-                {/* Close Button Lightbox */}
                 <button
                   onClick={() => setActiveImage(null)}
-                  className="absolute -top-12 md:-top-6 right-0 md:-right-6 w-12 h-12 bg-red-500 border-2 border-black text-white flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_#000] z-50">
-                  <X className="w-6 h-6 stroke-3" />
+                  className="absolute -top-12 right-0 md:-top-4 md:-right-4 w-10 h-10 bg-white text-slate-900 rounded-full flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-lg z-50">
+                  <X className="w-5 h-5" />
                 </button>
 
-                {/* The Image */}
-                <div className="bg-white p-2 border-4 border-black shadow-[16px_16px_0px_0px_#000]">
+                <div className="bg-white p-2 rounded-xl shadow-2xl">
                   <img
                     src={activeImage.url}
                     alt={activeImage.caption}
-                    className="max-h-[70vh] w-auto object-contain border-2 border-black"
+                    className="max-h-[70vh] w-auto object-contain rounded-lg"
                   />
                 </div>
 
-                {/* Caption */}
-                <div className="mt-6 bg-black text-white px-6 py-4 border-2 border-white text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)]">
-                  <span className="text-xs font-bold text-[#FFDE59] uppercase tracking-widest block mb-1">CAPTION</span>
-                  <span className="font-bold text-lg">{activeImage.caption}</span>
+                <div className="mt-6 bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-xl border border-white/20 text-center shadow-lg">
+                  <span className="font-medium">{activeImage.caption}</span>
                 </div>
               </div>
             </motion.div>
