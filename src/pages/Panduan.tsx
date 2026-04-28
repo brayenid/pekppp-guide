@@ -6,22 +6,22 @@ const STEPS = [
   {
     title: 'Pelajari Referensi',
     desc: "Buka halaman 'Beranda' dan cari indikator yang dituju. Lihat contoh foto atau dokumen agar bukti dukung Anda valid.",
-    icon: <Search className="w-6 h-6" />,
+    icon: <Search className="w-6 h-6" />
   },
   {
     title: 'Masuk ke Folder OPP',
     desc: 'Buka tautan Drive. Cari folder sesuai nama Instansi/OPP Anda. Jangan mengunggah di folder tetangga!',
-    icon: <FolderOpen className="w-6 h-6" />,
+    icon: <FolderOpen className="w-6 h-6" />
   },
   {
     title: 'Pilih Folder Indikator',
     desc: 'Di dalam folder instansi Anda, sudah tersedia folder untuk setiap nomor pertanyaan. Masuk ke sana.',
-    icon: <CheckCircle2 className="w-6 h-6" />,
+    icon: <CheckCircle2 className="w-6 h-6" />
   },
   {
     title: 'Atur Nama File & Unggah',
     desc: 'Wajib Rename! Judul file harus jelas. Dilarang menggunakan nama file random (misal: "IMG_2024.jpg").',
-    icon: <Type className="w-6 h-6" />,
+    icon: <Type className="w-6 h-6" />
   }
 ]
 
@@ -41,7 +41,7 @@ export default function Panduan() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
-          PANDUAN <span className="text-gov-gold">PENGUNGGAHAN</span>
+          Panduan <span className="text-gov-gold">Pengunggahan</span>
         </motion.h1>
 
         <motion.div
@@ -49,9 +49,12 @@ export default function Panduan() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm max-w-3xl">
-          <p className="text-xl font-serif font-semibold text-gov-blue">Jangan sampai nilai turun karena salah unggah!</p>
+          <p className="text-xl font-serif font-semibold text-gov-blue">
+            Jangan sampai nilai turun karena salah unggah!
+          </p>
           <p className="text-slate-600 mt-3 leading-relaxed">
-            Ikuti panduan langkah demi langkah di bawah ini agar dokumen Anda dapat diverifikasi dengan cepat dan tepat oleh tim evaluator.
+            Ikuti panduan langkah demi langkah di bawah ini agar dokumen Anda dapat diverifikasi dengan cepat dan tepat
+            oleh tim evaluator.
           </p>
         </motion.div>
       </header>
@@ -104,9 +107,7 @@ export default function Panduan() {
                 <div className="bg-red-100 p-2 rounded-full">
                   <XCircle className="w-6 h-6 text-red-600" />
                 </div>
-                <h3 className="font-bold text-lg text-slate-800">
-                  Hindari Format Ini
-                </h3>
+                <h3 className="font-bold text-lg text-slate-800">Hindari Format Ini</h3>
               </div>
 
               <div className="space-y-3">
@@ -130,9 +131,7 @@ export default function Panduan() {
                 <div className="bg-green-100 p-2 rounded-full">
                   <CheckCircle2 className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="font-bold text-lg text-slate-800">
-                  Format yang Benar
-                </h3>
+                <h3 className="font-bold text-lg text-slate-800">Format yang Benar</h3>
               </div>
 
               <div className="space-y-3">

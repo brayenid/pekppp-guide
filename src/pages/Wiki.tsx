@@ -123,10 +123,8 @@ const Wiki = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
-            WIKI{' '}
-            <span className="text-gov-gold underline decoration-black decoration-4 underline-offset-8">
-              PEKPPP
-            </span>
+            Wiki{' '}
+            <span className="text-gov-gold underline decoration-black decoration-4 underline-offset-8">PEKPPP</span>
           </motion.h1>
 
           <p className="text-sm font-bold text-gray-500 mb-8">

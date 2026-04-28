@@ -84,7 +84,7 @@ export default function DataRegulasi() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="text-4xl md:text-5xl font-serif font-bold text-gov-blue mb-6 leading-tight">
-          DATA & <span className="text-gov-gold">REGULASI</span>
+          Data & <span className="text-gov-gold">Regulasi</span>
         </motion.h1>
 
         <motion.div
@@ -151,7 +151,7 @@ export default function DataRegulasi() {
       <section className="relative">
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 md:p-12 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-             <AlertCircle className="w-48 h-48 text-gov-blue" />
+            <AlertCircle className="w-48 h-48 text-gov-blue" />
           </div>
           <div className="shrink-0 p-5 bg-white border border-slate-100 rounded-xl shadow-sm z-10">
             <ShieldCheck className="w-10 h-10 text-gov-gold" />
@@ -161,9 +161,12 @@ export default function DataRegulasi() {
             <div className="inline-block bg-gov-blue text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider mb-4">
               Penting
             </div>
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gov-blue mb-4 leading-tight">Validitas Dokumen</h2>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gov-blue mb-4 leading-tight">
+              Validitas Dokumen
+            </h2>
             <p className="text-base text-slate-600 leading-relaxed border-l-4 border-gov-gold pl-4 italic">
-              "Setiap bukti dukung (evidence) yang diunggah harus dapat dipertanggungjawabkan dan merujuk pada regulasi di atas."
+              "Setiap bukti dukung (evidence) yang diunggah harus dapat dipertanggungjawabkan dan merujuk pada regulasi
+              di atas."
             </p>
           </div>
         </div>
