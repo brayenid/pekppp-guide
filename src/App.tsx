@@ -2,7 +2,7 @@
 // src/App.tsx
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom'
-import { LayoutGrid, BookText, Home as HomeIcon, Info, Menu, X, FileText, BookOpen, Archive } from 'lucide-react'
+import { BookText, Home as HomeIcon, Info, Menu, X, FileText, BookOpen, Archive } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
 import Panduan from './pages/Panduan'
