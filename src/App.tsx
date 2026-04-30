@@ -63,8 +63,8 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-3 group">
-            <div className="p-2.5 bg-gradient-to-br from-gov-blue to-slate-800 text-gov-gold rounded-lg shadow-sm group-hover:shadow-md transition-all">
-              <LayoutGrid className="w-5 h-5" />
+            <div className="p-2 bg-slate-200 text-gov-gold rounded-lg shadow-sm group-hover:shadow-md transition-all">
+              <img src="/kubar.png" alt="Logo Kubar" title="Kutai Barat" className="w-6" />
             </div>
             <div className="flex flex-col leading-tight">
               <span className="font-serif font-bold text-xl tracking-tight text-gov-blue">PEKPPP</span>

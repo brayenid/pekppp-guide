@@ -623,10 +623,10 @@ export default function HasilPenilaian() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-lg font-bold text-gray-600 max-w-2xl leading-relaxed">
+          className="text-base text-slate-500 max-w-2xl leading-relaxed">
           Rekapitulasi hasil evaluasi kinerja penyelenggara pelayanan publik. Data bersifat{' '}
-          <span className="bg-rose-300 p-0.5 px-1">sementara</span> dan belum final. Klik kartu untuk melihat rincian
-          penilaian per pertanyaan.
+          <span className="bg-red-400 text-white p-0.5 px-1 font-bold rounded">sementara</span> dan belum final. Klik
+          kartu untuk melihat rincian penilaian per pertanyaan.
         </motion.p>
       </header>
 

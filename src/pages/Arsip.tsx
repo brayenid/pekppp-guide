@@ -772,7 +772,7 @@ export default function KetersediaanBerkas() {
           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
             <RefreshCw className="w-10 h-10 text-amber-400" />
           </motion.div>
-          <p className="mt-4 font-black text-gray-400 uppercase tracking-widest text-sm">Memuat data dari Sheets...</p>
+          <p className="mt-4 font-black text-gray-400 uppercase tracking-widest text-sm">Memuat data...</p>
         </div>
       </div>
     )
