@@ -1,0 +1,1147 @@
+{
+  "form_meta": {
+    "kode_form": "F-01A (LURING)",
+    "judul": "DATA PENUNJANG PEKPPP",
+    "subjudul": "FORMULIR PENGISIAN MANDIRI PENYELENGGARA PELAYANAN KODE A",
+    "penerbit": "Kementerian PANRB",
+    "jenis_isian": "Form Isian Unit Lokus",
+    "header_fields": [
+      { "id": "instansi", "label": "Instansi", "type": "text", "required": true },
+      { "id": "unit_lokus", "label": "Unit Lokus", "type": "text", "required": true }
+    ],
+    "petunjuk_pengisian": [
+      "Responden wajib mengisi formulir secara objektif sesuai dengan kondisi riil Unit Layanan.",
+      "Terdapat pertanyaan yang membutuhkan jawaban lebih dari 1 (satu); pilih jawaban yang paling sesuai (multi-select).",
+      "Terdapat pertanyaan pilihan; pilih 1 (satu) jawaban yang paling sesuai (single-select).",
+      "Pertanyaan terbuka; jawaban berupa deskripsi kondisi riil unit (open text).",
+      "Beberapa pertanyaan membutuhkan bukti dukung berupa salinan/file/pdf/foto atau dokumen pendukung lainnya (file upload)."
+    ]
+  },
+  "sections": [
+    {
+      "section_id": "kebijakan_pelayanan",
+      "section_title": "KEBIJAKAN PELAYANAN",
+      "subsections": [
+        {
+          "subsection_title": "1. Standar Pelayanan",
+          "questions": [
+            {
+              "no": 1,
+              "topic": "Tersedia Standar Pelayanan (SP) sesuai dengan ketentuan peraturan perundang-undangan yang berlaku.",
+              "items": [
+                {
+                  "id": "q1a",
+                  "text": "Apakah sudah dibuat Standar Pelayanan, baik sebagian ataupun seluruh jenis pelayanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "skip_logic": "Jika 'Tidak', maka pertanyaan b, c, d, e tidak perlu dijawab."
+                },
+                {
+                  "id": "q1a_jumlah_jenis_pelayanan",
+                  "text": "Berapa Jumlah Jenis Pelayanan yang dimiliki?",
+                  "type": "number",
+                  "depends_on": "q1a=Ya"
+                },
+                {
+                  "id": "q1a_jumlah_sp",
+                  "text": "Berapa Jumlah Jenis Standar Pelayanan yang dibuat?",
+                  "type": "number",
+                  "depends_on": "q1a=Ya"
+                },
+                {
+                  "id": "q1b",
+                  "text": "Apakah Standar Pelayanan yang disusun telah memenuhi 14 komponen?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "depends_on": "q1a=Ya"
+                },
+                {
+                  "id": "q1c",
+                  "text": "Apakah dalam proses penyusunan Standar Pelayanan telah melibatkan unsur masyarakat?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "depends_on": "q1a=Ya"
+                },
+                {
+                  "id": "q1d",
+                  "text": "Apakah Standar Pelayanan telah ditetapkan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "depends_on": "q1a=Ya"
+                },
+                {
+                  "id": "q1e",
+                  "text": "Apakah Standar Pelayanan yang dimiliki dilakukan monev?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "depends_on": "q1a=Ya"
+                }
+              ],
+              "bukti_dukung": [
+                "Daftar jenis pelayanan yang diselenggarakan",
+                "Dokumen standar pelayanan yang telah ditetapkan",
+                "Berita Acara, Foto, Notulen",
+                "Laporan Pelaksanaan Forum Konsultasi Publik"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Setiap Unit Lokus wajib menyusun Standar Pelayanan sebagai pedoman penyelenggaraan pelayanan dan acuan penilaian kualitas pelayanan. SP wajib ditetapkan agar memiliki kekuatan hukum, ditetapkan minimal oleh pimpinan Unit Penyelenggara Pelayanan. SP terdiri atas 14 komponen (6 service delivery wajib dipublikasikan, 8 manufacturing). Acuan: PermenPANRB No. 15/2014 (penyusunan SP) dan No. 16/2017 (Forum Konsultasi Publik)."
+            },
+            {
+              "no": 2,
+              "topic": "Proses penyusunan dan perubahan SP telah melibatkan unsur masyarakat.",
+              "items": [
+                {
+                  "id": "q2a",
+                  "text": "Apakah dalam penyusunan SP telah melibatkan unsur masyarakat?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q2b",
+                  "text": "Unsur masyarakat mana saja yang terlibat?",
+                  "type": "multi_select",
+                  "depends_on": "q2a=Ya",
+                  "options": [
+                    "Masyarakat pengguna layanan",
+                    "Ahli/Praktisi/Akademisi",
+                    "Instansi Terkait",
+                    "Organisasi Masyarakat Sipil",
+                    "Media Massa"
+                  ]
+                }
+              ],
+              "bukti_dukung": [
+                "Berita acara",
+                "Daftar hadir penyusunan SP",
+                "Notulen",
+                "Foto Kegiatan",
+                "Laporan Pelaksanaan Forum Konsultasi Publik"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Penyusunan dan penetapan SP wajib melibatkan warga negara/penduduk sebagai perorangan, kelompok, atau badan hukum penerima manfaat pelayanan publik, baik langsung maupun tidak langsung."
+            },
+            {
+              "no": 3,
+              "topic": "Jumlah media publikasi untuk komponen service delivery.",
+              "items": [
+                { "id": "q3a", "text": "Apakah SP dipublikasikan?", "type": "yes_no", "options": ["Ya", "Tidak"] },
+                {
+                  "id": "q3b",
+                  "text": "Apakah SP yang dipublikasikan seluruh 6 komponen service delivery?",
+                  "type": "single_select",
+                  "options": ["Ya", "Tidak, hanya sebagian"]
+                },
+                {
+                  "id": "q3c",
+                  "text": "Sebutkan media publikasi SP (jika jawaban di atas 'Ya').",
+                  "type": "multi_select",
+                  "depends_on": "q3a=Ya",
+                  "options": [
+                    "Media Cetak/Non Elektronik",
+                    "Media Elektronik",
+                    "Media sosial",
+                    "Website",
+                    "Aplikasi yang bisa diunduh",
+                    "SIPP Nasional",
+                    "Papan reklame"
+                  ]
+                }
+              ],
+              "bukti_dukung": [
+                "Foto atau screenshot berbagai bentuk/media publikasi Standar Pelayanan",
+                "Screenshot publikasi di SIPPN"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "SP yang ditetapkan wajib dipublikasikan pada media yang mudah diakses masyarakat: media cetak/non elektronik (brosur/leaflet/majalah/pamflet/buku saku/papan pengumuman), media elektronik (layar TV/monitor/kios-K/E-kios), media sosial (Facebook/Instagram/Twitter/WhatsApp), website/subsite, aplikasi unduh (android/iOS), SIPP Nasional, dan papan reklame (videotron/billboard/baliho)."
+            },
+            {
+              "no": 4,
+              "topic": "Telah dilakukan peninjauan ulang secara berkala terhadap Standar Pelayanan.",
+              "items": [
+                {
+                  "id": "q4",
+                  "text": "Pilih pernyataan yang paling sesuai mengenai peninjauan ulang SP.",
+                  "type": "single_select",
+                  "options": [
+                    "Tidak dilaksanakan peninjauan ulang secara berkala terhadap Standar Pelayanan",
+                    "Dilakukan peninjauan ulang 3 tahun atau lebih terhadap seluruh jenis layanan",
+                    "Dilakukan peninjauan ulang 2 tahun atau lebih terhadap sebagian jenis layanan",
+                    "Dilakukan peninjauan ulang 2 tahun atau lebih cepat terhadap seluruh jenis layanan",
+                    "Dilakukan peninjauan ulang 1 tahun atau lebih cepat terhadap sebagian jenis layanan",
+                    "Dilakukan peninjauan ulang 1 tahun atau lebih cepat terhadap seluruh jenis layanan"
+                  ]
+                }
+              ],
+              "bukti_dukung": [
+                "BA FKP peninjauan SP",
+                "Laporan (Berita Acara Peninjauan Ulang SP, Rencana Aksi, pelaksanaan Rencana Aksi)",
+                "Foto Kegiatan"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "SP yang sudah ditetapkan wajib ditinjau ulang sesuai pasal 33 PP 96/2012; hasil peninjauan menjadi dasar mempertahankan atau mengubah SP."
+            }
+          ]
+        },
+        {
+          "subsection_title": "2. Maklumat Pelayanan",
+          "questions": [
+            {
+              "no": 5,
+              "topic": "Pemenuhan siklus Maklumat Pelayanan (ketersediaan, penetapan, dan publikasi).",
+              "items": [
+                {
+                  "id": "q5a",
+                  "text": "Apakah tersedia maklumat pelayanan yang ditetapkan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q5b",
+                  "text": "Apakah isi maklumat pelayanan sesuai dengan peraturan perundangan yang berlaku?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q5c",
+                  "text": "Apakah maklumat pelayanan dipublikasikan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q5c_media",
+                  "text": "Media publikasi yang digunakan (jika 'Ya')",
+                  "type": "multi_select",
+                  "depends_on": "q5c=Ya",
+                  "options": ["Elektronik", "Non Elektronik"]
+                }
+              ],
+              "bukti_dukung": [
+                "Dokumen Pengesahan Maklumat Pelayanan",
+                "Foto atau screenshot berbagai bentuk Publikasi Maklumat Pelayanan"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Maklumat Pelayanan adalah pernyataan tertulis berisi kewajiban dan janji pemberi layanan memenuhi SP serta kesiapan menerima sanksi bila melanggar. Memuat: (1) janji melaksanakan pelayanan sesuai SP, (2) pernyataan perbaikan terus menerus, (3) kesediaan menerima sanksi/memberi kompensasi bila tidak sesuai standar."
+            }
+          ]
+        },
+        {
+          "subsection_title": "3. Survei Kepuasan Masyarakat (SKM)",
+          "questions": [
+            {
+              "no": 6,
+              "topic": "SKM yang dilaksanakan sesuai dengan PermenPANRB.",
+              "items": [
+                {
+                  "id": "q6a",
+                  "text": "Apakah Unit Lokus telah melaksanakan Survei Kepuasan Masyarakat?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                { "id": "q6b", "text": "Berapa kali dalam satu tahun dilaksanakan SKM?", "type": "number" },
+                {
+                  "id": "q6c_nilai_ikm",
+                  "text": "Nilai rata-rata SKM periode terakhir (Nilai IKM, konversi 100)",
+                  "type": "number"
+                },
+                { "id": "q6c_periode", "text": "Periode Pelaksanaan (contoh: TW IV 2021)", "type": "text" },
+                {
+                  "id": "q6d",
+                  "text": "Apakah pelaksanaan SKM sesuai dengan PermenPANRB yang berlaku?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q6e",
+                  "text": "Apakah hasil SKM dipublikasikan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q6e_media",
+                  "text": "Media publikasi yang digunakan (jika 'Ya')",
+                  "type": "multi_select",
+                  "depends_on": "q6e=Ya",
+                  "options": ["Elektronik", "Non Elektronik"]
+                },
+                {
+                  "id": "q6f",
+                  "text": "Apakah hasil SKM dilakukan tindak lanjut?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                }
+              ],
+              "bukti_dukung": [
+                "Dokumen atau Foto pelaksanaan SKM dan media yang digunakan",
+                "Laporan hasil pelaksanaan SKM"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Dasar hukum SKM adalah PermenPANRB yang berlaku pada tahun penilaian kinerja. Digunakan untuk mengetahui tingkat kepuasan masyarakat atas pelayanan."
+            },
+            {
+              "no": 7,
+              "topic": "Jumlah media publikasi hasil SKM.",
+              "items": [
+                {
+                  "id": "q7a",
+                  "text": "Sebutkan media publikasi hasil SKM.",
+                  "type": "multi_select",
+                  "options": [
+                    "Media Cetak/Non Elektronik",
+                    "Media Elektronik",
+                    "Media Sosial",
+                    "Website",
+                    "Aplikasi yang bisa diunduh"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["Foto atau screenshot berbagai bentuk publikasi hasil SKM"],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Publikasi informasi SKM adalah tersedianya informasi metode, proses, dan hasil SKM untuk diketahui masyarakat luas."
+            },
+            {
+              "no": 8,
+              "topic": "Tindak lanjut hasil SKM dan kedalaman ruang lingkup untuk setiap jenis pelayanan.",
+              "items": [
+                {
+                  "id": "q8a",
+                  "text": "Apakah sudah dibuat rencana tindak lanjut dari SKM yang sudah dilaksanakan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q8b",
+                  "text": "Berapa persen (%) rencana tindak lanjut yang direalisasikan dalam 1 tahun terakhir?",
+                  "type": "number",
+                  "unit": "%",
+                  "formula": "(realisasi rencana tindak lanjut / jumlah rencana tindak lanjut) x 100%"
+                },
+                {
+                  "id": "q8c",
+                  "text": "Apakah dibuat laporan tindak lanjut yang dilakukan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                }
+              ],
+              "bukti_dukung": ["Laporan SKM yang memuat rencana tindak lanjut", "Laporan tindak lanjut"],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Tindak lanjut hasil SKM adalah hasil survei yang diolah menjadi rekomendasi perbaikan layanan. Ruang lingkup SKM meliputi: persyaratan, prosedur, waktu, produk pelayanan, biaya, kompetensi, perilaku, maklumat pelayanan, dan pengelolaan pengaduan."
+            },
+            {
+              "no": 9,
+              "topic": "Kecepatan tindak lanjut hasil SKM seluruh jenis pelayanan.",
+              "items": [
+                {
+                  "id": "q9a",
+                  "text": "Apakah hasil SKM ditindaklanjuti?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q9b",
+                  "text": "Berapa lama tindak lanjut hasil SKM?",
+                  "type": "single_select",
+                  "options": [
+                    "1 tahun setelah laporan SKM terbit",
+                    "9 bulan setelah laporan SKM terbit",
+                    "6 bulan setelah laporan SKM terbit",
+                    "3 bulan setelah laporan SKM terbit",
+                    "1 bulan setelah laporan SKM terbit"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["Laporan SKM yang memuat rencana tindak lanjut", "Laporan tindak lanjut"],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Melihat keseriusan unit lokus dalam menindaklanjuti rekomendasi hasil SKM, dinilai dari laporan pelaksanaan SKM 2 tahun terakhir dan laporan tindak lanjutnya."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "profesionalisme_sdm",
+      "section_title": "PROFESIONALISME SDM",
+      "subsections": [
+        {
+          "subsection_title": null,
+          "questions": [
+            {
+              "no": 10,
+              "topic": "Tersedia waktu pelayanan yang memudahkan pengguna layanan.",
+              "items": [
+                {
+                  "id": "q10a",
+                  "text": "Apakah tersedia waktu pelayanan yang memudahkan pengguna layanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q10b",
+                  "text": "Bagaimana pelaksanaannya?",
+                  "type": "multi_select",
+                  "options": [
+                    "Memiliki kebijakan jam pelayanan/kerja",
+                    "Tidak ada jeda pelayanan (istirahat pegawai dilakukan bergilir/shift, dibuktikan publikasi jam layanan)",
+                    "Penambahan waktu layanan di luar jam pelayanan yang ditentukan (masih hari kerja)",
+                    "Penambahan waktu layanan di luar hari kerja pada kondisi tertentu (misal: CPNS, LAPOR SPT Tahunan)",
+                    "Penambahan waktu layanan di luar hari kerja secara rutin",
+                    "Layanan 24 Jam (layanan inti/pendaftaran)"
+                  ]
+                }
+              ],
+              "bukti_dukung": [
+                "Surat perintah lembur (nota dinas/memo/dll)",
+                "Surat Tugas pemberian pelayanan pada hari libur",
+                "Foto kegiatan"
+              ],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 11,
+              "topic": "Tersedia Kode Etik dan Kode Perilaku Pelaksana dan/atau Budaya Pelayanan.",
+              "items": [
+                {
+                  "id": "q11a",
+                  "text": "Apakah sudah tersedia Aturan Perilaku dan Kode Etik Pelaksana Pelayanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q11b",
+                  "text": "Aturan Perilaku dan Kode Etik Pelaksana Pelayanan meliputi:",
+                  "type": "multi_select",
+                  "options": [
+                    "Nilai dasar hak dan kewajiban",
+                    "Larangan KKN",
+                    "Larangan diskriminasi",
+                    "Sanksi",
+                    "Penghargaan"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["Dokumen kode etik dan kode perilaku"],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Aturan Perilaku dan Kode Etik adalah pedoman sikap, perilaku, tulisan dan ucapan pegawai serta hak/kewajiban pelaksana layanan."
+            },
+            {
+              "no": 12,
+              "topic": "Tersedia mekanisme yang dibangun unit kerja untuk menjaga dan meningkatkan motivasi kerja Pelaksana pelayanan.",
+              "items": [
+                {
+                  "id": "q12a",
+                  "text": "Apakah tersedia mekanisme untuk menjaga dan meningkatkan motivasi kerja?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q12b",
+                  "text": "Bagaimana mekanisme yang dibangun?",
+                  "type": "multi_select",
+                  "options": [
+                    "Pemberian penghargaan",
+                    "Pemberian kesempatan untuk mengikuti diklat",
+                    "Pengembangan kapasitas melalui program beasiswa",
+                    "Program konseling",
+                    "Program team/capacity building",
+                    "Mekanisme lainnya yang dapat meningkatkan motivasi kerja pegawai"
+                  ]
+                }
+              ],
+              "bukti_dukung": [
+                "Dokumentasi/foto pelaksanaan program/kegiatan",
+                "Peraturan",
+                "Video",
+                "Informasi lainnya yang relevan (paling tidak 1 tahun terakhir)"
+              ],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 13,
+              "topic": "Tersedia kriteria pemberian penghargaan bagi pelaksana layanan yang berprestasi.",
+              "items": [
+                {
+                  "id": "q13",
+                  "text": "Apakah kriteria yang digunakan dalam pemberian penghargaan?",
+                  "type": "multi_select",
+                  "options": [
+                    "Kehadiran",
+                    "Kinerja",
+                    "Kerja sama",
+                    "Inovatif/kreatif",
+                    "Penampilan",
+                    "Tidak pernah menerima komplain dari pengguna layanan"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["SK yang mengatur mengenai pemberian penghargaan"],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 14,
+              "topic": "Budaya Pelayanan.",
+              "items": [
+                {
+                  "id": "q14",
+                  "text": "Bagaimana budaya pelayanan yang diterapkan dan diperlihatkan oleh Pelaksana layanan?",
+                  "type": "multi_select",
+                  "options": [
+                    "Mengenakan pakaian seragam",
+                    "Mengenakan identitas nama",
+                    "PIN/atribut/logo unit pelayanan",
+                    "Aturan penerapan 5S (Senyum, salam, sapa, sopan dan santun)",
+                    "Nilai-nilai budaya layanan"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["Foto bukti dukung (pegawai menerapkan budaya pelayanan)"],
+              "bukti_dukung_upload": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "sarana_prasarana",
+      "section_title": "SARANA PRASARANA",
+      "subsections": [
+        {
+          "subsection_title": null,
+          "questions": [
+            {
+              "no": 15,
+              "topic": "Tersedia tempat parkir dengan fasilitas pendukung.",
+              "items": [
+                {
+                  "id": "q15a",
+                  "text": "Apakah tersedia tempat parkir kendaraan bermotor bagi pengguna layanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q15b",
+                  "text": "Fasilitas parkir yang tersedia:",
+                  "type": "multi_select",
+                  "options": [
+                    "Ketersediaan parkir roda dua dan roda empat",
+                    "Petugas parkir",
+                    "Pemeriksaan karcis/kartu parkir",
+                    "CCTV",
+                    "Penitipan jaket/helm",
+                    "Pelindung (Kanopi/atap bahan lain)",
+                    "Drive Thru",
+                    "Lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ],
+              "bukti_dukung": ["Foto tempat parkir dan seluruh fasilitas parkir yang ada"],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 16,
+              "topic": "Kelayakan fasilitas ruang tunggu pelayanan.",
+              "items": [
+                {
+                  "id": "q16_wajib",
+                  "text": "Fasilitas wajib pada ruang tunggu:",
+                  "type": "multi_select",
+                  "options": ["Kursi tunggu", "Pendingin/sirkulasi ruangan"]
+                },
+                {
+                  "id": "q16_tambahan",
+                  "text": "Fasilitas tambahan pada ruang tunggu:",
+                  "type": "multi_select",
+                  "options": [
+                    "Air minum",
+                    "Bahan bacaan",
+                    "Pengisi daya baterai alat komunikasi/charger booth",
+                    "Mesin antrian dilengkapi monitor",
+                    "Televisi",
+                    "Hotspot/wifi",
+                    "Lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ],
+              "bukti_dukung": ["Foto/Video fasilitas ruang tunggu/data dukung"],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 17,
+              "topic": "Tersedia sarana toilet pengguna layanan yang layak pakai.",
+              "items": [
+                {
+                  "id": "q17a",
+                  "text": "Apakah tersedia toilet untuk pengguna layanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q17b",
+                  "text": "Fasilitas pada toilet:",
+                  "type": "multi_select",
+                  "options": [
+                    "Ketersediaan toilet pria dan wanita",
+                    "Wastafel",
+                    "Toiletries (tissue, sabun, tempat sampah)",
+                    "Air bersih",
+                    "Monev intensitas petugas membersihkan toilet",
+                    "Lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ],
+              "bukti_dukung": ["Foto/video toilet pengguna layanan dan seluruh fasilitas yang ada"],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 18,
+              "topic": "Tersedia sarana prasarana bagi pengguna layanan kelompok rentan.",
+              "items": [
+                {
+                  "id": "q18",
+                  "text": "Sebutkan sarana prasarana bagi pengguna layanan kelompok rentan.",
+                  "type": "multi_select",
+                  "options": [
+                    "Kursi roda/tongkat/kruk",
+                    "Pintu masuk yang mudah diakses",
+                    "Step lobby/ramp/jalan landai dengan pegangan rambat",
+                    "Lift khusus disertai huruf braille",
+                    "Selasar yang menghubungkan semua ruangan",
+                    "Toilet khusus",
+                    "Loket khusus",
+                    "Ruang tunggu khusus",
+                    "Guiding block",
+                    "Parkir khusus yang mudah diakses",
+                    "Alat bantu tuna netra/tuna rungu (huruf braille)",
+                    "Arena bermain anak",
+                    "Ruang Laktasi",
+                    "Fasilitas lain (petugas pemandu, petugas bahasa isyarat)"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["Foto sarana prasarana kelompok rentan/data dukung"],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Dasar hukum: UU No. 8 Tahun 2016 tentang Penyandang Disabilitas, PP No. 42 Tahun 2020, dan SE Menteri PANRB No. 66 Tahun 2020."
+            },
+            {
+              "no": 19,
+              "topic": "Tersedia sarana prasarana penunjang.",
+              "items": [
+                {
+                  "id": "q19",
+                  "text": "Sarana prasarana penunjang apa saja yang tersedia?",
+                  "type": "multi_select",
+                  "options": [
+                    "Fotocopy/ATK",
+                    "P3K",
+                    "APAR",
+                    "Kantin",
+                    "Ruang Ibadah",
+                    "Area merokok di luar ruang pelayanan",
+                    "Jalur evakuasi/titik kumpul",
+                    "Ruang Laktasi",
+                    "Tempat Sampah",
+                    "CCTV",
+                    "Lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ],
+              "bukti_dukung": ["Foto/Video sarpras penunjang/data dukung"],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 20,
+              "topic": "Fasilitas pada Sarana Front Office (FO) bagian Informasi.",
+              "items": [
+                {
+                  "id": "q20",
+                  "text": "Sebutkan fasilitas pada Front Office bagian Informasi.",
+                  "type": "multi_select",
+                  "options": [
+                    "Petugas khusus",
+                    "Meja/kursi",
+                    "Layar/display informasi",
+                    "Bahan cetak informasi layanan",
+                    "Register tamu (manual/elektronik)",
+                    "Lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ],
+              "bukti_dukung": ["Foto/Video front office bagian layanan informasi"],
+              "bukti_dukung_upload": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "sistem_informasi_pelayanan_publik",
+      "section_title": "SISTEM INFORMASI PELAYANAN PUBLIK",
+      "subsections": [
+        {
+          "subsection_title": null,
+          "questions": [
+            {
+              "no": 21,
+              "topic": "Ketersediaan dan bentuk Sistem Informasi Pelayanan Publik (SIPP).",
+              "items": [
+                {
+                  "id": "q21a",
+                  "text": "Apakah tersedia sistem informasi pelayanan publik (SIPP)?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q21b",
+                  "text": "SIPP yang tersedia berupa:",
+                  "type": "multi_select",
+                  "options": ["SIPP secara elektronik", "SIPP secara non elektronik"]
+                },
+                {
+                  "id": "q21c",
+                  "text": "SIPP non elektronik tersedia berupa:",
+                  "type": "multi_select",
+                  "options": ["Lisan (pusat informasi)", "Papan pengumuman", "Media cetak"]
+                },
+                {
+                  "id": "q21d",
+                  "text": "SIPP elektronik tersedia berupa:",
+                  "type": "multi_select",
+                  "options": ["Intranet/Belum online", "Online/website"]
+                },
+                {
+                  "id": "q21e",
+                  "text": "Apakah telah menggunakan Sistem Informasi Pelayanan Publik Nasional (SIPPN)?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q21e_akun",
+                  "text": "Isikan akun pengguna pada SIPPN (jika 'Ya')",
+                  "type": "text",
+                  "depends_on": "q21e=Ya"
+                },
+                { "id": "q21f", "text": "Berapa jumlah layanan yang sudah diinputkan pada SIPPN?", "type": "number" }
+              ],
+              "bukti_dukung": [
+                "Akun pengguna pada SIPPN",
+                "Screenshot tampilan akun unit layanan pada SIPPN yang menampilkan jumlah layanan yang telah diinput"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "SIPP adalah rangkaian kegiatan penyimpanan, pengelolaan, dan penyampaian informasi dari penyelenggara ke masyarakat dan sebaliknya (UU No. 25/2009 Pasal 1 ayat 9). SIPPN adalah layanan informasi publik satu pintu berbasis website (PermenPANRB No. 13/2017)."
+            },
+            {
+              "no": 22,
+              "topic": "Sistem informasi pelayanan publik pendukung operasional pelayanan.",
+              "items": [
+                {
+                  "id": "q22",
+                  "text": "Unsur pendukung sistem informasi pelayanan publik yang dimiliki:",
+                  "type": "multi_select",
+                  "options": [
+                    "Pengelolaan Pengaduan SP4N-LAPOR",
+                    "Survey Kepuasan Masyarakat",
+                    "SDM: Aplikasi/website pengelola kepegawaian",
+                    "FAQ",
+                    "Pengelolaan keuangan pelayanan publik bagi layanan berbayar",
+                    "Unsur pendukung lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ]
+            },
+            {
+              "no": 23,
+              "topic": "Kualitas penggunaan SIPP Elektronik.",
+              "items": [
+                {
+                  "id": "q23_awal",
+                  "text": "Apakah telah memiliki SIPP Elektronik?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', pertanyaan berhenti di sini."
+                },
+                {
+                  "id": "q23a",
+                  "text": "Apakah SIPP Elektronik berbasis website/aplikasi mudah dioperasikan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q23b",
+                  "text": "Apakah SIPP Elektronik berbasis website/aplikasi mudah diakses?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q23c",
+                  "text": "Apakah SIPP Elektronik memiliki navigasi yang memudahkan pengguna layanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q23d",
+                  "text": "Apakah SIPP Elektronik menggunakan kanal resmi pemerintah (domain.go.id)?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q23e",
+                  "text": "Apakah SIPP Elektronik memiliki fungsi yang kompatibel?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                }
+              ],
+              "penjelasan": "Kualitas kegunaan SIPP Elektronik berkaitan dengan rancangan website/aplikasi: kemudahan penggunaan, navigasi, kanal resmi, dan kompatibilitas fungsi."
+            },
+            {
+              "no": 24,
+              "topic": "Pemutakhiran data dan informasi kanal digital.",
+              "items": [
+                {
+                  "id": "q24a",
+                  "text": "Apakah terdapat pemutakhiran informasi pelayanan publik?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q24b",
+                  "text": "Berapa lama jangka waktu pemutakhiran informasi pelayanan publik?",
+                  "type": "single_select",
+                  "options": ["Tahunan", "Per Enam Bulan", "Bulanan", "Mingguan", "Setiap Hari"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "konsultasi_dan_pengaduan",
+      "section_title": "KONSULTASI DAN PENGADUAN",
+      "subsections": [
+        {
+          "subsection_title": null,
+          "questions": [
+            {
+              "no": 25,
+              "topic": "Fasilitas sarana & prasarana konsultasi dan pengaduan.",
+              "items": [
+                {
+                  "id": "q25",
+                  "text": "Fasilitas sarana & prasarana konsultasi dan pengaduan yang tersedia:",
+                  "type": "multi_select",
+                  "options": [
+                    "Kotak saran/pengaduan",
+                    "Ruang khusus",
+                    "Petugas khusus",
+                    "Air minum/makanan ringan",
+                    "Register Konsultasi dan Pengaduan",
+                    "Publikasi informasi terkait mekanisme konsultasi dan pengaduan (poster/spanduk/leaflet/buku/dokumen/bahan cetak lain)"
+                  ]
+                }
+              ],
+              "bukti_dukung": ["Foto sarana/media konsultasi dan pengaduan yang tersedia", "SK Petugas Khusus"],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 26,
+              "topic": "Tersedia sarana konsultasi dan pengaduan yang terdapat pada Unit Lokus.",
+              "items": [
+                {
+                  "id": "q26a",
+                  "text": "Apakah tersedia sarana konsultasi dan pengaduan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q26b_tatap_muka",
+                  "text": "Sarana tatap muka:",
+                  "type": "multi_select",
+                  "options": ["Menyatu dengan front office", "Terpisah dengan front office"]
+                },
+                {
+                  "id": "q26b_daring",
+                  "text": "Sarana daring:",
+                  "type": "multi_select",
+                  "options": [
+                    "Email",
+                    "SMS/telepon/Aplikasi Percakapan",
+                    "Media sosial (Instagram, Facebook, Twitter)",
+                    "Website pengaduan mandiri",
+                    "Aplikasi mobile pengaduan mandiri",
+                    "SP4N LAPOR!"
+                  ]
+                }
+              ],
+              "bukti_dukung": [
+                "Foto sarana/media konsultasi dan pengaduan yang tersedia",
+                "Data SP4N-LAPOR!",
+                "Surat Keputusan"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "SP4N LAPOR! adalah layanan pengaduan nasional melalui website www.lapor.go.id, SMS 1708, dan aplikasi mobile; ditetapkan sebagai aplikasi umum sejak 27 Oktober 2020 dan wajib digunakan seluruh instansi pemerintah."
+            },
+            {
+              "no": 27,
+              "topic": "Tersedia akuntabilitas hasil konsultasi dan/atau pengaduan.",
+              "items": [
+                {
+                  "id": "q27a",
+                  "text": "Apakah terdapat dokumentasi hasil konsultasi dan pengaduan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q27b",
+                  "text": "Apakah hasil konsultasi dan pengaduan diarsipkan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q27c",
+                  "text": "Apakah hasil konsultasi dan pengaduan dituangkan dalam laporan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q27d",
+                  "text": "Apakah hasil konsultasi dan pengaduan dilakukan monev?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q27e",
+                  "text": "Apakah hasil konsultasi dan pengaduan ditindaklanjuti?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q27f",
+                  "text": "Apakah hasil konsultasi dan pengaduan dipublikasikan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                }
+              ],
+              "bukti_dukung": [
+                "Dokumentasi kegiatan konsultasi dan pengaduan",
+                "Screenshot dokumentasi pada website/aplikasi mobile/SP4N-LAPOR!",
+                "Laporan berkala"
+              ],
+              "bukti_dukung_upload": true
+            },
+            {
+              "no": 28,
+              "topic": "Persentase (%) pengaduan yang masuk ditindaklanjuti hingga selesai dalam satu tahun terakhir (Januari-Desember).",
+              "items": [
+                {
+                  "id": "q28_masuk_total",
+                  "text": "Jumlah konsultasi dan pengaduan yang masuk seluruhnya",
+                  "type": "number"
+                },
+                {
+                  "id": "q28_tindaklanjut_total",
+                  "text": "Jumlah konsultasi dan pengaduan yang ditindaklanjuti seluruhnya hingga selesai",
+                  "type": "number"
+                },
+                {
+                  "id": "q28_masuk_lapor",
+                  "text": "Jumlah konsultasi dan pengaduan yang masuk ke dalam SP4N-LAPOR!",
+                  "type": "number"
+                },
+                {
+                  "id": "q28_tindaklanjut_lapor",
+                  "text": "Jumlah konsultasi dan pengaduan yang ditindaklanjuti hingga selesai dalam SP4N-LAPOR!",
+                  "type": "number"
+                }
+              ],
+              "computed_field": {
+                "id": "q28_persentase",
+                "label": "Persentase pengaduan ditindaklanjuti hingga selesai",
+                "formula": "(q28_tindaklanjut_total / q28_masuk_total) * 100%"
+              },
+              "bukti_dukung": [
+                "Dokumentasi konsultasi dan pengaduan serta tindak lanjutnya",
+                "Screenshot tampilan pada SP4N-LAPOR! yang menunjukkan jumlah konsultasi dan pengaduan yang masuk dan telah ditindaklanjuti"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Mengacu pada Permenpan RB Nomor 62 Tahun 2018. Target: 90% menyesuaikan target RPJMN dari Bappenas."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "inovasi_pelayanan_publik",
+      "section_title": "INOVASI PELAYANAN PUBLIK",
+      "subsections": [
+        {
+          "subsection_title": null,
+          "questions": [
+            {
+              "no": 29,
+              "topic": "Keberadaan dan status inovasi pelayanan publik.",
+              "items": [
+                {
+                  "id": "q29_1",
+                  "text": "Apakah terdapat inovasi pelayanan publik?",
+                  "type": "single_select",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "q29_1a_judul",
+                  "text": "Jika 'Ya', sebutkan judul inovasi tersebut beserta penjelasan singkatnya",
+                  "type": "textarea",
+                  "depends_on": "q29_1=Ya"
+                },
+                {
+                  "id": "q29_1b_inisiatif",
+                  "text": "Jika 'Tidak', apakah ada inisiatif untuk berinovasi?",
+                  "type": "single_select",
+                  "depends_on": "q29_1=Tidak",
+                  "options": ["Tidak", "Ya, masih proses pembelajaran"]
+                },
+                {
+                  "id": "q29_1b_bukti",
+                  "text": "Jika 'Ya, masih proses pembelajaran', sebutkan bukti dukung proses pembelajaran (hasil studi tiru, referensi, seminar transfer knowledge, dll)",
+                  "type": "textarea",
+                  "depends_on": "q29_1b_inisiatif=Ya, masih proses pembelajaran"
+                },
+                {
+                  "id": "q29_2",
+                  "text": "Jika jawaban poin 1 'Ya', sudah berapa lama inovasi dilaksanakan?",
+                  "type": "single_select",
+                  "depends_on": "q29_1=Ya",
+                  "options": ["< 1 tahun", "≥ 1 tahun"]
+                },
+                {
+                  "id": "q29_2_waktu",
+                  "text": "Sebutkan waktu pertama kali inovasi dilaksanakan",
+                  "type": "text",
+                  "depends_on": "q29_1=Ya"
+                },
+                {
+                  "id": "q29_3",
+                  "text": "Apakah inovasi sudah diikutsertakan dalam kompetisi inovasi pelayanan publik?",
+                  "type": "single_select",
+                  "depends_on": "q29_1=Ya",
+                  "options": ["Tidak", "Ya"]
+                },
+                {
+                  "id": "q29_4",
+                  "text": "Jika sudah diikutkan dalam kompetisi, sebutkan penghargaan yang diperoleh (dapat lebih dari satu):",
+                  "type": "table_multi_select",
+                  "depends_on": "q29_3=Ya",
+                  "rows": ["Instansi (lokal)", "Nasional", "Internasional"],
+                  "columns": ["Penghargaan (centang jika diperoleh)", "Keterangan (teks)"]
+                }
+              ],
+              "bukti_dukung": [
+                "Proposal Inovasi Pelayanan Publik",
+                "Dokumentasi pelaksanaan Inovasi (foto, daftar hadir, dll)",
+                "Bukti keikutsertaan dan/atau piagam penghargaan"
+              ],
+              "bukti_dukung_upload": true,
+              "penjelasan": "Inovasi pelayanan publik adalah terobosan jenis pelayanan berupa gagasan kreatif orisinil dan/atau adaptasi/modifikasi yang bermanfaat bagi masyarakat. Kompetisi level instansi/nasional/internasional dibedakan menurut cakupan peserta dan penyelenggara. Rujukan: PermenPAN RB 91/2021."
+            },
+            {
+              "no": 30,
+              "topic": "Tersedia sumber daya yang mendukung keberlanjutan Inovasi Pelayanan Publik.",
+              "items": [
+                {
+                  "id": "q30a",
+                  "text": "Apakah terdapat sumber daya yang mendukung keberlanjutan inovasi?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"],
+                  "note": "Jika 'Tidak', berhenti di sini."
+                },
+                {
+                  "id": "q30b",
+                  "text": "Apakah bentuk sumber daya yang mendukung keberlanjutan inovasi?",
+                  "type": "single_select",
+                  "options": ["Ya, Sudah Berbentuk Payung Hukum", "Tidak, Masih dalam rancangan Payung Hukum"],
+                  "note": "Jika 'Tidak, masih rancangan', berhenti di sini."
+                },
+                {
+                  "id": "q30c",
+                  "text": "Bentuk sumber daya lainnya yang mendukung keberlanjutan inovasi:",
+                  "type": "multi_select",
+                  "options": [
+                    "Alokasi anggaran terkait keberlanjutan inovasi",
+                    "Sarana dan prasarana pendukung keberlanjutan inovasi",
+                    "SDM yang mendukung keberlanjutan inovasi"
+                  ]
+                }
+              ],
+              "penjelasan": "Untuk menjamin pelembagaan dan keberlanjutan inovasi, setiap K/L/Pemda wajib membuat dasar hukum inovasi dan menyediakan program serta anggaran yang didukung sistem pengembangan inovasi memadai. JIPP = Jaringan Inovasi Pelayanan Publik."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "pertanyaan_tambahan",
+      "section_title": "PERTANYAAN TAMBAHAN",
+      "subsections": [
+        {
+          "subsection_title": "Sistem Antrian",
+          "questions": [
+            {
+              "no": null,
+              "topic": "Sistem Antrian",
+              "items": [
+                {
+                  "id": "qtambahan_a",
+                  "text": "Apakah terdapat sistem antrian di unit pelayanan?",
+                  "type": "yes_no",
+                  "options": ["Ya", "Tidak"]
+                },
+                {
+                  "id": "qtambahan_b",
+                  "text": "Fasilitas pada sistem antrian:",
+                  "type": "multi_select",
+                  "options": [
+                    "Pengeras suara",
+                    "Dipandu",
+                    "Pengelompokan antrian",
+                    "Sistem pendaftaran online",
+                    "Nomor antrian",
+                    "Monitor antrian",
+                    "Lainnya"
+                  ],
+                  "allow_other": true
+                }
+              ],
+              "penjelasan": "Sistem antrian adalah mekanisme urutan penerima layanan yang mendapat giliran dilayani di loket pelayanan."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "notes_for_ai_agent": {
+    "conditional_logic": "Field 'depends_on' menunjukkan bahwa item hanya ditampilkan/wajib diisi jika kondisi tersebut terpenuhi (format: id_field=nilai). Field 'note' berisi instruksi skip logic tambahan dari dokumen asli (mis. 'Jika Tidak, berhenti di sini').",
+    "evidence_uploads": "Setiap 'bukti_dukung' merepresentasikan dokumen pendukung yang idealnya diberi file upload field terkait pada UI, sesuai instruksi umum formulir (poin 3 petunjuk pengisian).",
+    "field_types_legend": {
+      "yes_no": "Radio button 2 opsi (Ya/Tidak)",
+      "single_select": "Radio button / dropdown, pilih 1 jawaban",
+      "multi_select": "Checkbox group, boleh pilih lebih dari 1",
+      "text": "Input teks singkat",
+      "textarea": "Input teks panjang / deskripsi",
+      "number": "Input angka",
+      "table_multi_select": "Tabel dengan checkbox per baris/kolom",
+      "allow_other": "Jika true, sediakan opsi 'Lainnya' dengan input teks tambahan"
+    }
+  }
+}

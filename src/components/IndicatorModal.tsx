@@ -35,7 +35,7 @@ export const IndicatorModal = ({ data, onClose, onImageClick }: IndicatorModalPr
           {/* Container Teks: Tambahkan flex-1 dan min-w-0 agar tidak mendorong tombol */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="bg-black text-white px-2 py-1 text-[10px] md:text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(255,255,255,0.5)]">
+              <span className="bg-black text-white px-2 py-1 text-[10px] md:text-xs font-bold uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(255,255,255,0.5)]">
                 {data.aspek}
               </span>
               <span className="font-mono font-bold text-black opacity-70 text-xs md:text-sm">ID: {data.id}</span>
@@ -43,7 +43,7 @@ export const IndicatorModal = ({ data, onClose, onImageClick }: IndicatorModalPr
 
             {/* Marquee Wrapper */}
             <div className="w-full overflow-hidden">
-              <Marquee delay={1} className="text-lg md:text-xl font-black text-black">
+              <Marquee delay={1} className="text-lg md:text-xl font-bold text-black">
                 <span className="mr-12">{data.pertanyaan}</span>
               </Marquee>
             </div>
@@ -65,7 +65,7 @@ export const IndicatorModal = ({ data, onClose, onImageClick }: IndicatorModalPr
               <div className="bg-[#57E7FB] border-2 border-black p-1.5 shadow-[2px_2px_0px_0px_#000]">
                 <Info className="w-5 h-5 text-black" />
               </div>
-              <h3 className="font-black text-lg uppercase">Kriteria Bukti Dukung</h3>
+              <h3 className="font-bold text-lg uppercase">Kriteria Bukti Dukung</h3>
             </div>
             <div className="prose prose-zinc max-w-none">
               <p className="text-base md:text-lg font-medium leading-relaxed text-gray-800 whitespace-pre-line">
@@ -80,7 +80,7 @@ export const IndicatorModal = ({ data, onClose, onImageClick }: IndicatorModalPr
               <div className="bg-[#FF90E8] border-2 border-black p-1.5 shadow-[2px_2px_0px_0px_#000]">
                 <Sparkles className="w-5 h-5 text-black" />
               </div>
-              <h3 className="font-black text-lg uppercase">Referensi Visual</h3>
+              <h3 className="font-bold text-lg uppercase">Referensi Visual</h3>
             </div>
 
             <div className="bg-white border-2 border-dashed border-black p-4 bg-gray-50">

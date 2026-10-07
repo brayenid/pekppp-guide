@@ -1,0 +1,770 @@
+{
+  "form_metadata": {
+    "title": "FORMULIR PENILAIAN BAGI EVALUATOR KODE A (LURING)",
+    "code": "F-02 A",
+    "institution": "KEMENTERIAN PENDAYAGUNAAN APARATUR NEGARA DAN REFORMASI BIROKRASI",
+    "instructions": "Setiap Evaluator wajib mengisi kolom yang disediakan dengan data yang otentik pada F-01 ataupun kunjungan lapangan sesuai dengan klasifikasi data yang dibutuhkan.",
+    "header_fields": [
+      {
+        "id": "instansi",
+        "label": "Instansi",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "unit_lokus",
+        "label": "Unit Lokus",
+        "type": "text",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "category_id": "kebijakan_pelayanan",
+      "category_title": "KEBIJAKAN PELAYANAN",
+      "indicators": [
+        {
+          "code": "1.a.Ak",
+          "indicator_text": "Tersedia Standar Pelayanan (SP) sesuai dengan ketentuan peraturan perundang-undangan yang berlaku.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia Standar Pelayanan." },
+            { "value": 1, "label": "Tersedia SP namun tidak memenuhi 14 komponen." },
+            { "value": 2, "label": "Tersedia SP yang memenuhi 14 komponen." },
+            { "value": 3, "label": "Tersedia SP yang memenuhi 14 komponen dan dilakukan penetapan." },
+            {
+              "value": 4,
+              "label": "Tersedia SP yang memenuhi 14 komponen, melibatkan masyarakat dalam penyusunan SP, dan dilakukan penetapan."
+            },
+            {
+              "value": 5,
+              "label": "Tersedia SP yang memenuhi 14 komponen, melibatkan masyarakat dalam penyusunan SP, dilakukan penetapan, dan dilakukan monev."
+            }
+          ],
+          "data_sources": [
+            "Daftar jenis pelayanan yang diselenggarakan",
+            "Dokumen Standar Pelayanan yang telah ditetapkan",
+            "Berita Acara"
+          ],
+          "explanation": "Setiap Unit Lokus wajib menyusun Standar Pelayanan sebagai pedoman penyelenggaraan pelayanan dan acuan penilaian kualitas pelayanan. SP terdiri dari 14 komponen (6 service delivery, 8 manufacturing). Service delivery wajib dipublikasikan."
+        },
+        {
+          "code": "2.a.P",
+          "indicator_text": "Proses penyusunan dan perubahan SP telah melibatkan unsur masyarakat.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Penyusunan SP tanpa melibatkan masyarakat dan pihak terkait (stakeholder)." },
+            { "value": 1, "label": "Penyusunan SP telah melibatkan minimal 1 unsur masyarakat." },
+            { "value": 2, "label": "Penyusunan SP telah melibatkan minimal 2 unsur masyarakat." },
+            { "value": 3, "label": "Penyusunan SP telah melibatkan minimal 3 unsur masyarakat." },
+            { "value": 4, "label": "Penyusunan SP telah melibatkan minimal 4 unsur masyarakat." },
+            { "value": 5, "label": "Penyusunan SP telah melibatkan lebih dari 4 unsur masyarakat." }
+          ],
+          "data_sources": ["Dokumen pelibatan masyarakat: Berita Acara", "Daftar Hadir penyusunan SP", "Foto Kegiatan"],
+          "explanation": "Masyarakat yang dilibatkan mewakili 5 unsur: (1) Masyarakat Pengguna Layanan, (2) Ahli/Praktisi/Akademisi, (3) Instansi Terkait, (4) Organisasi Masyarakat Sipil, dan (5) Media Massa."
+        },
+        {
+          "code": "3.a.T",
+          "indicator_text": "Jumlah media publikasi untuk komponen service delivery",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak ada publikasi SP." },
+            {
+              "value": 1,
+              "label": "Tersedia publikasi SP hanya sebagian dari komponen service delivery baik pada media cetak/non elektronik maupun media elektronik."
+            },
+            {
+              "value": 2,
+              "label": "Tersedia publikasi SP seluruh komponen service delivery pada 2 atau lebih media publikasi namun belum dipublikasikan pada SIPP Nasional."
+            },
+            {
+              "value": 3,
+              "label": "Tersedia publikasi SP seluruh komponen service delivery pada 2 media publikasi dan pada SIPP Nasional."
+            },
+            {
+              "value": 4,
+              "label": "Tersedia publikasi SP seluruh komponen service delivery pada 3 media publikasi dan pada SIPP Nasional."
+            },
+            {
+              "value": 5,
+              "label": "Tersedia publikasi SP seluruh komponen service delivery pada 4 atau lebih media publikasi dan pada SIPP Nasional."
+            }
+          ],
+          "data_sources": [
+            "Foto atau screenshot dari berbagai bentuk/media publikasi Standar Pelayanan yang dimiliki",
+            "Screenshot publikasi di SIPPN"
+          ],
+          "explanation": "Media publikasi dapat berupa: Media Cetak, Media Elektronik, Media Sosial, Website, Aplikasi, SIPP Nasional, dan Papan reklame."
+        },
+        {
+          "code": "4.a.K",
+          "indicator_text": "Telah dilakukan peninjauan ulang secara berkala terhadap Standar Pelayanan.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak dilaksanakan peninjauan ulang secara berkala terhadap Standar Pelayanan." },
+            { "value": 1, "label": "Dilakukan peninjauan ulang 3 tahun atau lebih terhadap seluruh jenis layanan." },
+            { "value": 2, "label": "Dilakukan peninjauan ulang 2 tahun sekali terhadap sebagian jenis layanan." },
+            { "value": 3, "label": "Dilakukan peninjauan ulang 2 tahun sekali terhadap seluruh jenis layanan." },
+            {
+              "value": 4,
+              "label": "Dilakukan peninjauan ulang 1 tahun sekali atau lebih cepat terhadap sebagian jenis layanan."
+            },
+            {
+              "value": 5,
+              "label": "Dilakukan peninjauan ulang 1 tahun sekali atau lebih cepat terhadap seluruh jenis layanan."
+            }
+          ],
+          "data_sources": [
+            "BA FKP peninjauan SP",
+            "Laporan yang berisi: Berita Acara Peninjauan Ulang SP, Dokumentasi kegiatan, lain-lain"
+          ],
+          "explanation": "Standar Pelayanan wajib ditinjau ulang sesuai ketentuan pasal 33 PP 96/2012."
+        },
+        {
+          "code": "5.a.K",
+          "indicator_text": "Pemenuhan siklus Maklumat Pelayanan (ketersediaan, penetapan, dan publikasi)",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia Maklumat Pelayanan." },
+            { "value": 1, "label": "Tersedia Maklumat Pelayanan namun belum ditetapkan." },
+            {
+              "value": 2,
+              "label": "Tersedia Maklumat Pelayanan yang sudah ditetapkan namun isinya belum sesuai dengan peraturan perundangan yang berlaku."
+            },
+            {
+              "value": 3,
+              "label": "Tersedia Maklumat Pelayanan yang sudah ditetapkan dan isinya telah sesuai dengan peraturan perundangan yang berlaku."
+            },
+            {
+              "value": 4,
+              "label": "Tersedia Maklumat Pelayanan yang sudah ditetapkan, isinya telah sesuai dengan peraturan perundangan yang berlaku, dan dipublikasikan pada media non elektronik."
+            },
+            {
+              "value": 5,
+              "label": "Tersedia Maklumat Pelayanan yang sudah ditetapkan, isinya telah sesuai dengan peraturan perundangan yang berlaku, dan dipublikasikan pada media non elektronik dan elektronik."
+            }
+          ],
+          "data_sources": [
+            "Dokumen Pengesahan Maklumat Pelayanan",
+            "Foto atau screenshot dari berbagai bentuk Publikasi Maklumat Pelayanan yang dimiliki"
+          ],
+          "explanation": "Maklumat pelayanan memuat janji/kesanggupan pelayanan, perbaikan terus menerus, serta kesediaan menerima sanksi/kompensasi jika melanggar."
+        },
+        {
+          "code": "6.a.B",
+          "indicator_text": "SKM yang dilaksanakan sesuai dengan PermenPANRB",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Belum melaksanakan SKM." },
+            { "value": 1, "label": "Sudah melaksanakan SKM namun tidak sesuai dengan Permen PANRB yang berlaku." },
+            { "value": 2, "label": "Sudah melaksanakan SKM sesuai dengan Permen PANRB yang berlaku." },
+            {
+              "value": 3,
+              "label": "Sudah melaksanakan SKM sesuai dengan PermenPANRB yang berlaku dan dipublikasikan pada media non-elektronik."
+            },
+            {
+              "value": 4,
+              "label": "Sudah melaksanakan SKM sesuai dengan Permen PANRB yang berlaku dan dipublikasikan pada media non-elektronik dan elektronik."
+            },
+            {
+              "value": 5,
+              "label": "Sudah melaksanakan SKM sesuai dengan PermenPANRB yang berlaku dan dipublikasikan pada media non-elektronik dan elektronik serta dilakukan tindak lanjut hasil SKM."
+            }
+          ],
+          "data_sources": [
+            "Publikasi hasil SKM",
+            "Dokumen pelaksanaan SKM dan Foto media yang digunakan (misalnya mesin SKM atau kuesioner manual)",
+            "Laporan hasil pelaksanaan SKM"
+          ],
+          "explanation": "SKM dilaksanakan sesuai dengan ketentuan PermenPANRB yang berlaku."
+        },
+        {
+          "code": "7.a.T",
+          "indicator_text": "Jumlah media publikasi hasil SKM.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak dipublikasikan." },
+            { "value": 1, "label": "SKM dipublikasikan pada 1 (satu) media publikasi." },
+            { "value": 2, "label": "SKM dipublikasikan pada 2 (dua) media publikasi." },
+            { "value": 3, "label": "SKM dipublikasikan pada 3 (tiga) media publikasi." },
+            { "value": 4, "label": "SKM dipublikasikan pada 4 (empat) media publikasi." },
+            { "value": 5, "label": "SKM dipublikasikan pada lebih dari 4 (empat) media publikasi lainnya." }
+          ],
+          "data_sources": ["Foto atau screenshot dari berbagai bentuk publikasi hasil SKM yang dimiliki"],
+          "explanation": "Ketersediaan informasi metode, proses, dan hasil SKM melalui media cetak, elektronik, media sosial, website, aplikasi, atau papan reklame."
+        },
+        {
+          "code": "8.a.Ak",
+          "indicator_text": "Persentase rencana tindak lanjut hasil SKM yang telah selesai ditindaklanjuti",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak ada rencana tindak lanjut SKM." },
+            { "value": 1, "label": "Ada rencana tindak lanjut tapi belum dilaksanakan." },
+            {
+              "value": 2,
+              "label": "Tindak lanjut hasil SKM dilaksanakan kurang dari 30%, dibuktikan dengan laporan pelaksanaannya."
+            },
+            {
+              "value": 3,
+              "label": "Tindak lanjut hasil SKM dilaksanakan 30-80%, dibuktikan dengan laporan pelaksanaannya."
+            },
+            {
+              "value": 4,
+              "label": "Tindak lanjut hasil SKM dilaksanakan lebih dari 80%, dibuktikan dengan laporan pelaksanaannya."
+            },
+            {
+              "value": 5,
+              "label": "Tindak lanjut hasil SKM dilaksanakan 100%, dibuktikan dengan laporan pelaksanaannya."
+            }
+          ],
+          "data_sources": [
+            "Laporan SKM tahun n-1 yang memuat rencana tindak lanjut",
+            "Laporan hasil pelaksanaan tindak lanjut hasil SKM"
+          ],
+          "explanation": "Cara mengukur persentase: (realisasi rencana tindak lanjut / jumlah rencana tindak lanjut) * 100%."
+        },
+        {
+          "code": "9.a.Ak",
+          "indicator_text": "Kecepatan tindak lanjut hasil SKM seluruh jenis pelayanan",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Rekomendasi hasil tidak ditindaklanjuti." },
+            {
+              "value": 1,
+              "label": "Rekomendasi hasil SKM ditindaklanjuti seluruhnya 1 tahun setelah laporan SKM diterbitkan."
+            },
+            {
+              "value": 2,
+              "label": "Rekomendasi hasil SKM ditindaklanjuti seluruhnya 9 bulan setelah laporan SKM diterbitkan."
+            },
+            {
+              "value": 3,
+              "label": "Rekomendasi hasil SKM ditindaklanjuti seluruhnya 6 bulan setelah laporan SKM diterbitkan."
+            },
+            {
+              "value": 4,
+              "label": "Rekomendasi hasil SKM ditindaklanjuti seluruhnya 3 bulan setelah laporan SKM diterbitkan."
+            },
+            {
+              "value": 5,
+              "label": "Rekomendasi hasil SKM ditindaklanjuti seluruhnya 1 bulan setelah laporan SKM diterbitkan."
+            }
+          ],
+          "data_sources": [
+            "Laporan hasil pelaksanaan SKM pada 2 tahun terakhir yang memuat rencana tindak lanjut",
+            "Laporan pelaksanaan tindak lanjut dari poin pertama",
+            "Laporan hasil SKM tahun sebelum penetapan SP"
+          ],
+          "explanation": "Kecepatan tindak lanjut rekomendasi hasil SKM guna melihat keseriusan UPP dalam melaksanakan SKM."
+        }
+      ]
+    },
+    {
+      "category_id": "profesionalisme_sdm",
+      "category_title": "PROFESIONALISME SDM",
+      "indicators": [
+        {
+          "code": "10.b.As",
+          "indicator_text": "Tersedia waktu pelayanan yang memudahkan pengguna layanan.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak memiliki kebijakan jam pelayanan/kerja." },
+            { "value": 1, "label": "Memiliki kebijakan jam pelayanan/kerja." },
+            { "value": 2, "label": "Memiliki kebijakan jam pelayanan/kerja dan 1 unsur lainnya." },
+            { "value": 3, "label": "Memiliki kebijakan jam pelayanan/kerja dan 2 unsur lainnya." },
+            { "value": 4, "label": "Memiliki kebijakan jam pelayanan/kerja dan 3 unsur lainnya." },
+            { "value": 5, "label": "Memiliki kebijakan jam pelayanan/kerja dan 4 atau lebih unsur lainnya." }
+          ],
+          "data_sources": [
+            "Surat perintah lembur (nota dinas/memo/dll)",
+            "Surat Tugas pemberian pelayanan pada hari libur",
+            "Foto kegiatan"
+          ],
+          "explanation": "Unsur penyesuaian waktu: (1) Kebijakan jam kerja, (2) Tidak ada jeda istirahat (shift), (3) Penambahan waktu di luar jam kerja (hari kerja), (4) Penambahan waktu di luar hari kerja kondisi tertentu, (5) Penambahan waktu rutin di luar hari kerja, (6) Layanan 24 Jam."
+        },
+        {
+          "code": "11.b.K",
+          "indicator_text": "Tersedia Kode Etik dan Kode Perilaku Pelaksana dan/atau Budaya Pelayanan di lingkungan instansi.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia kode etik dan kode perilaku." },
+            {
+              "value": 1,
+              "label": "Aturan kode etik dan kode perilaku Pelaksana Pelayanan hanya meliputi nilai dasar hak dan kewajiban."
+            },
+            {
+              "value": 2,
+              "label": "Aturan kode etik dan kode perilaku Pelaksana Pelayanan meliputi nilai dasar hak kewajiban dan 1 (satu) unsur lainnya."
+            },
+            {
+              "value": 3,
+              "label": "Aturan kode etik dan kode perilaku Pelaksana Pelayanan meliputi nilai dasar hak dan kewajiban dan 2 (dua) unsur lainnya."
+            },
+            {
+              "value": 4,
+              "label": "Aturan kode etik dan kode perilaku Pelaksana Pelayanan meliputi nilai dasar hak dan kewajiban dan 3 (tiga) unsur lainnya."
+            },
+            {
+              "value": 5,
+              "label": "Aturan kode etik dan kode perilaku Pelaksana Pelayanan meliputi nilai dasar hak dan kewajiban dan 4 (empat) unsur lainnya."
+            }
+          ],
+          "data_sources": ["Dokumen aturan kode etik dan kode perilaku"],
+          "explanation": "Unsur kode etik meliputi: (1) Hak dan kewajiban, (2) Larangan KKN, (3) Larangan diskriminasi, (4) Sanksi, (5) Penghargaan."
+        },
+        {
+          "code": "12.b.Ak",
+          "indicator_text": "Tersedia mekanisme yang dibangun untuk menjaga dan meningkatkan motivasi kerja Pelaksana",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia mekanisme peningkatan motivasi kerja." },
+            { "value": 1, "label": "Tersedia 1 jenis mekanisme peningkatan motivasi kerja." },
+            { "value": 2, "label": "Tersedia 2 jenis mekanisme peningkatan motivasi kerja." },
+            { "value": 3, "label": "Tersedia 3 jenis mekanisme peningkatan motivasi kerja." },
+            { "value": 4, "label": "Tersedia 4 jenis mekanisme peningkatan motivasi kerja." },
+            { "value": 5, "label": "Tersedia lebih dari 4 jenis mekanisme peningkatan motivasi kerja." }
+          ],
+          "data_sources": [
+            "Dokumen mengenai mekanisme motivasi kerja (Pemberian penghargaan, sertifikat diklat, surat rekomendasi beasiswa, jadwal program konseling, foto kegiatan team/capacity building, dll)"
+          ],
+          "explanation": "Mekanisme motivasi kerja dapat berupa: penghargaan, diklat, beasiswa, program konseling, team/capacity building, dll."
+        },
+        {
+          "code": "13.b.K",
+          "indicator_text": "Tersedia kriteria pemberian penghargaan bagi pegawai yang berprestasi.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak ada pemberian penghargaan." },
+            { "value": 1, "label": "Ada pemberian penghargaan hanya berdasarkan 1-2 unsur kecuali kinerja." },
+            { "value": 2, "label": "Ada pemberian penghargaan berdasarkan 3-5 unsur kecuali kinerja." },
+            { "value": 3, "label": "Ada pemberian penghargaan berdasarkan 1-2 unsur termasuk kinerja." },
+            { "value": 4, "label": "Ada pemberian penghargaan berdasarkan 3-4 unsur termasuk kinerja." },
+            { "value": 5, "label": "Ada pemberian penghargaan berdasarkan 5-6 unsur termasuk kinerja." }
+          ],
+          "data_sources": ["Lampirkan SK yang mengatur mengenai pemberian penghargaan"],
+          "explanation": "Unsur kriteria: (1) Kehadiran, (2) Kinerja/kualitas hasil kerja, (3) Kerja sama, (4) Inovatif/kreatif, (5) Penampilan, (6) Bebas komplain personal."
+        },
+        {
+          "code": "14.b.K",
+          "indicator_text": "Tersedia pelaksana yang menerapkan budaya pelayanan",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak menerapkan budaya pelayanan." },
+            { "value": 1, "label": "Pelaksana pelayanan menerapkan 1 (satu) unsur budaya pelayanan." },
+            { "value": 2, "label": "Pelaksana pelayanan menerapkan 2 (dua) unsur budaya pelayanan." },
+            { "value": 3, "label": "Pelaksana pelayanan menerapkan 3 (tiga) unsur budaya pelayanan." },
+            { "value": 4, "label": "Pelaksana pelayanan menerapkan 4 (empat) unsur budaya pelayanan." },
+            { "value": 5, "label": "Pelaksana pelayanan menerapkan 5 (lima) unsur budaya pelayanan." }
+          ],
+          "data_sources": ["Lampirkan foto bukti dukung (pegawai menerapkan budaya pelayanan)"],
+          "explanation": "Unsur budaya pelayanan: (1) Seragam pakaian/atribut, (2) Identitas nama (nametag/ID card), (3) PIN/atribut/logo, (4) Aturan penerapan 5S, (5) Nilai budaya (slogan/motto/maskot)."
+        }
+      ]
+    },
+    {
+      "category_id": "sarana_prasarana",
+      "category_title": "SARANA PRASARANA",
+      "indicators": [
+        {
+          "code": "15.c.K",
+          "indicator_text": "Tersedia tempat parkir dengan fasilitas pendukung yang memadai",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia tempat parkir." },
+            { "value": 1, "label": "Tersedia tempat parkir dan memiliki 1 fasilitas parkir." },
+            { "value": 2, "label": "Tersedia tempat parkir dan memiliki 2 fasilitas parkir." },
+            { "value": 3, "label": "Tersedia tempat parkir dan memiliki 3 fasilitas parkir." },
+            { "value": 4, "label": "Tersedia tempat parkir dan memiliki 4 fasilitas parkir." },
+            { "value": 5, "label": "Tersedia tempat parkir dan memiliki 5 atau lebih fasilitas parkir." }
+          ],
+          "data_sources": ["Foto tempat parkir dan seluruh fasilitas parkir yang ada"],
+          "explanation": "Fasilitas parkir: (1) Pemisahan R2 & R4, (2) Petugas parkir, (3) Pemeriksaan karcis/kartu, (4) CCTV, (5) Penitipan helm/jaket, (6) Kanopi/atap, (7) Drive Thru."
+        },
+        {
+          "code": "16.c.As",
+          "indicator_text": "Tersedia ruang tunggu dengan fasilitas wajib dan pelengkap",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia fasilitas apapun." },
+            { "value": 1, "label": "Tersedia fasilitas wajib." },
+            { "value": 2, "label": "Tersedia fasilitas wajib dan 1 fasilitas pelengkap." },
+            { "value": 3, "label": "Tersedia fasilitas wajib dan 2 fasilitas pelengkap." },
+            { "value": 4, "label": "Tersedia fasilitas wajib dan 3 fasilitas pelengkap." },
+            { "value": 5, "label": "Tersedia fasilitas wajib dan 4 atau lebih fasilitas pelengkap." }
+          ],
+          "data_sources": ["Foto/video ruang tunggu dan seluruh fasilitas ruang tunggu yang ada"],
+          "explanation": "Fasilitas wajib: Kursi tunggu & Pendingin/sirkulasi udara. Fasilitas pelengkap: Mesin antrian monitor, TV, Bahan bacaan, Charger booth, Wifi, Air minum, dll."
+        },
+        {
+          "code": "17.c.As",
+          "indicator_text": "Tersedia sarana toilet pengguna layanan yang layak pakai",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia toilet pengguna layanan." },
+            { "value": 1, "label": "Toilet pengguna layanan dengan 1 kondisi." },
+            { "value": 2, "label": "Toilet pengguna layanan dengan 2 kondisi." },
+            { "value": 3, "label": "Toilet pengguna layanan dengan 3 kondisi." },
+            { "value": 4, "label": "Toilet pengguna layanan dengan 4 kondisi." },
+            { "value": 5, "label": "Toilet pengguna layanan dengan lebih dari 4 kondisi." }
+          ],
+          "data_sources": ["Foto/video toilet pengguna layanan dan seluruh fasilitas yang ada"],
+          "explanation": "Kondisi toilet: (1) Pemisahan pria & wanita, (2) Wastafel, (3) Toiletries, (4) Air bersih, (5) Monev kebersihan petugas, (6) Fasilitas lain."
+        },
+        {
+          "code": "18.c.K",
+          "indicator_text": "Tersedia sarana prasarana bagi pengguna layanan kelompok rentan",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia sarana prasarana bagi pengguna layanan kelompok rentan." },
+            { "value": 1, "label": "Tersedia 1-3 sarana prasarana bagi pengguna layanan kelompok rentan." },
+            { "value": 2, "label": "Tersedia 4-6 sarana prasarana bagi pengguna layanan kelompok rentan." },
+            { "value": 3, "label": "Tersedia 7-9 sarana prasarana bagi pengguna layanan kelompok rentan." },
+            { "value": 4, "label": "Tersedia 10-12 sarana prasarana bagi pengguna layanan kelompok rentan." },
+            { "value": 5, "label": "Tersedia 13 atau lebih sarana prasarana bagi pengguna layanan kelompok rentan." }
+          ],
+          "data_sources": ["Foto seluruh sarana prasarana kelompok rentan yang ada"],
+          "explanation": "14 Fasilitas rentan: Kursi roda/kruk, Pintu aksesibel, Ramp/pegangan, Lift braille, Selasar, Toilet khusus, Loket khusus, Ruang tunggu khusus, Guiding block, Parkir khusus, Alat bantu braille/isyarat, Arena bermain anak, Ruang Laktasi, Petugas pemandu."
+        },
+        {
+          "code": "19.c.As",
+          "indicator_text": "Tersedia sarana prasarana penunjang.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia fasilitas penunjang." },
+            { "value": 1, "label": "Tersedia 1 fasilitas penunjang." },
+            { "value": 2, "label": "Tersedia 2 fasilitas penunjang." },
+            { "value": 3, "label": "Tersedia 3 fasilitas penunjang." },
+            { "value": 4, "label": "Tersedia 4 fasilitas penunjang." },
+            { "value": 5, "label": "Tersedia 5 atau lebih fasilitas penunjang." }
+          ],
+          "data_sources": ["Foto seluruh sarana prasarana penunjang yang ada"],
+          "explanation": "Fasilitas penunjang: Fotocopy/ATK, P3K, APAR, Kantin, Ruang Ibadah, Area merokok, Jalur evakuasi/titik kumpul, Tempat sampah terpilah, CCTV."
+        },
+        {
+          "code": "20.c.B",
+          "indicator_text": "Sarana Front Office (FO) Informasi di unit layanan",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia sarana FO informasi layanan." },
+            { "value": 1, "label": "Tersedia sarana FO informasi layanan dengan 1 fasilitas." },
+            { "value": 2, "label": "Tersedia sarana FO informasi layanan dengan 2 fasilitas." },
+            { "value": 3, "label": "Tersedia sarana FO informasi layanan dengan 3 fasilitas." },
+            { "value": 4, "label": "Tersedia sarana FO informasi layanan dengan 4 fasilitas." },
+            { "value": 5, "label": "Tersedia sarana FO informasi layanan dengan 5 atau lebih fasilitas." }
+          ],
+          "data_sources": ["Foto front office informasi layanan dan seluruh fasilitas yang ada"],
+          "explanation": "Fasilitas FO: Petugas khusus, Meja/kursi, Layar/display informasi, Bahan cetak informasi, Register tamu (manual/elektronik)."
+        }
+      ]
+    },
+    {
+      "category_id": "sistem_informasi_pelayanan_publik",
+      "category_title": "SISTEM INFORMASI PELAYANAN PUBLIK",
+      "indicators": [
+        {
+          "code": "21.d.T",
+          "indicator_text": "Tersedia sistem informasi pelayanan publik untuk informasi publik.",
+          "type": "single_choice",
+          "scale_options": [
+            {
+              "value": 0,
+              "label": "Tidak tersedia sistem informasi pelayanan publik baik elektronik maupun non elektronik."
+            },
+            {
+              "value": 1,
+              "label": "Tersedia sistem informasi pelayanan publik non elektronik melalui media lisan (pusat informasi)."
+            },
+            {
+              "value": 2,
+              "label": "Tersedia sistem informasi pelayanan publik non elektronik melalui media lisan (pusat informasi) serta media papan pengumuman dan media cetak."
+            },
+            {
+              "value": 3,
+              "label": "Tersedia Sistem informasi pelayanan publik elektronik namun belum online (e-kiosk/ display TV/ layar monitor)."
+            },
+            { "value": 4, "label": "Tersedia Sistem informasi pelayanan publik berbasis online/website." },
+            {
+              "value": 5,
+              "label": "Sistem informasi pelayanan publik telah online/website dan terhubung dengan sistem informasi pelayanan publik nasional serta telah menginput layanan yang ditetapkan ke dalam sistem informasi pelayanan publik nasional."
+            }
+          ],
+          "data_sources": [
+            "Akun pengguna pada SIPPN",
+            "Screenshot tampilan akun unit layanan pada SIPPN yang menampilkan jumlah layanan yang telah diinput pada SIPPN"
+          ],
+          "explanation": "Merujuk pada UU No. 25 Tahun 2009 dan Permenpanrb No. 13 Tahun 2017 terkait SIPPN."
+        },
+        {
+          "code": "22.d.B",
+          "indicator_text": "Tersedia sistem informasi pelayanan publik pendukung operasional pelayanan.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia sistem informasi pendukung operasional pelayanan publik." },
+            { "value": 1, "label": "Tersedia sistem informasi pendukung operasional pelayanan dengan 1 kondisi." },
+            { "value": 2, "label": "Tersedia sistem informasi pendukung operasional pelayanan dengan 2 kondisi." },
+            { "value": 3, "label": "Tersedia sistem informasi pendukung operasional pelayanan dengan 3 kondisi." },
+            { "value": 4, "label": "Tersedia sistem informasi pendukung operasional pelayanan dengan 4 kondisi." },
+            {
+              "value": 5,
+              "label": "Tersedia sistem informasi pendukung operasional pelayanan dengan lebih dari 4 kondisi."
+            }
+          ],
+          "data_sources": ["Screenshot tampilan dari unsur pendukung sistem informasi pelayanan publik"],
+          "explanation": "Unsur pendukung SIPP: SP4N-LAPOR!, SKM, SIMKepegawaian (SDM), FAQ, Pengelolaan Keuangan Pelayanan Publik, dll."
+        },
+        {
+          "code": "23.d.As",
+          "indicator_text": "Kualitas penggunaan SIPP Elektronik (Website/Aplikasi).",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "SIPP Elektronik tidak terhubung secara daring." },
+            { "value": 1, "label": "SIPP Elektronik berbasis website/aplikasi mudah dioperasikan." },
+            { "value": 2, "label": "SIPP Elektronik berbasis website/aplikasi mudah dioperasikan, mudah diakses." },
+            {
+              "value": 3,
+              "label": "SIPP Elektronik berbasis website/aplikasi mudah dioperasikan, mudah diakses, navigasi yang mudah dipahami."
+            },
+            {
+              "value": 4,
+              "label": "SIPP Elektronik berbasis website/aplikasi yang mudah dioperasikan, mudah diakses, navigasi yang mudah dipahami, merupakan kanal digital pemerintah resmi (domain.go.id)."
+            },
+            {
+              "value": 5,
+              "label": "SIPP Elektronik berbasis website/aplikasi yang mudah dioperasikan, mudah diakses, navigasi yang mudah dipahami, merupakan kanal digital pemerintah resmi (domain.go.id) dan kompatibel."
+            }
+          ],
+          "data_sources": [
+            "Screenshot tampilan dari SIPP Elektronik berbasis Website yang dimiliki",
+            "Screenshot tampilan back-end dari kanal digital yang dikelola langsung oleh unit pelayanan"
+          ],
+          "explanation": "Kualitas kegunaan meliputi kemudahan penggunaan, aksesibilitas, navigasi, domain resmi .go.id, dan kompatibilitas."
+        },
+        {
+          "code": "24.d.T",
+          "indicator_text": "Pemutakhiran data dan informasi kanal digital.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tersedia data dan informasi pelayanan publik yang tidak dimutakhirkan." },
+            { "value": 1, "label": "Pemutakhiran data dan informasi pelayanan publik telah dilakukan secara tahunan." },
+            {
+              "value": 2,
+              "label": "Pemutakhiran data dan informasi pelayanan publik telah dilakukan secara semesteran."
+            },
+            { "value": 3, "label": "Pemutakhiran data dan informasi pelayanan publik secara bulanan." },
+            { "value": 4, "label": "Pemutakhiran data dan informasi pelayanan publik dilakukan secara mingguan." },
+            {
+              "value": 5,
+              "label": "Pemutakhiran data dan informasi pelayanan publik dilakukan secara harian dan detail/sangat lengkap."
+            }
+          ],
+          "data_sources": [
+            "Foto atau screenshot paling tidak 5 informasi pelayanan yang dipublikasikan secara berturut-turut (foto menunjukkan waktu publikasi)"
+          ],
+          "explanation": "Frekuensi pembaruan data, informasi, dan aplikasi yang disajikan pada kanal resmi unit pelayanan."
+        }
+      ]
+    },
+    {
+      "category_id": "konsultasi_dan_pengaduan",
+      "category_title": "KONSULTASI DAN PENGADUAN",
+      "indicators": [
+        {
+          "code": "25.e.P",
+          "indicator_text": "Tersedia sarana konsultasi dan pengaduan secara tatap muka yang berkualitas",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia Sarana konsultasi pengaduan pengguna layanan." },
+            { "value": 1, "label": "Sarana konsultasi pengaduan pengguna layanan dengan 1 fasilitas." },
+            { "value": 2, "label": "Sarana konsultasi pengaduan pengguna layanan dengan 2 fasilitas." },
+            { "value": 3, "label": "Sarana konsultasi pengaduan pengguna layanan dengan 3 fasilitas." },
+            { "value": 4, "label": "Sarana konsultasi pengaduan pengguna layanan dengan 4 fasilitas." },
+            { "value": 5, "label": "Sarana konsultasi pengaduan pengguna layanan dengan 5 atau lebih fasilitas." }
+          ],
+          "data_sources": ["Foto sarana/media konsultasi dan pengaduan yang tersedia", "SK Petugas Khusus"],
+          "explanation": "Fasilitas pengaduan: Kotak saran, Ruang khusus, Petugas khusus, Air minum/makanan ringan, Register Konsultasi/Pengaduan, Publikasi mekanisme (poster/spanduk/leaflet/dll)."
+        },
+        {
+          "code": "26.e.P",
+          "indicator_text": "Tersedia sarana dan media konsultasi serta pengaduan yang bisa dimanfaatkan semua lapisan masyarakat.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak ada sarana dan petugas." },
+            {
+              "value": 1,
+              "label": "Hanya terdapat media konsultasi dan pengaduan secara offline menyatu dengan front office."
+            },
+            {
+              "value": 2,
+              "label": "Hanya terdapat media konsultasi dan pengaduan secara offline namun terpisah dengan front office."
+            },
+            {
+              "value": 3,
+              "label": "Terdapat media konsultasi dan pengaduan secara offline menyatu satu dengan front office dan tersedia secara online."
+            },
+            {
+              "value": 4,
+              "label": "Terdapat media konsultasi dan pengaduan secara offline secara terpisah dari front office, serta tersedia secara online."
+            },
+            {
+              "value": 5,
+              "label": "Terdapat media konsultasi dan pengaduan secara offline terpisah dari front office, dan terhubung dengan SP4N-LAPOR!"
+            }
+          ],
+          "data_sources": [
+            "Foto sarana/media konsultasi dan pengaduan yang tersedia",
+            "Data SP4N-LAPOR!",
+            "Surat Keputusan"
+          ],
+          "explanation": "Media offline: Kotak saran, tatap muka, surat, telepon/SMS. Media online: Medsos, website, email, app, SP4N-LAPOR!."
+        },
+        {
+          "code": "27.e.Ak",
+          "indicator_text": "Tersedia akuntabilitas hasil konsultasi dan/atau pengaduan.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak ada dokumentasi." },
+            { "value": 1, "label": "Terdapat dokumentasi yang diarsipkan." },
+            { "value": 2, "label": "Terdapat dokumentasi yang diarsipkan dan dituangkan dalam laporan." },
+            { "value": 3, "label": "Terdapat dokumentasi diarsipkan, dituangkan dalam laporan, dan dilakukan monev." },
+            {
+              "value": 4,
+              "label": "Terdapat dokumentasi diarsipkan, dituangkan dalam laporan, dilakukan monev, dan ditindaklanjuti."
+            },
+            {
+              "value": 5,
+              "label": "Terdapat dokumentasi diarsipkan, dituangkan dalam laporan, dilakukan monev, ditindaklanjuti, dan dipublikasikan."
+            }
+          ],
+          "data_sources": [
+            "Dokumentasi kegiatan konsultasi dan pengaduan",
+            "Screenshot dokumentasi pada website, aplikasi mobile, dan SP4N-LAPOR!",
+            "Laporan berkala"
+          ],
+          "explanation": "Siklus akuntabilitas: Arsip -> Laporan Berkala -> Monev -> Tindak Lanjut (FAQ/Bukti) -> Publikasi (Infografis/Pie chart)."
+        },
+        {
+          "code": "28.e.Ak",
+          "indicator_text": "Tersedia tindak lanjut atas konsultasi dan pengaduan dari semua lapisan masyarakat.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak ada konsultasi atau pengaduan yang ditindaklanjuti." },
+            {
+              "value": 1,
+              "label": "< 50% konsultasi atau pengaduan ditindaklanjuti hingga selesai yang tidak menggunakan SP4N-LAPOR!."
+            },
+            {
+              "value": 2,
+              "label": "≥ 50% konsultasi atau pengaduan ditindaklanjuti hingga selesai yang tidak menggunakan SP4N-LAPOR!."
+            },
+            {
+              "value": 3,
+              "label": "< 50% konsultasi atau pengaduan yang masuk ke SP4N-LAPOR! dan ditindaklanjuti hingga selesai."
+            },
+            {
+              "value": 4,
+              "label": "≥ 50% < 90% konsultasi atau pengaduan yang masuk ke SP4N-LAPOR! dan ditindaklanjuti hingga selesai."
+            },
+            {
+              "value": 5,
+              "label": "≥ 90% konsultasi atau pengaduan yang masuk ke SP4N-LAPOR! dan ditindaklanjuti hingga selesai."
+            }
+          ],
+          "data_sources": [
+            "Dokumentasi konsultasi dan pengaduan serta tindak lanjutnya",
+            "Screenshot tampilan pada SP4N-LAPOR! yang menunjukkan jumlah konsultasi dan pengaduan yang masuk dan yang telah ditindaklanjuti"
+          ],
+          "explanation": "Tindak lanjut penyelesaian mengacu pada Permenpan RB Nomor 62 Tahun 2018."
+        }
+      ]
+    },
+    {
+      "category_id": "inovasi_pelayanan_publik",
+      "category_title": "INOVASI PELAYANAN PUBLIK",
+      "indicators": [
+        {
+          "code": "29.f.B",
+          "indicator_text": "Penciptaan Inovasi Pelayanan Publik.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia inovasi." },
+            { "value": 1, "label": "Belum ada inovasi, masih dalam proses pembelajaran berinovasi." },
+            { "value": 2, "label": "Sudah ada inovasi namun kurang dari 1 tahun." },
+            {
+              "value": 3,
+              "label": "Sudah ada inovasi lebih dari 1 tahun namun belum diikutsertakan dalam kompetisi (level apapun)."
+            },
+            {
+              "value": 4,
+              "label": "Sudah ada inovasi lebih dari 1 tahun dan sudah diikutsertakan dalam kompetisi level apapun."
+            },
+            { "value": 5, "label": "Inovasi yang dilaksanakan sudah mendapatkan prestasi pada level (apapun)." }
+          ],
+          "data_sources": [
+            "Proposal Inovasi Pelayanan Publik",
+            "Dokumen studi tiru/progres rancang bangun (blueprint)",
+            "Dokumentasi pelaksanaan Inovasi (foto, daftar hadir, dll)",
+            "Bukti keikutsertaan dan/atau piagam penghargaan yang diperoleh dalam suatu kompetisi inovasi pelayanan publik"
+          ],
+          "explanation": "Inovasi adalah terobosan ide kreatif/orisinal/adaptasi. Tingkat kompetisi: Instansi, Nasional, Internasional (PermenPANRB 91/2021)."
+        },
+        {
+          "code": "30.f.B",
+          "indicator_text": "Sumber daya yang mendukung keberlanjutan Inovasi Pelayanan Publik.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Belum ada sumber daya yang mendukung keberlanjutan inovasi." },
+            {
+              "value": 1,
+              "label": "Sumber daya yang mendukung keberlanjutan inovasi dalam bentuk rancangan payung hukum."
+            },
+            { "value": 2, "label": "Sumber daya yang mendukung keberlanjutan inovasi dalam bentuk payung hukum." },
+            {
+              "value": 3,
+              "label": "Sumber daya yang mendukung keberlanjutan inovasi dalam bentuk payung hukum dan 1 kondisi lainnya."
+            },
+            {
+              "value": 4,
+              "label": "Sumber daya yang mendukung keberlanjutan inovasi dalam bentuk payung hukum dan 2 kondisi lainnya."
+            },
+            {
+              "value": 5,
+              "label": "Sumber daya yang mendukung keberlanjutan inovasi dalam bentuk payung hukum dan 3 kondisi lainnya."
+            }
+          ],
+          "data_sources": [
+            "Dokumen payung hukum kelembagaan inovasi",
+            "Foto atau dokumen penganggaran inovasi",
+            "Foto sarana dan prasarana yang mendukung inovasi",
+            "Dokumen SK perorangan dan/atau Tim yang menginisiasi penciptaan inovasi"
+          ],
+          "explanation": "Kondisi kelembagaan mencakup: (a) Dukungan payung hukum, (b) Anggaran, (c) Sarana & Prasarana, (d) Sumber Daya Manusia (SK Tim)."
+        }
+      ]
+    },
+    {
+      "category_id": "informasi_tambahan",
+      "category_title": "INFORMASI TAMBAHAN",
+      "indicators": [
+        {
+          "code": "INFORMASI TAMBAHAN",
+          "indicator_text": "Tersedia sistem antrian untuk menunjang pelayanan.",
+          "type": "single_choice",
+          "scale_options": [
+            { "value": 0, "label": "Tidak tersedia sistem antrian." },
+            { "value": 1, "label": "Tersedia sistem antrian dengan 1 fasilitas." },
+            { "value": 2, "label": "Tersedia sistem antrian dengan 2 fasilitas." },
+            { "value": 3, "label": "Tersedia sistem antrian dengan 3 fasilitas." },
+            { "value": 4, "label": "Tersedia sistem antrian dengan 4 fasilitas." },
+            { "value": 5, "label": "Tersedia sistem antrian dengan lebih dari 4 fasilitas." }
+          ],
+          "data_sources": [
+            "Foto berbagai fasilitas pada sistem antrian",
+            "Screenshot website, aplikasi, atau Whatsapp untuk sistem antrian online"
+          ],
+          "explanation": "Fasilitas sistem antrian: (1) Pengeras suara, (2) Dipandu petugas, (3) Pengelompokan antrian, (4) Pendaftaran daring, (5) Nomor antrian, (6) Monitor antrian."
+        }
+      ]
+    }
+  ]
+}

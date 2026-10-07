@@ -363,7 +363,7 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
                   </View>
                   <View style={S.sectionHeaderRight}>
                     <Text style={S.sectionScore}>
-                      {secScore ? `${secScore.total}/${secScore.maks}` : '—'} ({secPct.toFixed(0)}%)
+                      {secScore ? `${secScore.total}/${secScore.maks}` : '-'} ({secPct.toFixed(0)}%)
                     </Text>
                   </View>
                 </View>
@@ -382,14 +382,14 @@ function BeritaAcaraDocument({ opd }: { opd: OpdSummary }) {
                       </View>
                       <View style={S.tdNilai}>
                         <Text style={[S.cellNilai, { color: nilaiColor(row.nilai) }]}>
-                          {row.nilai !== null ? String(row.nilai) : '—'}
+                          {row.nilai !== null ? String(row.nilai) : '-'}
                         </Text>
                       </View>
                       <View style={S.tdRekom}>
                         {rekom ? (
                           <Text style={S.cellRekom}>{rekom.keterangan}</Text>
                         ) : (
-                          <Text style={S.cellEmpty}>–</Text>
+                          <Text style={S.cellEmpty}>-</Text>
                         )}
                       </View>
                     </View>

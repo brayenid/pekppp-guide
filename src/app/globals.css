@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #F0ECE5;
+  --card: #FBFBFA;
+  --ink: #1C1C1A;
+  --ink-secondary: #54534F;
+  --ink-muted: #8D8C86;
+  --line: #E5E2DC;
+  --line-border: #E5E2DC;
+  --brand: #1D5BB9;
+  --brand-hover: #154694;
+  --brand-light: #EEF4FD;
+
+  --font-plus-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+body {
+  background-color: #F0ECE5;
+  color: #1C1C1A;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: #C9DCFB;
+  color: #0E2D60;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Warm Minimalist Bento utilities */
+.bg-hz-brand {
+  background-color: #1D5BB9 !important;
+}
+.hover\:bg-hz-brand-hover:hover {
+  background-color: #154694 !important;
+}
+.bg-hz-brand-light {
+  background-color: #EEF4FD !important;
+}
+.bg-hz-bg {
+  background-color: #F0ECE5 !important;
+}
+.bg-hz-card {
+  background-color: #FBFBFA !important;
+}
+.text-hz-brand {
+  color: #1D5BB9 !important;
+}
+.text-hz-heading {
+  color: #1C1C1A !important;
+}
+.text-hz-body {
+  color: #54534F !important;
+}
+.text-hz-muted {
+  color: #8D8C86 !important;
+}
+.border-hz-border {
+  border-color: #E5E2DC !important;
+}
+.border-hz-brand {
+  border-color: #1D5BB9 !important;
+}
+.shadow-hz-card {
+  box-shadow: 0 4px 20px -2px rgba(28, 28, 26, 0.03), 0 1px 3px 0 rgba(28, 28, 26, 0.02) !important;
+}
+.shadow-hz-card-sm {
+  box-shadow: 0 2px 8px 0 rgba(28, 28, 26, 0.03) !important;
+}
+.shadow-hz-button {
+  box-shadow: 0px 4px 12px rgba(29, 91, 185, 0.22) !important;
+}
+
+/* Subtle micro transition */
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-content {
+  animation: fadeInContent 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Themed Minimalist Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #E5E2DC transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #E5E2DC;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #1D5BB9;
+}
+
+/* Pre-Evaluator Data Stream Keyframe Animations */
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+    box-shadow: 0 0 25px rgba(216, 144, 42, 0.45);
+  }
+}
+
+@keyframes beamSlide {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(250%);
+    opacity: 0;
+  }
+}
+
+.animate-flow-dash {
+  animation: flowDash 1.2s linear infinite;
+}
+
+@keyframes flowDashReverse {
+  to {
+    stroke-dashoffset: 28;
+  }
+}
+
+.animate-flow-dash-reverse {
+  animation: flowDashReverse 1.2s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-beam-slide {
+  animation: beamSlide 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes finalGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0 rgba(216, 144, 42, 0));
+  }
+  50% {
+    filter: drop-shadow(0 4px 12px rgba(216, 144, 42, 0.35));
+  }
+}
+
+.animate-final-glow {
+  animation: finalGlow 2.5s ease-in-out infinite;
+}
+
+/* Gateway Decision Point Pulse Rings */
+@keyframes gatewayPulseRing {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  60% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes gatewayPulseRingDelay {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+.animate-gateway-pulse-ring {
+  animation: gatewayPulseRing 2s ease-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.animate-gateway-pulse-ring-delay {
+  animation: gatewayPulseRingDelay 2s ease-out 0.7s infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* Save Status Transient Change Animations */
+@keyframes statusPop {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-status-pop {
+  animation: statusPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+

@@ -14,7 +14,7 @@ export const InfoBox = () => {
         {/* Header label */}
         <div className="flex items-center gap-2 mb-4">
           <Info className="w-5 h-5 shrink-0 text-black" strokeWidth={2.5} />
-          <span className="text-xs font-black uppercase tracking-widest">Perhatian</span>
+          <span className="text-xs font-bold uppercase tracking-widest">Perhatian</span>
         </div>
 
         {/* Divider */}
@@ -28,9 +28,9 @@ export const InfoBox = () => {
               <FileText className="w-5 h-5 text-[#FFDE59]" strokeWidth={2} />
             </span>
             <div>
-              <p className="font-black text-sm uppercase tracking-wide mb-1">Bukti Dokumen</p>
+              <p className="font-bold text-sm uppercase tracking-wide mb-1">Bukti Dokumen</p>
               <p className="text-sm font-semibold text-gray-700 leading-snug">
-                Bukti dukung berbentuk dokumen diunggah dalam format <span className="font-black text-black">PDF</span>.
+                Bukti dukung berbentuk dokumen diunggah dalam format <span className="font-bold text-black">PDF</span>.
               </p>
             </div>
           </div>
@@ -41,10 +41,10 @@ export const InfoBox = () => {
               <ImageIcon className="w-5 h-5 text-[#57E7FB]" strokeWidth={2} />
             </span>
             <div>
-              <p className="font-black text-sm uppercase tracking-wide mb-1">Bukti Visual</p>
+              <p className="font-bold text-sm uppercase tracking-wide mb-1">Bukti Visual</p>
               <p className="text-sm font-semibold text-gray-700 leading-snug">
                 Bukti dukung kondisi faktual diunggah dalam format{' '}
-                <span className="font-black text-black">Gambar (JPG/PNG)</span>.
+                <span className="font-bold text-black">Gambar (JPG/PNG)</span>.
               </p>
             </div>
           </div>

@@ -33,7 +33,7 @@ export const ImageGallery: React.FC<Props> = ({ images, onImageClick }) => {
             <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="flex items-center gap-2 bg-[#FFDE59] border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_#000] transform translate-y-4 group-hover:translate-y-0 transition-transform">
                 <Maximize2 className="w-4 h-4 text-black" />
-                <span className="text-xs font-black uppercase tracking-widest text-black">Zoom</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-black">Zoom</span>
               </div>
             </div>
           </div>

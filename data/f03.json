@@ -1,0 +1,169 @@
+{
+  "form_metadata": {
+    "kode_form": "F-03 A (LURING)",
+    "judul": "LEMBAR PENILAIAN PEKPPP",
+    "subjudul": "Formulir Penilaian dari Masyarakat Kode A",
+    "instansi_penerbit": "Kementerian Pendayagunaan Aparatur Negara dan Reformasi Birokrasi (KemenPANRB)",
+    "jenis_form": "Form Responden",
+    "petunjuk_pengisian": "Setiap Responden wajib mengisi kolom penilaian yang disediakan secara objektif pada angka yang dianggap sesuai. Beri tanda silang (X) pada angka yang paling sesuai dengan penilaian Anda.",
+    "skala_penilaian_umum": {
+      "tipe": "skala_derajat_penilaian",
+      "rentang": [0, 1, 2, 3, 4, 5],
+      "keterangan": "0 = paling tidak sesuai/paling buruk, 5 = paling sesuai/paling baik. Skala ini bersifat derajat kepuasan/kesesuaian umum tanpa deskripsi tekstual per-angka (berbeda dari F-02 yang memiliki deskripsi rinci tiap level)."
+    },
+    "field_identitas": [
+      {
+        "field_id": "instansi",
+        "label": "Instansi",
+        "tipe": "text",
+        "wajib_diisi": true,
+        "nilai": null
+      },
+      {
+        "field_id": "unit_lokus",
+        "label": "Unit Lokus",
+        "tipe": "text",
+        "wajib_diisi": true,
+        "nilai": null
+      }
+    ]
+  },
+  "kategori_penilaian": [
+    {
+      "kategori_romawi": "I",
+      "kategori": "KEBIJAKAN PELAYANAN",
+      "indikator": [
+        {
+          "no_urut": 1,
+          "kode": "1.a.K1",
+          "isu": "Persyaratan yang diperlukan untuk memperoleh layanan mudah dipenuhi.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 2,
+          "kode": "2.a.K1",
+          "isu": "Prosedur yang dilalui untuk memperoleh layanan mudah.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 3,
+          "kode": "3.a.K1",
+          "isu": "Tarif yang diinformasikan sesuai dengan yang dibayarkan.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 4,
+          "kode": "4.a.K1",
+          "isu": "Lama waktu pelayanan yang diinformasikan sesuai dengan waktu penyelesaian.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        }
+      ]
+    },
+    {
+      "kategori_romawi": "II",
+      "kategori": "PROFESIONALISME SDM",
+      "indikator": [
+        {
+          "no_urut": 5,
+          "kode": "5.b.Ak",
+          "isu": "Waktu pelayanan (jam kerja layanan tanpa jeda waktu istirahat, layanan informasi, konsultasi dan pengaduan, customer service) sesuai dengan yang ditetapkan.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 6,
+          "kode": "6.b.Ak",
+          "isu": "Petugas layanan responsif dalam memberikan pelayanan.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 7,
+          "kode": "7.b.Ak",
+          "isu": "Sikap petugas mencerminkan pelayanan yang berkualitas.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        }
+      ]
+    },
+    {
+      "kategori_romawi": "III",
+      "kategori": "SARANA PRASARANA",
+      "indikator": [
+        {
+          "no_urut": 8,
+          "kode": "8.c.As",
+          "isu": "Tempat parkir yang disediakan memadai.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 9,
+          "kode": "9.c.K",
+          "isu": "Sarana ruang tunggu layanan nyaman.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 10,
+          "kode": "10.c.As",
+          "isu": "Sarana toilet khusus pengguna layanan bersih dan memadai.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 11,
+          "kode": "11.c.As",
+          "isu": "Ketersediaan sarana prasarana penunjang lainnya yang memadai (contoh: ruang laktasi/nursery, arena bermain anak, kantin/fotocopy/toko ATK, wifi, prioritas lansia, dst).",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        }
+      ]
+    },
+    {
+      "kategori_romawi": "IV",
+      "kategori": "SISTEM INFORMASI PELAYANAN PUBLIK",
+      "indikator": [
+        {
+          "no_urut": 12,
+          "kode": "12.d.T",
+          "isu": "Akses informasi layanan secara daring mudah (website, aplikasi, media sosial dan sejenisnya).",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        },
+        {
+          "no_urut": 13,
+          "kode": "14.d.T",
+          "isu": "Kemudahan akses informasi di lokasi layanan (tatap muka).",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        }
+      ]
+    },
+    {
+      "kategori_romawi": "V",
+      "kategori": "KONSULTASI DAN PENGADUAN",
+      "catatan_kategori": "Judul kategori V tidak tercetak lengkap pada dokumen sumber (terpotong pada akhir halaman). Nama kategori disimpulkan dari pola kode 'e.K' yang pada formulir F-02 A sejenis merujuk pada kategori Konsultasi dan Pengaduan.",
+      "indikator": [
+        {
+          "no_urut": 14,
+          "kode": "15.e.K",
+          "isu": "Tersedia konsultasi dan pengaduan layanan yang memadai dan mudah diakses.",
+          "skala_nilai": [0, 1, 2, 3, 4, 5],
+          "isian_hasil_penilaian": null
+        }
+      ]
+    }
+  ],
+  "catatan_untuk_ai_agent": {
+    "struktur_penilaian": "Formulir ini adalah kuesioner responden masyarakat, berbeda dari F-02 (form evaluator). Setiap isu dinilai pada skala derajat 0-5 tanpa deskripsi rinci per angka — responden memilih satu angka yang paling sesuai dengan pengalaman/persepsinya, ditandai dengan tanda silang (X).",
+    "field_isian": "Field 'isian_hasil_penilaian' pada tiap indikator adalah tempat menyimpan nilai (0-5) yang dipilih responden.",
+    "total_indikator": 14,
+    "kode_indikator_format": "Format kode: [nomor urut].[kode kategori a-e].[kode dimensi]. Nomor urut kode tidak selalu sama dengan no_urut tampilan (contoh: item ke-13 tampil sebagai no urut 13 namun berkode 14.d.T), sehingga field 'kode' dan 'no_urut' perlu disimpan terpisah agar tidak tertukar.",
+    "relasi_dengan_form_lain": "Formulir ini melengkapi F-02 A (form evaluator) dalam rangkaian instrumen PEKPPP KemenPANRB — F-02 diisi oleh evaluator berdasarkan bukti dokumen/observasi, sedangkan F-03 diisi langsung oleh masyarakat pengguna layanan berdasarkan persepsi/pengalaman."
+  }
+}

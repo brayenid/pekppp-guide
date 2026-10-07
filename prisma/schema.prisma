@@ -1,0 +1,355 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SUPER_ADMIN
+  OPD
+}
+
+enum EvaluationStatus {
+  DRAFT
+  SUBMITTED
+  FINAL
+}
+
+// 0. Tahun Periode Evaluasi (Murni Angka Tahun, misal 2026)
+model EvaluationPeriod {
+  id             String             @id @default(uuid())
+  year           Int                @unique // e.g. 2026
+  title          String?            // e.g. "2026"
+  targetF03Quota Int                @default(30) // Kuota target responden F-03 default
+  isOpen         Boolean            @default(true)
+  isPublished    Boolean            @default(false) // Toggle hasil evaluasi dipublikasikan ke publik
+  publishedAt    DateTime?
+  agendas        EvaluationAgenda[]
+  windows        PeriodWindow[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+// 0.05 Jendela Waktu / Tahapan Dinamis Penilaian (Timeline Windows)
+model PeriodWindow {
+  id                String           @id @default(uuid())
+  periodId          String
+  period            EvaluationPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  phaseKey          String           // "PREPARATION", "F01_FILLING", "F03_SURVEY", "EVALUATION_F02", "REVISION_APPEAL", "FINALIZATION"
+  title             String           // e.g. "Pengisian Formulir F-01 & Bukti Dukung"
+  description       String?          // Keterangan / instruksi untuk Lokus
+  startDate         DateTime?        // Tanggal & jam mulai
+  endDate           DateTime?        // Tanggal & jam berakhir
+  orderIndex        Int              @default(0)
+
+  // Kontrol Izin Aksi Dinamis
+  canFillF01        Boolean          @default(false)
+  canUploadEvidence Boolean          @default(false)
+  canFillF03        Boolean          @default(false)
+  canEvaluateF02    Boolean          @default(false)
+
+  // Kontrol Override Manual oleh Super Admin (null = otomatis berdasarkan tanggal waktu, true = paksa buka, false = paksa tutup)
+  isActiveOverride  Boolean?
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([periodId, phaseKey])
+}
+
+// 0.1 Agenda Penilaian dalam Tahun (misal: "PEKPPP 2026", "Evaluasi RB", "Survei Kepuasan")
+model EvaluationAgenda {
+  id             String            @id @default(uuid())
+  year           Int               // Tahun terkait
+  periodId       String?
+  period         EvaluationPeriod? @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  title          String            // Nama Agenda, e.g. "PEKPPP 2026"
+  description    String?
+  status         String            @default("ACTIVE") // "DRAFT", "ACTIVE", "CLOSED"
+  forms          Json              // Daftar form yang dipakai, e.g. ["F01_F02", "F03"]
+  targetF03Quota Int               @default(30)
+  startDate      DateTime?
+  endDate        DateTime?
+  evaluations    Evaluation[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+// 1. Kategori Unit (OPD, Puskesmas, Kecamatan, Bagian Setda, RSUD, dll)
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  units     Unit[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 2. Master Lokus / Unit Penilaian
+model Unit {
+  id             String            @id @default(uuid())
+  code           String?
+  name           String            @unique
+  categoryId     String?
+  category       Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  driveFolderUrl String?
+  isActive       Boolean           @default(true)
+  userUnits      UserUnit[]
+  evaluations    Evaluation[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+// 3. Profile Pengguna & Role
+model Profile {
+  id        String             @id @default(uuid())
+  email     String             @unique
+  password  String
+  fullName  String
+  phone     String?            // Nomor WhatsApp aktif untuk notifikasi penilaian
+  role      Role               @default(OPD)
+  userUnits UserUnit[]
+  comments  IndicatorComment[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+// 4. Binding Account vs Lokus (Many-to-Many)
+model UserUnit {
+  id        String   @id @default(uuid())
+  userId    String
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unitId    String
+  unit      Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, unitId])
+}
+
+// 5. Master Aspek Evaluasi (6 Aspek Utama)
+model Aspect {
+  id           String      @id @default(uuid())
+  code         String      @unique
+  name         String
+  aspectWeight Float // 24.0, 25.0, 18.0, 11.0, 10.0, 12.0
+  orderIndex   Int
+  indicators   Indicator[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+// 6. Master 31 Indikator PEKPPP
+model Indicator {
+  id                String            @id @default(uuid())
+  aspectId          String
+  aspect            Aspect            @relation(fields: [aspectId], references: [id], onDelete: Cascade)
+  code              String // e.g. "a.Ak"
+  indicatorNumber   Int               @unique // 1..31
+  question          String
+  indicatorWeight   Float // e.g. 17.0
+  proofRequirements String?
+  maxScore          Float             @default(5.0)
+  isSupplementary   Boolean           @default(false)
+  evaluationScores  EvaluationScore[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+// 7. Header Evaluasi per Tahun
+model Evaluation {
+  id             String          @id @default(uuid())
+  year           Int
+  unitId         String
+  unit           Unit            @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  totalScore     Float           @default(0) // F-02 Total Score
+  percentage     Float           @default(0) // F-02 Percentage
+  scale5         Float           @default(0) // F-02 Scale 0-5
+  status         EvaluationStatus @default(DRAFT)
+  isFinished     Boolean          @default(false)
+  isPriority     Boolean          @default(false) // Tagging lokus prioritas per tahun evaluasi (evaluasi.menpan.go.id)
+  scores         EvaluationScore[]
+  
+  // F-03 Survey Respondents Aggregation & Final IPP Score (75% F-02 + 25% F-03)
+  f03Respondents F03Respondent[]
+  f03Count       Int             @default(0)
+  f03Score       Float           @default(0) // Avg raw score 0-70
+  f03Scale5      Float           @default(0) // Avg scale 0-5
+  f03Percentage  Float           @default(0) // Avg percentage 0-100%
+  f03ProofUrl    String?         // Tautan berkas/bukti dukung F-03 per lokus per tahun
+  isPublicSurveyOpen Boolean     @default(true) // Toggle publik kuesioner aktif / ditutup oleh Lokus
+  publicSurveyToken  String?     @unique // Token unik akses publik kuesioner
+  aspectNotes    Json?           // Catatan evaluator per aspek: { [aspectCode]: string }
+  aiEvaluatorNotes Json?         // Catatan rahasia AI khusus Evaluator: { [aspectCode]: { confidenceLevel, confidenceScore, summary, aspectGaps: string[], analyzedAt } }
+  finalIppScore  Float           @default(0) // 75% F-02 + 25% F-03
+  isPublished    Boolean         @default(false) // Toggle publish per lokus
+  publishedAt    DateTime?
+
+  // MenPAN-RB API Sync Attributes
+  syncStatus         SyncStatus      @default(IDLE)
+  syncedAt           DateTime?
+  menpanEvaluationId String?
+  syncLogs           Json?
+
+  // Evidence Submissions per Indicator (Tahap 1 Targeted Slots + Tahap 3 AI Socket)
+  evidenceSubmissions IndicatorEvidenceSubmission[]
+
+  // Agenda Penilaian Relation (Hierarki Baru)
+  agendaId       String?
+  agenda         EvaluationAgenda? @relation(fields: [agendaId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([year, unitId])
+}
+
+enum SyncStatus {
+  IDLE
+  VALIDATING
+  SYNCED
+  FAILED
+}
+
+// 8. Dynamic System Settings (API Credentials, Configs)
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// 8. Detail Nilai 31 Indikator (Memuat bukti dukung living document)
+model EvaluationScore {
+  id           String             @id @default(uuid())
+  evaluationId String
+  evaluation   Evaluation         @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  indicatorId  String
+  indicator    Indicator          @relation(fields: [indicatorId], references: [id], onDelete: Cascade)
+  f01Data      Json?
+  f01Submitted Boolean            @default(false)
+  score        Float?
+  notes        String?
+  proofUrl     String?
+
+  // SOKET AI PRE-EVALUATOR (Catatan khusus evaluator & nilai awal)
+  aiSuggestedScore   Float?          // Nilai awal rekomendasi AI (0 - 5)
+  aiConfidence       Float?          // Persentase keyakinan AI (0 - 100)
+  aiConfidenceReason String?         // Deskripsi eksplisit mengapa AI tidak yakin
+  aiWeaknessNotes    String?         // Analisis poin yang membuat nilai kurang dari 5
+  aiVerificationTips String?         // Poin verifikasi langsung bagi evaluator di lapangan
+  aiCriticalAudit    String?         // Analisis kritis kesesuaian bukti dukung vs centangan F01 OPD
+
+  comments     IndicatorComment[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([evaluationId, indicatorId])
+}
+
+// 10. Komentar Thread Per Indikator Penilaian
+model IndicatorComment {
+  id                String             @id @default(uuid())
+  evaluationScoreId String
+  evaluationScore   EvaluationScore    @relation(fields: [evaluationScoreId], references: [id], onDelete: Cascade)
+  authorId          String
+  author            Profile            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  message           String
+  isResolved        Boolean            @default(false)
+  parentId          String?
+  parent            IndicatorComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies           IndicatorComment[] @relation("CommentReplies")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+// 11. Notifikasi Dalam Aplikasi
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String?  // Spesifik untuk user tertentu
+  roleTarget Role?    // SUPER_ADMIN atau OPD
+  unitId     String?  // Lokus terkait
+  title      String
+  message    String
+  type       String   // F01_UPDATE, F02_UPDATE, PROOF_TRIGGER, COMMENT_UPDATE
+  link       String?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// 12. Entri Responden F-03
+model F03Respondent {
+  id           String     @id @default(uuid())
+  evaluationId String
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  respondentNo Int
+  name         String?    // Nama / Inisial (opsional)
+  answers      Json       // { "1.a.K1": 5, "2.a.K1": 4, ... }
+  totalScore   Float      @default(0) // Total nilai 0-70 untuk responden ini
+  scale5       Float      @default(0) // Skala 0-5 untuk responden ini
+  submittedVia String     @default("PUBLIC") // PUBLIC / MANUAL_OPD
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([evaluationId, respondentNo])
+}
+
+// 13. Konfigurasi Slot Bukti Dukung per Indikator / Aspek (Tahap 1 & 2)
+model EvidenceSlotConfig {
+  id          String   @id @default(uuid())
+  aspectCode  String   // e.g. "I", "II", "III", "IV", "V", "VI"
+  slotKey     String   // e.g. "sk_sp", "ba_fkp", "publikasi", "maklumat"
+  title       String   // e.g. "Dokumen SK Standar Pelayanan (SP) & Lampiran"
+  description String?  // Penjelasan detail & petunjuk dokumen
+  isMandatory Boolean  @default(true)
+  orderIndex  Int      @default(0)
+  submissions IndicatorEvidenceSubmission[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([aspectCode, slotKey])
+}
+
+// 14. Submisi Bukti Dukung Riil oleh OPD
+model IndicatorEvidenceSubmission {
+  id              String              @id @default(uuid())
+  evaluationId    String
+  evaluation      Evaluation          @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  aspectCode      String              // "I", "II", dll
+  slotKey         String              // "sk_sp", "ba_fkp", atau kustom "additional_1"
+  slotConfigId    String?
+  slotConfig      EvidenceSlotConfig? @relation(fields: [slotConfigId], references: [id], onDelete: SetNull)
+  title           String              // Nama dokumen (default atau kustom)
+  fileUrl         String              // Link Google Drive / File URL / R2 URL
+  storageProvider String              @default("EXTERNAL_LINK") // "R2" | "LOCAL" | "EXTERNAL_LINK"
+  fileType        String?             // "PDF" | "IMAGE" | "DOCUMENT" | "LINK"
+  fileSize        Int?                // Ukuran file dalam bytes
+  fileName        String?             // Nama asli file (contoh: SK_SP_2026.pdf)
+  uploaderName    String?             // Nama OPD / Pengunggah
+  isInherited     Boolean             @default(false)
+  
+  // Daftar Berkas Terlampir (Multiple Attachments)
+  attachments     Json?               // Array: [{ id, fileUrl, fileName, fileSize, fileType, storageProvider, uploadedAt }]
+
+  // Jejak Aktivitas & Audit Trail (seperti Activity Google Drive)
+  history         Json?               // Array: [{ id, timestamp, action, actorName, fileName, fileUrl, note }]
+
+  // SOKET TAHAP 3: AI PRE-EVALUATION HOOK
+  aiStatus        AiAnalysisStatus    @default(IDLE)
+  aiInsights      Json?               // { "completeness": 95, "findings": [...], "suggestedScore": 4 }
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([evaluationId, aspectCode, slotKey])
+}
+
+enum AiAnalysisStatus {
+  IDLE
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
