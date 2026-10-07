@@ -173,11 +173,23 @@ export function AspectEvidenceWorkspace({
   const [isRestoringVersion, setIsRestoringVersion] = useState(false)
   const versionFileInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Drawer Option Target for Attachment
-  const [activeDrawerAttachment, setActiveDrawerAttachment] = useState<{
-    slot: EvidenceSlotItem
-    attachment: EvidenceAttachmentItem
-  } | null>(null)
+  // Dropdown Menu Target for Attachment (shadcn-style compact popover)
+  const [openDropdownAttId, setOpenDropdownAttId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null
+      if (target && !target.closest('[data-attachment-dropdown]')) {
+        setOpenDropdownAttId(null)
+      }
+    }
+    if (openDropdownAttId) {
+      document.addEventListener('mousedown', handleOutsideClick)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [openDropdownAttId])
 
   const handleUploadNewVersion = async (file: File) => {
     if (!versionModalTarget) return
@@ -1265,14 +1277,83 @@ export function AspectEvidenceWorkspace({
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-1 shrink-0">
+                                <div className="relative shrink-0" data-attachment-dropdown>
                                   <button
                                     type="button"
-                                    onClick={() => setActiveDrawerAttachment({ slot, attachment: att })}
-                                    className="p-1.5 text-ink-muted hover:text-ink hover:bg-surface-elevated rounded-lg transition-colors cursor-pointer border border-transparent hover:border-stroke/50"
-                                    title="Pilihan Berkas (Versi, Lihat, Hapus)">
-                                    <MoreVertical className="w-4 h-4" />
+                                    onClick={() =>
+                                      setOpenDropdownAttId(openDropdownAttId === att.id ? null : att.id)
+                                    }
+                                    className={`p-1.5 rounded-lg transition-colors cursor-pointer border ${
+                                      openDropdownAttId === att.id
+                                        ? 'bg-surface-elevated text-ink border-stroke shadow-xs'
+                                        : 'text-ink-muted hover:text-ink hover:bg-surface-elevated border-transparent hover:border-stroke/50'
+                                    }`}
+                                    title="Pilihan Berkas">
+                                    <MoreVertical className="w-3.5 h-3.5" />
                                   </button>
+
+                                  {/* Dropdown Menu (shadcn-style) */}
+                                  {openDropdownAttId === att.id && (
+                                    <div className="absolute right-0 top-full mt-1 w-44 z-30 bg-surface rounded-xl border border-stroke/70 shadow-lg py-1 text-xs animate-in fade-in zoom-in-95 duration-150">
+                                      {/* Header Info */}
+                                      <div className="px-3 py-1.5 border-b border-stroke/40 text-[10px] text-ink-muted">
+                                        <div className="flex items-center justify-between">
+                                          <span>Versi Berkas</span>
+                                          <span className="font-semibold text-ink">v{att.version || 1}</span>
+                                        </div>
+                                      </div>
+
+                                      {/* Menu Items */}
+                                      <div className="p-1 space-y-0.5">
+                                        <a
+                                          href={att.fileUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          onClick={() => setOpenDropdownAttId(null)}
+                                          className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-ink hover:bg-surface-subtle transition-colors group cursor-pointer text-[11px] font-medium">
+                                          <div className="flex items-center gap-2">
+                                            <ExternalLink className="w-3.5 h-3.5 text-ink-muted group-hover:text-ink" />
+                                            <span>Lihat Berkas</span>
+                                          </div>
+                                        </a>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOpenDropdownAttId(null)
+                                            setVersionModalTarget({ slot, attachment: att })
+                                          }}
+                                          className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-ink hover:bg-surface-subtle transition-colors group cursor-pointer text-[11px] font-medium text-left">
+                                          <div className="flex items-center gap-2">
+                                            <RotateCcw className="w-3.5 h-3.5 text-ink-muted group-hover:text-brand" />
+                                            <span>Kelola Versi</span>
+                                          </div>
+                                          {att.versions && att.versions.length > 0 && (
+                                            <span className="text-[10px] px-1 py-0.2 rounded bg-brand/10 text-brand font-semibold">
+                                              {att.versions.length}
+                                            </span>
+                                          )}
+                                        </button>
+
+                                        {isEditable && (
+                                          <>
+                                            <div className="h-px bg-stroke/40 my-1" />
+                                            <button
+                                              type="button"
+                                              disabled={isUploading}
+                                              onClick={() => {
+                                                setOpenDropdownAttId(null)
+                                                handleDeleteAttachment(slot, att.id, att.fileName)
+                                              }}
+                                              className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors group cursor-pointer text-[11px] font-medium text-left">
+                                              <Trash2 className="w-3.5 h-3.5 text-rose-500 group-hover:text-rose-700" />
+                                              <span>Hapus Berkas</span>
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             )
@@ -2031,135 +2112,6 @@ export function AspectEvidenceWorkspace({
                 onClick={() => setVersionModalTarget(null)}
                 className="px-4 py-2 rounded-xl border border-stroke/60 text-xs font-medium text-ink-secondary hover:bg-surface-subtle transition-colors cursor-pointer">
                 Tutup
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* Attachment Option Drawer (Versi, Lihat, Hapus) */}
-      {activeDrawerAttachment && typeof document !== 'undefined' && createPortal(
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
-          onClick={() => setActiveDrawerAttachment(null)}>
-          <div
-            className="relative w-full sm:max-w-md bg-surface rounded-t-3xl sm:rounded-2xl border border-stroke shadow-2xl p-5 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}>
-            
-            {/* Drawer Header Handle (Mobile) */}
-            <div className="w-12 h-1.5 bg-stroke/80 rounded-full mx-auto sm:hidden mb-1 cursor-pointer" onClick={() => setActiveDrawerAttachment(null)} />
-
-            <div className="flex items-start justify-between gap-3 pb-3 border-b border-stroke/50">
-              <div className="min-w-0 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-subtle text-ink-secondary border border-stroke/50">
-                    v{activeDrawerAttachment.attachment.version || 1}
-                  </span>
-                  <h3 className="font-semibold text-ink text-sm truncate" title={activeDrawerAttachment.attachment.fileName}>
-                    {activeDrawerAttachment.attachment.fileName}
-                  </h3>
-                </div>
-                <div className="flex items-center gap-2 text-[11px] text-ink-muted">
-                  {activeDrawerAttachment.attachment.fileSize && (
-                    <span>
-                      {activeDrawerAttachment.attachment.fileSize > 1024 * 1024
-                        ? `${(activeDrawerAttachment.attachment.fileSize / (1024 * 1024)).toFixed(1)} MB`
-                        : `${Math.round(activeDrawerAttachment.attachment.fileSize / 1024)} KB`}
-                    </span>
-                  )}
-                  {activeDrawerAttachment.attachment.versions && activeDrawerAttachment.attachment.versions.length > 0 && (
-                    <span>• {activeDrawerAttachment.attachment.versions.length} versi lampau</span>
-                  )}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveDrawerAttachment(null)}
-                className="p-1.5 rounded-full text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer shrink-0">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Drawer Action Items */}
-            <div className="space-y-1.5">
-              {/* Option 1: Buka / Lihat Berkas */}
-              <a
-                href={activeDrawerAttachment.attachment.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setActiveDrawerAttachment(null)}
-                className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-surface-subtle transition-colors group cursor-pointer text-ink">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-surface-subtle text-ink-secondary group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                    <ExternalLink className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-semibold group-hover:text-brand transition-colors">Lihat Berkas</p>
-                    <p className="text-[11px] text-ink-muted">Buka dokumen pratinjau di tab browser baru</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-brand transition-colors" />
-              </a>
-
-              {/* Option 2: Kelola Versi (Google Drive style) */}
-              <button
-                type="button"
-                onClick={() => {
-                  const target = activeDrawerAttachment
-                  setActiveDrawerAttachment(null)
-                  setVersionModalTarget(target)
-                }}
-                className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-surface-subtle transition-colors group cursor-pointer text-ink">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-surface-subtle text-ink-secondary group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                    <RotateCcw className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold group-hover:text-brand transition-colors">Kelola Versi Berkas</p>
-                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-brand/10 text-brand">
-                        v{activeDrawerAttachment.attachment.version || 1}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-ink-muted">Unggah versi baru atau pulihkan versi sebelumnya</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-brand transition-colors" />
-              </button>
-
-              {/* Option 3: Hapus Berkas */}
-              {isEditable && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const { slot, attachment } = activeDrawerAttachment
-                    setActiveDrawerAttachment(null)
-                    handleDeleteAttachment(slot, attachment.id, attachment.fileName)
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-rose-50/70 transition-colors group cursor-pointer text-rose-600">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-rose-50 text-rose-600 group-hover:bg-rose-100 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-xs font-semibold text-rose-700">Hapus Berkas Ini</p>
-                      <p className="text-[11px] text-rose-600/70">Hapus dokumen lampiran ini dari daftar bukti</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors" />
-                </button>
-              )}
-            </div>
-
-            <div className="pt-2 border-t border-stroke/50">
-              <button
-                type="button"
-                onClick={() => setActiveDrawerAttachment(null)}
-                className="w-full py-2.5 rounded-xl border border-stroke/60 text-xs font-medium text-ink-secondary hover:bg-surface-subtle transition-colors cursor-pointer text-center">
-                Batal
               </button>
             </div>
           </div>
