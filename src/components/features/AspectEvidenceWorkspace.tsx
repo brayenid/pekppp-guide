@@ -1275,43 +1275,45 @@ export function AspectEvidenceWorkspace({
                       )}
                     </div>
 
-                    {/* Footer Row: Garis Pembatas + Status Ada/Belum Ada & Keterangan Batas File */}
-                    <div className="pt-2.5 border-t border-stroke/40 flex items-center justify-between gap-2 text-xs flex-wrap">
-                      <div className="flex items-center gap-2">
+                    {/* Footer Row: Plain text berdampingan dengan batas kecil */}
+                    <div className="pt-2.5 border-t border-stroke/40 flex items-center justify-between gap-2 text-[11px] text-ink-muted flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         {!hasUploaded ? (
-                          <span className="text-[11px] font-normal text-ink-muted bg-surface-subtle px-2.5 py-0.5 rounded-full border border-stroke/50 shrink-0">
+                          <span className="font-normal text-ink-muted">
                             Belum Ada
                           </span>
                         ) : slot.aiInsights?.status === 'LAYAK' ? (
-                          <span className="text-[11px] font-medium text-pastel-green-text bg-pastel-green px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1 shrink-0">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                          <span className="font-medium text-emerald-700 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                             Layak &amp; Sah ({attachments.length} berkas)
                           </span>
                         ) : slot.aiInsights?.status === 'TIDAK_SESUAI' ? (
-                          <span className="text-[11px] font-medium text-pastel-rose-text bg-pastel-rose px-2.5 py-0.5 rounded-full border border-rose-200 flex items-center gap-1 shrink-0">
-                            <XCircle className="w-3.5 h-3.5 text-rose-700" />
+                          <span className="font-medium text-rose-700 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
                             Tidak Sesuai ({attachments.length} berkas)
                           </span>
                         ) : slot.aiInsights?.status === 'PERLU_DILENGKAPI' ? (
-                          <span className="text-[11px] font-medium text-pastel-amber-text bg-pastel-amber px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1 shrink-0">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
+                          <span className="font-medium text-amber-700 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
                             Perlu Dilengkapi ({attachments.length} berkas)
                           </span>
                         ) : (
-                          <span className="text-[11px] font-medium text-pastel-green-text bg-pastel-green px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1 shrink-0">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                          <span className="font-medium text-emerald-700 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                             Terunggah ({attachments.length} berkas)
                           </span>
                         )}
-                      </div>
 
-                      <span className="text-[11px] text-ink-muted bg-surface-subtle px-2.5 py-0.5 rounded-full border border-stroke/50 shrink-0">
-                        {isImageOnlySlot
-                          ? 'Maks. 6 foto (maks. 1 MB/foto)'
-                          : isDocOnlySlot
-                            ? 'Maks. 4 PDF (maks. 20 MB/file)'
-                            : 'Maks. 4 PDF (@20MB) & 6 Foto (@1MB)'}
-                      </span>
+                        <span className="text-stroke">•</span>
+
+                        <span className="font-normal text-ink-muted">
+                          {isImageOnlySlot
+                            ? 'Maks. 6 foto (maks. 1 MB/foto)'
+                            : isDocOnlySlot
+                              ? 'Maks. 4 PDF (maks. 20 MB/file)'
+                              : 'Maks. 4 PDF (@20MB) & 6 Foto (@1MB)'}
+                        </span>
+                      </div>
                     </div>
 
                     {/* AI Feedback (ONLY IF NOT LAYAK & FILE EXISTS) - 1 Compact, Clear Box */}
