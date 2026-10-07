@@ -930,38 +930,21 @@ export function EvaluationWorkspaceLayout({
         </div>
       )}
 
-      {/* Minimalist Action Ribbon */}
-      <div className="bg-surface rounded-2xl border border-stroke/50 px-5 py-3 flex items-center justify-between gap-4 shadow-soft-card mb-5">
-        {/* Left: Indicator Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs">
-          {activeMainMode === 'EVIDENCE' ? (
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-brand bg-brand-light px-3 py-1 rounded-full text-xs flex items-center gap-1.5">
-                <UploadCloud className="w-3.5 h-3.5 text-brand shrink-0" />
-                <span>Pusat Unggah Bukti</span>
-              </span>
-              <span className="text-stroke">•</span>
-              <span className="text-ink font-medium truncate max-w-[280px] sm:max-w-md">
-                {activeAspectEvidence
-                  ? `Aspek ${activeAspectEvidence}: ${groupedAspects.find((g) => g.aspect.code === activeAspectEvidence)?.aspect.name || ''}`
-                  : 'Pilihan 6 Aspek'}
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke/60 text-xs">
-                #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
-              </span>
-              <span className="text-stroke">•</span>
-              <span className="text-ink-muted truncate max-w-[280px] sm:max-w-md">
-                {activeScoreItem.indicator.aspect.name}
-              </span>
-            </div>
-          )}
-        </div>
+      {/* Minimalist Action Ribbon (Khusus Mode Formulir Pertanyaan F01 / F02) */}
+      {activeMainMode !== 'EVIDENCE' && (
+        <div className="bg-surface rounded-2xl border border-stroke/50 px-5 py-3 flex items-center justify-between gap-4 shadow-soft-card mb-5">
+          {/* Left: Indicator Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-medium text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke/60 text-xs">
+              #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
+            </span>
+            <span className="text-stroke">•</span>
+            <span className="text-ink-muted truncate max-w-[280px] sm:max-w-md">
+              {activeScoreItem.indicator.aspect.name}
+            </span>
+          </div>
 
-        {/* Right: Progress & Action (Khusus Mode Formulir Pertanyaan F01 / F02) */}
-        {activeMainMode !== 'EVIDENCE' && (
+          {/* Right: Progress & Action */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-2.5 text-xs">
               <span className="text-ink-muted font-normal">
@@ -983,8 +966,8 @@ export function EvaluationWorkspaceLayout({
             {userRole === 'OPD' && isF01Editable && <F01GlobalSaveButton />}
             {userRole === 'SUPER_ADMIN' && <F02GlobalSaveButton />}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {activeMainMode === 'EVIDENCE' ? (
         /* ------------------------------------------------------------- */
