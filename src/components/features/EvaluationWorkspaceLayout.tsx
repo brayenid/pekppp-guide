@@ -308,19 +308,25 @@ export function EvaluationWorkspaceLayout({
   const splitContainerRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
 
-  // Baca dari localStorage hanya setelah komponen mounted di browser
+  // Baca dari localStorage hanya setelah komponen mounted di browser & sinkronkan jika ada perubahan
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('eval-sidebar-width-pct')
-      if (stored) {
-        const parsed = parseFloat(stored)
-        if (!isNaN(parsed) && parsed >= SIDEBAR_MIN && parsed <= SIDEBAR_MAX) {
-          setSidebarWidthPct(parsed)
+    const syncSidebarFromStorage = () => {
+      try {
+        const stored = localStorage.getItem('eval-sidebar-width-pct')
+        if (stored) {
+          const parsed = parseFloat(stored)
+          if (!isNaN(parsed) && parsed >= SIDEBAR_MIN && parsed <= SIDEBAR_MAX) {
+            setSidebarWidthPct(parsed)
+          }
         }
+      } catch {
+        // Abaikan jika localStorage tidak dapat diakses
       }
-    } catch {
-      // Abaikan jika localStorage tidak dapat diakses
     }
+
+    syncSidebarFromStorage()
+    window.addEventListener('storage', syncSidebarFromStorage)
+    return () => window.removeEventListener('storage', syncSidebarFromStorage)
   }, [])
 
   const handleResetSidebarWidth = () => {
