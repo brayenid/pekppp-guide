@@ -433,8 +433,9 @@ export function EvaluationWorkspaceLayout({
           setSidebarPreviewDoc(null)
         }
 
-        // Highlight & scroll jika berpindah soal atau ada target item
-        if (tItem || (!isNaN(soalParam) && soalParam > 0)) {
+        // Highlight & scroll hanya jika benar-benar berasal dari notifikasi / deep-link item spesifik
+        const fromNotification = searchParams.get('fromNotification') === 'true' || searchParams.get('notify') === '1'
+        if (tItem || fromNotification) {
           setHighlightTarget(true)
           setTimeout(() => setHighlightTarget(false), 3000)
 

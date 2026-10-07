@@ -237,18 +237,18 @@ export function EvaluationTabWrapper({
 
       {/* Tab Panels */}
       <div>
-        {(activeTab === 'f02' || activeTab === 'evidence') && (
-          <div>
-            {React.isValidElement(f02Content)
-              ? React.cloneElement(f02Content as React.ReactElement<any>, {
-                  activeMainMode: activeTab === 'evidence' ? 'EVIDENCE' : 'QUESTIONS',
-                  onActiveMainModeChange: (mode: 'QUESTIONS' | 'EVIDENCE') =>
-                    setActiveTab(mode === 'EVIDENCE' ? 'evidence' : 'f02')
-                })
-              : f02Content}
-          </div>
-        )}
-        {activeTab === 'f03' && <div>{f03Content}</div>}
+        <div className={activeTab === 'f03' ? 'hidden' : 'block'}>
+          {React.isValidElement(f02Content)
+            ? React.cloneElement(f02Content as React.ReactElement<any>, {
+                activeMainMode: activeTab === 'evidence' ? 'EVIDENCE' : 'QUESTIONS',
+                onActiveMainModeChange: (mode: 'QUESTIONS' | 'EVIDENCE') =>
+                  setActiveTab(mode === 'EVIDENCE' ? 'evidence' : 'f02')
+              })
+            : f02Content}
+        </div>
+        <div className={activeTab === 'f03' ? 'block' : 'hidden'}>
+          {f03Content}
+        </div>
       </div>
     </div>
   )
