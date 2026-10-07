@@ -198,7 +198,7 @@ export function AspectEvidenceGridHub({
                 {/* Footer Action */}
                 <div className="pt-2 flex items-center justify-between text-xs font-medium border-t border-stroke/30">
                   <div className="flex items-center gap-1 text-brand group-hover:text-brand-hover transition-colors">
-                    <span>Buka Berkas</span>
+                    <span>Unggah Bukti</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </div>
 
