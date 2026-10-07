@@ -1155,29 +1155,19 @@ export function AspectEvidenceWorkspace({
                               className="hidden"
                             />
 
-                            {canAddMore ? (
+                            {!hasUploaded && (
                               <button
                                 type="button"
                                 disabled={isUploading}
                                 onClick={() => fileInputRefs.current[slot.slotKey]?.click()}
-                                className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shadow-2xs ${
-                                  hasUploaded
-                                    ? 'border border-stroke/60 bg-surface-subtle hover:bg-surface-hover text-ink'
-                                    : 'bg-brand hover:bg-brand-hover text-white shadow-hz-button'
-                                }`}>
+                                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shadow-hz-button bg-brand hover:bg-brand-hover text-white">
                                 {isUploading ? (
                                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : hasUploaded ? (
-                                  <Plus className="w-3.5 h-3.5" />
                                 ) : (
                                   <UploadCloud className="w-3.5 h-3.5" />
                                 )}
-                                <span>{hasUploaded ? 'Tambah Berkas' : 'Unggah'}</span>
+                                <span>Unggah</span>
                               </button>
-                            ) : (
-                              <span className="px-3 py-1 rounded-full text-[11px] font-medium text-ink-muted bg-surface-subtle border border-stroke/50">
-                                Kuota Penuh ({maxCount}/{maxCount})
-                              </span>
                             )}
                           </>
                         ) : (
@@ -1364,6 +1354,29 @@ export function AspectEvidenceWorkspace({
                               </div>
                             )
                           })}
+
+                          {/* Tombol Tambah Berkas di Samping Berkas Terakhir (Ukuran & Bento Sama Persis) */}
+                          {canAddMore && isEditable && (
+                            <button
+                              type="button"
+                              disabled={isUploading}
+                              onClick={() => fileInputRefs.current[slot.slotKey]?.click()}
+                              className="flex items-center justify-center p-2.5 rounded-xl border border-dashed border-stroke/80 bg-surface-subtle/30 hover:bg-surface-subtle/80 hover:border-brand/60 transition-all gap-2 text-xs text-ink-secondary hover:text-brand cursor-pointer group shadow-2xs min-h-[54px]">
+                              {isUploading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                                  <span className="font-medium text-xs">Mengunggah...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="w-6 h-6 rounded-lg bg-surface flex items-center justify-center border border-stroke/60 group-hover:border-brand/40 group-hover:bg-brand/10 transition-colors shrink-0">
+                                    <Plus className="w-3.5 h-3.5 text-ink-muted group-hover:text-brand transition-colors" />
+                                  </div>
+                                  <span className="font-medium text-xs tracking-tight">Tambah Berkas</span>
+                                </>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
