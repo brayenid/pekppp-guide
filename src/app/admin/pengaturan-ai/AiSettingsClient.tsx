@@ -202,8 +202,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Mode Eksekusi */}
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-ink-secondary flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-ink-muted" />
+            <label className="block text-xs font-medium text-ink-secondary">
               Mode Eksekusi
             </label>
             <select
@@ -225,8 +224,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
 
           {/* Model AI Selection */}
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-ink-secondary flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-ink-muted" />
+            <label className="block text-xs font-medium text-ink-secondary">
               Model Reasoning
             </label>
             <select
@@ -244,8 +242,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
 
           {/* Max PDF Pages */}
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-ink-secondary flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-ink-muted" />
+            <label className="block text-xs font-medium text-ink-secondary">
               Maks. Hal PDF
             </label>
             <input
@@ -263,8 +260,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
 
           {/* Max Upload Size MB */}
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-ink-secondary flex items-center gap-1.5">
-              <HardDrive className="w-3.5 h-3.5 text-ink-muted" />
+            <label className="block text-xs font-medium text-ink-secondary">
               Batas Ukuran (MB)
             </label>
             <input

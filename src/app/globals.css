@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --canvas: #F0ECE5;
-  --card: #FBFBFA;
-  --ink: #1C1C1A;
-  --ink-secondary: #54534F;
-  --ink-muted: #8D8C86;
-  --line: #E5E2DC;
-  --line-border: #E5E2DC;
+  --canvas: #DAE8F6;
+  --card: #FFFFFF;
+  --ink: #0F172A;
+  --ink-secondary: #334155;
+  --ink-muted: #64748B;
+  --line: #C4D8EC;
+  --line-border: #C4D8EC;
   --brand: #1D5BB9;
   --brand-hover: #154694;
   --brand-light: #EEF4FD;
@@ -19,8 +19,8 @@
 }
 
 body {
-  background-color: #F0ECE5;
-  color: #1C1C1A;
+  background-color: #DAE8F6;
+  color: #0F172A;
   font-family: var(--font-plus-jakarta), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -47,25 +47,25 @@ html {
   background-color: #EEF4FD !important;
 }
 .bg-hz-bg {
-  background-color: #F0ECE5 !important;
+  background-color: #DAE8F6 !important;
 }
 .bg-hz-card {
-  background-color: #FBFBFA !important;
+  background-color: #FFFFFF !important;
 }
 .text-hz-brand {
   color: #1D5BB9 !important;
 }
 .text-hz-heading {
-  color: #1C1C1A !important;
+  color: #0F172A !important;
 }
 .text-hz-body {
-  color: #54534F !important;
+  color: #334155 !important;
 }
 .text-hz-muted {
-  color: #8D8C86 !important;
+  color: #64748B !important;
 }
 .border-hz-border {
-  border-color: #E5E2DC !important;
+  border-color: #C4D8EC !important;
 }
 .border-hz-brand {
   border-color: #1D5BB9 !important;

@@ -30,7 +30,7 @@ export function Navbar() {
   const isEvaluation = pathname.startsWith('/evaluasi')
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-canvas/90 backdrop-blur-md border-b border-[#D5D0C6] shadow-2xs">
+    <nav className="sticky top-0 z-50 w-full bg-canvas/90 backdrop-blur-md border-b border-stroke shadow-2xs">
       <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-3.5 group py-1">
@@ -46,7 +46,7 @@ export function Navbar() {
         {/* Center Section: Admin / OPD / Evaluation Context Capsule or Public Nav Pills */}
         {isAdmin ? (
           <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle/80 border border-stroke/60 rounded-full shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-brand" />
             <span className="text-xs font-medium text-ink">Portal Super Admin</span>
             <span className="text-stroke">|</span>
             <Link
@@ -57,7 +57,7 @@ export function Navbar() {
           </div>
         ) : isOpd ? (
           <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle/80 border border-stroke/60 rounded-full shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-brand" />
             <span className="text-xs font-medium text-ink">Portal Unit Pelayanan (OPD)</span>
             <span className="text-stroke">|</span>
             <Link

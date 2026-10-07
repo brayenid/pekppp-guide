@@ -70,9 +70,9 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
   const pathname = usePathname()
 
   return (
-    <aside className="sticky top-20 h-[calc(100vh-80px)] w-72 shrink-0 bg-surface/95 border-r border-[#D5D0C6] flex flex-col overflow-y-auto self-start z-30">
+    <aside className="sticky top-20 h-[calc(100vh-80px)] w-72 shrink-0 bg-surface/95 border-r border-stroke flex flex-col overflow-y-auto self-start z-30">
       {/* Sidebar Header */}
-      <div className="px-5 py-4 border-b border-[#D5D0C6]/60 bg-surface-subtle/30">
+      <div className="px-5 py-4 border-b border-stroke bg-surface-subtle/30">
         <div className="text-[10px] font-mono uppercase tracking-wider text-brand font-semibold">Super Admin</div>
         <div className="font-medium text-sm text-ink tracking-tight">Admin Dashboard</div>
       </div>

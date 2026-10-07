@@ -131,8 +131,7 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
         <div className="grid grid-cols-1 gap-4">
           {/* Base URL */}
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-ink-secondary flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-ink-muted" />
+            <label className="block text-xs font-medium text-ink-secondary">
               Base URL Endpoint API
             </label>
             <input
@@ -150,9 +149,8 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
 
           {/* Bearer Token (Utama) */}
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-ink flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-brand" />
-              <span>Bearer Access Token (Wajib)</span>
+            <label className="block text-xs font-medium text-ink">
+              Bearer Access Token (Wajib)
             </label>
             <input
               type="password"

@@ -158,7 +158,14 @@ export function EvaluationWorkspaceLayout({
     setInternalActiveMainMode(mode)
     onActiveMainModeChange?.(mode)
   }
-  const [leftTab, setLeftTab] = useState<'questions' | 'evidence'>('questions')
+  const [leftTab, setLeftTab] = useState<'questions' | 'evidence' | 'preview'>('questions')
+  const [sidebarPreviewDoc, setSidebarPreviewDoc] = useState<{
+    title: string
+    fileName?: string
+    fileUrl: string
+    isMandatory?: boolean
+    slotKey?: string
+  } | null>(null)
   const [dirtyNumbers, setDirtyNumbers] = useState<Set<number>>(new Set())
   const [isAspectProofOpen, setIsAspectProofOpen] = useState<boolean>(false)
   const [sidebarEvidenceSlots, setSidebarEvidenceSlots] = useState<EvidenceSlotItem[]>([])
@@ -172,7 +179,7 @@ export function EvaluationWorkspaceLayout({
 
   // ── Resizable Sidebar ────────────────────────────────────────────────────────
   const SIDEBAR_MIN = 18  // % of total split container
-  const SIDEBAR_MAX = 50
+  const SIDEBAR_MAX = 60
   const SIDEBAR_DEFAULT = 33.33  // ~4/12 columns default
 
   // Selalu inisialisasi dengan SIDEBAR_DEFAULT agar SSR dan initial client render identik (mencegah hydration mismatch)
@@ -921,7 +928,7 @@ export function EvaluationWorkspaceLayout({
                         : 'text-ink-secondary hover:text-ink font-normal'
                     }`}>
                     <LayoutGrid className="w-3.5 h-3.5 text-ink-muted" />
-                    <span>Pertanyaan (1-31)</span>
+                    <span>Pertanyaan</span>
                   </button>
 
                   <button
@@ -935,10 +942,124 @@ export function EvaluationWorkspaceLayout({
                     <FolderOpen className="w-3.5 h-3.5 text-ink-muted" />
                     <span>Bukti ({activeScoreItem.indicator.aspect.code})</span>
                   </button>
+
+                  {sidebarPreviewDoc && (
+                    <button
+                      type="button"
+                      onClick={() => setLeftTab('preview')}
+                      className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        leftTab === 'preview'
+                          ? 'bg-surface-elevated text-ink shadow-pill font-medium'
+                          : 'text-ink-secondary hover:text-ink font-normal'
+                      }`}>
+                      <Eye className="w-3.5 h-3.5 text-ink-muted" />
+                      <span>Preview</span>
+                    </button>
+                  )}
                 </div>
               )}
 
-            {leftTab === 'questions' ? (
+            {leftTab === 'preview' && sidebarPreviewDoc ? (
+              /* TAB 3: Inline Side-by-Side Live Document Preview */
+              <div className="flex flex-col space-y-3 h-[calc(100vh-270px)]">
+                {/* Header preview with controls */}
+                <div className="p-3 rounded-xl bg-surface-subtle border border-stroke/50 flex items-center justify-between gap-2 shrink-0">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink truncate" title={sidebarPreviewDoc.title}>
+                      {sidebarPreviewDoc.title}
+                    </p>
+                    {sidebarPreviewDoc.fileName && (
+                      <p className="text-[11px] text-ink-muted truncate" title={sidebarPreviewDoc.fileName}>
+                        {sidebarPreviewDoc.fileName}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <a
+                      href={sidebarPreviewDoc.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-brand hover:bg-brand-light transition-colors border border-brand/20 bg-surface-elevated"
+                      title="Buka dokumen di tab baru browser"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Tab Baru</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setLeftTab('evidence')}
+                      className="p-1 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+                      title="Tutup preview & kembali ke daftar bukti"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Embedded Viewer */}
+                <div className="flex-1 w-full bg-slate-900/5 rounded-xl border border-stroke/60 overflow-hidden relative">
+                  {(() => {
+                    const preview = getPreviewUrl(sidebarPreviewDoc.fileUrl)
+                    const driveFileId = getDriveFileId(sidebarPreviewDoc.fileUrl)
+
+                    if (preview.type === 'IMAGE') {
+                      return (
+                        <div className="w-full h-full flex items-center justify-center p-3 overflow-auto bg-surface-subtle">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={sidebarPreviewDoc.fileUrl}
+                            alt={sidebarPreviewDoc.title}
+                            className="max-w-full max-h-full object-contain rounded shadow-2xs"
+                          />
+                        </div>
+                      )
+                    }
+
+                    if (preview.type === 'DRIVE' && driveFileId) {
+                      return (
+                        <iframe
+                          src={`https://drive.google.com/file/d/${driveFileId}/preview`}
+                          className="w-full h-full border-0 bg-white"
+                          title={sidebarPreviewDoc.title}
+                          allow="autoplay; encrypted-media"
+                        />
+                      )
+                    }
+
+                    if (preview.type === 'PDF') {
+                      return (
+                        <iframe
+                          src={sidebarPreviewDoc.fileUrl}
+                          className="w-full h-full border-0 bg-white"
+                          title={sidebarPreviewDoc.title}
+                        />
+                      )
+                    }
+
+                    return (
+                      <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3 bg-surface-subtle">
+                        <FileText className="w-10 h-10 text-ink-muted mx-auto" />
+                        <div>
+                          <h4 className="text-xs font-bold text-ink">Pratinjau Langsung Tidak Tersedia</h4>
+                          <p className="text-[11px] text-ink-muted mt-1">
+                            Format berkas ini dapat dibuka langsung di tab baru.
+                          </p>
+                        </div>
+                        <a
+                          href={sidebarPreviewDoc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand text-white font-medium text-xs shadow-hz-button"
+                        >
+                          <span>Buka Dokumen</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    )
+                  })()}
+                </div>
+              </div>
+            ) : leftTab === 'questions' ? (
               /* TAB 1: Minimalist 5-column Question Numbers Matrix */
               <div className="space-y-6 max-h-[calc(100vh-340px)] overflow-y-auto pr-1">
                 {groupedAspects.map(({ aspect, items }) => {
@@ -1083,14 +1204,19 @@ export function EvaluationWorkspaceLayout({
                           {hasFile ? (
                             <button
                               type="button"
-                              onClick={() =>
-                                setModalPreviewItem({
+                              onClick={() => {
+                                setSidebarPreviewDoc({
                                   title: slot.title,
+                                  fileName: slot.fileName,
                                   fileUrl: slot.fileUrl!,
                                   isMandatory: slot.isMandatory,
                                   slotKey: slot.slotKey
                                 })
-                              }
+                                setLeftTab('preview')
+                                if (sidebarWidthPct < 45) {
+                                  setSidebarWidthPct(45)
+                                }
+                              }}
                               className="w-full flex items-center justify-between gap-2 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors text-left group/btn cursor-pointer">
                               <div className="flex items-center gap-2 min-w-0">
                                 <FileText className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
