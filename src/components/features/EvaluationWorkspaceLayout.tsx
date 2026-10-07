@@ -1101,8 +1101,8 @@ export function EvaluationWorkspaceLayout({
                 </span>
               </div>
 
-              {/* Left Panel Segmented Tab: HANYA DITAMPILKAN UNTUK EVALUATOR */}
-              {userRole === 'SUPER_ADMIN' && (
+              {/* Left Panel Segmented Tab: HANYA DITAMPILKAN UNTUK EVALUATOR JIKA TIDAK SEDANG PREVIEW */}
+              {userRole === 'SUPER_ADMIN' && leftTab !== 'preview' && (
                 <div className="flex items-center p-1 bg-surface-subtle/80 rounded-full border border-stroke/50 text-xs gap-1">
                   <button
                     type="button"
@@ -1119,34 +1119,20 @@ export function EvaluationWorkspaceLayout({
                     <span>Pertanyaan</span>
                   </button>
 
-                  {leftTab === 'preview' ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLeftTab('evidence')
-                        setSidebarPreviewDoc(null)
-                        syncUrlParams({ tab: 'evidence', slot: null, doc: null })
-                      }}
-                      className="flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-surface-elevated text-ink shadow-pill font-medium border border-stroke/60 hover:bg-surface">
-                      <X className="w-3.5 h-3.5 text-ink-muted" />
-                      <span>Tutup Preview</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLeftTab('evidence')
-                        syncUrlParams({ tab: 'evidence', slot: null, doc: null })
-                      }}
-                      className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                        leftTab === 'evidence'
-                          ? 'bg-surface-elevated text-ink shadow-pill font-medium'
-                          : 'text-ink-secondary hover:text-ink font-normal'
-                      }`}>
-                      <FolderOpen className="w-3.5 h-3.5 text-ink-muted" />
-                      <span>Bukti ({activeScoreItem.indicator.aspect.code})</span>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLeftTab('evidence')
+                      syncUrlParams({ tab: 'evidence', slot: null, doc: null })
+                    }}
+                    className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      leftTab === 'evidence'
+                        ? 'bg-surface-elevated text-ink shadow-pill font-medium'
+                        : 'text-ink-secondary hover:text-ink font-normal'
+                    }`}>
+                    <FolderOpen className="w-3.5 h-3.5 text-ink-muted" />
+                    <span>Bukti ({activeScoreItem.indicator.aspect.code})</span>
+                  </button>
                 </div>
               )}
 
