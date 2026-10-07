@@ -10,7 +10,8 @@ import {
   getEvidenceSlotsByAspect,
   normalizeAspectCode,
   extractAttachments,
-  EvidenceAttachmentItem
+  EvidenceAttachmentItem,
+  FileVersionItem
 } from '../core/domain/evidence-slots-preset'
 import { StorageService } from '../services/storage-service'
 import {
@@ -20,7 +21,7 @@ import {
 } from '../services/system-setting-service'
 import { createNotificationHelper } from './notification-actions'
 
-export type { EvidenceAttachmentItem }
+export type { EvidenceAttachmentItem, FileVersionItem }
 
 export interface EvidenceActivityItem {
   id: string
@@ -453,9 +454,17 @@ export async function deleteEvidenceAttachmentAction(params: {
     })
 
     if (remaining.length === 0) {
-      // Jika seluruh lampiran sudah terhapus, hapus submisi agar slot kembali kosong
-      await db.indicatorEvidenceSubmission.delete({
-        where: { id: sub.id }
+      // Jika seluruh lampiran terhapus, kosongkan berkas aktif tapi PERTAHANKAN history riwayat
+      await db.indicatorEvidenceSubmission.update({
+        where: { id: sub.id },
+        data: {
+          fileUrl: '',
+          fileName: null,
+          fileSize: null,
+          fileType: null,
+          attachments: [] as any,
+          history: historyList as any
+        }
       })
 
       await db.evaluationScore.updateMany({
@@ -626,7 +635,234 @@ export async function deleteHistoryItemAction(params: {
 }
 
 /**
- * Unggah berkas contoh format/panduan bukti dukung oleh Admin/Evaluator secara dinamis
+ * Mengunggah versi baru untuk berkas lampiran spesifik (True Versioning ala Google Drive)
+ */
+export async function uploadNewAttachmentVersionAction(formData: FormData) {
+  try {
+    const file = formData.get('file') as File | null
+    const evaluationId = formData.get('evaluationId') as string
+    const aspectCode = formData.get('aspectCode') as string
+    const slotKey = formData.get('slotKey') as string
+    const attachmentId = formData.get('attachmentId') as string
+    const unitId = (formData.get('unitId') as string) || 'unit_shared'
+    const uploaderName = (formData.get('uploaderName') as string) || 'Admin OPD'
+    const path = formData.get('path') as string | null
+
+    if (!file || !evaluationId || !aspectCode || !slotKey || !attachmentId) {
+      return { success: false, error: 'Data tidak lengkap untuk memperbarui versi berkas.' }
+    }
+
+    const norm = normalizeAspectCode(aspectCode)
+    const sub = await db.indicatorEvidenceSubmission.findFirst({
+      where: {
+        evaluationId,
+        aspectCode: { in: [aspectCode, norm] },
+        slotKey
+      }
+    })
+
+    if (!sub) {
+      return { success: false, error: 'Submisi berkas tidak ditemukan.' }
+    }
+
+    const attachments = extractAttachments(sub)
+    const targetIdx = attachments.findIndex((a) => a.id === attachmentId)
+    if (targetIdx === -1) {
+      return { success: false, error: 'Berkas lampiran tidak ditemukan di slot ini.' }
+    }
+
+    const targetAtt = attachments[targetIdx]
+
+    // Unggah berkas baru ke storage
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const uploadResult = await StorageService.uploadFile({
+      buffer,
+      fileName: file.name,
+      mimeType: file.type,
+      unitId,
+      aspectCode: norm,
+      slotKey
+    })
+
+    if (!uploadResult.success) {
+      return { success: false, error: uploadResult.error || 'Gagal menyimpan berkas versi baru.' }
+    }
+
+    // Arsipkan versi lama ke versions array milik berkas ini
+    const currentVersionNum = targetAtt.version || 1
+    const previousVersions = targetAtt.versions || []
+
+    const archivedVersion = {
+      id: `ver_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      version: currentVersionNum,
+      fileName: targetAtt.fileName,
+      fileUrl: targetAtt.fileUrl,
+      fileSize: targetAtt.fileSize,
+      fileType: targetAtt.fileType,
+      uploadedAt: targetAtt.uploadedAt,
+      uploaderName: uploaderName
+    }
+
+    const nextVersionNum = currentVersionNum + 1
+
+    // Update target attachment dengan versi baru
+    attachments[targetIdx] = {
+      ...targetAtt,
+      fileUrl: uploadResult.fileUrl,
+      fileName: uploadResult.fileName,
+      fileSize: uploadResult.fileSize,
+      fileType: uploadResult.fileType,
+      storageProvider: uploadResult.provider,
+      uploadedAt: new Date().toISOString(),
+      version: nextVersionNum,
+      versions: [archivedVersion, ...previousVersions]
+    }
+
+    // Catat log aktivitas slot
+    const historyList = (Array.isArray(sub.history) ? [...sub.history] : []) as any[]
+    historyList.push({
+      id: `act_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      action: 'REPLACE',
+      actorName: uploaderName,
+      fileName: uploadResult.fileName,
+      fileUrl: uploadResult.fileUrl,
+      previousUrl: targetAtt.fileUrl,
+      note: `Memperbarui versi ${nextVersionNum} untuk berkas: ${uploadResult.fileName} (menggantikan ${targetAtt.fileName})`
+    })
+
+    // Update database
+    await db.indicatorEvidenceSubmission.update({
+      where: { id: sub.id },
+      data: {
+        fileUrl: attachments[attachments.length - 1].fileUrl,
+        fileName: attachments[attachments.length - 1].fileName,
+        attachments: attachments as any,
+        history: historyList as any
+      }
+    })
+
+    // SOKET AI PRE-EVALUATOR trigger
+    try {
+      const { AiEvaluatorService } = await import('../services/ai-evaluator-service')
+      await AiEvaluatorService.runPreEvaluation(evaluationId, norm)
+    } catch {}
+
+    if (path) revalidatePath(path)
+    return { success: true, newVersion: nextVersionNum }
+  } catch (error: any) {
+    console.error('Error uploading new version:', error)
+    return { success: false, error: error.message || 'Gagal mengunggah versi baru.' }
+  }
+}
+
+/**
+ * Memulihkan (restore) versi terdahulu menjadi versi aktif utama berkas
+ */
+export async function restoreAttachmentVersionAction(params: {
+  evaluationId: string
+  aspectCode: string
+  slotKey: string
+  attachmentId: string
+  targetVersionId: string
+  uploaderName?: string
+  path?: string
+}) {
+  try {
+    const { evaluationId, aspectCode, slotKey, attachmentId, targetVersionId, uploaderName, path } = params
+    const norm = normalizeAspectCode(aspectCode)
+
+    const sub = await db.indicatorEvidenceSubmission.findFirst({
+      where: {
+        evaluationId,
+        aspectCode: { in: [aspectCode, norm] },
+        slotKey
+      }
+    })
+
+    if (!sub) {
+      return { success: false, error: 'Submisi berkas tidak ditemukan.' }
+    }
+
+    const attachments = extractAttachments(sub)
+    const targetIdx = attachments.findIndex((a) => a.id === attachmentId)
+    if (targetIdx === -1) {
+      return { success: false, error: 'Berkas lampiran tidak ditemukan.' }
+    }
+
+    const targetAtt = attachments[targetIdx]
+    const versions = targetAtt.versions || []
+    const selectedVerIdx = versions.findIndex((v) => v.id === targetVersionId)
+
+    if (selectedVerIdx === -1) {
+      return { success: false, error: 'Versi yang ingin dipulihkan tidak ditemukan.' }
+    }
+
+    const selectedVer = versions[selectedVerIdx]
+    const currentActiveVersion = targetAtt.version || 1
+
+    // Tukar posisi: versi yang saat ini aktif dimasukkan ke daftar versions
+    const archivedCurrent = {
+      id: `ver_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      version: currentActiveVersion,
+      fileName: targetAtt.fileName,
+      fileUrl: targetAtt.fileUrl,
+      fileSize: targetAtt.fileSize,
+      fileType: targetAtt.fileType,
+      uploadedAt: targetAtt.uploadedAt,
+      uploaderName: uploaderName || 'Admin OPD',
+      note: 'Diarsipkan saat memulihkan versi terdahulu'
+    }
+
+    // Hapus versi yang dipulihkan dari list versions dan tambahkan versi lama yang tadinya aktif
+    const remainingVersions = versions.filter((_, idx) => idx !== selectedVerIdx)
+    remainingVersions.unshift(archivedCurrent)
+
+    // Pasang versi yang dipulihkan sebagai versi aktif
+    attachments[targetIdx] = {
+      ...targetAtt,
+      fileUrl: selectedVer.fileUrl,
+      fileName: selectedVer.fileName,
+      fileSize: selectedVer.fileSize,
+      fileType: selectedVer.fileType,
+      uploadedAt: new Date().toISOString(),
+      version: selectedVer.version,
+      versions: remainingVersions
+    }
+
+    const historyList = (Array.isArray(sub.history) ? [...sub.history] : []) as any[]
+    historyList.push({
+      id: `act_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      action: 'REPLACE',
+      actorName: uploaderName || 'Admin OPD',
+      fileName: selectedVer.fileName,
+      fileUrl: selectedVer.fileUrl,
+      previousUrl: targetAtt.fileUrl,
+      note: `Memulihkan berkas ke Versi ${selectedVer.version}: ${selectedVer.fileName}`
+    })
+
+    await db.indicatorEvidenceSubmission.update({
+      where: { id: sub.id },
+      data: {
+        fileUrl: attachments[attachments.length - 1].fileUrl,
+        fileName: attachments[attachments.length - 1].fileName,
+        attachments: attachments as any,
+        history: historyList as any
+      }
+    })
+
+    if (path) revalidatePath(path)
+    return { success: true, restoredVersion: selectedVer.version }
+  } catch (error: any) {
+    console.error('Error restoring attachment version:', error)
+    return { success: false, error: error.message || 'Gagal memulihkan versi berkas.' }
+  }
+}
+
+/**
+ * Unggah berkas contoh format/panduan bukti dukung oleh Admin/Evaluator
  */
 export async function uploadAspectSlotExampleAction(formData: FormData) {
   try {

@@ -362,6 +362,18 @@ export function getEvidenceSlotsByAspect(aspectCode: string): EvidenceSlotPreset
   )
 }
 
+export interface FileVersionItem {
+  id: string
+  version: number
+  fileUrl: string
+  fileName: string
+  fileSize: number
+  fileType: 'PDF' | 'IMAGE' | 'DOCUMENT' | 'LINK'
+  uploadedAt: string
+  uploaderName?: string
+  note?: string
+}
+
 export interface EvidenceAttachmentItem {
   id: string
   fileUrl: string
@@ -370,6 +382,9 @@ export interface EvidenceAttachmentItem {
   fileType: 'PDF' | 'IMAGE' | 'DOCUMENT' | 'LINK'
   storageProvider?: string
   uploadedAt: string
+  uploaderName?: string
+  version?: number
+  versions?: FileVersionItem[]
 }
 
 export function extractAttachments(sub: any): EvidenceAttachmentItem[] {

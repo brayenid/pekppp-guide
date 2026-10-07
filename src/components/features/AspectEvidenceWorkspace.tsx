@@ -29,7 +29,8 @@ import {
   XCircle,
   Info,
   LayoutGrid,
-  List
+  List,
+  RotateCcw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '../ui/Button'
@@ -43,9 +44,12 @@ import {
   deleteHistoryItemAction,
   uploadAspectSlotExampleAction,
   deleteAspectSlotExampleAction,
+  uploadNewAttachmentVersionAction,
+  restoreAttachmentVersionAction,
   EvidenceSlotItem,
   EvidenceActivityItem,
-  EvidenceAttachmentItem
+  EvidenceAttachmentItem,
+  FileVersionItem
 } from '../../actions/evidence-slot-actions'
 
 export function AspectEvidenceWorkspace({
@@ -158,6 +162,79 @@ export function AspectEvidenceWorkspace({
     urls: string[]
     currentIndex: number
   } | null>(null)
+
+  // Version Management Modal Target
+  const [versionModalTarget, setVersionModalTarget] = useState<{
+    slot: EvidenceSlotItem
+    attachment: EvidenceAttachmentItem
+  } | null>(null)
+  const [isUploadingVersion, setIsUploadingVersion] = useState(false)
+  const [isRestoringVersion, setIsRestoringVersion] = useState(false)
+  const versionFileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleUploadNewVersion = async (file: File) => {
+    if (!versionModalTarget) return
+    setIsUploadingVersion(true)
+    const { slot, attachment } = versionModalTarget
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('evaluationId', evaluationId)
+    formData.append('aspectCode', aspectCode)
+    formData.append('slotKey', slot.slotKey)
+    formData.append('attachmentId', attachment.id)
+    formData.append('unitId', unitId)
+    formData.append('uploaderName', uploaderName)
+
+    try {
+      const res = await uploadNewAttachmentVersionAction(formData)
+      if (res.success) {
+        toast.success(`Versi baru (${res.newVersion}) berhasil diunggah!`)
+        await loadSlots()
+        setVersionModalTarget(null)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('evidence-updated'))
+        }
+      } else {
+        toast.error(res.error || 'Gagal mengunggah versi baru.')
+      }
+    } catch {
+      toast.error('Gagal mengunggah versi baru.')
+    } finally {
+      setIsUploadingVersion(false)
+    }
+  }
+
+  const handleRestoreVersion = async (targetVersionId: string, verNum: number) => {
+    if (!versionModalTarget) return
+    if (!confirm(`Pulihkan dan jadikan Versi ${verNum} sebagai berkas aktif utama?`)) return
+    setIsRestoringVersion(true)
+    const { slot, attachment } = versionModalTarget
+
+    try {
+      const res = await restoreAttachmentVersionAction({
+        evaluationId,
+        aspectCode,
+        slotKey: slot.slotKey,
+        attachmentId: attachment.id,
+        targetVersionId,
+        uploaderName
+      })
+      if (res.success) {
+        toast.success(`Versi ${res.restoredVersion} berhasil dipulihkan menjadi berkas aktif!`)
+        await loadSlots()
+        setVersionModalTarget(null)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('evidence-updated'))
+        }
+      } else {
+        toast.error(res.error || 'Gagal memulihkan versi berkas.')
+      }
+    } catch {
+      toast.error('Gagal memulihkan versi berkas.')
+    } finally {
+      setIsRestoringVersion(false)
+    }
+  }
 
   const openExampleGallery = (slot: EvidenceSlotItem, initialIndex = 0) => {
     if (!slot.exampleImages || slot.exampleImages.length === 0) return
@@ -1162,18 +1239,34 @@ export function AspectEvidenceWorkspace({
                                     {isPdf ? 'PDF' : isImg ? 'FOTO' : 'DOK'}
                                   </span>
                                   <div className="min-w-0">
-                                    <p className="font-medium text-ink truncate" title={att.fileName}>
-                                      {att.fileName}
-                                    </p>
-                                    {formattedSize && (
-                                      <span className="text-[10px] text-ink-muted font-normal">
-                                        {formattedSize}
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <p className="font-medium text-ink truncate" title={att.fileName}>
+                                        {att.fileName}
+                                      </p>
+                                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-surface-elevated text-ink-secondary border border-stroke/50 shrink-0">
+                                        v{att.version || 1}
                                       </span>
-                                    )}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] text-ink-muted font-normal">
+                                      {formattedSize && <span>{formattedSize}</span>}
+                                      {att.versions && att.versions.length > 0 && (
+                                        <span className="text-brand font-medium">
+                                          • {att.versions.length} versi lampau
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
 
                                 <div className="flex items-center gap-1 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => setVersionModalTarget({ slot, attachment: att })}
+                                    className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-ink-secondary hover:text-ink bg-surface-elevated hover:bg-surface-hover rounded-lg border border-stroke/60 transition-colors shadow-2xs cursor-pointer"
+                                    title="Kelola versi berkas (unggah versi baru / pulihkan versi sebelumnya)">
+                                    <RotateCcw className="w-3 h-3 text-ink-muted" />
+                                    <span>Versi</span>
+                                  </button>
                                   <a
                                     href={att.fileUrl}
                                     target="_blank"
@@ -1750,6 +1843,212 @@ export function AspectEvidenceWorkspace({
         }
         confirmText="Hapus Berkas Ini"
       />
+
+      {/* Version Management Modal (Google Drive Style) */}
+      {versionModalTarget && typeof document !== 'undefined' && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-surface rounded-2xl border border-stroke shadow-xl p-6 space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-stroke/50">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-brand/10 text-brand">
+                    <RotateCcw className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-semibold text-ink text-base">Kelola Versi Berkas</h3>
+                </div>
+                <p className="text-xs text-ink-muted">
+                  Perbarui berkas dengan versi lebih baru, atau pulihkan versi lampau seperti Google Drive.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVersionModalTarget(null)}
+                className="p-1.5 rounded-full text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+              {/* Berkas Aktif Saat Ini */}
+              <div className="p-3.5 rounded-xl border border-brand/30 bg-brand/5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand text-white">
+                      Versi Aktif (v{versionModalTarget.attachment.version || 1})
+                    </span>
+                    <span className="text-[11px] text-ink-muted">Digunakan dalam evaluasi</span>
+                  </div>
+                  <a
+                    href={versionModalTarget.attachment.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline">
+                    <span>Buka Berkas</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <div className="text-xs font-medium text-ink truncate" title={versionModalTarget.attachment.fileName}>
+                  {versionModalTarget.attachment.fileName}
+                </div>
+
+                <div className="flex items-center gap-3 text-[11px] text-ink-muted">
+                  <span>
+                    Diunggah: {new Date(versionModalTarget.attachment.uploadedAt).toLocaleString('id-ID')}
+                  </span>
+                  {versionModalTarget.attachment.uploaderName && (
+                    <span>• Oleh: {versionModalTarget.attachment.uploaderName}</span>
+                  )}
+                  {versionModalTarget.attachment.fileSize && (
+                    <span>
+                      •{' '}
+                      {versionModalTarget.attachment.fileSize > 1024 * 1024
+                        ? `${(versionModalTarget.attachment.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                        : `${Math.round(versionModalTarget.attachment.fileSize / 1024)} KB`}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Unggah Versi Baru Action */}
+              {isEditable && (
+                <div className="p-3.5 rounded-xl border border-dashed border-stroke/70 bg-surface-subtle/40 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold text-ink">Punya revisi dokumen ini?</p>
+                    <p className="text-[11px] text-ink-muted">
+                      Unggah versi terbaru (v{(versionModalTarget.attachment.version || 1) + 1}). Versi aktif saat ini akan tersimpan ke riwayat.
+                    </p>
+                  </div>
+                  <div>
+                    <input
+                      ref={versionFileInputRef}
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg,.webp,.docx"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          handleUploadNewVersion(file)
+                          e.target.value = ''
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      disabled={isUploadingVersion || isRestoringVersion}
+                      onClick={() => versionFileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors shadow-hz-button cursor-pointer disabled:opacity-50 shrink-0">
+                      {isUploadingVersion ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Mengunggah...</span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-3.5 h-3.5" />
+                          <span>Unggah Versi Baru</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Daftar Riwayat Versi Lampau */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold text-ink flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-ink-muted" />
+                  <span>Riwayat Versi Sebelumnya ({versionModalTarget.attachment.versions?.length || 0})</span>
+                </h4>
+
+                {(!versionModalTarget.attachment.versions || versionModalTarget.attachment.versions.length === 0) ? (
+                  <div className="p-4 text-center rounded-xl border border-stroke/40 bg-surface-subtle/30 text-[11px] text-ink-muted italic">
+                    Belum ada versi sebelumnya untuk berkas ini. Setiap kali Anda mengunggah versi baru, versi lama akan dicatat di sini.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-stroke/30 bg-surface rounded-xl border border-stroke/50 overflow-hidden shadow-2xs">
+                    {versionModalTarget.attachment.versions.map((ver) => (
+                      <div
+                        key={ver.id}
+                        className="p-3 flex items-center justify-between gap-3 text-xs hover:bg-surface-subtle/40 transition-colors">
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-subtle text-ink-secondary border border-stroke/50 shrink-0">
+                              v{ver.version}
+                            </span>
+                            <span className="font-medium text-ink truncate" title={ver.fileName}>
+                              {ver.fileName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] text-ink-muted">
+                            <span>{new Date(ver.uploadedAt).toLocaleString('id-ID')}</span>
+                            {ver.uploaderName && <span>• Oleh {ver.uploaderName}</span>}
+                            {ver.fileSize && (
+                              <span>
+                                •{' '}
+                                {ver.fileSize > 1024 * 1024
+                                  ? `${(ver.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                                  : `${Math.round(ver.fileSize / 1024)} KB`}
+                              </span>
+                            )}
+                          </div>
+                          {ver.note && (
+                            <p className="text-[10px] text-ink-muted italic">{ver.note}</p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a
+                            href={ver.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-ink-secondary hover:text-ink bg-surface hover:bg-surface-subtle rounded-lg border border-stroke/60 transition-colors shadow-2xs"
+                            title="Buka berkas versi ini">
+                            <span>Lihat</span>
+                            <ExternalLink className="w-3 h-3 text-ink-muted" />
+                          </a>
+
+                          {isEditable && (
+                            <button
+                              type="button"
+                              disabled={isUploadingVersion || isRestoringVersion}
+                              onClick={() => handleRestoreVersion(ver.id, ver.version)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-brand hover:text-white hover:bg-brand bg-brand/10 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                              title="Jadikan versi ini sebagai berkas aktif">
+                              {isRestoringVersion ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <RotateCcw className="w-3 h-3" />
+                              )}
+                              <span>Pakai Kembali</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-3 border-t border-stroke/50 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setVersionModalTarget(null)}
+                className="px-4 py-2 rounded-xl border border-stroke/60 text-xs font-medium text-ink-secondary hover:bg-surface-subtle transition-colors cursor-pointer">
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }

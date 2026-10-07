@@ -3,7 +3,24 @@
 import { useState, useEffect } from 'react'
 import { getF02GuidanceByNumber, F02ScaleOption } from '../../lib/f02-parser'
 import { saveScoresAction } from '../../actions/evaluation-actions'
-import { CheckCircle2, Check, HelpCircle, FileSearch, Sparkles, Save, AlertCircle, Loader2, FileEdit, Globe, Copy, Info, AlertTriangle, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  CheckCircle2,
+  Check,
+  HelpCircle,
+  FileSearch,
+  Sparkles,
+  Save,
+  AlertCircle,
+  Loader2,
+  FileEdit,
+  Globe,
+  Copy,
+  Info,
+  AlertTriangle,
+  ShieldAlert,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 interface F02GuidanceSectionProps {
@@ -68,16 +85,24 @@ export function F02GuidanceSection({
   const resolvedServerScore = serverScore !== undefined && serverScore !== null ? serverScore : (initialScore ?? null)
   // If draftScore is undefined (no edits made yet), fallback to server score
   const resolvedDraftScore = draftScore !== undefined ? draftScore : resolvedServerScore
-  const resolvedScoreVal = resolvedDraftScore !== undefined && resolvedDraftScore !== null ? String(resolvedDraftScore) : ''
-  const resolvedBaseScoreVal = resolvedServerScore !== undefined && resolvedServerScore !== null ? String(resolvedServerScore) : ''
+  const resolvedScoreVal =
+    resolvedDraftScore !== undefined && resolvedDraftScore !== null ? String(resolvedDraftScore) : ''
+  const resolvedBaseScoreVal =
+    resolvedServerScore !== undefined && resolvedServerScore !== null ? String(resolvedServerScore) : ''
 
-  const resolvedServerNotes = (serverNotes !== undefined && serverNotes !== null ? serverNotes : (initialNotes || '')).trim()
+  const resolvedServerNotes = (
+    serverNotes !== undefined && serverNotes !== null ? serverNotes : initialNotes || ''
+  ).trim()
   // If draftNotes is undefined, fallback to server notes
   const resolvedDraftNotes = (draftNotes !== undefined && draftNotes !== null ? draftNotes : resolvedServerNotes).trim()
 
-  const resolvedServerAspect = (serverAspectNote !== undefined && serverAspectNote !== null ? serverAspectNote : (initialAspectNote || '')).trim()
+  const resolvedServerAspect = (
+    serverAspectNote !== undefined && serverAspectNote !== null ? serverAspectNote : initialAspectNote || ''
+  ).trim()
   // If draftAspectNote is undefined, fallback to server aspect note
-  const resolvedDraftAspect = (draftAspectNote !== undefined && draftAspectNote !== null ? draftAspectNote : resolvedServerAspect).trim()
+  const resolvedDraftAspect = (
+    draftAspectNote !== undefined && draftAspectNote !== null ? draftAspectNote : resolvedServerAspect
+  ).trim()
 
   const [selectedScore, setSelectedScore] = useState<string>(resolvedScoreVal)
   const [baseScore, setBaseScore] = useState<string>(resolvedBaseScoreVal)
@@ -125,7 +150,8 @@ export function F02GuidanceSection({
     }
   }
 
-  const isDirty = (selectedScore !== baseScore && (selectedScore !== '' || baseScore !== '')) || (notes.trim() !== baseNotes.trim())
+  const isDirty =
+    (selectedScore !== baseScore && (selectedScore !== '' || baseScore !== '')) || notes.trim() !== baseNotes.trim()
   const isAspectDirty = aspectNote.trim() !== baseAspectNote.trim()
 
   // Listener for global F02 save event
@@ -170,7 +196,18 @@ export function F02GuidanceSection({
 
     window.addEventListener('save-all-f02', handleSaveAll)
     return () => window.removeEventListener('save-all-f02', handleSaveAll)
-  }, [isDirty, isAspectDirty, evaluationId, indicatorId, selectedScore, notes, aspectCode, aspectNote, unitId, onSaveSuccess])
+  }, [
+    isDirty,
+    isAspectDirty,
+    evaluationId,
+    indicatorId,
+    selectedScore,
+    notes,
+    aspectCode,
+    aspectNote,
+    unitId,
+    onSaveSuccess
+  ])
 
   const handleSaveSingleF02 = async () => {
     if (!evaluationId) return
@@ -229,7 +266,9 @@ export function F02GuidanceSection({
       return
     }
     const prefix = `[#${indicatorNumber}] `
-    const newAspectText = aspectNote.trim() ? `${aspectNote.trim()}\n${prefix}${notes.trim()}` : `${prefix}${notes.trim()}`
+    const newAspectText = aspectNote.trim()
+      ? `${aspectNote.trim()}\n${prefix}${notes.trim()}`
+      : `${prefix}${notes.trim()}`
     setAspectNote(newAspectText)
     setActiveNoteTab('aspect')
     toast.success(`Catatan pertanyaan #${indicatorNumber} disalin ke Catatan Aspek MenPAN-RB!`)
@@ -289,9 +328,7 @@ export function F02GuidanceSection({
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stroke/40 pb-3">
         <div className="flex items-center gap-2.5">
-          <h4 className="font-medium text-xs text-ink">
-            Formulir Penilaian Evaluator (F02)
-          </h4>
+          <h4 className="font-medium text-xs text-ink">Formulir Penilaian Evaluator (F02)</h4>
           {isDirty && (
             <span className="px-3 py-1 rounded-full bg-pastel-rose text-pastel-rose-text text-xs font-medium border border-rose-200 flex items-center gap-1 shadow-2xs">
               <AlertCircle className="w-3.5 h-3.5" /> Belum Disimpan
@@ -334,9 +371,7 @@ export function F02GuidanceSection({
                     </div>
                     <span>Petunjuk Penilaian:</span>
                   </div>
-                  <p className="text-xs text-ink-secondary font-normal leading-relaxed pl-7">
-                    {guidance.explanation}
-                  </p>
+                  <p className="text-xs text-ink-secondary font-normal leading-relaxed pl-7">{guidance.explanation}</p>
                 </div>
               )}
 
@@ -365,27 +400,21 @@ export function F02GuidanceSection({
       {/* ========================================================================= */}
       {/* SOKET AI PRE-EVALUATOR: LAPORAN PRE-EVALUASI DOKUMEN & BUKTI              */}
       {/* ========================================================================= */}
-      {(aiCriticalAudit || aiConfidenceReason || aiWeaknessNotes || (aiSuggestedScore !== undefined && aiSuggestedScore !== null)) && (
+      {(aiCriticalAudit ||
+        aiConfidenceReason ||
+        aiWeaknessNotes ||
+        (aiSuggestedScore !== undefined && aiSuggestedScore !== null)) && (
         <div className="rounded-2xl border border-stroke/70 bg-surface-subtle/25 p-4 sm:p-5 space-y-4 shadow-soft-card">
           {/* Header Panel */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stroke/40 pb-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-brand-light border border-brand/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4 text-brand" />
-              </div>
               <div className="space-y-0.5">
-                <h5 className="font-semibold text-xs text-ink uppercase tracking-wider">
-                  Laporan AI Pre-Evaluator
-                </h5>
+                <h5 className="font-semibold text-xs text-ink uppercase tracking-wider">Laporan AI Pre-Evaluator</h5>
                 {aiConfidence !== null && aiConfidence !== undefined ? (
                   <div className="flex items-center gap-1.5 text-[11px] font-medium">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
-                        aiConfidence >= 75
-                          ? 'bg-emerald-500'
-                          : aiConfidence >= 50
-                            ? 'bg-amber-500'
-                            : 'bg-rose-500'
+                        aiConfidence >= 75 ? 'bg-emerald-500' : aiConfidence >= 50 ? 'bg-amber-500' : 'bg-rose-500'
                       }`}
                     />
                     <span
@@ -396,7 +425,8 @@ export function F02GuidanceSection({
                             ? 'text-amber-700'
                             : 'text-rose-700'
                       }>
-                      Keyakinan: {aiConfidence >= 75 ? 'Tinggi' : aiConfidence >= 50 ? 'Sedang' : 'Rendah'} ({aiConfidence}%)
+                      Keyakinan: {aiConfidence >= 75 ? 'Tinggi' : aiConfidence >= 50 ? 'Sedang' : 'Rendah'} (
+                      {aiConfidence}%)
                     </span>
                   </div>
                 ) : (
@@ -481,9 +511,7 @@ export function F02GuidanceSection({
                 </div>
                 <div className="space-y-1 flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h6 className="text-xs font-medium text-ink">
-                      Analisis Ketidakyakinan AI
-                    </h6>
+                    <h6 className="text-xs font-medium text-ink">Analisis Ketidakyakinan AI</h6>
                     <button
                       type="button"
                       onClick={() => handleCopyToClipboard(aiConfidenceReason, 'reason', 'Analisis AI')}
@@ -516,9 +544,7 @@ export function F02GuidanceSection({
                 </div>
                 <div className="space-y-1 flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h6 className="text-xs font-medium text-ink">
-                      Apa yang Membuat Bukti Ini Kurang (Untuk Skala 5)
-                    </h6>
+                    <h6 className="text-xs font-medium text-ink">Apa yang Membuat Bukti Ini Kurang (Untuk Skala 5)</h6>
                     <button
                       type="button"
                       onClick={() => handleCopyToClipboard(aiWeaknessNotes, 'weakness', 'Catatan Bukti Kurang')}
@@ -551,9 +577,7 @@ export function F02GuidanceSection({
                 </div>
                 <div className="space-y-1 flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h6 className="text-xs font-medium text-ink">
-                      Rekomendasi Cek Fisik / Lapangan untuk Evaluator
-                    </h6>
+                    <h6 className="text-xs font-medium text-ink">Rekomendasi Cek Fisik / Lapangan untuk Evaluator</h6>
                     <button
                       type="button"
                       onClick={() => handleCopyToClipboard(aiVerificationTips, 'tips', 'Rekomendasi Lapangan')}
@@ -584,9 +608,7 @@ export function F02GuidanceSection({
       {/* Scale Options — primary scoring tool */}
       {guidance && (
         <div className="space-y-3 pt-2">
-          <span className="text-xs font-medium text-ink block">
-            Pilih Nilai Skala (0–5):
-          </span>
+          <span className="text-xs font-medium text-ink block">Pilih Nilai Skala (0–5):</span>
           <div className="space-y-2">
             {guidance.scale_options.map((opt: F02ScaleOption) => {
               const isSelected = selectedScore === String(opt.value)
@@ -612,9 +634,7 @@ export function F02GuidanceSection({
                       {opt.label}
                     </p>
                   </div>
-                  {isSelected && (
-                    <CheckCircle2 className="w-4 h-4 text-brand shrink-0 self-center" />
-                  )}
+                  {isSelected && <CheckCircle2 className="w-4 h-4 text-brand shrink-0 self-center" />}
                 </div>
               )
             })}
@@ -626,7 +646,9 @@ export function F02GuidanceSection({
       <div className="space-y-2.5 pt-4 border-t border-stroke/40">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs font-medium text-ink">
-            <span>Catatan Rekomendasi Aspek {aspectCode} ({aspectName})</span>
+            <span>
+              Catatan Rekomendasi Aspek {aspectCode} ({aspectName})
+            </span>
             <span className="text-[10px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded-full border border-stroke/50">
               Portal MenPAN-RB
             </span>
@@ -640,9 +662,13 @@ export function F02GuidanceSection({
                 onClick={handleSaveAspectNote}
                 className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all cursor-pointer shadow-hz-button">
                 {isSavingAspect ? (
-                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Menyimpan...</>
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Menyimpan...
+                  </>
                 ) : (
-                  <><Save className="w-3.5 h-3.5" /> Simpan Catatan Aspek</>
+                  <>
+                    <Save className="w-3.5 h-3.5" /> Simpan Catatan Aspek
+                  </>
                 )}
               </button>
             ) : baseAspectNote ? (
@@ -663,9 +689,7 @@ export function F02GuidanceSection({
 
         <div className="flex items-center justify-between text-[11px] text-ink-muted">
           <span>Catatan ini adalah rekomendasi resmi per aspek yang akan dikirimkan ke MenPAN-RB.</span>
-          {isAspectDirty && (
-            <span className="text-pastel-rose-text font-normal">• Ada perubahan belum disimpan</span>
-          )}
+          {isAspectDirty && <span className="text-pastel-rose-text font-normal">• Ada perubahan belum disimpan</span>}
         </div>
       </div>
 
