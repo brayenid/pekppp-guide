@@ -278,7 +278,7 @@ export async function saveIndicatorEvidenceSlotAction(params: {
             ? `OPD memperbarui dokumen bukti dukung "${title}" pada Aspek ${norm} untuk unit yang telah dinilai. Evaluator dimohon meninjau ulang.`
             : `OPD telah mengunggah/memperbarui bukti dukung "${title}" pada Aspek ${norm}.`,
           type: isPostEvaluation ? 'F01_REVISION' : 'PROOF_TRIGGER',
-          link: `/evaluasi/${evalData.unitId}?targetSlot=${encodeURIComponent(slotKey)}${targetHash}`
+          link: `/evaluasi/${evalData.unitId}?mode=evidence&aspek=${norm}&targetSlot=${encodeURIComponent(slotKey)}`
         })
       }
     } catch (notifErr) {
@@ -381,7 +381,7 @@ export async function addCustomAdditionalEvidenceSlotAction(params: {
             ? `OPD menambahkan dokumen bukti baru "${cleanTitle}" pada Aspek ${norm} untuk unit yang telah dinilai. Evaluator dimohon meninjau.`
             : `OPD menambahkan dokumen bukti pendukung "${cleanTitle}" pada Aspek ${norm}.`,
           type: isPostEvaluation ? 'F01_REVISION' : 'PROOF_TRIGGER',
-          link: `/evaluasi/${evalData.unitId}?targetSlot=${encodeURIComponent(slotKey)}${targetHash}`
+          link: `/evaluasi/${evalData.unitId}?mode=evidence&aspek=${norm}&targetSlot=${encodeURIComponent(slotKey)}`
         })
       }
     } catch (notifErr) {

@@ -49,32 +49,69 @@ export function EvaluationTabWrapper({
   useEffect(() => {
     setMounted(true)
     if (typeof window !== 'undefined') {
-      const handleHash = () => {
+      const handleHashOrQuery = () => {
+        const sp = new URLSearchParams(window.location.search)
         const hash = window.location.hash.replace(/^#/, '')
-        if (hash === 'matriks-bukti' || hash.startsWith('bukti-')) {
+        const mode = sp.get('mode')
+
+        // Backward compatibility: Convert hash to query if hash exists
+        if (hash) {
+          const url = new URL(window.location.href)
+          url.hash = ''
+          if (hash === 'matriks-bukti') {
+            url.searchParams.set('mode', 'evidence')
+          } else if (hash.startsWith('bukti-')) {
+            url.searchParams.set('mode', 'evidence')
+            url.searchParams.set('aspek', hash.replace('bukti-', ''))
+          } else if (hash.startsWith('soal-')) {
+            url.searchParams.set('mode', 'questions')
+            url.searchParams.set('soal', hash.replace('soal-', ''))
+          } else if (hash === 'f03') {
+            url.searchParams.set('mode', 'f03')
+          }
+          window.history.replaceState(null, '', url.toString())
+        }
+
+        const effectiveMode = sp.get('mode') || (hash === 'matriks-bukti' || hash.startsWith('bukti-') ? 'evidence' : hash.startsWith('soal-') ? 'questions' : hash === 'f03' ? 'f03' : null)
+
+        if (effectiveMode === 'evidence') {
           setActiveTab('evidence')
-        } else if (hash.startsWith('soal-')) {
-          setActiveTab('f02')
-        } else if (hash === 'f03') {
+        } else if (effectiveMode === 'f03') {
           setActiveTab('f03')
+        } else {
+          setActiveTab('f02')
         }
       }
-      handleHash()
-      window.addEventListener('hashchange', handleHash)
-      return () => window.removeEventListener('hashchange', handleHash)
+
+      handleHashOrQuery()
+      window.addEventListener('hashchange', handleHashOrQuery)
+      window.addEventListener('popstate', handleHashOrQuery)
+      return () => {
+        window.removeEventListener('hashchange', handleHashOrQuery)
+        window.removeEventListener('popstate', handleHashOrQuery)
+      }
     }
   }, [])
 
   const handleTabClick = (tab: 'f02' | 'evidence' | 'f03') => {
     setActiveTab(tab)
     if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.hash = ''
       if (tab === 'evidence') {
-        window.history.replaceState(null, '', '#matriks-bukti')
+        url.searchParams.set('mode', 'evidence')
+        url.searchParams.delete('soal')
       } else if (tab === 'f02') {
-        window.history.replaceState(null, '', '#soal-1')
+        url.searchParams.set('mode', 'questions')
+        if (!url.searchParams.get('soal')) {
+          url.searchParams.set('soal', '1')
+        }
       } else if (tab === 'f03') {
-        window.history.replaceState(null, '', '#f03')
+        url.searchParams.set('mode', 'f03')
+        url.searchParams.delete('soal')
+        url.searchParams.delete('aspek')
       }
+      window.history.replaceState(null, '', url.toString())
     }
   }
 

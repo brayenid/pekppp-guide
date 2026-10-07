@@ -52,7 +52,7 @@ export async function addCommentAction({
         title: `Catatan Baru ${roleLabel}: ${unitName}`,
         message: `${authorProfile.fullName} (${roleLabel}) mengirim catatan pada Indikator #${indNum} (${indCode}): "${message.slice(0, 80)}${message.length > 80 ? '...' : ''}"`,
         type: 'COMMENT_UPDATE',
-        link: `/evaluasi/${scoreItem.evaluation.unitId}#soal-${indNum}`
+        link: `/evaluasi/${scoreItem.evaluation.unitId}?mode=questions&soal=${indNum}`
       })
     }
   } catch (err) {

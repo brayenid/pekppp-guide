@@ -148,16 +148,17 @@ export async function getNotificationsAction(): Promise<{
 
     const notifications: NotificationData[] = rawNotifications.map((n) => {
       let resolvedLink = n.link
-      if (resolvedLink && !resolvedLink.includes('#')) {
+      if (resolvedLink && !resolvedLink.includes('#') && !resolvedLink.includes('mode=')) {
         const indMatch = n.message.match(/Indikator\s*#(\d+)/i) || n.title.match(/Indikator\s*#(\d+)/i)
+        const sep = resolvedLink.includes('?') ? '&' : '?'
         if (indMatch) {
-          resolvedLink = `${resolvedLink}#soal-${indMatch[1]}`
+          resolvedLink = `${resolvedLink}${sep}mode=questions&soal=${indMatch[1]}`
         } else if (n.type === 'PROOF_TRIGGER') {
           const aspectMatch = n.title.match(/Aspek\s+([A-Za-z0-9]+)/i) || n.message.match(/Aspek\s+([A-Za-z0-9]+)/i)
           if (aspectMatch) {
-            resolvedLink = `${resolvedLink}#bukti-${aspectMatch[1]}`
+            resolvedLink = `${resolvedLink}${sep}mode=evidence&aspek=${aspectMatch[1]}`
           } else {
-            resolvedLink = `${resolvedLink}#matriks-bukti`
+            resolvedLink = `${resolvedLink}${sep}mode=evidence`
           }
         }
       }

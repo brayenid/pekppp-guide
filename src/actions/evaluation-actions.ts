@@ -318,7 +318,7 @@ export async function saveScoresAction(
 
       const validCount = scoredIndicators.length
       const firstScored = scoredIndicators[0]
-      const targetHash = firstScored ? `#soal-${firstScored.indicator.indicatorNumber}` : ''
+      const targetQuery = firstScored ? `?mode=questions&soal=${firstScored.indicator.indicatorNumber}` : ''
 
       let title = `Penilaian F02: ${evalData.unit.name}`
       let message = ''
@@ -347,7 +347,7 @@ export async function saveScoresAction(
         title,
         message,
         type: 'F02_UPDATE',
-        link: `/evaluasi/${evalData.unitId}${targetHash}`
+        link: `/evaluasi/${evalData.unitId}${targetQuery}`
       })
     }
   } catch (err) {
@@ -426,7 +426,7 @@ export async function saveF01BatchAction({
     if (firstScore?.evaluation) {
       const numbersList = updatedScores.slice(0, 5).map((s) => `#${s.indicator.indicatorNumber}`).join(', ')
       const extra = updatedScores.length > 5 ? ` dan ${updatedScores.length - 5} lainnya` : ''
-      const targetHash = `#soal-${firstScore.indicator.indicatorNumber}`
+      const targetQuery = `?mode=questions&soal=${firstScore.indicator.indicatorNumber}`
 
       await createNotificationHelper({
         roleTarget: 'SUPER_ADMIN',
@@ -438,7 +438,7 @@ export async function saveF01BatchAction({
           ? `OPD memperbarui isian F01 pada Indikator ${numbersList}${extra} yang telah dinilai sebelumnya. Evaluator dimohon meninjau ulang.`
           : `OPD memperbarui isian F01 untuk Indikator ${numbersList}${extra} secara serentak.`,
         type: isPostEvaluation ? 'F01_REVISION' : 'F01_UPDATE',
-        link: `/evaluasi/${firstScore.evaluation.unitId}${targetHash}`
+        link: `/evaluasi/${firstScore.evaluation.unitId}${targetQuery}`
       })
     }
   } catch (err) {
@@ -506,7 +506,7 @@ export async function saveF01DataAction({
       const indCode = updated.indicator.code
       const indQuestion = updated.indicator.question
       const questionExcerpt = indQuestion ? ` - ${indQuestion.slice(0, 45)}${indQuestion.length > 45 ? '...' : ''}` : ''
-      const queryParam = changedKey ? `?targetItem=${encodeURIComponent(changedKey)}` : ''
+      const targetItemQuery = changedKey ? `&targetItem=${encodeURIComponent(changedKey)}` : ''
 
       // Cari teks pertanyaan spesifik dari f01.json
       let itemQuestionLabel = ''
@@ -528,7 +528,7 @@ export async function saveF01DataAction({
           ? `OPD memperbarui isian Formulir F01 Indikator #${indNum} (${indCode}${questionExcerpt})${itemQuestionLabel} yang telah dinilai sebelumnya.`
           : `OPD memperbarui isian Formulir F01 Indikator #${indNum} (${indCode}${questionExcerpt})${itemQuestionLabel}.`,
         type: isPostEvaluation ? 'F01_REVISION' : 'F01_UPDATE',
-        link: `/evaluasi/${updated.evaluation.unitId}${queryParam}#soal-${indNum}`
+        link: `/evaluasi/${updated.evaluation.unitId}?mode=questions&soal=${indNum}${targetItemQuery}`
       })
     }
   } catch (err) {

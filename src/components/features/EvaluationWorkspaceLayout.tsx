@@ -170,6 +170,66 @@ export function EvaluationWorkspaceLayout({
     currentIndex?: number
   } | null>(null)
 
+  // Helper sinkronisasi parameter URL tanpa me-reload halaman
+  const syncUrlParams = useCallback((updates: {
+    mode?: 'QUESTIONS' | 'EVIDENCE'
+    soal?: number
+    tab?: 'questions' | 'evidence' | 'preview'
+    aspek?: string | null
+    slot?: string | null
+    doc?: number | null
+    targetItem?: string | null
+    targetSlot?: string | null
+  }) => {
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    const sp = url.searchParams
+
+    if (updates.mode !== undefined) {
+      if (updates.mode === 'EVIDENCE') sp.set('mode', 'evidence')
+      else sp.set('mode', 'questions')
+    }
+
+    if (updates.soal !== undefined) {
+      sp.set('soal', String(updates.soal))
+    }
+
+    if (updates.tab !== undefined) {
+      sp.set('tab', updates.tab)
+    }
+
+    if (updates.aspek !== undefined) {
+      if (updates.aspek) sp.set('aspek', updates.aspek)
+      else sp.delete('aspek')
+    }
+
+    if (updates.slot !== undefined) {
+      if (updates.slot) sp.set('slot', updates.slot)
+      else sp.delete('slot')
+    }
+
+    if (updates.doc !== undefined) {
+      if (updates.doc !== null && updates.doc !== undefined) sp.set('doc', String(updates.doc))
+      else sp.delete('doc')
+    }
+
+    if (updates.targetItem !== undefined) {
+      if (updates.targetItem) sp.set('targetItem', updates.targetItem)
+      else sp.delete('targetItem')
+    }
+
+    if (updates.targetSlot !== undefined) {
+      if (updates.targetSlot) sp.set('targetSlot', updates.targetSlot)
+      else sp.delete('targetSlot')
+    }
+
+    // Bersihkan hash agar URL bersih
+    url.hash = ''
+
+    const newUrl = `${url.pathname}${sp.toString() ? `?${sp.toString()}` : ''}`
+    window.history.replaceState(null, '', newUrl)
+  }, [])
+
   const handleOpenSidebarPreview = (slot: EvidenceSlotItem, initialIndex = 0) => {
     const attachments: EvidenceAttachmentItem[] = (slot.attachments && slot.attachments.length > 0)
       ? slot.attachments
@@ -195,6 +255,11 @@ export function EvaluationWorkspaceLayout({
       currentIndex: initialIndex
     })
     setLeftTab('preview')
+    syncUrlParams({
+      tab: 'preview',
+      slot: slot.slotKey,
+      doc: initialIndex
+    })
   }
 
   const handleNavigatePreviewDoc = (newIndex: number) => {
@@ -207,6 +272,10 @@ export function EvaluationWorkspaceLayout({
       fileName: targetDoc.fileName || `Berkas ${newIndex + 1}`,
       fileUrl: targetDoc.fileUrl,
       currentIndex: newIndex
+    })
+    syncUrlParams({
+      tab: 'preview',
+      doc: newIndex
     })
   }
   const [dirtyNumbers, setDirtyNumbers] = useState<Set<number>>(new Set())
@@ -297,44 +366,75 @@ export function EvaluationWorkspaceLayout({
     setMounted(true)
     if (typeof window !== 'undefined') {
       const parseUrlParamsAndHash = () => {
-        const searchParams = new URLSearchParams(window.location.search)
+        const url = new URL(window.location.href)
+        const searchParams = url.searchParams
+        const hash = url.hash.replace(/^#/, '')
+
+        // 1. Backward-compatibility: Convert hash to query params if present
+        if (hash) {
+          if (hash === 'matriks-bukti') {
+            searchParams.set('mode', 'evidence')
+            searchParams.delete('aspek')
+          } else if (hash.startsWith('bukti-')) {
+            const code = hash.replace('bukti-', '')
+            searchParams.set('mode', 'evidence')
+            searchParams.set('aspek', code)
+          } else if (hash.startsWith('soal-')) {
+            const numStr = hash.replace('soal-', '')
+            searchParams.set('mode', 'questions')
+            searchParams.set('soal', numStr)
+          }
+          url.hash = ''
+          window.history.replaceState(null, '', url.toString())
+        }
+
+        // 2. Parse all query parameters
+        const modeParam = searchParams.get('mode')
+        const soalParam = parseInt(searchParams.get('soal') || '', 10)
+        const tabParam = searchParams.get('tab')
+        const aspekParam = searchParams.get('aspek')
         const tItem = searchParams.get('targetItem')
         const tSlot = searchParams.get('targetSlot')
+
         setTargetItem(tItem)
         setTargetSlotKey(tSlot)
 
-        const hash = window.location.hash.replace(/^#/, '')
-        if (hash === 'matriks-bukti') {
+        if (modeParam === 'evidence') {
           setActiveMainMode('EVIDENCE')
-          setActiveAspectEvidence(null)
-        } else if (hash.startsWith('bukti-')) {
-          const code = hash.replace('bukti-', '')
-          setActiveMainMode('EVIDENCE')
-          setActiveAspectEvidence(code)
-        } else if (hash.startsWith('soal-')) {
-          const num = parseInt(hash.replace('soal-', ''), 10)
-          if (!isNaN(num) && num > 0) {
-            setActiveMainMode('QUESTIONS')
+          if (aspekParam) {
+            setActiveAspectEvidence(aspekParam)
+          } else {
             setActiveAspectEvidence(null)
-            setActiveNumber(num)
-
-            // Berikan highlight sejenak agar pengguna langsung tahu indikator yang dituju
-            setHighlightTarget(true)
-            setTimeout(() => setHighlightTarget(false), 3000)
-
-            setTimeout(() => {
-              const targetItemEl = tItem
-                ? document.getElementById(`f01-item-${tItem}`) || document.getElementById(`f01-input-${tItem}`)
-                : null
-
-              const el = targetItemEl || document.getElementById('active-workspace-card')
-              if (el) {
-                const yOffset = -85
-                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
-                window.scrollTo({ top: y, behavior: 'smooth' })
-              }
-            }, 150)
           }
+        } else {
+          setActiveMainMode('QUESTIONS')
+          setActiveAspectEvidence(null)
+          if (!isNaN(soalParam) && soalParam >= 1 && soalParam <= 31) {
+            setActiveNumber(soalParam)
+          }
+        }
+
+        if (tabParam === 'questions' || tabParam === 'evidence' || tabParam === 'preview') {
+          setLeftTab(tabParam)
+        }
+
+        // Highlight & scroll jika berpindah soal atau ada target item
+        if (tItem || (!isNaN(soalParam) && soalParam > 0)) {
+          setHighlightTarget(true)
+          setTimeout(() => setHighlightTarget(false), 3000)
+
+          setTimeout(() => {
+            const targetItemEl = tItem
+              ? document.getElementById(`f01-item-${tItem}`) || document.getElementById(`f01-input-${tItem}`)
+              : null
+
+            const el = targetItemEl || document.getElementById('active-workspace-card')
+            if (el) {
+              const yOffset = -85
+              const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+              window.scrollTo({ top: y, behavior: 'smooth' })
+            }
+          }, 150)
         }
       }
 
@@ -381,13 +481,51 @@ export function EvaluationWorkspaceLayout({
 
   // Load evidence slots for the currently active question's aspect
   useEffect(() => {
-    if (leftTab === 'evidence') {
+    if (leftTab === 'evidence' || leftTab === 'preview') {
       let isMounted = true
       setLoadingSidebarEvidence(true)
       getIndicatorEvidenceAction(evaluationId, currentAspectCode)
         .then((res) => {
           if (isMounted && res.success && res.slots) {
             setSidebarEvidenceSlots(res.slots)
+
+            // Auto-restore preview document if URL specifies slot & tab=preview
+            if (typeof window !== 'undefined') {
+              const sp = new URLSearchParams(window.location.search)
+              const tabParam = sp.get('tab')
+              const slotParam = sp.get('slot')
+              const docParam = sp.get('doc') ? parseInt(sp.get('doc')!, 10) : 0
+
+              if (tabParam === 'preview' && slotParam) {
+                const targetSlot = res.slots.find((s) => s.slotKey === slotParam)
+                if (targetSlot) {
+                  const attachments: EvidenceAttachmentItem[] = (targetSlot.attachments && targetSlot.attachments.length > 0)
+                    ? targetSlot.attachments
+                    : (targetSlot.fileUrl ? [{
+                        id: 'main',
+                        fileUrl: targetSlot.fileUrl,
+                        fileName: targetSlot.fileName || targetSlot.title || 'Berkas Terunggah',
+                        fileSize: targetSlot.fileSize || 0,
+                        fileType: (targetSlot.fileType as any) || 'DOCUMENT',
+                        uploadedAt: new Date().toISOString()
+                      }] : [])
+
+                  if (attachments.length > 0) {
+                    const safeIdx = Math.min(Math.max(0, docParam), attachments.length - 1)
+                    const targetDoc = attachments[safeIdx]
+                    setSidebarPreviewDoc({
+                      title: targetSlot.title,
+                      fileName: targetDoc.fileName || targetSlot.fileName || 'Berkas',
+                      fileUrl: targetDoc.fileUrl,
+                      isMandatory: targetSlot.isMandatory,
+                      slotKey: targetSlot.slotKey,
+                      allSlotAttachments: attachments,
+                      currentIndex: safeIdx
+                    })
+                  }
+                }
+              }
+            }
           }
         })
         .catch(() => {
@@ -675,9 +813,11 @@ export function EvaluationWorkspaceLayout({
     setActiveMainMode('QUESTIONS')
     setActiveAspectEvidence(null)
     setActiveNumber(num)
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `#soal-${num}`)
-    }
+    syncUrlParams({
+      mode: 'QUESTIONS',
+      soal: num,
+      aspek: null
+    })
     const workspaceElement = document.getElementById('active-workspace-card')
     if (workspaceElement) {
       const yOffset = -85
@@ -689,9 +829,10 @@ export function EvaluationWorkspaceLayout({
   const handleGoToAspectEvidence = (aspectCode: string) => {
     setActiveMainMode('EVIDENCE')
     setActiveAspectEvidence(aspectCode)
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `#bukti-${aspectCode}`)
-    }
+    syncUrlParams({
+      mode: 'EVIDENCE',
+      aspek: aspectCode
+    })
     const workspaceElement = document.getElementById('active-workspace-card')
     if (workspaceElement) {
       const yOffset = -85
@@ -703,9 +844,10 @@ export function EvaluationWorkspaceLayout({
   const handleGoToEvidenceHub = () => {
     setActiveMainMode('EVIDENCE')
     setActiveAspectEvidence(null)
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#matriks-bukti')
-    }
+    syncUrlParams({
+      mode: 'EVIDENCE',
+      aspek: null
+    })
     const workspaceElement = document.getElementById('active-workspace-card')
     if (workspaceElement) {
       const yOffset = -85
@@ -964,7 +1106,10 @@ export function EvaluationWorkspaceLayout({
                 <div className="flex items-center p-1 bg-surface-subtle/80 rounded-full border border-stroke/50 text-xs gap-1">
                   <button
                     type="button"
-                    onClick={() => setLeftTab('questions')}
+                    onClick={() => {
+                      setLeftTab('questions')
+                      syncUrlParams({ tab: 'questions', slot: null, doc: null })
+                    }}
                     className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                       leftTab === 'questions'
                         ? 'bg-surface-elevated text-ink shadow-pill font-medium'
@@ -980,6 +1125,7 @@ export function EvaluationWorkspaceLayout({
                       onClick={() => {
                         setLeftTab('evidence')
                         setSidebarPreviewDoc(null)
+                        syncUrlParams({ tab: 'evidence', slot: null, doc: null })
                       }}
                       className="flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-surface-elevated text-ink shadow-pill font-medium border border-stroke/60 hover:bg-surface">
                       <X className="w-3.5 h-3.5 text-ink-muted" />
@@ -988,7 +1134,10 @@ export function EvaluationWorkspaceLayout({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setLeftTab('evidence')}
+                      onClick={() => {
+                        setLeftTab('evidence')
+                        syncUrlParams({ tab: 'evidence', slot: null, doc: null })
+                      }}
                       className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                         leftTab === 'evidence'
                           ? 'bg-surface-elevated text-ink shadow-pill font-medium'
@@ -1033,6 +1182,7 @@ export function EvaluationWorkspaceLayout({
                         onClick={() => {
                           setLeftTab('evidence')
                           setSidebarPreviewDoc(null)
+                          syncUrlParams({ tab: 'evidence', slot: null, doc: null })
                         }}
                         className="p-1 rounded-md text-ink-muted hover:text-ink hover:bg-surface-elevated transition-colors cursor-pointer"
                         title="Tutup preview & kembali ke daftar bukti"
