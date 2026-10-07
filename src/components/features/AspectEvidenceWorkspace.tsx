@@ -1071,26 +1071,17 @@ export function AspectEvidenceWorkspace({
                                 }`}>
                                 {isUploading ? (
                                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : hasUploaded ? (
+                                  <Plus className="w-3.5 h-3.5" />
                                 ) : (
                                   <UploadCloud className="w-3.5 h-3.5" />
                                 )}
-                                <span>{hasUploaded ? '+ Tambah Berkas' : 'Unggah'}</span>
+                                <span>{hasUploaded ? 'Tambah Berkas' : 'Unggah'}</span>
                               </button>
                             ) : (
                               <span className="px-3 py-1 rounded-full text-[11px] font-medium text-ink-muted bg-surface-subtle border border-stroke/50">
                                 Kuota Penuh ({maxCount}/{maxCount})
                               </span>
-                            )}
-
-                            {hasUploaded && (
-                              <button
-                                type="button"
-                                disabled={isUploading}
-                                onClick={() => setDeleteTarget(slot)}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-rose-600 hover:bg-rose-50 border border-stroke/50 transition-colors cursor-pointer"
-                                title="Hapus semua berkas pada slot ini">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
                             )}
                           </>
                         ) : (
@@ -1107,13 +1098,6 @@ export function AspectEvidenceWorkspace({
                                   <ExternalLink className="w-3 h-3" />
                                 </a>
                               )}
-                              <button
-                                type="button"
-                                onClick={() => setDeleteTarget(slot)}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-rose-600 hover:bg-rose-50 border border-stroke/50 transition-colors cursor-pointer"
-                                title="Hapus semua berkas">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
                             </div>
                           ) : (
                             <span className="text-xs text-ink-muted font-normal italic">Belum diunggah</span>
@@ -1314,6 +1298,19 @@ export function AspectEvidenceWorkspace({
                               : 'Maks. 4 PDF (@20MB) & 6 Foto (@1MB)'}
                         </span>
                       </div>
+
+                      {/* Tombol Hapus Seluruh Berkas di Kanan Footer */}
+                      {hasUploaded && (isEditable || isEvaluator) && (
+                        <button
+                          type="button"
+                          disabled={isUploading}
+                          onClick={() => setDeleteTarget(slot)}
+                          className="inline-flex items-center gap-1 text-[11px] text-ink-muted hover:text-rose-600 transition-colors cursor-pointer py-0.5 px-1 rounded hover:bg-rose-50/70"
+                          title="Hapus semua berkas pada slot ini">
+                          <Trash2 className="w-3.5 h-3.5 text-ink-muted hover:text-rose-600" />
+                          <span>Hapus Semua</span>
+                        </button>
+                      )}
                     </div>
 
                     {/* AI Feedback (ONLY IF NOT LAYAK & FILE EXISTS) - 1 Compact, Clear Box */}
