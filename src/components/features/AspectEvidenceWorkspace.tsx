@@ -870,7 +870,7 @@ export function AspectEvidenceWorkspace({
                         <span>Tunggu Cooldown ({cooldownRemaining}s)</span>
                       </>
                     ) : !isAllMandatoryUploaded ? (
-                      <span>Cek Kelayakan ({filledMandatoryCount}/{mandatoryTotal} Terunggah)</span>
+                      <span>Cek Kelayakan • Kurang {mandatoryTotal - filledMandatoryCount} dokumen wajib</span>
                     ) : hasEverChecked && !hasNewFilesSinceLastCheck ? (
                       <span>Dokumen Sudah Diperiksa (Terkini)</span>
                     ) : (
@@ -925,30 +925,6 @@ export function AspectEvidenceWorkspace({
                   <span>Analisis AI aktif setelah unit pelayanan mengunggah berkas bukti dukung.</span>
                 </div>
               )}
-
-              {/* Petunjuk singkat & bisa diklik: langsung menuju dokumen wajib yang belum diunggah */}
-              {!isEvaluator && !isAllMandatoryUploaded && (() => {
-                const missing = mandatorySlots.filter((s) => !(s.fileUrl && s.fileUrl.trim() !== ''))
-                const first = missing[0]
-                if (!first) return null
-                return (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const el = document.getElementById(`evidence-slot-${first.slotKey}`)
-                      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    }}
-                    title={`Belum diunggah: ${missing.map((s) => s.title).join(', ')}`}
-                    className="inline-flex items-center gap-1.5 text-xs text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded-full border border-amber-200 w-fit max-w-full cursor-pointer transition-colors">
-                    <Info className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">
-                      Belum diunggah: <strong className="font-semibold">{first.title}</strong>
-                      {missing.length > 1 ? ` +${missing.length - 1} lainnya` : ''}
-                    </span>
-                    <ChevronDown className="w-3.5 h-3.5 shrink-0" />
-                  </button>
-                )
-              })()}
 
               {!isEvaluator && isAllMandatoryUploaded && hasEverChecked && !hasNewFilesSinceLastCheck && (
                 <div className="flex items-center gap-1.5 text-xs text-ink-muted bg-surface-subtle px-3 py-1 rounded-full border border-stroke/40 w-fit">
