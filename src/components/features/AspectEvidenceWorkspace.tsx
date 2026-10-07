@@ -1512,7 +1512,7 @@ export function AspectEvidenceWorkspace({
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  {h.fileUrl && (
+                                  {h.fileUrl && h.action !== 'DELETE' && (
                                     <a
                                       href={h.fileUrl}
                                       target="_blank"
