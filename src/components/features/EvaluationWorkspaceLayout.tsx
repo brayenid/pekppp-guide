@@ -931,29 +931,28 @@ export function EvaluationWorkspaceLayout({
                     <span>Pertanyaan</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setLeftTab('evidence')}
-                    className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      leftTab === 'evidence'
-                        ? 'bg-surface-elevated text-ink shadow-pill font-medium'
-                        : 'text-ink-secondary hover:text-ink font-normal'
-                    }`}>
-                    <FolderOpen className="w-3.5 h-3.5 text-ink-muted" />
-                    <span>Bukti ({activeScoreItem.indicator.aspect.code})</span>
-                  </button>
-
-                  {sidebarPreviewDoc && (
+                  {leftTab === 'preview' ? (
                     <button
                       type="button"
-                      onClick={() => setLeftTab('preview')}
+                      onClick={() => {
+                        setLeftTab('evidence')
+                        setSidebarPreviewDoc(null)
+                      }}
+                      className="flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-surface-elevated text-ink shadow-pill font-medium border border-stroke/60 hover:bg-surface">
+                      <X className="w-3.5 h-3.5 text-ink-muted" />
+                      <span>Tutup Preview</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setLeftTab('evidence')}
                       className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                        leftTab === 'preview'
+                        leftTab === 'evidence'
                           ? 'bg-surface-elevated text-ink shadow-pill font-medium'
                           : 'text-ink-secondary hover:text-ink font-normal'
                       }`}>
-                      <Eye className="w-3.5 h-3.5 text-ink-muted" />
-                      <span>Preview</span>
+                      <FolderOpen className="w-3.5 h-3.5 text-ink-muted" />
+                      <span>Bukti ({activeScoreItem.indicator.aspect.code})</span>
                     </button>
                   )}
                 </div>
