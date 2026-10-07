@@ -39,7 +39,8 @@ import { formatScore } from '../../lib/utils'
 import { normalizeAspectCode } from '../../core/domain/evidence-slots-preset'
 import {
   getIndicatorEvidenceAction,
-  EvidenceSlotItem
+  EvidenceSlotItem,
+  EvidenceAttachmentItem
 } from '../../actions/evidence-slot-actions'
 import {
   saveScoresAction,
@@ -165,7 +166,49 @@ export function EvaluationWorkspaceLayout({
     fileUrl: string
     isMandatory?: boolean
     slotKey?: string
+    allSlotAttachments?: EvidenceAttachmentItem[]
+    currentIndex?: number
   } | null>(null)
+
+  const handleOpenSidebarPreview = (slot: EvidenceSlotItem, initialIndex = 0) => {
+    const attachments: EvidenceAttachmentItem[] = (slot.attachments && slot.attachments.length > 0)
+      ? slot.attachments
+      : (slot.fileUrl ? [{
+          id: 'main',
+          fileUrl: slot.fileUrl,
+          fileName: slot.fileName || slot.title || 'Berkas Terunggah',
+          fileSize: slot.fileSize || 0,
+          fileType: (slot.fileType as any) || 'DOCUMENT',
+          uploadedAt: new Date().toISOString()
+        }] : [])
+
+    if (attachments.length === 0) return
+
+    const targetDoc = attachments[initialIndex] || attachments[0]
+    setSidebarPreviewDoc({
+      title: slot.title,
+      fileName: targetDoc.fileName || slot.fileName || 'Berkas',
+      fileUrl: targetDoc.fileUrl,
+      isMandatory: slot.isMandatory,
+      slotKey: slot.slotKey,
+      allSlotAttachments: attachments,
+      currentIndex: initialIndex
+    })
+    setLeftTab('preview')
+  }
+
+  const handleNavigatePreviewDoc = (newIndex: number) => {
+    if (!sidebarPreviewDoc?.allSlotAttachments) return
+    const list = sidebarPreviewDoc.allSlotAttachments
+    if (newIndex < 0 || newIndex >= list.length) return
+    const targetDoc = list[newIndex]
+    setSidebarPreviewDoc({
+      ...sidebarPreviewDoc,
+      fileName: targetDoc.fileName || `Berkas ${newIndex + 1}`,
+      fileUrl: targetDoc.fileUrl,
+      currentIndex: newIndex
+    })
+  }
   const [dirtyNumbers, setDirtyNumbers] = useState<Set<number>>(new Set())
   const [isAspectProofOpen, setIsAspectProofOpen] = useState<boolean>(false)
   const [sidebarEvidenceSlots, setSidebarEvidenceSlots] = useState<EvidenceSlotItem[]>([])
@@ -960,39 +1003,87 @@ export function EvaluationWorkspaceLayout({
 
             {leftTab === 'preview' && sidebarPreviewDoc ? (
               /* TAB 3: Inline Side-by-Side Live Document Preview */
-              <div className="flex flex-col space-y-3 h-[calc(100vh-270px)]">
+              <div className="flex flex-col space-y-2.5 h-[calc(100vh-270px)]">
                 {/* Header preview with controls */}
-                <div className="p-3 rounded-xl bg-surface-subtle border border-stroke/50 flex items-center justify-between gap-2 shrink-0">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink truncate" title={sidebarPreviewDoc.title}>
-                      {sidebarPreviewDoc.title}
-                    </p>
-                    {sidebarPreviewDoc.fileName && (
-                      <p className="text-[11px] text-ink-muted truncate" title={sidebarPreviewDoc.fileName}>
-                        {sidebarPreviewDoc.fileName}
+                <div className="p-3 rounded-xl bg-surface-subtle border border-stroke/50 space-y-2 shrink-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-ink truncate" title={sidebarPreviewDoc.title}>
+                        {sidebarPreviewDoc.title}
                       </p>
-                    )}
+                      {sidebarPreviewDoc.fileName && (
+                        <p className="text-[11px] text-ink-muted truncate" title={sidebarPreviewDoc.fileName}>
+                          {sidebarPreviewDoc.fileName}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <a
+                        href={sidebarPreviewDoc.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-brand hover:bg-brand-light transition-colors border border-brand/20 bg-surface-elevated"
+                        title="Buka dokumen di tab baru browser"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Tab Baru</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLeftTab('evidence')
+                          setSidebarPreviewDoc(null)
+                        }}
+                        className="p-1 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+                        title="Tutup preview & kembali ke daftar bukti"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <a
-                      href={sidebarPreviewDoc.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-brand hover:bg-brand-light transition-colors border border-brand/20 bg-surface-elevated"
-                      title="Buka dokumen di tab baru browser"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>Tab Baru</span>
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setLeftTab('evidence')}
-                      className="p-1 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
-                      title="Tutup preview & kembali ke daftar bukti"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
+
+                  {/* Navigasi multi-berkas dalam satu komponen bukti */}
+                  {sidebarPreviewDoc.allSlotAttachments && sidebarPreviewDoc.allSlotAttachments.length > 1 && (
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-stroke/40 text-xs">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[11px] font-semibold text-ink shrink-0">
+                          Berkas {(sidebarPreviewDoc.currentIndex ?? 0) + 1}/{sidebarPreviewDoc.allSlotAttachments.length}:
+                        </span>
+                        <select
+                          value={sidebarPreviewDoc.currentIndex ?? 0}
+                          onChange={(e) => handleNavigatePreviewDoc(parseInt(e.target.value, 10))}
+                          className="text-[11px] bg-surface-elevated border border-stroke/60 rounded-md py-0.5 px-2 text-ink font-medium focus:ring-1 focus:ring-brand focus:outline-none cursor-pointer truncate max-w-[130px] sm:max-w-[180px]"
+                        >
+                          {sidebarPreviewDoc.allSlotAttachments.map((att, idx) => (
+                            <option key={att.id || idx} value={idx}>
+                              #{idx + 1}: {att.fileName || `Berkas ${idx + 1}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          disabled={(sidebarPreviewDoc.currentIndex ?? 0) <= 0}
+                          onClick={() => handleNavigatePreviewDoc((sidebarPreviewDoc.currentIndex ?? 0) - 1)}
+                          className="p-1 rounded-md text-ink-secondary hover:text-ink hover:bg-surface-elevated disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed border border-stroke/40"
+                          title="Berkas sebelumnya"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={(sidebarPreviewDoc.currentIndex ?? 0) >= sidebarPreviewDoc.allSlotAttachments.length - 1}
+                          onClick={() => handleNavigatePreviewDoc((sidebarPreviewDoc.currentIndex ?? 0) + 1)}
+                          className="p-1 rounded-md text-ink-secondary hover:text-ink hover:bg-surface-elevated disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed border border-stroke/40"
+                          title="Berkas berikutnya"
+                        >
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Embedded Viewer */}
@@ -1165,7 +1256,17 @@ export function EvaluationWorkspaceLayout({
                 ) : (
                   <div className="space-y-2">
                     {sidebarEvidenceSlots.map((slot, sIdx) => {
-                      const hasFile = Boolean(slot.fileUrl && slot.fileUrl.trim() !== '')
+                      const attachments: EvidenceAttachmentItem[] = (slot.attachments && slot.attachments.length > 0)
+                        ? slot.attachments
+                        : (slot.fileUrl ? [{
+                            id: 'main',
+                            fileUrl: slot.fileUrl,
+                            fileName: slot.fileName || slot.title || 'Berkas Terunggah',
+                            fileSize: slot.fileSize || 0,
+                            fileType: (slot.fileType as any) || 'DOCUMENT',
+                            uploadedAt: new Date().toISOString()
+                          }] : [])
+                      const hasFiles = attachments.length > 0
 
                       return (
                         <div
@@ -1173,11 +1274,18 @@ export function EvaluationWorkspaceLayout({
                           className="p-2.5 rounded-lg border border-slate-200 bg-white space-y-2 hover:border-slate-300 transition-all shadow-2xs">
                           {/* Title & Badge */}
                           <div className="flex items-start justify-between gap-2">
-                            <div className="text-xs font-bold text-slate-900 leading-snug">
-                              {slot.title}
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-slate-900 leading-snug">
+                                {slot.title}
+                              </div>
+                              {attachments.length > 1 && (
+                                <span className="text-[10px] text-ink-muted font-normal">
+                                  {attachments.length} berkas terunggah
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center gap-1 shrink-0">
-                              {hasFile && slot.aiInsights?.status && (
+                              {hasFiles && slot.aiInsights?.status && (
                                 <span
                                   className={`px-1.5 py-0.2 rounded text-[10px] font-bold border ${
                                     slot.aiInsights.status === 'LAYAK'
@@ -1199,29 +1307,30 @@ export function EvaluationWorkspaceLayout({
                             </div>
                           </div>
 
-                          {/* Text-Only Preview Row */}
-                          {hasFile ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSidebarPreviewDoc({
-                                  title: slot.title,
-                                  fileName: slot.fileName,
-                                  fileUrl: slot.fileUrl!,
-                                  isMandatory: slot.isMandatory,
-                                  slotKey: slot.slotKey
-                                })
-                                setLeftTab('preview')
-                              }}
-                              className="w-full flex items-center justify-between gap-2 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors text-left group/btn cursor-pointer">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <FileText className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                <span className="text-xs text-emerald-900 font-medium truncate">
-                                  {slot.fileName || 'Lihat Berkas Terunggah'}
-                                </span>
-                              </div>
-                              <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0 group-hover/btn:scale-110 transition-transform" />
-                            </button>
+                          {/* Preview Rows: Render all uploaded files */}
+                          {hasFiles ? (
+                            <div className="space-y-1.5">
+                              {attachments.map((att, attIdx) => (
+                                <button
+                                  key={att.id || attIdx}
+                                  type="button"
+                                  onClick={() => handleOpenSidebarPreview(slot, attIdx)}
+                                  className="w-full flex items-center justify-between gap-2 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors text-left group/btn cursor-pointer">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    {attachments.length > 1 && (
+                                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded shrink-0">
+                                        #{attIdx + 1}
+                                      </span>
+                                    )}
+                                    <FileText className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                    <span className="text-xs text-emerald-900 font-medium truncate">
+                                      {att.fileName || 'Lihat Berkas Terunggah'}
+                                    </span>
+                                  </div>
+                                  <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0 group-hover/btn:scale-110 transition-transform" />
+                                </button>
+                              ))}
+                            </div>
                           ) : (
                             <div className="flex items-center gap-1.5 p-2 rounded-lg bg-surface-subtle text-ink-muted text-xs border border-stroke/40">
                               <AlertCircle className="w-3.5 h-3.5 shrink-0 text-ink-muted" />
@@ -1230,7 +1339,7 @@ export function EvaluationWorkspaceLayout({
                           )}
 
                           {/* Lampiran Catatan Pre-Eval AI per Berkas (Hanya jika ada berkas) */}
-                          {hasFile && slot.aiInsights && (slot.aiInsights.feedback || slot.aiInsights.summary) && (
+                          {hasFiles && slot.aiInsights && (slot.aiInsights.feedback || slot.aiInsights.summary) && (
                             <div
                               className={`p-2 rounded-md text-[11px] font-medium leading-relaxed border space-y-0.5 ${
                                 slot.aiInsights.status === 'LAYAK'
