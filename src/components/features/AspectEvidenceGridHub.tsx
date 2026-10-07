@@ -210,7 +210,7 @@ export function AspectEvidenceGridHub({
                     title="Buka Tautan Publik Berkas Bukti untuk MenPAN-RB"
                     className="inline-flex items-center gap-1 text-[11px] text-ink-muted hover:text-ink px-2 py-0.5 rounded-md hover:bg-surface-subtle transition-colors">
                     <ExternalLink className="w-3 h-3" />
-                    <span>Berkas Bukti</span>
+                    <span>Tautan Publik</span>
                   </a>
                 </div>
               </div>
