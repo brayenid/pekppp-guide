@@ -181,6 +181,7 @@ export function EvaluationWorkspaceLayout({
     doc?: number | null
     targetItem?: string | null
     targetSlot?: string | null
+    pushHistory?: boolean
   }) => {
     if (typeof window === 'undefined') return
     const url = new URL(window.location.href)
@@ -228,7 +229,13 @@ export function EvaluationWorkspaceLayout({
     url.hash = ''
 
     const newUrl = `${url.pathname}${sp.toString() ? `?${sp.toString()}` : ''}`
-    window.history.replaceState(null, '', newUrl)
+    if (newUrl !== `${window.location.pathname}${window.location.search}`) {
+      if (updates.pushHistory) {
+        window.history.pushState(null, '', newUrl)
+      } else {
+        window.history.replaceState(null, '', newUrl)
+      }
+    }
   }, [])
 
   const handleOpenSidebarPreview = (slot: EvidenceSlotItem, initialIndex = 0) => {
@@ -259,7 +266,8 @@ export function EvaluationWorkspaceLayout({
     syncUrlParams({
       tab: 'preview',
       slot: slot.slotKey,
-      doc: initialIndex
+      doc: initialIndex,
+      pushHistory: true
     })
   }
 
@@ -417,6 +425,12 @@ export function EvaluationWorkspaceLayout({
 
         if (tabParam === 'questions' || tabParam === 'evidence' || tabParam === 'preview') {
           setLeftTab(tabParam)
+          if (tabParam !== 'preview') {
+            setSidebarPreviewDoc(null)
+          }
+        } else {
+          setLeftTab('questions')
+          setSidebarPreviewDoc(null)
         }
 
         // Highlight & scroll jika berpindah soal atau ada target item
@@ -817,7 +831,8 @@ export function EvaluationWorkspaceLayout({
     syncUrlParams({
       mode: 'QUESTIONS',
       soal: num,
-      aspek: null
+      aspek: null,
+      pushHistory: true
     })
     const workspaceElement = document.getElementById('active-workspace-card')
     if (workspaceElement) {
@@ -832,7 +847,8 @@ export function EvaluationWorkspaceLayout({
     setActiveAspectEvidence(aspectCode)
     syncUrlParams({
       mode: 'EVIDENCE',
-      aspek: aspectCode
+      aspek: aspectCode,
+      pushHistory: true
     })
     const workspaceElement = document.getElementById('active-workspace-card')
     if (workspaceElement) {
@@ -847,7 +863,8 @@ export function EvaluationWorkspaceLayout({
     setActiveAspectEvidence(null)
     syncUrlParams({
       mode: 'EVIDENCE',
-      aspek: null
+      aspek: null,
+      pushHistory: true
     })
     const workspaceElement = document.getElementById('active-workspace-card')
     if (workspaceElement) {
@@ -1109,7 +1126,7 @@ export function EvaluationWorkspaceLayout({
                     type="button"
                     onClick={() => {
                       setLeftTab('questions')
-                      syncUrlParams({ tab: 'questions', slot: null, doc: null })
+                      syncUrlParams({ tab: 'questions', slot: null, doc: null, pushHistory: true })
                     }}
                     className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                       leftTab === 'questions'
@@ -1124,7 +1141,7 @@ export function EvaluationWorkspaceLayout({
                     type="button"
                     onClick={() => {
                       setLeftTab('evidence')
-                      syncUrlParams({ tab: 'evidence', slot: null, doc: null })
+                      syncUrlParams({ tab: 'evidence', slot: null, doc: null, pushHistory: true })
                     }}
                     className={`flex-1 py-1.5 px-2 rounded-full text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                       leftTab === 'evidence'
@@ -1169,7 +1186,7 @@ export function EvaluationWorkspaceLayout({
                         onClick={() => {
                           setLeftTab('evidence')
                           setSidebarPreviewDoc(null)
-                          syncUrlParams({ tab: 'evidence', slot: null, doc: null })
+                          syncUrlParams({ tab: 'evidence', slot: null, doc: null, pushHistory: true })
                         }}
                         className="p-1 rounded-md text-ink-muted hover:text-ink hover:bg-surface-elevated transition-colors cursor-pointer"
                         title="Tutup preview & kembali ke daftar bukti"

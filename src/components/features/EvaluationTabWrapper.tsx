@@ -111,7 +111,7 @@ export function EvaluationTabWrapper({
         url.searchParams.delete('soal')
         url.searchParams.delete('aspek')
       }
-      window.history.replaceState(null, '', url.toString())
+      window.history.pushState(null, '', url.toString())
     }
   }
 
