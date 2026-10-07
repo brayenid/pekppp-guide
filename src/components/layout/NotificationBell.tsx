@@ -114,11 +114,11 @@ export function NotificationBell() {
           setIsOpen(next)
           if (next) fetchNotifications()
         }}
-        className="relative w-10 h-10 rounded-full bg-surface-elevated hover:bg-surface-subtle border border-stroke/60 text-ink-secondary hover:text-ink flex items-center justify-center transition-all cursor-pointer shadow-soft-card"
+        className="relative w-8.5 h-8.5 rounded-full bg-surface-elevated hover:bg-surface-subtle border border-stroke/60 text-ink-secondary hover:text-ink flex items-center justify-center transition-all cursor-pointer shadow-soft-card"
         title="Notifikasi">
-        <Bell className="w-4 h-4 text-ink-muted group-hover:text-ink" />
+        <Bell className="w-3.5 h-3.5 text-ink-muted group-hover:text-ink" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-mono font-bold flex items-center justify-center border-2 border-white shadow-xs">
+          <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-brand text-white text-[9px] font-mono font-bold flex items-center justify-center border-2 border-white shadow-xs">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
