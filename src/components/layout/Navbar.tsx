@@ -31,15 +31,15 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-canvas/90 backdrop-blur-md border-b border-stroke shadow-2xs">
-      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2.5 group py-0.5">
-          <div className="w-8 h-8 rounded-xl bg-brand flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform shadow-hz-button">
+        <Link href="/" className="flex items-center gap-3 group py-0.5">
+          <div className="w-9 h-9 rounded-xl bg-brand flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform shadow-hz-button">
             P
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="font-semibold text-sm tracking-tight text-ink">PEKPPP.ext</span>
-            <span className="text-[10px] font-medium tracking-wider text-ink-muted">Kutai Barat</span>
+            <span className="font-semibold text-base tracking-tight text-ink">PEKPPP.ext</span>
+            <span className="text-[11px] font-medium tracking-wider text-ink-muted">Kutai Barat</span>
           </div>
         </Link>
 
