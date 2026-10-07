@@ -415,7 +415,7 @@ export function F02GuidanceSection({
                 title="Salin temuan & rekomendasi AI pertanyaan ini ke Catatan Rekomendasi Aspek"
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-elevated hover:bg-surface-subtle text-ink text-[11px] font-medium border border-stroke/60 transition-all cursor-pointer shadow-2xs hover:border-stroke">
                 <FileEdit className="w-3 h-3 text-ink-muted" />
-                <span>+ Catatan Aspek</span>
+                <span>Catatan Aspek</span>
               </button>
 
               {aiSuggestedScore !== null && aiSuggestedScore !== undefined && (
@@ -425,8 +425,8 @@ export function F02GuidanceSection({
                     handleScoreSelect(String(aiSuggestedScore))
                     toast.success(`Skor rekomendasi AI (${aiSuggestedScore}) berhasil diterapkan!`)
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all shadow-hz-button cursor-pointer">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand hover:bg-brand-hover text-white text-[11px] font-medium transition-all shadow-hz-button cursor-pointer">
+                  <Sparkles className="w-3 h-3" />
                   <span>Terapkan Skor AI ({aiSuggestedScore})</span>
                 </button>
               )}
