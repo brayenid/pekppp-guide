@@ -1369,9 +1369,7 @@ export function AspectEvidenceWorkspace({
                                 </>
                               ) : (
                                 <>
-                                  <div className="w-6 h-6 rounded-lg bg-surface flex items-center justify-center border border-stroke/60 group-hover:border-brand/40 group-hover:bg-brand/10 transition-colors shrink-0">
-                                    <Plus className="w-3.5 h-3.5 text-ink-muted group-hover:text-brand transition-colors" />
-                                  </div>
+                                  <Plus className="w-4 h-4 text-ink-muted group-hover:text-brand transition-colors" />
                                   <span className="font-medium text-xs tracking-tight">Tambah Berkas</span>
                                 </>
                               )}
