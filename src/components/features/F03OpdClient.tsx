@@ -386,51 +386,46 @@ export function F03OpdClient({
       </div>
 
       {/* Hero: Public Questionnaire Generator Card - Primary Bubble Banner Version */}
-      <div className="relative overflow-hidden rounded-2xl bg-brand p-4 sm:p-6 shadow-soft-card space-y-4">
+      <div className="relative overflow-hidden rounded-2xl bg-brand p-4 sm:p-4.5 shadow-soft-card space-y-3.5">
         {/* Aksen bubble transparan */}
         <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
         <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/4 w-44 h-44 rounded-full bg-white/[0.06]" />
         <span aria-hidden className="pointer-events-none absolute top-4 right-1/3 w-14 h-14 rounded-full bg-white/[0.07]" />
 
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3.5">
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/20 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
-              <QrCode className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
+              <QrCode className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-semibold text-white">
+              <h3 className="text-sm sm:text-base font-semibold text-white leading-tight">
                 Generator Kuesioner Publik
               </h3>
-              <p className="text-xs text-white/80">
+              <p className="text-xs text-white/80 mt-0.5">
                 Pajang kode QR di loket layanan agar masyarakat dapat mengisi survei mandiri dari ponsel.
               </p>
             </div>
           </div>
 
-          {/* Toggle Kuesioner Buka/Tutup */}
-          <div className="flex items-center gap-2.5 self-start sm:self-auto bg-white/15 px-3 py-1.5 rounded-xl border border-white/20 shadow-2xs backdrop-blur-xs">
-            <div className="text-left">
-              <span className="text-[10px] font-semibold block text-white/70 leading-tight">
-                Status Kuesioner
-              </span>
-              <span className={`text-[10px] font-semibold ${isSurveyOpen ? 'text-emerald-300' : 'text-white/60'}`}>
-                {isSurveyOpen ? 'Aktif' : 'Ditutup'}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleToggleSurvey}
-              disabled={togglingSurvey}
-              className="cursor-pointer transition-transform active:scale-95 disabled:opacity-50"
-              title={isSurveyOpen ? 'Klik untuk menutup kuesioner' : 'Klik untuk membuka kuesioner'}
-            >
-              {isSurveyOpen ? (
-                <ToggleRight className="w-7 h-7 text-white" />
-              ) : (
-                <ToggleLeft className="w-7 h-7 text-white/40" />
-              )}
-            </button>
-          </div>
+          {/* Switch Status Kuesioner Sederhana */}
+          <button
+            type="button"
+            onClick={handleToggleSurvey}
+            disabled={togglingSurvey}
+            title={isSurveyOpen ? 'Klik untuk menutup kuesioner' : 'Klik untuk membuka kuesioner'}
+            className="flex items-center gap-2 self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/20 text-white transition-all cursor-pointer disabled:opacity-50 border border-white/15"
+          >
+            <span className="text-xs font-medium text-white/90">
+              Kuesioner {isSurveyOpen ? 'Aktif' : 'Ditutup'}
+            </span>
+            <span className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors ${isSurveyOpen ? 'bg-emerald-400' : 'bg-white/30'}`}>
+              <span
+                className={`bg-white w-3.5 h-3.5 rounded-full shadow-xs transform transition-transform ${
+                  isSurveyOpen ? 'translate-x-3.5' : 'translate-x-0'
+                }`}
+              />
+            </span>
+          </button>
         </div>
 
         {/* QR Display + Direct Link Action */}
