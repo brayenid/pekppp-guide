@@ -29,77 +29,114 @@ export function ZoomableImageContainer({ src, alt, className = '' }: ZoomableIma
     setPosition({ x: 0, y: 0 })
   }, [])
 
+  // Zoom sensitivity: reduced multiplier for smoother control
   const handleZoomIn = useCallback(() => {
-    setScale((prev) => Math.min(prev * 1.3, 5))
+    setScale((prev) => Math.min(prev * 1.2, 5))
   }, [])
 
   const handleZoomOut = useCallback(() => {
     setScale((prev) => {
-      const next = Math.max(prev / 1.3, 1)
+      const next = Math.max(prev / 1.2, 1)
       if (next === 1) setPosition({ x: 0, y: 0 })
       return next
     })
   }, [])
 
-  // Wheel zoom bounded strictly inside container
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  // Non-passive event listeners to strictly cancel native browser pinch & ctrl+wheel zoom
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
 
-    const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85
-    setScale((prev) => {
-      const next = Math.min(Math.max(prev * zoomFactor, 1), 5)
-      if (next === 1) setPosition({ x: 0, y: 0 })
-      return next
-    })
-  }, [])
-
-  // Touch handlers for mobile pinch-to-zoom & pan
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      // 2 fingers: pinch gesture
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      )
-      pinchStartDistRef.current = dist
-      initialPinchScaleRef.current = scale
-    } else if (e.touches.length === 1 && scale > 1) {
-      // 1 finger pan when zoomed
-      isDraggingRef.current = true
-      dragStartRef.current = {
-        x: e.touches[0].clientX - position.x,
-        y: e.touches[0].clientY - position.y
-      }
-    }
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 2 && pinchStartDistRef.current !== null) {
-      // Pinching
+    // Wheel zoom handler:
+    // When trackpad pinches, browsers emit WheelEvent with ctrlKey = true.
+    // Standard React onWheel cannot preventDefault if passive by default in modern Chrome/Safari.
+    const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      )
-      const ratio = dist / pinchStartDistRef.current
-      const next = Math.min(Math.max(initialPinchScaleRef.current * ratio, 1), 5)
-      setScale(next)
-      if (next === 1) setPosition({ x: 0, y: 0 })
-    } else if (e.touches.length === 1 && isDraggingRef.current && scale > 1) {
-      // Panning
-      e.preventDefault()
-      setPosition({
-        x: e.touches[0].clientX - dragStartRef.current.x,
-        y: e.touches[0].clientY - dragStartRef.current.y
+      e.stopPropagation()
+
+      // Trackpad pinch zoom generates e.ctrlKey === true
+      // Lower sensitivity for both wheel and pinch:
+      const sensitivity = e.ctrlKey ? 0.005 : 0.0015
+      const delta = -e.deltaY * sensitivity
+      const factor = Math.exp(delta)
+
+      setScale((prev) => {
+        const next = Math.min(Math.max(prev * factor, 1), 5)
+        if (next === 1) setPosition({ x: 0, y: 0 })
+        return next
       })
     }
-  }
 
-  const handleTouchEnd = () => {
-    pinchStartDistRef.current = null
-    isDraggingRef.current = false
-  }
+    // Touch handlers with non-passive touchmove to prevent browser zoom & bounce
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        )
+        pinchStartDistRef.current = dist
+        initialPinchScaleRef.current = scale
+      } else if (e.touches.length === 1 && scale > 1) {
+        isDraggingRef.current = true
+        dragStartRef.current = {
+          x: e.touches[0].clientX - position.x,
+          y: e.touches[0].clientY - position.y
+        }
+      }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && pinchStartDistRef.current !== null) {
+        // Crucial: prevents mobile/touch browser page zoom
+        e.preventDefault()
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        )
+        // Dampened ratio to reduce sensitivity
+        const rawRatio = dist / pinchStartDistRef.current
+        const dampedRatio = 1 + (rawRatio - 1) * 0.75
+        const next = Math.min(Math.max(initialPinchScaleRef.current * dampedRatio, 1), 5)
+        setScale(next)
+        if (next === 1) setPosition({ x: 0, y: 0 })
+      } else if (e.touches.length === 1 && isDraggingRef.current && scale > 1) {
+        e.preventDefault()
+        setPosition({
+          x: e.touches[0].clientX - dragStartRef.current.x,
+          y: e.touches[0].clientY - dragStartRef.current.y
+        })
+      }
+    }
+
+    const onTouchEnd = () => {
+      pinchStartDistRef.current = null
+      isDraggingRef.current = false
+    }
+
+    // Gesture events (Safari specific)
+    const onGestureStart = (e: Event) => {
+      e.preventDefault()
+    }
+    const onGestureChange = (e: Event) => {
+      e.preventDefault()
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd)
+    el.addEventListener('gesturestart', onGestureStart, { passive: false })
+    el.addEventListener('gesturechange', onGestureChange, { passive: false })
+
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+      el.removeEventListener('gesturestart', onGestureStart)
+      el.removeEventListener('gesturechange', onGestureChange)
+    }
+  }, [scale, position])
 
   // Mouse pan handlers when zoomed in
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -138,10 +175,6 @@ export function ZoomableImageContainer({ src, alt, className = '' }: ZoomableIma
   return (
     <div
       ref={containerRef}
-      onWheel={handleWheel}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
