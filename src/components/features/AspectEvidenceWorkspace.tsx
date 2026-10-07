@@ -1263,7 +1263,7 @@ export function AspectEvidenceWorkspace({
                                     </p>
                                     <div className="flex items-center gap-1.5 text-[10px] text-ink-muted font-normal flex-wrap">
                                       <span className="font-medium text-ink-secondary">
-                                        v{att.version || 1}
+                                        Versi {att.version || 1}
                                       </span>
                                       {formattedSize && (
                                         <>
