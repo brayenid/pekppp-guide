@@ -160,12 +160,13 @@ function NotificationContent() {
         next.delete(id)
       } else {
         next.add(id)
-        if (!isRead) {
-          handleMarkRead(id)
-        }
       }
       return next
     })
+
+    if (!isRead) {
+      handleMarkRead(id)
+    }
   }
 
   const handleMarkRead = async (id: string) => {
