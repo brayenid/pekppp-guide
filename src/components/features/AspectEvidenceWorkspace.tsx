@@ -1512,16 +1512,6 @@ export function AspectEvidenceWorkspace({
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  {h.fileUrl && h.action !== 'DELETE' && (
-                                    <a
-                                      href={h.fileUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="text-xs font-medium text-ink hover:underline inline-flex items-center gap-1">
-                                      <span>Lihat</span>
-                                      <ExternalLink className="w-3 h-3 text-ink-muted" />
-                                    </a>
-                                  )}
                                   {isEditable && (
                                     <button
                                       type="button"
