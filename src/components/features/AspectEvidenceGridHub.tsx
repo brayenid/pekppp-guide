@@ -81,42 +81,42 @@ export function AspectEvidenceGridHub({
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
-                <UploadCloud className="w-4 h-4" />
+              <span className="w-9 h-9 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
+                <UploadCloud className="w-4.5 h-4.5" />
               </span>
-              <h2 className="font-medium text-base text-white tracking-tight">
+              <h2 className="font-semibold text-lg text-white tracking-tight">
                 Pusat Unggah &amp; Pemenuhan Bukti Dukung (6 Aspek)
               </h2>
             </div>
-            <p className="text-xs text-white/80 pl-10.5 leading-relaxed">
+            <p className="text-sm text-white/85 pl-11.5 leading-relaxed">
               Unggah berkas fisik resmi dan pantau pemenuhan dokumen bukti untuk 6 Aspek evaluasi pada unit {unitName}.
             </p>
           </div>
 
           <div className="flex items-center gap-3.5 shrink-0 self-start sm:self-auto">
             <div className="text-right">
-              <span className="text-[10px] font-medium text-white/70 block">
+              <span className="text-xs font-medium text-white/75 block">
                 TOTAL DOKUMEN
               </span>
-              <span className="text-lg font-medium text-white">
-                {totalUploaded} <span className="text-xs text-white/70 font-normal">/ {totalRequired}</span>
+              <span className="text-xl font-semibold text-white">
+                {totalUploaded} <span className="text-sm text-white/75 font-normal">/ {totalRequired}</span>
               </span>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center font-medium text-xs text-white border border-white/20">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center font-semibold text-sm text-white border border-white/20 shadow-xs">
               {totalPercentage}%
             </div>
           </div>
         </div>
 
         {/* Global Progress Bar */}
-        <div className="relative space-y-1.5">
-          <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+        <div className="relative space-y-2">
+          <div className="w-full bg-white/20 h-2.5 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500 bg-white"
               style={{ width: `${totalPercentage}%` }}
             />
           </div>
-          <div className="flex justify-between text-[10px] text-white/75 font-normal pt-0.5">
+          <div className="flex justify-between text-xs text-white/80 font-normal pt-0.5">
             <span>0 Dokumen</span>
             <span>{totalPercentage === 100 ? 'Semua Dokumen Lengkap' : `${totalRequired - totalUploaded} dokumen belum diunggah`}</span>
             <span>{totalRequired} Dokumen Wajib</span>
