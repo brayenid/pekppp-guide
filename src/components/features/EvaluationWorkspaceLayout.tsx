@@ -960,28 +960,30 @@ export function EvaluationWorkspaceLayout({
           )}
         </div>
 
-        {/* Right: Progress & Action */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="flex items-center gap-2.5 text-xs">
-            <span className="text-ink-muted font-normal">
-              {userRole === 'OPD'
-                ? `Kelengkapan: ${completedF01WithProofCount}/31`
-                : `Penilaian: ${filledF02Count}/31`}
-            </span>
-            <div className="w-20 bg-surface-subtle h-1.5 rounded-full overflow-hidden hidden sm:block border border-stroke/40">
-              <div
-                className="bg-brand h-full transition-all duration-300 rounded-full"
-                style={{ width: `${overallProgress}%` }}
-              />
+        {/* Right: Progress & Action (Khusus Mode Formulir Pertanyaan F01 / F02) */}
+        {activeMainMode !== 'EVIDENCE' && (
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2.5 text-xs">
+              <span className="text-ink-muted font-normal">
+                {userRole === 'OPD'
+                  ? `Kelengkapan: ${completedF01WithProofCount}/31`
+                  : `Penilaian: ${filledF02Count}/31`}
+              </span>
+              <div className="w-20 bg-surface-subtle h-1.5 rounded-full overflow-hidden hidden sm:block border border-stroke/40">
+                <div
+                  className="bg-brand h-full transition-all duration-300 rounded-full"
+                  style={{ width: `${overallProgress}%` }}
+                />
+              </div>
+              <span className="text-xs font-medium text-ink">
+                {overallProgress}%
+              </span>
             </div>
-            <span className="text-xs font-medium text-ink">
-              {overallProgress}%
-            </span>
-          </div>
 
-          {userRole === 'OPD' && isF01Editable && <F01GlobalSaveButton />}
-          {userRole === 'SUPER_ADMIN' && <F02GlobalSaveButton />}
-        </div>
+            {userRole === 'OPD' && isF01Editable && <F01GlobalSaveButton />}
+            {userRole === 'SUPER_ADMIN' && <F02GlobalSaveButton />}
+          </div>
+        )}
       </div>
 
       {activeMainMode === 'EVIDENCE' ? (
