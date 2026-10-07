@@ -817,30 +817,30 @@ export function AspectEvidenceWorkspace({
   return (
     <div className="space-y-6">
       {/* 1. Header & Progress Banner */}
-      <div className="p-6 rounded-bento bg-surface border border-stroke/50 shadow-soft-card space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-brand-light text-brand">
+      <div className="px-5 py-4 rounded-bento bg-surface border border-stroke/50 shadow-soft-card">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div className="space-y-2.5 min-w-0">
+            <div
+              className="flex items-center gap-2 flex-wrap"
+              title={
+                isEditable
+                  ? `Lengkapi dokumen bukti fisik untuk seluruh indikator Aspek ${aspectName}.`
+                  : `Verifikasi kelengkapan dokumen bukti fisik Aspek ${aspectName}.`
+              }>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-light text-brand">
                 Aspek {aspectCode}
               </span>
+              <h1 className="text-base font-semibold text-ink tracking-tight">
+                Bukti Dukung: {aspectName}
+              </h1>
               <span className="text-xs text-ink-muted font-normal">
-                {isEditable ? 'Mode Lokus (Unggah Berkas)' : 'Mode Evaluator (Verifikasi)'}
+                • {isEditable ? 'Mode Lokus (Unggah Berkas)' : 'Mode Evaluator (Verifikasi)'}
               </span>
             </div>
 
-            <h1 className="text-xl font-medium text-ink tracking-tight">
-              Bukti Dukung: {aspectName}
-            </h1>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              {isEditable
-                ? `Lengkapi dokumen bukti fisik untuk seluruh indikator Aspek ${aspectName}.`
-                : `Verifikasi kelengkapan dokumen bukti fisik Aspek ${aspectName}.`}
-            </p>
-
-            {/* Action Buttons */}
-            <div className="pt-2 flex flex-col gap-2">
-              <div className="flex items-center gap-2 flex-wrap">
+            {/* Action Buttons & Helper Notes (satu alur, wrap otomatis) */}
+            <div className="flex items-center gap-x-2 gap-y-1.5 flex-wrap">
+              <div className="contents">
                 {/* Tombol Cek Kelayakan (Hanya tampil untuk OPD / Lokus Mandiri) */}
                 {!isEvaluator && (
                   <button
@@ -950,21 +950,19 @@ export function AspectEvidenceWorkspace({
             </div>
           </div>
 
-          {/* Clean Minimalist Counter */}
-          <div className="bg-surface-elevated px-4 py-3.5 rounded-2xl border border-stroke/60 min-w-[190px] space-y-2 shrink-0 self-start sm:self-auto shadow-2xs">
-            <div className="flex items-center justify-between text-xs font-medium text-ink">
-              <span>Kelengkapan Wajib</span>
-              <span className="font-semibold text-ink">{progressPercent}%</span>
-            </div>
-            <div className="w-full h-1.5 rounded-full bg-surface-subtle overflow-hidden">
+          {/* Compact Inline Counter */}
+          <div className="flex items-center gap-2.5 shrink-0 text-xs">
+            <span className="font-medium text-ink">Kelengkapan Wajib</span>
+            <div className="w-24 h-1.5 rounded-full bg-surface-subtle overflow-hidden">
               <div
                 className="h-full bg-brand transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className="text-[11px] text-ink-muted">
-              {filledMandatoryCount} dari {mandatoryTotal} Terisi
-            </div>
+            <span className="font-semibold text-ink">{progressPercent}%</span>
+            <span className="text-ink-muted">
+              • {filledMandatoryCount}/{mandatoryTotal}
+            </span>
           </div>
         </div>
       </div>
