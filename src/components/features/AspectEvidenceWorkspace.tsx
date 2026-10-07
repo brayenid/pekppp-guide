@@ -1074,7 +1074,7 @@ export function AspectEvidenceWorkspace({
                                 ) : (
                                   <UploadCloud className="w-3.5 h-3.5" />
                                 )}
-                                <span>{hasUploaded ? '+ Tambah Berkas' : 'Unggah File'}</span>
+                                <span>{hasUploaded ? '+ Tambah Berkas' : 'Unggah'}</span>
                               </button>
                             ) : (
                               <span className="px-3 py-1 rounded-full text-[11px] font-medium text-ink-muted bg-surface-subtle border border-stroke/50">
