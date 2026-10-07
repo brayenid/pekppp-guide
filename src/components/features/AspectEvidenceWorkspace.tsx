@@ -1986,14 +1986,14 @@ export function AspectEvidenceWorkspace({
 
               {/* Unggah Versi Baru Action */}
               {isEditable && (
-                <div className="p-3.5 rounded-xl border border-dashed border-stroke/70 bg-surface-subtle/40 flex items-center justify-between gap-3">
-                  <div>
+                <div className="p-3 rounded-xl border border-dashed border-stroke/70 bg-surface-subtle/40 flex items-center justify-between gap-3">
+                  <div className="min-w-0 pr-1">
                     <p className="text-xs font-semibold text-ink">Punya revisi dokumen ini?</p>
-                    <p className="text-[11px] text-ink-muted">
+                    <p className="text-[11px] text-ink-muted leading-tight">
                       Unggah versi terbaru (v{(versionModalTarget.attachment.version || 1) + 1}). Versi aktif saat ini akan tersimpan ke riwayat.
                     </p>
                   </div>
-                  <div>
+                  <div className="shrink-0">
                     <input
                       ref={versionFileInputRef}
                       type="file"
@@ -2011,7 +2011,7 @@ export function AspectEvidenceWorkspace({
                       type="button"
                       disabled={isUploadingVersion || isRestoringVersion}
                       onClick={() => versionFileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors shadow-hz-button cursor-pointer disabled:opacity-50 shrink-0">
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors shadow-hz-button cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap">
                       {isUploadingVersion ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
