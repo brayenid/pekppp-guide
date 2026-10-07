@@ -27,7 +27,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Info
+  Info,
+  LayoutGrid,
+  List
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '../ui/Button'
@@ -121,6 +123,23 @@ export function AspectEvidenceWorkspace({
   const [editValues, setEditValues] = useState<Record<string, string>>({})
   const [openLinkInputKey, setOpenLinkInputKey] = useState<string | null>(null)
   const [openAccordionKey, setOpenAccordionKey] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem('evidence_view_mode')
+      if (savedMode === 'list' || savedMode === 'grid') {
+        setViewMode(savedMode)
+      }
+    } catch {}
+  }, [])
+
+  const handleSetViewMode = (mode: 'grid' | 'list') => {
+    setViewMode(mode)
+    try {
+      localStorage.setItem('evidence_view_mode', mode)
+    } catch {}
+  }
 
   // Form Bukti Tambahan Kustom
   const [showAddCustom, setShowAddCustom] = useState(false)
@@ -936,12 +955,45 @@ export function AspectEvidenceWorkspace({
                   Format didukung: PDF/DOCX (Maks. 4 berkas @20MB) • Foto/Gambar (Maks. 6 foto @1MB)
                 </p>
               </div>
-              <span className="text-xs font-medium text-ink-secondary bg-surface-subtle px-3 py-1 rounded-full border border-stroke/50 shrink-0 self-start sm:self-auto">
-                {filledMandatoryCount}/{mandatorySlots.length} Terunggah
-              </span>
+
+              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                {/* View Mode Toggle: Grid vs List (Default Grid) */}
+                <div className="flex items-center p-0.5 bg-surface-subtle rounded-full border border-stroke/60 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleSetViewMode('grid')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-all cursor-pointer ${
+                      viewMode === 'grid'
+                        ? 'bg-surface-elevated text-ink font-semibold shadow-2xs'
+                        : 'text-ink-muted hover:text-ink font-normal'
+                    }`}
+                    title="Tampilan Grid (Kotak Berjajar)"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span>Grid</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetViewMode('list')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-all cursor-pointer ${
+                      viewMode === 'list'
+                        ? 'bg-surface-elevated text-ink font-semibold shadow-2xs'
+                        : 'text-ink-muted hover:text-ink font-normal'
+                    }`}
+                    title="Tampilan List (Daftar Memanjang)"
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span>List</span>
+                  </button>
+                </div>
+
+                <span className="text-xs font-medium text-ink-secondary bg-surface-subtle px-3 py-1 rounded-full border border-stroke/50">
+                  {filledMandatoryCount}/{mandatorySlots.length} Terunggah
+                </span>
+              </div>
             </div>
 
-            <div className="space-y-2.5">
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-3.5' : 'space-y-2.5'}>
               {mandatorySlots.map((slot, sIdx) => {
                 const attachments = slot.attachments || []
                 const hasUploaded = attachments.length > 0 || Boolean(slot.fileUrl && slot.fileUrl.trim() !== '')
@@ -1447,7 +1499,7 @@ export function AspectEvidenceWorkspace({
                 Belum ada dokumen tambahan untuk Aspek {aspectName}.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-3.5' : 'space-y-2'}>
                 {additionalSlots.map((slot) => (
                   <div
                     key={slot.slotKey}
