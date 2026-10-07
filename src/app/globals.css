@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --canvas: #DAE8F6;
+  --canvas: #EBF3FA;
   --card: #FFFFFF;
   --ink: #0F172A;
   --ink-secondary: #334155;
   --ink-muted: #64748B;
-  --line: #C4D8EC;
-  --line-border: #C4D8EC;
+  --line: #D9E7F4;
+  --line-border: #D9E7F4;
   --brand: #1D5BB9;
   --brand-hover: #154694;
   --brand-light: #EEF4FD;
@@ -19,7 +19,7 @@
 }
 
 body {
-  background-color: #DAE8F6;
+  background-color: #EBF3FA;
   color: #0F172A;
   font-family: var(--font-plus-jakarta), sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -47,7 +47,7 @@ html {
   background-color: #EEF4FD !important;
 }
 .bg-hz-bg {
-  background-color: #DAE8F6 !important;
+  background-color: #EBF3FA !important;
 }
 .bg-hz-card {
   background-color: #FFFFFF !important;
@@ -65,7 +65,7 @@ html {
   color: #64748B !important;
 }
 .border-hz-border {
-  border-color: #C4D8EC !important;
+  border-color: #D9E7F4 !important;
 }
 .border-hz-brand {
   border-color: #1D5BB9 !important;

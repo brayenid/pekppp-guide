@@ -8,13 +8,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas: '#DAE8F6',
+        canvas: '#EBF3FA',
         card: '#FFFFFF',
         surface: {
           DEFAULT: '#FFFFFF',
           elevated: '#FFFFFF',
-          subtle: '#CFE1F2',
-          muted: '#DAE8F6',
+          subtle: '#DFEDF8',
+          muted: '#EBF3FA',
         },
         brand: {
           DEFAULT: '#1D5BB9',
@@ -23,8 +23,8 @@ export default {
           muted: '#C9DCFB',
         },
         stroke: {
-          DEFAULT: '#C4D8EC',
-          soft: '#C4D8EC',
+          DEFAULT: '#D3E3F2',
+          soft: '#D3E3F2',
           faint: 'rgba(15, 23, 42, 0.04)',
         },
         ink: {
@@ -35,12 +35,12 @@ export default {
           faint: '#94A3B8',
         },
         line: {
-          DEFAULT: '#C4D8EC',
-          subtle: '#CFE1F2',
-          border: '#C4D8EC',
+          DEFAULT: '#D3E3F2',
+          subtle: '#DFEDF8',
+          border: '#D3E3F2',
         },
         hz: {
-          bg: '#DAE8F6',
+          bg: '#EBF3FA',
           card: '#FFFFFF',
           brand: '#1D5BB9',
           'brand-hover': '#154694',
@@ -59,12 +59,12 @@ export default {
         'hz-brand-hover': '#154694',
         'hz-brand-light': '#EEF4FD',
         'hz-brand-dark': '#0E2D60',
-        'hz-bg': '#DAE8F6',
+        'hz-bg': '#EBF3FA',
         'hz-card': '#FFFFFF',
         'hz-heading': '#0F172A',
         'hz-body': '#334155',
         'hz-muted': '#64748B',
-        'hz-border': '#C4D8EC',
+        'hz-border': '#D3E3F2',
         pastel: {
           green: '#E6F8F1',
           'green-text': '#01B574',
