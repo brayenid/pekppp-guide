@@ -1212,9 +1212,6 @@ export function EvaluationWorkspaceLayout({
                                   slotKey: slot.slotKey
                                 })
                                 setLeftTab('preview')
-                                if (sidebarWidthPct < 45) {
-                                  setSidebarWidthPct(45)
-                                }
                               }}
                               className="w-full flex items-center justify-between gap-2 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors text-left group/btn cursor-pointer">
                               <div className="flex items-center gap-2 min-w-0">
