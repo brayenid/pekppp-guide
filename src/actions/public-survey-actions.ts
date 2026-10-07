@@ -40,14 +40,30 @@ export async function getPublicSurveyDataAction(token: string) {
       where: { year: evaluation.year }
     })
 
+    const { getPeriodTimeline } = await import('../services/period-window-service')
+    const timeline = await getPeriodTimeline(evaluation.year)
+
     const targetQuota = period?.targetF03Quota || 30
     const filledCount = await db.f03Respondent.count({
       where: { evaluationId: evaluation.id }
     })
 
-    const isPeriodOpen = Boolean(period?.isOpen)
+    // Kuesioner hanya aktif jika:
+    // 1. Periode tahun evaluasi isOpen: true
+    // 2. Izin efektif F03 mengizinkan (timeline window F03 aktif atau tidak ada window restriction)
+    const isPeriodOpen = Boolean(timeline.isPeriodOpen)
+    const canFillF03 = Boolean(timeline.effectivePermissions.canFillF03)
     const isSurveyOpen = Boolean(evaluation.isPublicSurveyOpen)
     const isQuotaFull = filledCount >= targetQuota
+
+    let closedReason: string | null = null
+    if (!isPeriodOpen) {
+      closedReason = `Tahun evaluasi ${evaluation.year} tidak aktif atau telah ditutup.`
+    } else if (!canFillF03) {
+      closedReason = `Tahapan survei kepuasan masyarakat (F03) untuk tahun ${evaluation.year} sedang tidak aktif atau belum dibuka.`
+    } else if (!isSurveyOpen) {
+      closedReason = `Pengisian kuesioner untuk unit pelayanan ini sedang ditutup oleh pihak penyelenggara.`
+    }
 
     return {
       success: true,
@@ -58,8 +74,10 @@ export async function getPublicSurveyDataAction(token: string) {
         unitCode: evaluation.unit.code,
         categoryName: evaluation.unit.category?.name || 'Unit Pelayanan Publik',
         isPeriodOpen,
+        canFillF03,
         isSurveyOpen,
         isQuotaFull,
+        closedReason,
         targetQuota,
         filledCount,
         schema: f03Schema
@@ -90,7 +108,25 @@ export async function submitPublicSurveyAction(payload: PublicSurveySubmitPayloa
       return { success: false, error: 'Data evaluasi tidak ditemukan.' }
     }
 
-    // 1. Guard: Cek apakah kuesioner dibuka oleh Lokus
+    // 1. Guard: Cek apakah tahun evaluasi aktif & jadwal F03 mengizinkan
+    const { getPeriodTimeline } = await import('../services/period-window-service')
+    const timeline = await getPeriodTimeline(evaluation.year)
+
+    if (!timeline.isPeriodOpen) {
+      return {
+        success: false,
+        error: `Periode evaluasi tahun ${evaluation.year} tidak aktif atau telah ditutup secara resmi.`
+      }
+    }
+
+    if (!timeline.effectivePermissions.canFillF03) {
+      return {
+        success: false,
+        error: `Tahapan pengisian survei publik (F03) untuk tahun ${evaluation.year} sedang tidak aktif.`
+      }
+    }
+
+    // 2. Guard: Cek apakah kuesioner dibuka oleh Lokus
     if (!evaluation.isPublicSurveyOpen) {
       return {
         success: false,
@@ -98,18 +134,10 @@ export async function submitPublicSurveyAction(payload: PublicSurveySubmitPayloa
       }
     }
 
-    // 2. Guard: Cek status periode
+    // 3. Guard: Cek target kuota
     const period = await db.evaluationPeriod.findUnique({
       where: { year: evaluation.year }
     })
-    if (period && !period.isOpen) {
-      return {
-        success: false,
-        error: 'Periode evaluasi untuk tahun ini telah ditutup secara resmi.'
-      }
-    }
-
-    // 3. Guard: Cek target kuota
     const targetQuota = period?.targetF03Quota || 30
     const currentCount = await db.f03Respondent.count({
       where: { evaluationId: evaluation.id }

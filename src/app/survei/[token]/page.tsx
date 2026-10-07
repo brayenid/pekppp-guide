@@ -31,6 +31,27 @@ export default async function PublicSurveyPage({ params }: PageProps) {
 
   const { data } = res
 
+  // Jika tahun periode evaluasi tidak aktif atau tahapan F03 ditutup
+  if (!data.isPeriodOpen || !data.canFillF03) {
+    return (
+      <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-amber-100 shadow-xl shadow-amber-900/5 text-center space-y-5">
+          <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-amber-50/50">
+            <Clock className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-bold text-slate-900">
+              {!data.isPeriodOpen ? `Periode Evaluasi ${data.year} Tidak Aktif` : 'Tahapan Survei F03 Ditutup'}
+            </h1>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {data.closedReason || `Pengisian kuesioner untuk unit pelayanan ${data.unitName} sedang tidak dibuka.`}
+            </p>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   if (!data.isSurveyOpen) {
     return (
       <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
