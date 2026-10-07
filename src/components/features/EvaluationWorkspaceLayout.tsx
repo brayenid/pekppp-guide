@@ -1005,27 +1005,27 @@ export function EvaluationWorkspaceLayout({
               /* TAB 3: Inline Side-by-Side Live Document Preview */
               <div className="flex flex-col space-y-2.5 h-[calc(100vh-270px)]">
                 {/* Header preview with controls */}
-                <div className="p-3 rounded-xl bg-surface-subtle border border-stroke/50 space-y-2 shrink-0">
+                <div className="p-2.5 rounded-xl bg-surface-subtle border border-stroke/50 space-y-1.5 shrink-0">
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold text-ink truncate" title={sidebarPreviewDoc.title}>
                         {sidebarPreviewDoc.title}
                       </p>
-                      {sidebarPreviewDoc.fileName && (
-                        <p className="text-[11px] text-ink-muted truncate" title={sidebarPreviewDoc.fileName}>
+                      {(!sidebarPreviewDoc.allSlotAttachments || sidebarPreviewDoc.allSlotAttachments.length <= 1) && sidebarPreviewDoc.fileName && (
+                        <p className="text-[10px] text-ink-muted truncate" title={sidebarPreviewDoc.fileName}>
                           {sidebarPreviewDoc.fileName}
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0">
                       <a
                         href={sidebarPreviewDoc.fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-brand hover:bg-brand-light transition-colors border border-brand/20 bg-surface-elevated"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium text-brand hover:bg-brand-light transition-colors border border-brand/20 bg-surface-elevated"
                         title="Buka dokumen di tab baru browser"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
+                        <ExternalLink className="w-3 h-3" />
                         <span>Tab Baru</span>
                       </a>
                       <button
@@ -1034,25 +1034,25 @@ export function EvaluationWorkspaceLayout({
                           setLeftTab('evidence')
                           setSidebarPreviewDoc(null)
                         }}
-                        className="p-1 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+                        className="p-1 rounded-md text-ink-muted hover:text-ink hover:bg-surface-elevated transition-colors cursor-pointer"
                         title="Tutup preview & kembali ke daftar bukti"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Navigasi multi-berkas dalam satu komponen bukti */}
+                  {/* Navigasi multi-berkas ultra-compact dalam satu komponen bukti */}
                   {sidebarPreviewDoc.allSlotAttachments && sidebarPreviewDoc.allSlotAttachments.length > 1 && (
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-stroke/40 text-xs">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[11px] font-semibold text-ink shrink-0">
-                          Berkas {(sidebarPreviewDoc.currentIndex ?? 0) + 1}/{sidebarPreviewDoc.allSlotAttachments.length}:
+                    <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-stroke/30 text-[11px]">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        <span className="text-[10px] font-semibold text-ink-secondary shrink-0">
+                          {(sidebarPreviewDoc.currentIndex ?? 0) + 1}/{sidebarPreviewDoc.allSlotAttachments.length}:
                         </span>
                         <select
                           value={sidebarPreviewDoc.currentIndex ?? 0}
                           onChange={(e) => handleNavigatePreviewDoc(parseInt(e.target.value, 10))}
-                          className="text-[11px] bg-surface-elevated border border-stroke/60 rounded-md py-0.5 px-2 text-ink font-medium focus:ring-1 focus:ring-brand focus:outline-none cursor-pointer truncate max-w-[130px] sm:max-w-[180px]"
+                          className="text-[11px] bg-surface-elevated border border-stroke/60 rounded-md py-0.5 px-1.5 text-ink font-medium focus:ring-1 focus:ring-brand focus:outline-none cursor-pointer truncate w-full"
                         >
                           {sidebarPreviewDoc.allSlotAttachments.map((att, idx) => (
                             <option key={att.id || idx} value={idx}>
@@ -1062,7 +1062,7 @@ export function EvaluationWorkspaceLayout({
                         </select>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-0.5 shrink-0">
                         <button
                           type="button"
                           disabled={(sidebarPreviewDoc.currentIndex ?? 0) <= 0}
@@ -1070,7 +1070,7 @@ export function EvaluationWorkspaceLayout({
                           className="p-1 rounded-md text-ink-secondary hover:text-ink hover:bg-surface-elevated disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed border border-stroke/40"
                           title="Berkas sebelumnya"
                         >
-                          <ChevronLeft className="w-3.5 h-3.5" />
+                          <ChevronLeft className="w-3 h-3" />
                         </button>
                         <button
                           type="button"
@@ -1079,7 +1079,7 @@ export function EvaluationWorkspaceLayout({
                           className="p-1 rounded-md text-ink-secondary hover:text-ink hover:bg-surface-elevated disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed border border-stroke/40"
                           title="Berkas berikutnya"
                         >
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <ChevronRight className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
@@ -1309,25 +1309,25 @@ export function EvaluationWorkspaceLayout({
 
                           {/* Preview Rows: Render all uploaded files */}
                           {hasFiles ? (
-                            <div className="space-y-1.5">
+                            <div className="space-y-1">
                               {attachments.map((att, attIdx) => (
                                 <button
                                   key={att.id || attIdx}
                                   type="button"
                                   onClick={() => handleOpenSidebarPreview(slot, attIdx)}
-                                  className="w-full flex items-center justify-between gap-2 p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors text-left group/btn cursor-pointer">
-                                  <div className="flex items-center gap-2 min-w-0">
+                                  className="w-full flex items-center justify-between gap-2 p-1.5 px-2 rounded-md bg-emerald-50 hover:bg-emerald-100/90 border border-emerald-200/80 transition-colors text-left group/btn cursor-pointer">
+                                  <div className="flex items-center gap-1.5 min-w-0">
                                     {attachments.length > 1 && (
-                                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded shrink-0">
+                                      <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1 py-0.2 rounded shrink-0">
                                         #{attIdx + 1}
                                       </span>
                                     )}
-                                    <FileText className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                    <span className="text-xs text-emerald-900 font-medium truncate">
-                                      {att.fileName || 'Lihat Berkas Terunggah'}
+                                    <FileText className="w-3 h-3 text-emerald-600 shrink-0" />
+                                    <span className="text-[11px] text-emerald-950 font-medium truncate">
+                                      {att.fileName || 'Lihat Berkas'}
                                     </span>
                                   </div>
-                                  <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0 group-hover/btn:scale-110 transition-transform" />
+                                  <Eye className="w-3 h-3 text-emerald-600 shrink-0 group-hover/btn:scale-110 transition-transform" />
                                 </button>
                               ))}
                             </div>
