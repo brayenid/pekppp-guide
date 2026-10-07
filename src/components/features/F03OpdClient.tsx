@@ -225,20 +225,25 @@ export function F03OpdClient({
       ctx.fillStyle = '#FFFFFF'
       ctx.font = 'bold 30px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('Pindai QR untuk Memberi Penilaian', canvas.width / 2, 880)
+      ctx.fillText('Pindai QR untuk Memberi Penilaian', canvas.width / 2, 875)
+
+      // Heading "Apa ini?"
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = 'bold 18px sans-serif'
+      ctx.fillText('Apa ini?', canvas.width / 2, 918)
 
       // Informasi singkat kuesioner PEKPPP
       ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
-      ctx.font = '17px sans-serif'
+      ctx.font = '16px sans-serif'
       const line1 = 'Kuesioner ini digunakan untuk penilaian mandiri PEKPPP. Respon dan penilaian Anda'
       const line2 = 'merupakan bagian penting yang menentukan capaian unit dalam Indeks Pelayanan Publik.'
-      ctx.fillText(line1, canvas.width / 2, 930)
-      ctx.fillText(line2, canvas.width / 2, 960)
+      ctx.fillText(line1, canvas.width / 2, 946)
+      ctx.fillText(line2, canvas.width / 2, 972)
 
       // Note anonimitas
       ctx.fillStyle = 'rgba(255, 255, 255, 0.75)'
-      ctx.font = '15px sans-serif'
-      ctx.fillText('Proses pengisian cepat, mudah, dan 100% tanpa identitas (Anonim)', canvas.width / 2, 1005)
+      ctx.font = '14px sans-serif'
+      ctx.fillText('Proses pengisian cepat, mudah, dan 100% tanpa identitas (Anonim)', canvas.width / 2, 1010)
 
       // Garis pemisah footer
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'
