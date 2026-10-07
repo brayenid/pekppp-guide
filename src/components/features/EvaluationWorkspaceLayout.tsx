@@ -35,6 +35,7 @@ import { AspectEvidenceWorkspace } from './AspectEvidenceWorkspace'
 import { AspectEvidenceGridHub } from './AspectEvidenceGridHub'
 import { F01GlobalSaveButton } from './F01GlobalSaveButton'
 import { F02GlobalSaveButton } from './F02GlobalSaveButton'
+import { ZoomableImageContainer } from './ZoomableImageContainer'
 import { formatScore } from '../../lib/utils'
 import { normalizeAspectCode } from '../../core/domain/evidence-slots-preset'
 import {
@@ -1230,14 +1231,10 @@ export function EvaluationWorkspaceLayout({
 
                     if (preview.type === 'IMAGE') {
                       return (
-                        <div className="w-full h-full flex items-center justify-center p-3 overflow-auto bg-surface-subtle">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={sidebarPreviewDoc.fileUrl}
-                            alt={sidebarPreviewDoc.title}
-                            className="max-w-full max-h-full object-contain rounded shadow-2xs"
-                          />
-                        </div>
+                        <ZoomableImageContainer
+                          src={sidebarPreviewDoc.fileUrl}
+                          alt={sidebarPreviewDoc.title}
+                        />
                       )
                     }
 
