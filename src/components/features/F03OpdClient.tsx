@@ -136,79 +136,122 @@ export function F03OpdClient({
       return
     }
 
-    // Create high quality canvas card for print
+    // Create high quality canvas card for print (aspect ratio ~ poster A4 / 3:4)
     const canvas = document.createElement('canvas')
-    canvas.width = 800
-    canvas.height = 1050
+    canvas.width = 900
+    canvas.height = 1260
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Background
-    ctx.fillStyle = '#FFFFFF'
+    // 1. Background Primary (#1D5BB9)
+    ctx.fillStyle = '#1D5BB9'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // Decorative top border
-    ctx.fillStyle = '#D8902A'
-    ctx.fillRect(0, 0, canvas.width, 24)
-
-    // Header Title
-    ctx.fillStyle = '#1E293B'
-    ctx.font = 'bold 36px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('FORMULIR F03', canvas.width / 2, 90)
-
-    ctx.fillStyle = '#64748B'
-    ctx.font = '22px sans-serif'
-    ctx.fillText('PEKPPP - Evaluasi Kinerja Pelayanan Publik', canvas.width / 2, 130)
-
-    // Unit Box
-    ctx.fillStyle = '#FFFBEB'
-    ctx.strokeStyle = '#FDE68A'
-    ctx.lineWidth = 2
+    // 2. Aksen Bubble Ringan & Transparan
+    // Bubble besar kanan atas
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.09)'
     ctx.beginPath()
-    ctx.roundRect(60, 165, 680, 80, 16)
+    ctx.arc(820, 100, 220, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Bubble sedang kiri tengah
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)'
+    ctx.beginPath()
+    ctx.arc(60, 480, 170, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Bubble kecil kanan tengah
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.07)'
+    ctx.beginPath()
+    ctx.arc(840, 720, 110, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Bubble kiri bawah
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'
+    ctx.beginPath()
+    ctx.arc(120, 1180, 240, 0, Math.PI * 2)
+    ctx.fill()
+
+    // 3. Header Texts
+    // "FORMULIR F03"
+    ctx.fillStyle = '#FFFFFF'
+    ctx.font = 'bold 44px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('FORMULIR F03', canvas.width / 2, 95)
+
+    // "Pemantauan dan Evaluasi Kinerja Penyelenggara Pelayanan Publik"
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
+    ctx.font = '500 20px sans-serif'
+    ctx.fillText('Pemantauan dan Evaluasi Kinerja Penyelenggara Pelayanan Publik', canvas.width / 2, 135)
+
+    // Box Nama Unit Penyelenggara Layanan
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)'
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    ctx.roundRect(80, 165, 740, 78, 16)
     ctx.fill()
     ctx.stroke()
 
-    ctx.fillStyle = '#D8902A'
-    ctx.font = 'bold 18px sans-serif'
-    ctx.fillText('UNIT PENYELENGGARA LAYANAN', canvas.width / 2, 198)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)'
+    ctx.font = '600 14px sans-serif'
+    ctx.fillText('UNIT PENYELENGGARA LAYANAN', canvas.width / 2, 195)
 
-    ctx.fillStyle = '#0F172A'
-    ctx.font = 'bold 22px sans-serif'
-    const truncatedUnitName = unitName.length > 45 ? unitName.substring(0, 42) + '...' : unitName
-    ctx.fillText(truncatedUnitName, canvas.width / 2, 228)
+    ctx.fillStyle = '#FFFFFF'
+    ctx.font = 'bold 24px sans-serif'
+    const truncatedUnitName = unitName.length > 44 ? unitName.substring(0, 41) + '...' : unitName
+    ctx.fillText(truncatedUnitName, canvas.width / 2, 226)
 
-    // Load QR Image onto canvas
+    // 4. Load QR Image onto canvas
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.src = qrDataUrl
     img.onload = () => {
-      // Draw white card for QR
-      ctx.fillStyle = '#F8FAFC'
-      ctx.strokeStyle = '#E2E8F0'
-      ctx.lineWidth = 2
+      // White container card for QR
+      ctx.fillStyle = '#FFFFFF'
       ctx.beginPath()
-      ctx.roundRect(140, 275, 520, 520, 24)
+      ctx.roundRect(175, 275, 550, 550, 28)
       ctx.fill()
+
+      // Shadow/border subtle for QR Card
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'
+      ctx.lineWidth = 2
       ctx.stroke()
 
-      // Draw QR
-      ctx.drawImage(img, 170, 305, 460, 460)
+      // QR Image centered inside white card
+      ctx.drawImage(img, 210, 310, 480, 480)
 
-      // Instructions below QR
-      ctx.fillStyle = '#0F172A'
-      ctx.font = 'bold 26px sans-serif'
-      ctx.fillText('Pindai QR untuk Memberi Penilaian', canvas.width / 2, 850)
+      // Tulisan Pindai tepat di bawah QR card
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = 'bold 30px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText('Pindai QR untuk Memberi Penilaian', canvas.width / 2, 880)
 
-      ctx.fillStyle = '#64748B'
-      ctx.font = '20px sans-serif'
-      ctx.fillText('Cepat, mudah, dan 100% tanpa identitas (Anonim)', canvas.width / 2, 890)
+      // Informasi singkat kuesioner PEKPPP
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
+      ctx.font = '17px sans-serif'
+      const line1 = 'Kuesioner ini digunakan untuk penilaian mandiri PEKPPP. Respon dan penilaian Anda'
+      const line2 = 'merupakan bagian penting yang menentukan capaian unit dalam Indeks Pelayanan Publik.'
+      ctx.fillText(line1, canvas.width / 2, 930)
+      ctx.fillText(line2, canvas.width / 2, 960)
 
-      // Footer note
-      ctx.fillStyle = '#94A3B8'
-      ctx.font = '16px sans-serif'
-      ctx.fillText('Kementerian Pendayagunaan Aparatur Negara dan Reformasi Birokrasi (KemenPANRB)', canvas.width / 2, 980)
+      // Note anonimitas
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)'
+      ctx.font = '15px sans-serif'
+      ctx.fillText('Proses pengisian cepat, mudah, dan 100% tanpa identitas (Anonim)', canvas.width / 2, 1005)
+
+      // Garis pemisah footer
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(120, 1145)
+      ctx.lineTo(780, 1145)
+      ctx.stroke()
+
+      // Footer: Pemerintah Kabupaten Kutai Barat
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
+      ctx.font = '600 17px sans-serif'
+      ctx.fillText('Pemerintah Kabupaten Kutai Barat', canvas.width / 2, 1185)
 
       // Trigger download
       const link = document.createElement('a')
