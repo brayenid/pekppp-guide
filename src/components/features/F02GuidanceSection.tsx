@@ -249,6 +249,35 @@ export function F02GuidanceSection({
     }
   }
 
+  const handleApplyAiToAspectNote = () => {
+    // Collect contextual recommendations and notes from AI
+    const parts: string[] = []
+    if (aiVerificationTips?.trim()) {
+      parts.push(`Rekomendasi Lapangan: ${aiVerificationTips.trim()}`)
+    }
+    if (aiWeaknessNotes?.trim() && !aiWeaknessNotes.toLowerCase().includes('tidak ada')) {
+      parts.push(`Catatan Perbaikan: ${aiWeaknessNotes.trim()}`)
+    }
+    if (aiCriticalAudit?.trim()) {
+      parts.push(`Catatan Bukti F-01: ${aiCriticalAudit.trim()}`)
+    }
+
+    // Fallback if none of the above are present but confidence reason exists
+    if (parts.length === 0 && aiConfidenceReason?.trim()) {
+      parts.push(aiConfidenceReason.trim())
+    }
+
+    if (parts.length === 0) {
+      toast.info('Tidak ada rekomendasi AI yang relevan untuk disalin ke catatan aspek.')
+      return
+    }
+
+    const compiledText = `[#${indicatorNumber}] ${parts.join(' | ')}`
+    const newAspectText = aspectNote.trim() ? `${aspectNote.trim()}\n${compiledText}` : compiledText
+    handleAspectNoteChange(newAspectText)
+    toast.success(`Rekomendasi AI pertanyaan #${indicatorNumber} ditambahkan ke Catatan Rekomendasi Aspek!`)
+  }
+
   // State to toggle Petunjuk & Dokumen Acuan (Collapsible to save vertical space)
   const [showGuidanceDetails, setShowGuidanceDetails] = useState<boolean>(false)
 
@@ -345,40 +374,49 @@ export function F02GuidanceSection({
                 <Sparkles className="w-4 h-4 text-brand" />
               </div>
               <div className="space-y-0.5">
-                <h5 className="font-medium text-xs text-ink uppercase tracking-wider">
+                <h5 className="font-semibold text-xs text-ink uppercase tracking-wider">
                   Laporan AI Pre-Evaluator
                 </h5>
-                <p className="text-[11px] text-ink-muted">
-                  Audit otomatis berkas pendukung berdasarkan rubrik resmi MenPAN-RB
-                </p>
+                {aiConfidence !== null && aiConfidence !== undefined ? (
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        aiConfidence >= 75
+                          ? 'bg-emerald-500'
+                          : aiConfidence >= 50
+                            ? 'bg-amber-500'
+                            : 'bg-rose-500'
+                      }`}
+                    />
+                    <span
+                      className={
+                        aiConfidence >= 75
+                          ? 'text-emerald-700'
+                          : aiConfidence >= 50
+                            ? 'text-amber-700'
+                            : 'text-rose-700'
+                      }>
+                      Keyakinan: {aiConfidence >= 75 ? 'Tinggi' : aiConfidence >= 50 ? 'Sedang' : 'Rendah'} ({aiConfidence}%)
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-ink-muted">
+                    Audit otomatis berkas pendukung berdasarkan rubrik resmi MenPAN-RB
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Badges & Quick Action */}
+            {/* Quick Actions: Jadikan Catatan Aspek & Terapkan Skor AI */}
             <div className="flex flex-wrap items-center gap-2">
-              {aiConfidence !== null && aiConfidence !== undefined && (
-                <span
-                  className={`text-xs font-medium px-3 py-1 rounded-full border flex items-center gap-1.5 shadow-2xs ${
-                    aiConfidence >= 75
-                      ? 'bg-pastel-green text-pastel-green-text border-pastel-green-border'
-                      : aiConfidence >= 50
-                        ? 'bg-pastel-amber text-pastel-amber-text border-pastel-amber-border'
-                        : 'bg-pastel-rose text-pastel-rose-text border-pastel-rose-border'
-                  }`}>
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      aiConfidence >= 75
-                        ? 'bg-emerald-500'
-                        : aiConfidence >= 50
-                          ? 'bg-amber-500'
-                          : 'bg-rose-500'
-                    }`}
-                  />
-                  <span>
-                    Keyakinan: {aiConfidence >= 75 ? 'Tinggi' : aiConfidence >= 50 ? 'Sedang' : 'Rendah'} ({aiConfidence}%)
-                  </span>
-                </span>
-              )}
+              <button
+                type="button"
+                onClick={handleApplyAiToAspectNote}
+                title="Salin temuan & rekomendasi AI pertanyaan ini ke Catatan Rekomendasi Aspek"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-elevated hover:bg-surface-subtle text-ink text-xs font-medium border border-stroke/60 transition-all cursor-pointer shadow-2xs hover:border-stroke">
+                <FileEdit className="w-3.5 h-3.5 text-ink-muted" />
+                <span>Jadikan Catatan Rekomendasi Aspek</span>
+              </button>
 
               {aiSuggestedScore !== null && aiSuggestedScore !== undefined && (
                 <button
