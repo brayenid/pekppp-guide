@@ -55,8 +55,8 @@ export function ZoomableImageContainer({ src, alt, className = '' }: ZoomableIma
       e.stopPropagation()
 
       // Trackpad pinch zoom generates e.ctrlKey === true
-      // Lower sensitivity for both wheel and pinch:
-      const sensitivity = e.ctrlKey ? 0.005 : 0.0015
+      // Sensitivity tuned for smooth, responsive feedback:
+      const sensitivity = e.ctrlKey ? 0.008 : 0.0022
       const delta = -e.deltaY * sensitivity
       const factor = Math.exp(delta)
 
@@ -93,9 +93,9 @@ export function ZoomableImageContainer({ src, alt, className = '' }: ZoomableIma
           e.touches[0].clientX - e.touches[1].clientX,
           e.touches[0].clientY - e.touches[1].clientY
         )
-        // Dampened ratio to reduce sensitivity
+        // Dampened ratio tuned slightly higher for snappy response
         const rawRatio = dist / pinchStartDistRef.current
-        const dampedRatio = 1 + (rawRatio - 1) * 0.75
+        const dampedRatio = 1 + (rawRatio - 1) * 0.88
         const next = Math.min(Math.max(initialPinchScaleRef.current * dampedRatio, 1), 5)
         setScale(next)
         if (next === 1) setPosition({ x: 0, y: 0 })
