@@ -1371,38 +1371,17 @@ export function AspectEvidenceWorkspace({
                     {/* Middle Row: Example Format Links */}
                     <div className="flex items-center gap-2.5 text-xs pt-1 flex-wrap">
                       {slot.exampleImages && slot.exampleImages.length > 0 ? (
-                        <div className="inline-flex items-center gap-2 flex-wrap">
-                          <button
-                            type="button"
-                            onClick={() => openExampleGallery(slot, 0)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-subtle hover:bg-surface-hover text-ink text-xs font-medium transition-all cursor-pointer border border-stroke/60 shadow-2xs">
-                            <ImageIcon className="w-3.5 h-3.5 text-ink-muted shrink-0" />
-                            <span>
-                              {slot.exampleImages.length > 1
-                                ? `Lihat Contoh Format (${slot.exampleImages.length} Berkas)`
-                                : 'Lihat Contoh Format'}
-                            </span>
-                          </button>
-
-                          {/* Quick pills if multiple files */}
-                          {slot.exampleImages.length > 1 && (
-                            <div className="inline-flex items-center gap-1.5">
-                              {slot.exampleImages.map((imgUrl, idx) => {
-                                const isPdf = imgUrl.toLowerCase().endsWith('.pdf')
-                                return (
-                                  <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => openExampleGallery(slot, idx)}
-                                    className="px-3 py-1 rounded-full text-xs font-medium bg-surface hover:bg-surface-hover border border-stroke/50 text-ink-secondary hover:text-ink cursor-pointer transition-colors shadow-2xs"
-                                    title={`Buka contoh berkas ke-${idx + 1}`}>
-                                    #{idx + 1} {isPdf ? 'PDF' : 'Gambar'}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                          )}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openExampleGallery(slot, 0)}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-subtle hover:bg-surface-hover text-ink text-xs font-medium transition-all cursor-pointer border border-stroke/60 shadow-2xs">
+                          <ImageIcon className="w-3.5 h-3.5 text-ink-muted shrink-0" />
+                          <span>
+                            {slot.exampleImages.length > 1
+                              ? `Lihat Contoh Format (${slot.exampleImages.length} Berkas)`
+                              : 'Lihat Contoh Format'}
+                          </span>
+                        </button>
                       ) : (
                         isEvaluator && (
                           <span className="text-xs text-ink-muted italic">Belum ada contoh format</span>
