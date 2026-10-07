@@ -1258,20 +1258,26 @@ export function AspectEvidenceWorkspace({
                                     {isPdf ? 'PDF' : isImg ? 'FOTO' : 'DOK'}
                                   </span>
                                   <div className="min-w-0">
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                      <p className="font-medium text-ink truncate" title={att.fileName}>
-                                        {att.fileName}
-                                      </p>
-                                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-surface-elevated text-ink-secondary border border-stroke/50 shrink-0">
+                                    <p className="font-medium text-ink truncate" title={att.fileName}>
+                                      {att.fileName}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-ink-muted font-normal flex-wrap">
+                                      <span className="font-medium text-ink-secondary">
                                         v{att.version || 1}
                                       </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] text-ink-muted font-normal">
-                                      {formattedSize && <span>{formattedSize}</span>}
+                                      {formattedSize && (
+                                        <>
+                                          <span>•</span>
+                                          <span>{formattedSize}</span>
+                                        </>
+                                      )}
                                       {att.versions && att.versions.length > 0 && (
-                                        <span className="text-brand font-medium">
-                                          • {att.versions.length} versi lampau
-                                        </span>
+                                        <>
+                                          <span>•</span>
+                                          <span className="text-brand font-medium">
+                                            {att.versions.length} riwayat
+                                          </span>
+                                        </>
                                       )}
                                     </div>
                                   </div>
