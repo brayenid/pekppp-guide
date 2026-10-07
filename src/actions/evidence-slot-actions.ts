@@ -432,11 +432,24 @@ export async function deleteEvidenceAttachmentAction(params: {
       return { success: false, error: 'Berkas lampiran tidak ditemukan.' }
     }
 
-    // 1. Hapus berkas fisik dari storage
+    // 1. Hapus berkas fisik aktif dari storage
     try {
       await StorageService.deleteFile(target.fileUrl)
     } catch (e) {
       console.warn('Gagal menghapus berkas fisik:', target.fileUrl, e)
+    }
+
+    // 1b. Hapus seluruh berkas fisik dari versi-versi lampau berkas ini
+    if (target.versions && target.versions.length > 0) {
+      for (const ver of target.versions) {
+        if (ver.fileUrl) {
+          try {
+            await StorageService.deleteFile(ver.fileUrl)
+          } catch (verErr) {
+            console.warn('Gagal menghapus berkas versi fisik:', ver.fileUrl, verErr)
+          }
+        }
+      }
     }
 
     // 2. Filter lampiran tersisa
@@ -448,7 +461,7 @@ export async function deleteEvidenceAttachmentAction(params: {
       action: 'DELETE',
       actorName: 'Admin OPD',
       fileName: target.fileName,
-      fileUrl: target.fileUrl,
+      fileUrl: null, // Berkas fisik sudah di-unlink/dihapus, jadi tidak ada link mati
       previousUrl: null,
       note: `Menghapus lampiran berkas: ${target.fileName}`
     })
