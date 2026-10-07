@@ -1360,20 +1360,12 @@ export function EvaluationWorkspaceLayout({
               /* TAB 2: Bukti Dukung Khusus Aspek dari Pertanyaan yang Sedang Aktif */
               <div className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
                 {/* Active Aspect Banner */}
-                <div className="p-4 rounded-2xl bg-surface-subtle border border-stroke/40 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-ink bg-surface px-2.5 py-0.5 rounded-full border border-stroke/50 shadow-2xs">
-                      Aspek {activeScoreItem.indicator.aspect.code}
-                    </span>
-                    <span className="text-[11px] text-ink-muted font-medium">
-                      Pertanyaan #{activeNumber} ({activeScoreItem.indicator.code})
-                    </span>
-                  </div>
-                  <div className="font-medium text-xs text-ink pt-0.5">
+                <div className="p-3.5 rounded-2xl bg-surface-subtle border border-stroke/40 space-y-1">
+                  <div className="font-semibold text-xs text-ink">
                     {activeScoreItem.indicator.aspect.name}
                   </div>
                   <p className="text-[11px] text-ink-muted leading-snug">
-                    Daftar berkas bukti dukung Aspek {activeScoreItem.indicator.aspect.code}:
+                    Daftar berkas bukti dukung:
                   </p>
                 </div>
 
