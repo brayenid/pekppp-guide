@@ -501,29 +501,29 @@ export function F03OpdClient({
                 <Globe className="w-3.5 h-3.5 text-white/90 dark:text-brand" />
                 Tautan Kuesioner Online
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   readOnly
                   value={fullSurveyUrl || 'Menyiapkan tautan...'}
-                  className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-surface-elevated text-ink border border-white/30 dark:border-stroke select-all font-mono focus:outline-none shadow-2xs"
+                  className="flex-1 px-3 py-2 sm:py-1.5 rounded-lg text-xs bg-white dark:bg-surface-elevated text-ink border border-white/30 dark:border-stroke select-all font-mono focus:outline-none shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3.5 py-1.5 rounded-lg bg-white/20 dark:bg-surface-elevated hover:bg-white/30 dark:hover:bg-stroke/40 text-white dark:text-ink font-medium text-xs inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 border border-white/25 dark:border-stroke shadow-2xs">
+                  className="px-4 py-2 sm:py-1.5 rounded-lg bg-white/20 dark:bg-surface-elevated hover:bg-white/30 dark:hover:bg-stroke/40 text-white dark:text-ink font-medium text-xs inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 border border-white/25 dark:border-stroke shadow-2xs min-h-[40px]">
                   {copiedLink ? <Check className="w-3.5 h-3.5 text-white dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white dark:text-ink" />}
-                  <span>{copiedLink ? 'Tersalin' : 'Salin'}</span>
+                  <span>{copiedLink ? 'Tersalin' : 'Salin Tautan'}</span>
                 </button>
               </div>
             </div>
 
             {/* Print & Download Button */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 pt-1">
               <button
                 type="button"
                 onClick={handleDownloadQR}
-                className="px-4 py-2 rounded-lg bg-white dark:bg-brand text-brand dark:text-white hover:bg-white/90 dark:hover:bg-brand-hover font-semibold text-xs inline-flex items-center gap-1.5 transition-all shadow-hz-button cursor-pointer">
+                className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-lg bg-white dark:bg-brand text-brand dark:text-white hover:bg-white/90 dark:hover:bg-brand-hover font-semibold text-xs inline-flex items-center gap-1.5 transition-all shadow-hz-button cursor-pointer min-h-[44px]">
                 <Download className="w-3.5 h-3.5 text-brand dark:text-white" />
                 <span>Unduh QR Siap Cetak (PNG)</span>
               </button>
@@ -533,7 +533,7 @@ export function F03OpdClient({
                   href={fullSurveyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2 rounded-lg bg-white/15 dark:bg-surface-elevated hover:bg-white/25 dark:hover:bg-stroke/40 border border-white/25 dark:border-stroke text-white dark:text-ink font-medium text-xs inline-flex items-center gap-1.5 transition-colors shadow-2xs">
+                  className="w-full sm:w-auto justify-center px-3.5 py-2.5 rounded-lg bg-white/15 dark:bg-surface-elevated hover:bg-white/25 dark:hover:bg-stroke/40 border border-white/25 dark:border-stroke text-white dark:text-ink font-medium text-xs inline-flex items-center gap-1.5 transition-colors shadow-2xs min-h-[44px]">
                   <span>Pratinjau Kuesioner</span>
                   <ExternalLink className="w-3 h-3 text-white/80 dark:text-ink-muted" />
                 </a>

@@ -73,34 +73,34 @@ export function AspectEvidenceGridHub({
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Overview Metric Banner */}
-      <div className="relative overflow-hidden p-6 bg-brand dark:bg-card dark:border dark:border-stroke rounded-bento shadow-soft-card space-y-4">
+      <div className="relative overflow-hidden p-4.5 sm:p-6 bg-brand dark:bg-card dark:border dark:border-stroke rounded-bento shadow-soft-card space-y-4">
         {/* Aksen bubble transparan di sudut */}
         <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:opacity-10" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 dark:border-stroke pb-4">
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 border-b border-white/20 dark:border-stroke pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <span className="w-9 h-9 rounded-full bg-white/20 dark:bg-brand-light text-white dark:text-brand flex items-center justify-center shrink-0">
-                <UploadCloud className="w-4.5 h-4.5" />
+              <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 dark:bg-brand-light text-white dark:text-brand flex items-center justify-center shrink-0">
+                <UploadCloud className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               </span>
-              <h2 className="font-semibold text-lg text-white dark:text-ink tracking-tight">
+              <h2 className="font-semibold text-base sm:text-lg text-white dark:text-ink tracking-tight">
                 Pusat Unggah &amp; Pemenuhan Bukti Dukung (6 Aspek)
               </h2>
             </div>
-            <p className="text-sm text-white/85 dark:text-ink-secondary pl-11.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-white/85 dark:text-ink-secondary pl-0 sm:pl-11.5 leading-relaxed">
               Unggah berkas fisik resmi dan pantau pemenuhan dokumen bukti untuk 6 Aspek evaluasi pada unit {unitName}.
             </p>
           </div>
 
-          <div className="flex items-center gap-3.5 shrink-0 self-start sm:self-auto">
-            <div className="text-right">
-              <span className="text-xs font-medium text-white/75 dark:text-ink-muted block">
+          <div className="flex items-center justify-between sm:justify-end gap-3.5 w-full sm:w-auto pt-2 sm:pt-0 border-t border-white/10 sm:border-t-0">
+            <div className="text-left sm:text-right">
+              <span className="text-[11px] sm:text-xs font-medium text-white/75 dark:text-ink-muted block">
                 TOTAL DOKUMEN
               </span>
-              <span className="text-xl font-semibold text-white dark:text-ink">
-                {totalUploaded} <span className="text-sm text-white/75 dark:text-ink-muted font-normal">/ {totalRequired}</span>
+              <span className="text-lg sm:text-xl font-semibold text-white dark:text-ink">
+                {totalUploaded} <span className="text-xs sm:text-sm text-white/75 dark:text-ink-muted font-normal">/ {totalRequired}</span>
               </span>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-white/15 dark:bg-surface-elevated flex items-center justify-center font-semibold text-sm text-white dark:text-ink border border-white/20 dark:border-stroke shadow-xs">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white/15 dark:bg-surface-elevated flex items-center justify-center font-semibold text-xs sm:text-sm text-white dark:text-ink border border-white/20 dark:border-stroke shadow-xs shrink-0">
               {totalPercentage}%
             </div>
           </div>
@@ -114,7 +114,7 @@ export function AspectEvidenceGridHub({
               style={{ width: `${totalPercentage}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-white/80 dark:text-ink-muted font-normal pt-0.5">
+          <div className="flex flex-wrap sm:flex-nowrap justify-between text-[11px] sm:text-xs text-white/80 dark:text-ink-muted font-normal pt-0.5 gap-1">
             <span>0 Dokumen</span>
             <span>{totalPercentage === 100 ? 'Semua Dokumen Lengkap' : `${totalRequired - totalUploaded} dokumen belum diunggah`}</span>
             <span>{totalRequired} Dokumen Wajib</span>
@@ -123,13 +123,13 @@ export function AspectEvidenceGridHub({
       </div>
 
       {/* Bento Grid 6 Aspek */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
         {overview.map((asp) => {
           return (
             <div
               key={asp.aspectCode}
               onClick={() => onSelectAspect(asp.aspectCode)}
-              className="p-6 bg-surface rounded-bento border border-stroke/50 hover:border-brand/50 hover:shadow-card transition-all cursor-pointer flex flex-col justify-between space-y-4 group relative">
+              className="p-4.5 sm:p-6 bg-surface rounded-bento border border-stroke/50 hover:border-brand/50 hover:shadow-card transition-all cursor-pointer flex flex-col justify-between space-y-4 group relative">
               {/* Card Header */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">

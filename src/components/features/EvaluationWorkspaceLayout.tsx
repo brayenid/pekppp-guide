@@ -939,20 +939,20 @@ export function EvaluationWorkspaceLayout({
 
       {/* Minimalist Action Ribbon (Khusus Mode Formulir Pertanyaan F01 / F02) */}
       {activeMainMode !== 'EVIDENCE' && (
-        <div className="bg-surface rounded-2xl border border-stroke px-5 py-3 flex items-center justify-between gap-4 shadow-soft-card mb-5">
+        <div className="bg-surface rounded-2xl border border-stroke px-4 sm:px-5 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-soft-card mb-5">
           {/* Left: Indicator Breadcrumb */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke text-xs">
+            <span className="font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke text-xs shrink-0">
               #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
             </span>
-            <span className="text-stroke font-bold">•</span>
+            <span className="text-stroke font-bold hidden sm:inline">•</span>
             <span className="text-ink-secondary font-medium truncate max-w-[280px] sm:max-w-md">
               {activeScoreItem.indicator.aspect.name}
             </span>
           </div>
 
           {/* Right: Progress & Action */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t border-stroke/40 sm:border-t-0">
             <div className="flex items-center gap-2.5 text-xs">
               <span className="text-ink-secondary font-medium">
                 {userRole === 'OPD'
@@ -1071,24 +1071,50 @@ export function EvaluationWorkspaceLayout({
         /* MODE: PENGISIAN INSTRUMEN SOAL (SPLIT-PANEL)                  */
         /* ------------------------------------------------------------- */
         <div className="space-y-5">
-        {/* Mobile: simple stack layout (no resizer on mobile) */}
-        <div className="flex flex-col gap-5 lg:hidden">
-          <div className="rounded-bento border border-stroke/50 bg-surface p-4 space-y-4 shadow-soft-card">
-            <div className="text-xs text-ink-muted text-center">Gunakan perangkat yang lebih besar untuk tampilan dua panel.</div>
+        {/* Mobile: Horizontal Indicator Navigation Carousel */}
+        <div className="lg:hidden rounded-bento border border-stroke/50 bg-surface p-3 sm:p-4 space-y-2.5 shadow-soft-card">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-ink">Peta Indikator Soal (1–31)</span>
+            <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
+              Soal #{activeNumber}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
+            {internalScores.map((sc) => {
+              const num = sc.indicator.indicatorNumber
+              const isSelected = num === activeNumber
+              const hasScore = sc.score !== null && sc.score !== undefined
+              const hasProof = !!sc.proofUrl || !!sc.f01Submitted
+              return (
+                <button
+                  key={sc.indicator.id}
+                  type="button"
+                  onClick={() => handleGoToNumber(num)}
+                  className={`min-w-[40px] h-9 px-2 rounded-xl text-xs font-semibold flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-brand text-white shadow-hz-button scale-105'
+                      : hasScore || hasProof
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60'
+                      : 'bg-surface-subtle text-ink-secondary border border-stroke/60 hover:text-ink'
+                  }`}>
+                  #{num}
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        {/* Desktop: resizable split panel */}
+        {/* Workspace Layout: Split panel on desktop, single column on mobile */}
         <div
           ref={splitContainerRef}
-          className="hidden lg:flex items-start gap-0 mt-5"
+          className="flex flex-col lg:flex-row items-stretch lg:items-start gap-4 lg:gap-0 mt-2 sm:mt-5"
         >
           {/* ------------------------------------------------------------- */}
-          {/* LEFT PANEL: PETA PERTANYAAN                                  */}
+          {/* LEFT PANEL: PETA PERTANYAAN (Desktop Only)                    */}
           {/* ------------------------------------------------------------- */}
           <div
             style={{ width: `${sidebarWidthPct}%`, minWidth: `${SIDEBAR_MIN}%`, maxWidth: `${SIDEBAR_MAX}%` }}
-            className="rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-24 shrink-0"
+            className="hidden lg:block rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-24 shrink-0"
           >
             <div className="space-y-3.5">
               <div className="flex items-center justify-between pb-3 text-xs border-b border-stroke">
@@ -1545,7 +1571,7 @@ export function EvaluationWorkspaceLayout({
           {/* ------------------------------------------------------------- */}
           {/* RIGHT PANEL: SPACIOUS WORKSPACE (~67% width)                 */}
           {/* ------------------------------------------------------------- */}
-          <div id="active-workspace-card" className="flex-1 min-w-0 space-y-4">
+          <div id="active-workspace-card" className="w-full lg:flex-1 min-w-0 space-y-4">
           {/* Standard Question Form View */}
           <div className={`rounded-bento border bg-surface shadow-soft-card overflow-hidden transition-all duration-500 ${
             highlightTarget
@@ -1774,17 +1800,17 @@ export function EvaluationWorkspaceLayout({
                 </div>
 
                 {/* Footer Navigation Bar */}
-                <div className="px-6 py-4 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-3">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     disabled={!prevScoreItem}
                     onClick={() => prevScoreItem && handleGoToNumber(prevScoreItem.indicator.indicatorNumber)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs min-h-[44px]">
                     <ChevronLeft className="w-3.5 h-3.5" />
-                    <span>Sebelumnya (#{prevScoreItem ? prevScoreItem.indicator.indicatorNumber : '-'})</span>
+                    <span>Sebelumnya ({prevScoreItem ? `#${prevScoreItem.indicator.indicatorNumber}` : '-'})</span>
                   </button>
 
-                  <div className="text-xs text-ink-muted hidden sm:block">
+                  <div className="text-xs text-ink-muted hidden md:block">
                     Soal <strong className="text-ink font-medium">#{activeNumber}</strong> dari {totalIndicators}
                   </div>
 
@@ -1792,7 +1818,7 @@ export function EvaluationWorkspaceLayout({
                     <button
                       type="button"
                       onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
-                      className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button">
+                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button min-h-[44px]">
                       <UploadCloud className="w-3.5 h-3.5" />
                       <span>Upload Bukti Aspek {activeScoreItem.indicator.aspect.code}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -1802,8 +1828,8 @@ export function EvaluationWorkspaceLayout({
                       type="button"
                       disabled={!nextScoreItem}
                       onClick={() => nextScoreItem && handleGoToNumber(nextScoreItem.indicator.indicatorNumber)}
-                      className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
-                      <span>Berikutnya (#{nextScoreItem ? nextScoreItem.indicator.indicatorNumber : 'Selesai'})</span>
+                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button min-h-[44px]">
+                      <span>Berikutnya ({nextScoreItem ? `#${nextScoreItem.indicator.indicatorNumber}` : 'Selesai'})</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   )}
