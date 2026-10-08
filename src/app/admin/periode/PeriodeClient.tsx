@@ -281,7 +281,7 @@ export default function PeriodeClient({
           return (
             <div
               key={period.id}
-              className={`rounded-bento p-6 sm:p-7 border bg-surface transition-all duration-200 flex flex-col justify-between hover:shadow-soft-float ${
+              className={`rounded-bento p-5 sm:p-7 border bg-surface transition-all duration-200 flex flex-col justify-between hover:shadow-soft-float ${
                 period.isOpen
                   ? 'border-brand/40 shadow-soft-card ring-1 ring-brand/20'
                   : 'border-stroke/50 shadow-soft-card opacity-95'
@@ -365,14 +365,14 @@ export default function PeriodeClient({
               </div>
 
               {/* Card Footer Actions */}
-              <div className="mt-6 pt-4 border-t border-stroke/40 flex items-center justify-between gap-3">
+              <div className="mt-6 pt-4 border-t border-stroke/40 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   {/* Status Toggle (Buka / Tutup Pengisian) */}
                   <button
                     type="button"
                     onClick={() => handleToggleClick(period)}
                     title={period.isOpen ? 'Tutup Pengisian Tahun Ini' : 'Buka & Aktifkan Tahun Ini'}
-                    className="w-8 h-8 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer">
+                    className="w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer">
                     {period.isOpen ? (
                       <Unlock className="w-3.5 h-3.5 text-brand" />
                     ) : (
@@ -385,7 +385,7 @@ export default function PeriodeClient({
                     type="button"
                     onClick={() => handlePublishClick(period)}
                     title={period.isPublished ? 'Tarik Publikasi (Sembunyikan dari Publik)' : 'Publikasikan Hasil Penilaian ke Publik'}
-                    className={`w-8 h-8 rounded-full border border-stroke/60 bg-surface flex items-center justify-center transition-colors shadow-2xs cursor-pointer ${
+                    className={`w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center transition-colors shadow-2xs cursor-pointer ${
                       period.isPublished
                         ? 'text-brand hover:text-brand-hover hover:bg-brand-light'
                         : 'text-ink-muted hover:text-ink hover:bg-surface-subtle'
@@ -402,7 +402,7 @@ export default function PeriodeClient({
                     type="button"
                     onClick={() => handleEditClick(period)}
                     title="Edit Tahun Penilaian"
-                    className="w-8 h-8 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-brand hover:bg-brand-light transition-colors shadow-2xs cursor-pointer">
+                    className="w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-brand hover:bg-brand-light transition-colors shadow-2xs cursor-pointer">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
 
@@ -411,7 +411,7 @@ export default function PeriodeClient({
                     type="button"
                     onClick={() => handleDeleteClick(period)}
                     title="Hapus Tahun Penilaian"
-                    className="w-8 h-8 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-pastel-rose-text hover:bg-pastel-rose/30 transition-colors shadow-2xs cursor-pointer">
+                    className="w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-pastel-rose-text hover:bg-pastel-rose/30 transition-colors shadow-2xs cursor-pointer">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -419,7 +419,7 @@ export default function PeriodeClient({
                 {/* Open Year Dashboard Link */}
                 <Link
                   href={`/admin/periode/${period.year}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all shadow-hz-button cursor-pointer">
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all shadow-hz-button cursor-pointer w-full sm:w-auto min-h-[38px]">
                   <span>Buka Evaluasi</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>

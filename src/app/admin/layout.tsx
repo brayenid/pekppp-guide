@@ -10,9 +10,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   })
 
   return (
-    <div className="flex h-[calc(100vh-80px)] overflow-hidden -mt-6 -mb-6 -mx-4 sm:-mx-6 lg:-mx-8">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] lg:h-[calc(100vh-80px)] lg:overflow-hidden -mt-6 -mb-6 -mx-4 sm:-mx-6 lg:-mx-8">
       <AdminSidebar periods={periods} />
-      <main className="flex-1 overflow-auto p-6 lg:p-8 bg-canvas">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-canvas min-w-0">
         {children}
       </main>
     </div>
