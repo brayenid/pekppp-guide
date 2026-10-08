@@ -168,10 +168,23 @@ export function AspectEvidenceWorkspace({
     currentIndex: number
   } | null>(null)
 
-  // Redaction Studio Modal Target
+  // Redaction Studio Modal Target (Untuk Berkas yang Sudah Ada)
   const [redactModalTarget, setRedactModalTarget] = useState<{
     slot: EvidenceSlotItem
     attachment: EvidenceAttachmentItem
+  } | null>(null)
+
+  // Modal Tambah Berkas (File Picker & Dropzone)
+  const [uploadModalSlot, setUploadModalSlot] = useState<EvidenceSlotItem | null>(null)
+  const [pickedFileForUpload, setPickedFileForUpload] = useState<File | null>(null)
+  const [isDragOverUpload, setIsDragOverUpload] = useState(false)
+  const modalFileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Pre-Upload Redaction Studio Target (Ditahan di Client / Memory sebelum masuk Server)
+  const [preUploadRedactTarget, setPreUploadRedactTarget] = useState<{
+    slot: EvidenceSlotItem
+    file: File
+    previewUrl: string
   } | null>(null)
 
   // Version Management Modal Target
@@ -182,6 +195,102 @@ export function AspectEvidenceWorkspace({
   const [isUploadingVersion, setIsUploadingVersion] = useState(false)
   const [isRestoringVersion, setIsRestoringVersion] = useState(false)
   const versionFileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Handler simpan berkas baru dari Pre-Upload Studio langsung ke Server API
+  const handleSavePreUploadFile = async (redactedOrOriginalFile: File) => {
+    if (!preUploadRedactTarget) return
+    const { slot } = preUploadRedactTarget
+    await handleDirectFileUpload(slot, [redactedOrOriginalFile])
+    // Revoke object url untuk membersihkan memory
+    if (preUploadRedactTarget.previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(preUploadRedactTarget.previewUrl)
+    }
+    setPreUploadRedactTarget(null)
+  }
+
+  // Buka Modal Tambah Berkas saat user klik Tambah Berkas
+  const handleOpenUploadModal = (slot: EvidenceSlotItem) => {
+    setUploadModalSlot(slot)
+    setPickedFileForUpload(null)
+  }
+
+  // Validasi format file ketika file dipilih/didrop di modal
+  const handleSelectFileInModal = (file: File) => {
+    if (!uploadModalSlot) return
+    const isImageOnlySlot = uploadModalSlot.documentType === 'IMAGE'
+    const isDocOnlySlot = uploadModalSlot.documentType === 'PDF' && uploadModalSlot.slotKey === 'sk_sp'
+    const isImageFile = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(file.name)
+    const isDocFile =
+      file.name.toLowerCase().endsWith('.pdf') ||
+      file.name.toLowerCase().endsWith('.doc') ||
+      file.name.toLowerCase().endsWith('.docx') ||
+      file.type === 'application/pdf' ||
+      file.type.includes('word') ||
+      file.type.includes('officedocument')
+
+    if (isImageOnlySlot) {
+      if (!isImageFile) {
+        toast.error(`Berkas "${file.name}" ditolak! Slot ini khusus untuk foto/gambar (JPG, PNG, WEBP).`)
+        return
+      }
+      if (file.size > 1 * 1024 * 1024) {
+        toast.error(`Ukuran foto melebihi batas maksimal 1 MB.`)
+        return
+      }
+    } else if (isDocOnlySlot) {
+      if (!isDocFile) {
+        toast.error(`Format berkas tidak didukung. Harap pilih berkas PDF atau DOCX resmi.`)
+        return
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        toast.error(`Ukuran dokumen melebihi batas maksimal 20 MB.`)
+        return
+      }
+    } else {
+      if (!isImageFile && !isDocFile) {
+        toast.error(`Format tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`)
+        return
+      }
+      if (isImageFile && file.size > 1 * 1024 * 1024) {
+        toast.error(`Ukuran foto melebihi batas maksimal 1 MB.`)
+        return
+      }
+      if (isDocFile && file.size > 20 * 1024 * 1024) {
+        toast.error(`Ukuran dokumen melebihi batas maksimal 20 MB.`)
+        return
+      }
+    }
+
+    setPickedFileForUpload(file)
+  }
+
+  // Tombol "Unggah" di Modal Tambah Berkas diklik -> Tahan di client dan bawa ke Studio Sensor jika PDF/Gambar
+  const handleProceedToRedactionOrUpload = () => {
+    if (!uploadModalSlot || !pickedFileForUpload) return
+    const file = pickedFileForUpload
+    const isImageOrPdf =
+      file.type === 'application/pdf' ||
+      file.name.toLowerCase().endsWith('.pdf') ||
+      file.type.startsWith('image/') ||
+      /\.(jpe?g|png|webp)$/i.test(file.name)
+
+    const targetSlot = uploadModalSlot
+    setUploadModalSlot(null)
+    setPickedFileForUpload(null)
+
+    if (isImageOrPdf) {
+      // TAHAN DI CLIENT: Buat blob URL lokal, belum dikirim ke server sama sekali
+      const blobUrl = URL.createObjectURL(file)
+      setPreUploadRedactTarget({
+        slot: targetSlot,
+        file,
+        previewUrl: blobUrl
+      })
+    } else {
+      // Jika dokumen docx biasa tanpa canvas viewer, langsung upload ke server
+      handleDirectFileUpload(targetSlot, [file])
+    }
+  }
 
   const handleSaveRedactedAttachment = async (redactedFile: File, saveMode: 'new_version' | 'overwrite' = 'new_version') => {
     if (!redactModalTarget) return
@@ -1249,7 +1358,7 @@ export function AspectEvidenceWorkspace({
                               <button
                                 type="button"
                                 disabled={isUploading}
-                                onClick={() => fileInputRefs.current[slot.slotKey]?.click()}
+                                onClick={() => handleOpenUploadModal(slot)}
                                 className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shadow-hz-button bg-brand hover:bg-brand-hover text-white">
                                 {isUploading ? (
                                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1461,7 +1570,7 @@ export function AspectEvidenceWorkspace({
                             <button
                               type="button"
                               disabled={isUploading}
-                              onClick={() => fileInputRefs.current[slot.slotKey]?.click()}
+                              onClick={() => handleOpenUploadModal(slot)}
                               className="flex items-center justify-center p-2.5 rounded-xl border border-dashed border-stroke/80 bg-surface-subtle/30 hover:bg-surface-subtle/80 hover:border-brand/60 transition-all gap-2 text-xs text-ink-secondary hover:text-brand cursor-pointer group shadow-2xs min-h-[54px]">
                               {isUploading ? (
                                 <>
@@ -2220,7 +2329,157 @@ export function AspectEvidenceWorkspace({
         document.body
       )}
 
-      {/* Redaction Studio Modal (Client-side Human-in-the-Loop Sensor PII) */}
+      {/* Modal Tambah Berkas (Dropzone / File Picker) */}
+      {uploadModalSlot && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+          <div className="bg-surface rounded-2xl border border-stroke/70 shadow-2xl flex flex-col w-full max-w-lg overflow-hidden text-ink animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="px-5 py-4 border-b border-stroke/50 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-brand/10 border border-brand/20 text-brand flex items-center justify-center shrink-0">
+                  <UploadCloud className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm text-ink truncate">Tambah Berkas Bukti Dukung</h3>
+                  <p className="text-[11px] text-ink-muted truncate">{uploadModalSlot.title}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadModalSlot(null)
+                  setPickedFileForUpload(null)
+                }}
+                className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 space-y-4">
+              {/* Dropzone & File Picker */}
+              <input
+                ref={modalFileInputRef}
+                type="file"
+                className="hidden"
+                accept={
+                  uploadModalSlot.documentType === 'IMAGE'
+                    ? '.png,.jpg,.jpeg,.webp,image/*'
+                    : uploadModalSlot.documentType === 'PDF' && uploadModalSlot.slotKey === 'sk_sp'
+                      ? '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                      : '.pdf,.doc,.docx,application/pdf,image/*,.png,.jpg,.jpeg,.webp'
+                }
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (f) handleSelectFileInModal(f)
+                }}
+              />
+
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setIsDragOverUpload(true)
+                }}
+                onDragLeave={() => setIsDragOverUpload(false)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setIsDragOverUpload(false)
+                  const f = e.dataTransfer.files?.[0]
+                  if (f) handleSelectFileInModal(f)
+                }}
+                onClick={() => modalFileInputRef.current?.click()}
+                className={`p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer ${
+                  isDragOverUpload
+                    ? 'border-brand bg-brand/10 scale-[1.01]'
+                    : pickedFileForUpload
+                      ? 'border-brand/60 bg-brand/5'
+                      : 'border-stroke/80 bg-surface-subtle/30 hover:bg-surface-subtle/60 hover:border-brand/40'
+                }`}>
+                <div className="w-12 h-12 rounded-2xl bg-surface border border-stroke/60 shadow-xs flex items-center justify-center mb-3 text-brand">
+                  <UploadCloud className="w-6 h-6" />
+                </div>
+
+                {pickedFileForUpload ? (
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-ink break-all max-w-sm">
+                      {pickedFileForUpload.name}
+                    </p>
+                    <p className="text-[11px] text-ink-muted">
+                      {(pickedFileForUpload.size / (1024 * 1024)).toFixed(2)} MB • Klik untuk ganti berkas
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-ink">
+                      Pilih atau Tarik Berkas ke Sini
+                    </p>
+                    <p className="text-[11px] text-ink-muted">
+                      Klik untuk memilih berkas dari komputer Anda, atau seret langsung ke area ini
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Catatan Privasi / Sensor Data */}
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-amber-900 dark:text-amber-200 text-xs">
+                <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5 leading-relaxed text-[11px]">
+                  <p className="font-semibold text-amber-800 dark:text-amber-300">
+                    Perlindungan Data Pribadi (Client-side)
+                  </p>
+                  <p>
+                    Setelah menekan <strong>Unggah</strong>, berkas <strong>ditahan di browser</strong> Anda dan dibuka di Studio Sensor terlebih dahulu agar Anda dapat menutupi NIP, NIK, atau Tanda Tangan sebelum berkas dikirim ke server.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-5 py-3.5 border-t border-stroke/50 flex items-center justify-end gap-2 bg-surface">
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadModalSlot(null)
+                  setPickedFileForUpload(null)
+                }}
+                className="px-4 py-2 rounded-xl border border-stroke/60 text-xs font-medium text-ink-secondary hover:bg-surface-subtle transition-colors cursor-pointer">
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={!pickedFileForUpload}
+                onClick={handleProceedToRedactionOrUpload}
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-40 transition-all cursor-pointer">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>Unggah & Buka Studio Sensor</span>
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Redaction Studio Modal (Pre-Upload: Berkas Baru Ditahan di Client Sebelum Masuk Server) */}
+      {preUploadRedactTarget && (
+        <DocumentRedactionModal
+          isOpen={!!preUploadRedactTarget}
+          onClose={() => {
+            if (preUploadRedactTarget.previewUrl.startsWith('blob:')) {
+              URL.revokeObjectURL(preUploadRedactTarget.previewUrl)
+            }
+            setPreUploadRedactTarget(null)
+          }}
+          fileUrl={preUploadRedactTarget.previewUrl}
+          fileName={preUploadRedactTarget.file.name}
+          fileType={preUploadRedactTarget.file.type.startsWith('image/') ? 'IMAGE' : 'PDF'}
+          isPreUpload={true}
+          onSaveRedacted={async (redactedFile) => {
+            await handleSavePreUploadFile(redactedFile)
+          }}
+        />
+      )}
+
+      {/* Redaction Studio Modal (Post-Upload: Edit Berkas yang Sudah Tersimpan di Slot) */}
       {redactModalTarget && (
         <DocumentRedactionModal
           isOpen={!!redactModalTarget}
@@ -2228,6 +2487,7 @@ export function AspectEvidenceWorkspace({
           fileUrl={redactModalTarget.attachment.fileUrl}
           fileName={redactModalTarget.attachment.fileName}
           fileType={redactModalTarget.attachment.fileType}
+          isPreUpload={false}
           onSaveRedacted={handleSaveRedactedAttachment}
         />
       )}

@@ -38,6 +38,7 @@ export interface DocumentRedactionModalProps {
   fileUrl: string
   fileName: string
   fileType: 'IMAGE' | 'PDF' | string
+  isPreUpload?: boolean
   onSaveRedacted: (redactedFile: File, saveMode: 'new_version' | 'overwrite') => Promise<void>
 }
 
@@ -83,6 +84,7 @@ export function DocumentRedactionModal({
   fileUrl,
   fileName,
   fileType,
+  isPreUpload = false,
   onSaveRedacted
 }: DocumentRedactionModalProps) {
   const isPdf = fileType === 'PDF' || fileName.toLowerCase().endsWith('.pdf')
@@ -458,6 +460,12 @@ export function DocumentRedactionModal({
               <span className="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium bg-surface-subtle text-ink-muted border border-stroke/50">
                 {isPdf ? 'PDF' : 'GAMBAR'}
               </span>
+              {isPreUpload && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                  <ShieldAlert className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  <span>Pratinjau Sebelum Unggah (Belum Masuk Server)</span>
+                </span>
+              )}
             </div>
             <p className="text-[11px] text-ink-muted truncate max-w-sm sm:max-w-md">{fileName}</p>
           </div>
@@ -531,77 +539,100 @@ export function DocumentRedactionModal({
             Batal
           </button>
 
-          {/* Dropdown Tombol Simpan (Single Unified Button) */}
-          <div className="relative inline-flex items-center" ref={saveDropdownRef}>
+          {isPreUpload ? (
+            /* Jika Berkas Baru (Pre-upload): Tombol langsung Simpan & Unggah (karena belum ada berkas lama untuk ditimpa) */
             <button
               type="button"
-              disabled={isSaving || boxes.length === 0}
-              onClick={() => setIsSaveDropdownOpen((v) => !v)}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
+              disabled={isSaving}
+              onClick={() => handleApplyRedaction('new_version')}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
               {isSaving ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Menyimpan...</span>
+                  <span>Mengunggah...</span>
                 </>
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />
-                  <span>Simpan ({boxes.length})</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${isSaveDropdownOpen ? 'rotate-180' : ''}`} />
+                  <span>
+                    {boxes.length > 0 ? `Simpan & Unggah (${boxes.length} Sensor)` : 'Unggah Tanpa Sensor'}
+                  </span>
                 </>
               )}
             </button>
+          ) : (
+            /* Jika Edit Berkas yang Sudah Ada: Dropdown Pilihan Versi Baru vs Timpa */
+            <div className="relative inline-flex items-center" ref={saveDropdownRef}>
+              <button
+                type="button"
+                disabled={isSaving || boxes.length === 0}
+                onClick={() => setIsSaveDropdownOpen((v) => !v)}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Simpan ({boxes.length})</span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${isSaveDropdownOpen ? 'rotate-180' : ''}`} />
+                  </>
+                )}
+              </button>
 
-            {/* Dropdown Menu Modal */}
-            {isSaveDropdownOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-60 z-50 bg-surface rounded-xl border border-stroke/80 shadow-2xl p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-2.5 py-1 text-[10px] font-semibold text-ink-muted uppercase tracking-wider border-b border-stroke/40 mb-1">
-                  Pilih Cara Simpan:
+              {/* Dropdown Menu Modal */}
+              {isSaveDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-60 z-50 bg-surface rounded-xl border border-stroke/80 shadow-2xl p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2.5 py-1 text-[10px] font-semibold text-ink-muted uppercase tracking-wider border-b border-stroke/40 mb-1">
+                    Pilih Cara Simpan:
+                  </div>
+
+                  {/* Opsi 1: Buat Versi Baru (Recommended) */}
+                  <button
+                    type="button"
+                    onClick={() => handleApplyRedaction('new_version')}
+                    className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-surface-subtle transition-colors cursor-pointer group">
+                    <div className="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0 mt-0.5">
+                      <Copy className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-ink text-xs flex items-center gap-1.5">
+                        <span>Buat Versi Baru</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand/10 text-brand font-medium">Rekomendasi</span>
+                      </div>
+                      <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
+                        Simpan sebagai versi baru. Berkas asli tetap tersimpan di riwayat lampau.
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Opsi 2: Timpa Berkas Aktif Langsung */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('PERINGATAN: Menimpa akan mengganti berkas saat ini secara langsung. Lanjutkan?')) {
+                        handleApplyRedaction('overwrite')
+                      }
+                    }}
+                    className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-amber-500/10 transition-colors cursor-pointer group mt-0.5">
+                    <div className="w-6 h-6 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-amber-700 dark:text-amber-400 text-xs">
+                        Timpa Berkas Aktif
+                      </div>
+                      <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
+                        Gantikan berkas ini langsung tanpa menambah nomor versi baru.
+                      </p>
+                    </div>
+                  </button>
                 </div>
-
-                {/* Opsi 1: Buat Versi Baru (Recommended) */}
-                <button
-                  type="button"
-                  onClick={() => handleApplyRedaction('new_version')}
-                  className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-surface-subtle transition-colors cursor-pointer group">
-                  <div className="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0 mt-0.5">
-                    <Copy className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-semibold text-ink text-xs flex items-center gap-1.5">
-                      <span>Buat Versi Baru</span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand/10 text-brand font-medium">Rekomendasi</span>
-                    </div>
-                    <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
-                      Simpan sebagai versi baru. Berkas asli tetap tersimpan di riwayat lampau.
-                    </p>
-                  </div>
-                </button>
-
-                {/* Opsi 2: Timpa Berkas Aktif Langsung */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.confirm('PERINGATAN: Menimpa akan mengganti berkas saat ini secara langsung. Lanjutkan?')) {
-                      handleApplyRedaction('overwrite')
-                    }
-                  }}
-                  className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-amber-500/10 transition-colors cursor-pointer group mt-0.5">
-                  <div className="w-6 h-6 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-semibold text-amber-700 dark:text-amber-400 text-xs">
-                      Timpa Berkas Aktif
-                    </div>
-                    <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
-                      Gantikan berkas ini langsung tanpa menambah nomor versi baru.
-                    </p>
-                  </div>
-                </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
