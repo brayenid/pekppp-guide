@@ -435,10 +435,8 @@ export function F03OpdClient({
 
       {/* Hero: Public Questionnaire Generator Card - Primary Bubble Banner Version */}
       <div className="relative overflow-hidden rounded-2xl bg-brand dark:bg-card dark:border dark:border-stroke p-4 sm:p-5 shadow-soft-card">
-        {/* Aksen bubble transparan */}
-        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:opacity-20" />
-        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/4 w-44 h-44 rounded-full bg-white/[0.06] dark:opacity-20" />
-        <span aria-hidden className="pointer-events-none absolute top-4 right-1/3 w-14 h-14 rounded-full bg-white/[0.07] dark:opacity-20" />
+        {/* Aksen bubble transparan di sudut */}
+        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:opacity-10" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/20 dark:border-stroke pb-3.5 mb-3.5">
           <div className="flex items-center gap-2.5">
