@@ -828,7 +828,7 @@ export function AspectEvidenceWorkspace({
                   : `Verifikasi kelengkapan dokumen bukti fisik Aspek ${aspectName}.`
               }>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-light text-brand">
-                Aspek {aspectCode}
+                Indikator {aspectCode === 'I' ? '1' : aspectCode === 'II' ? '2' : aspectCode === 'III' ? '3' : aspectCode === 'IV' ? '4' : aspectCode === 'V' ? '5' : aspectCode === 'VI' ? '6' : aspectCode}
               </span>
               <h1 className="text-base font-semibold text-ink tracking-tight">
                 Bukti Dukung: {aspectName}
@@ -1162,20 +1162,7 @@ export function AspectEvidenceWorkspace({
                           </>
                         ) : (
                           /* Evaluator */
-                          hasUploaded ? (
-                            <div className="flex items-center gap-1.5">
-                              {slot.fileUrl && (
-                                <a
-                                  href={slot.fileUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="px-4 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium inline-flex items-center gap-1.5 transition-all shadow-hz-button">
-                                  <span>Buka Berkas</span>
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              )}
-                            </div>
-                          ) : (
+                          !hasUploaded && (
                             <span className="text-xs text-ink-muted font-normal italic">Belum diunggah</span>
                           )
                         )}
@@ -1209,7 +1196,7 @@ export function AspectEvidenceWorkspace({
                         <div className="flex items-center justify-between text-[11px] font-medium text-ink-muted tracking-tight">
                           <span>Berkas Terlampir ({attachments.length}/{maxCount})</span>
                           {attachments.length > 1 && (
-                            <span className="text-[10px] font-normal text-ink-muted/80 lowercase">buka atau hapus per berkas</span>
+                            <span className="text-[10px] font-normal text-ink-muted/80 lowercase">klik berkas untuk membuka</span>
                           )}
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1226,7 +1213,12 @@ export function AspectEvidenceWorkspace({
                               <div
                                 key={att.id || attIdx}
                                 className="flex items-center justify-between p-2.5 rounded-xl border border-stroke/50 bg-surface-subtle/50 hover:bg-surface-subtle transition-colors gap-2 text-xs">
-                                <div className="flex items-center gap-2 min-w-0">
+                                <a
+                                  href={att.fileUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title={`Buka ${att.fileName}`}
+                                  className="flex items-center gap-2 min-w-0 flex-1 group/item hover:opacity-80 transition-opacity">
                                   <span
                                     className={`px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${
                                       isPdf
@@ -1238,8 +1230,9 @@ export function AspectEvidenceWorkspace({
                                     {isPdf ? 'PDF' : isImg ? 'FOTO' : 'DOK'}
                                   </span>
                                   <div className="min-w-0">
-                                    <p className="font-medium text-ink truncate" title={att.fileName}>
-                                      {att.fileName}
+                                    <p className="font-medium text-ink truncate group-hover/item:text-brand transition-colors flex items-center gap-1" title={att.fileName}>
+                                      <span className="truncate">{att.fileName}</span>
+                                      <ExternalLink className="w-3 h-3 text-ink-muted opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0" />
                                     </p>
                                     <div className="flex items-center gap-1.5 text-[10px] text-ink-muted font-normal flex-wrap">
                                       <span className="font-medium text-ink-secondary">
@@ -1261,7 +1254,7 @@ export function AspectEvidenceWorkspace({
                                       )}
                                     </div>
                                   </div>
-                                </div>
+                                </a>
 
                                 <div className="relative shrink-0" data-attachment-dropdown>
                                   <button
@@ -1393,7 +1386,7 @@ export function AspectEvidenceWorkspace({
                       {isEvaluator && (
                         <label className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface hover:bg-surface-hover text-ink text-xs font-medium border border-stroke/60 cursor-pointer transition-all shadow-2xs">
                           <UploadCloud className="w-3.5 h-3.5 text-brand" />
-                          <span>+ Tambah Contoh</span>
+                          <span>Tambah Contoh</span>
                           <input
                             type="file"
                             accept=".pdf,.png,.jpg,.jpeg,.webp"
@@ -1698,7 +1691,7 @@ export function AspectEvidenceWorkspace({
         </button>
 
         <div className="text-xs text-ink-muted font-normal hidden sm:block">
-          Bukti Aspek <span className="text-ink font-semibold">{aspectCode}</span>
+          Bukti Indikator <span className="text-ink font-semibold">{aspectCode === 'I' ? '1' : aspectCode === 'II' ? '2' : aspectCode === 'III' ? '3' : aspectCode === 'IV' ? '4' : aspectCode === 'V' ? '5' : aspectCode === 'VI' ? '6' : aspectCode}</span>
         </div>
 
         <button

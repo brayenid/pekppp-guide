@@ -18,6 +18,7 @@ import {
   Info,
   AlertTriangle,
   ShieldAlert,
+  ShieldCheck,
   ChevronDown,
   ChevronUp
 } from 'lucide-react'
@@ -466,42 +467,72 @@ export function F02GuidanceSection({
           {/* Clean Listed Points (No Cluttered Boxes, Warm Minimalist) */}
           <div className="space-y-3.5 divide-y divide-stroke/30">
             {/* Poin Kritis: Audit Silang Kesesuaian Bukti vs Centangan F-01 */}
-            {aiCriticalAudit && (
-              <div className="flex items-start gap-3 pt-3.5 first:pt-0">
-                <div className="w-6 h-6 rounded-lg bg-pastel-rose border border-pastel-rose-border text-pastel-rose-text flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                  <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-                </div>
-                <div className="space-y-1 flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h6 className="text-xs font-medium text-ink flex items-center gap-1.5">
-                      <span>Kritisi Kesesuaian Bukti vs Centangan F-01</span>
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-pastel-rose text-pastel-rose-text border border-pastel-rose-border">
-                        Audit Silang
-                      </span>
-                    </h6>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyToClipboard(aiCriticalAudit, 'critical', 'Kritisi F01')}
-                      className="text-xs font-medium text-ink-muted hover:text-ink inline-flex items-center gap-1 cursor-pointer transition-colors px-2 py-0.5 rounded-md hover:bg-surface-elevated">
-                      {copiedKey === 'critical' ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-emerald-600 font-medium text-xs">Tersalin</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-ink-muted" />
-                          <span>Salin</span>
-                        </>
-                      )}
-                    </button>
+            {aiCriticalAudit && (() => {
+              const textLower = aiCriticalAudit.toLowerCase()
+              const isSafe = (
+                textLower.includes('klaim terpenuhi') ||
+                textLower.includes('sesuai') ||
+                textLower.includes('lengkap') ||
+                textLower.includes('valid') ||
+                textLower.includes('terbukti')
+              ) && !(
+                textLower.includes('tidak sesuai') ||
+                textLower.includes('belum sesuai') ||
+                textLower.includes('tidak ditemukan') ||
+                textLower.includes('tidak ada bukti') ||
+                textLower.includes('klaim berlebihan') ||
+                textLower.includes('inkonsisten')
+              )
+
+              return (
+                <div className="flex items-start gap-3 pt-3.5 first:pt-0">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 shadow-2xs border ${
+                    isSafe
+                      ? 'bg-pastel-green border-pastel-green-border text-pastel-green-text'
+                      : 'bg-pastel-amber border-pastel-amber-border text-pastel-amber-text'
+                  }`}>
+                    {isSafe ? (
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+                    )}
                   </div>
-                  <p className="text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap font-normal">
-                    {aiCriticalAudit}
-                  </p>
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <h6 className="text-xs font-medium text-ink flex items-center gap-1.5">
+                        <span>Kritisi Kesesuaian Bukti vs Centangan F-01</span>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
+                          isSafe
+                            ? 'bg-pastel-green text-pastel-green-text border-pastel-green-border'
+                            : 'bg-pastel-amber text-pastel-amber-text border-pastel-amber-border'
+                        }`}>
+                          Audit Silang
+                        </span>
+                      </h6>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyToClipboard(aiCriticalAudit, 'critical', 'Kritisi F01')}
+                        className="text-xs font-medium text-ink-muted hover:text-ink inline-flex items-center gap-1 cursor-pointer transition-colors px-2 py-0.5 rounded-md hover:bg-surface-elevated">
+                        {copiedKey === 'critical' ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-emerald-600 font-medium text-xs">Tersalin</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-ink-muted" />
+                            <span>Salin</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap font-normal">
+                      {aiCriticalAudit}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* Poin 1: Analisis Ketidakyakinan AI */}
             {aiConfidenceReason && (

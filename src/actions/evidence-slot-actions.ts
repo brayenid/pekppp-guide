@@ -87,7 +87,7 @@ export async function getIndicatorEvidenceAction(evaluationId: string, aspectCod
       const sub = submissionMap.get(p.slotKey)
       const historyData = Array.isArray(sub?.history) ? (sub!.history as unknown as EvidenceActivityItem[]) : []
       const dynamicGuide = dynamicGuides[`${p.aspectCode}_${p.slotKey}`] || dynamicGuides[`${norm}_${p.slotKey}`]
-      const dynamicImages = dynamicGuide?.exampleImages && dynamicGuide.exampleImages.length > 0
+      const dynamicImages = dynamicGuide && Array.isArray(dynamicGuide.exampleImages)
         ? dynamicGuide.exampleImages
         : p.exampleImages
       const attachments = extractAttachments(sub)
@@ -957,7 +957,8 @@ export async function getAllAspectEvidenceSlotsWithGuidesAction() {
 
     const slots = PEKPPP_EVIDENCE_SLOTS.map((p) => {
       const dynamicGuide = dynamicGuides[`${p.aspectCode}_${p.slotKey}`]
-      const dynamicImages = dynamicGuide?.exampleImages && dynamicGuide.exampleImages.length > 0
+      // Jika dynamicGuide ada dan mendefinisikan exampleImages (meskipun array kosong karena dihapus), gunakan itu
+      const dynamicImages = dynamicGuide && Array.isArray(dynamicGuide.exampleImages)
         ? dynamicGuide.exampleImages
         : (p.exampleImages || [])
 

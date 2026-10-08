@@ -24,7 +24,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 1,
     documentType: 'PDF',
-    exampleImages: ['/images/kebijakan-pelayanan/1/contoh-sk-sp.png', '/images/kebijakan-pelayanan/1/sp-2.jpeg']
+    exampleImages: []
   },
   {
     aspectCode: 'I',
@@ -34,7 +34,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 2,
     documentType: 'HYBRID',
-    exampleImages: ['/images/kebijakan-pelayanan/2/ba-fkp.png', '/images/kebijakan-pelayanan/2/ba-fkp-ttd.png', '/images/kebijakan-pelayanan/4/fkp-tanggal.png']
+    exampleImages: []
   },
   {
     aspectCode: 'I',
@@ -44,7 +44,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 3,
     documentType: 'HYBRID',
-    exampleImages: ['/images/kebijakan-pelayanan/3/ss-sippn.png', '/images/kebijakan-pelayanan/3/ss-ig.png']
+    exampleImages: []
   },
   {
     aspectCode: 'I',
@@ -54,7 +54,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 4,
     documentType: 'HYBRID',
-    exampleImages: ['/images/kebijakan-pelayanan/5/maklumat.png', '/images/kebijakan-pelayanan/5/maklumat-fisik.png', '/images/kebijakan-pelayanan/5/maklumat-ig.png']
+    exampleImages: []
   },
   {
     aspectCode: 'I',
@@ -64,7 +64,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 5,
     documentType: 'HYBRID',
-    exampleImages: ['/images/kebijakan-pelayanan/6/skm-laporan.png', '/images/kebijakan-pelayanan/6/publikasi-skm.png', '/images/kebijakan-pelayanan/7/skm-web.png']
+    exampleImages: []
   },
   {
     aspectCode: 'I',
@@ -74,7 +74,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 6,
     documentType: 'HYBRID',
-    exampleImages: ['/images/kebijakan-pelayanan/6/rtl-skm.png', '/images/kebijakan-pelayanan/8/persentase-rtl-skm.png', '/images/kebijakan-pelayanan/9/kecepatan-tindak-lanjut.png']
+    exampleImages: []
   },
 
   // ==========================================
@@ -88,7 +88,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 1,
     documentType: 'PDF',
-    exampleImages: ['/images/profesionalisme-sdm/10/sk-jam-kerja.png']
+    exampleImages: []
   },
   {
     aspectCode: 'II',
@@ -98,7 +98,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 2,
     documentType: 'PDF',
-    exampleImages: ['/images/profesionalisme-sdm/11/sk-kode-etik.png']
+    exampleImages: []
   },
   {
     aspectCode: 'II',
@@ -108,7 +108,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 3,
     documentType: 'PDF',
-    exampleImages: ['/images/profesionalisme-sdm/12/peningkatan-motivasi.png']
+    exampleImages: []
   },
   {
     aspectCode: 'II',
@@ -118,7 +118,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 4,
     documentType: 'PDF',
-    exampleImages: ['/images/profesionalisme-sdm/13/kriteria-pemberian-penghargaan.png']
+    exampleImages: []
   },
   {
     aspectCode: 'II',
@@ -128,7 +128,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 5,
     documentType: 'IMAGE',
-    exampleImages: ['/images/profesionalisme-sdm/14/penerapan-budaya-pelayanan.png']
+    exampleImages: []
   },
 
   // ==========================================
@@ -142,7 +142,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 1,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sarana-prasarana/15/lap-parkir.png', '/images/sarana-prasarana/15/penitipan-helm.png', '/images/sarana-prasarana/15/cctv.png']
+    exampleImages: []
   },
   {
     aspectCode: 'III',
@@ -152,7 +152,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 2,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sarana-prasarana/16/kursi.png', '/images/sarana-prasarana/16/no-antrian.png', '/images/sarana-prasarana/16/charging-area.png', '/images/sarana-prasarana/16/air-minum.png']
+    exampleImages: []
   },
   {
     aspectCode: 'III',
@@ -162,7 +162,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 3,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sarana-prasarana/17/toilet.png', '/images/sarana-prasarana/17/wastafel.png', '/images/sarana-prasarana/17/pemisahan.png', '/images/sarana-prasarana/17/monev.png']
+    exampleImages: []
   },
   {
     aspectCode: 'III',
@@ -172,7 +172,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 4,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sarana-prasarana/18/jalan-landai.png', '/images/sarana-prasarana/18/kursi-roda.png', '/images/sarana-prasarana/18/ruang-laktasi.png', '/images/sarana-prasarana/18/toilet-khusus.png', '/images/sarana-prasarana/18/guiding-block.png']
+    exampleImages: []
   },
   {
     aspectCode: 'III',
@@ -182,7 +182,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 5,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sarana-prasarana/19/apar.png', '/images/sarana-prasarana/19/p3k.png', '/images/sarana-prasarana/19/titik-kumpul.png', '/images/sarana-prasarana/19/mushola.png']
+    exampleImages: []
   },
   {
     aspectCode: 'III',
@@ -192,7 +192,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 6,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sarana-prasarana/20/petugas-khusus.png']
+    exampleImages: []
   },
 
   // ==========================================
@@ -206,7 +206,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 1,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sipp/21/ss-sippn.png']
+    exampleImages: []
   },
   {
     aspectCode: 'IV',
@@ -216,7 +216,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 2,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sipp/22/pendukung-layanan.png']
+    exampleImages: []
   },
   {
     aspectCode: 'IV',
@@ -226,7 +226,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 3,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sipp/23/sipp-dimiliki.png']
+    exampleImages: []
   },
   {
     aspectCode: 'IV',
@@ -236,7 +236,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 4,
     documentType: 'IMAGE',
-    exampleImages: ['/images/sipp/24/pemutakhiran-data.png']
+    exampleImages: []
   },
 
   // ==========================================
@@ -250,7 +250,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 1,
     documentType: 'PDF',
-    exampleImages: ['/images/konsultasi-pengaduan/25/sk-petugas-pengaduan.png', '/images/konsultasi-pengaduan/25/mekanisme-pengaduan.png']
+    exampleImages: []
   },
   {
     aspectCode: 'V',
@@ -260,7 +260,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 2,
     documentType: 'IMAGE',
-    exampleImages: ['/images/konsultasi-pengaduan/25/kotak-saran.png', '/images/konsultasi-pengaduan/26/pengaduan.png']
+    exampleImages: []
   },
   {
     aspectCode: 'V',
@@ -270,7 +270,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 3,
     documentType: 'IMAGE',
-    exampleImages: ['/images/konsultasi-pengaduan/27/pengelolaan-pengaduan.png']
+    exampleImages: []
   },
   {
     aspectCode: 'V',
@@ -280,7 +280,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 4,
     documentType: 'PDF',
-    exampleImages: ['/images/konsultasi-pengaduan/28/persentase-pengaduan.png']
+    exampleImages: []
   },
 
   // ==========================================
@@ -294,7 +294,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 1,
     documentType: 'PDF',
-    exampleImages: ['/images/inovasi/29/bentuk-inovasi.png']
+    exampleImages: []
   },
   {
     aspectCode: 'VI',
@@ -304,7 +304,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 2,
     documentType: 'DOCUMENT',
-    exampleImages: ['/images/inovasi/30/dukungan-inovasi.png']
+    exampleImages: []
   },
   {
     aspectCode: 'VI',
@@ -314,7 +314,7 @@ export const PEKPPP_EVIDENCE_SLOTS: EvidenceSlotPreset[] = [
     isMandatory: true,
     orderIndex: 3,
     documentType: 'PDF',
-    exampleImages: ['/images/inovasi/30/dukungan-inovasi.png']
+    exampleImages: []
   },
   // ASPEK TAMBAHAN (+1): SISTEM ANTRIAN & INFORMASI TAMBAHAN (Q31)
   {

@@ -558,16 +558,20 @@ export async function deleteDynamicAspectSlotExample(
   try {
     const current = await getDynamicAspectEvidenceGuides()
     const key = `${aspectCode}_${slotKey}`
-    if (current[key]?.exampleImages) {
-      current[key].exampleImages = current[key].exampleImages!.filter((url) => url !== exampleImageUrl)
+    const currentList = current[key]?.exampleImages ? [...current[key].exampleImages!] : []
+    const updatedList = currentList.filter((url) => url !== exampleImageUrl)
 
-      if (db && 'systemSetting' in db && (db as any).systemSetting) {
-        await (db as any).systemSetting.upsert({
-          where: { key: 'ASPECT_EVIDENCE_DYNAMIC_GUIDES' },
-          update: { value: JSON.stringify(current) },
-          create: { key: 'ASPECT_EVIDENCE_DYNAMIC_GUIDES', value: JSON.stringify(current) }
-        })
-      }
+    current[key] = {
+      ...current[key],
+      exampleImages: updatedList
+    }
+
+    if (db && 'systemSetting' in db && (db as any).systemSetting) {
+      await (db as any).systemSetting.upsert({
+        where: { key: 'ASPECT_EVIDENCE_DYNAMIC_GUIDES' },
+        update: { value: JSON.stringify(current) },
+        create: { key: 'ASPECT_EVIDENCE_DYNAMIC_GUIDES', value: JSON.stringify(current) }
+      })
     }
     return true
   } catch (err) {

@@ -20,10 +20,13 @@ export default async function PublicSurveyPage({ params }: PageProps) {
 
   if (!res.success || !res.data) {
     return (
-      <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-rose-100 shadow-xl text-center space-y-4">
-          <h1 className="text-xl font-bold text-rose-700">Kuesioner Tidak Ditemukan</h1>
-          <p className="text-sm text-slate-600">{res.error || 'Pastikan tautan survei yang Anda buka sudah tepat.'}</p>
+      <main className="min-h-screen bg-canvas flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-surface rounded-bento p-8 border border-stroke shadow-soft-card text-center space-y-4">
+          <div className="w-14 h-14 bg-pastel-rose text-pastel-rose-text rounded-2xl flex items-center justify-center mx-auto border border-rose-300/60 shadow-2xs">
+            <AlertTriangle className="w-7 h-7" />
+          </div>
+          <h1 className="text-lg font-bold text-ink">Kuesioner Tidak Ditemukan</h1>
+          <p className="text-xs text-ink-secondary leading-relaxed">{res.error || 'Pastikan tautan survei yang Anda buka sudah tepat atau hubungi unit penyelenggara.'}</p>
         </div>
       </main>
     )
@@ -34,16 +37,16 @@ export default async function PublicSurveyPage({ params }: PageProps) {
   // Jika tahun periode evaluasi tidak aktif atau tahapan F03 ditutup
   if (!data.isPeriodOpen || !data.canFillF03) {
     return (
-      <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-amber-100 shadow-xl shadow-amber-900/5 text-center space-y-5">
-          <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-amber-50/50">
-            <Clock className="w-8 h-8" />
+      <main className="min-h-screen bg-canvas flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-surface rounded-bento p-8 border border-stroke shadow-soft-card text-center space-y-5">
+          <div className="w-14 h-14 bg-surface-subtle text-ink-muted rounded-2xl flex items-center justify-center mx-auto border border-stroke shadow-2xs">
+            <Clock className="w-7 h-7 text-ink" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-slate-900">
+            <h1 className="text-lg font-bold text-ink">
               {!data.isPeriodOpen ? `Periode Evaluasi ${data.year} Tidak Aktif` : 'Tahapan Survei F03 Ditutup'}
             </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs text-ink-secondary leading-relaxed">
               {data.closedReason || `Pengisian kuesioner untuk unit pelayanan ${data.unitName} sedang tidak dibuka.`}
             </p>
           </div>
@@ -54,15 +57,15 @@ export default async function PublicSurveyPage({ params }: PageProps) {
 
   if (!data.isSurveyOpen) {
     return (
-      <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-amber-100 shadow-xl shadow-amber-900/5 text-center space-y-5">
-          <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-amber-50/50">
-            <Clock className="w-8 h-8" />
+      <main className="min-h-screen bg-canvas flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-surface rounded-bento p-8 border border-stroke shadow-soft-card text-center space-y-5">
+          <div className="w-14 h-14 bg-surface-subtle text-ink-muted rounded-2xl flex items-center justify-center mx-auto border border-stroke shadow-2xs">
+            <Clock className="w-7 h-7 text-ink" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-slate-900">Kuesioner Ditutup Sementara</h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Pengisian survei untuk <b>{data.unitName}</b> sedang tidak aktif atau telah ditutup oleh penyelenggara layanan.
+            <h1 className="text-lg font-bold text-ink">Kuesioner Ditutup Sementara</h1>
+            <p className="text-xs text-ink-secondary leading-relaxed">
+              Pengisian survei untuk <strong>{data.unitName}</strong> sedang tidak aktif atau telah ditutup oleh penyelenggara layanan.
             </p>
           </div>
         </div>
@@ -72,15 +75,15 @@ export default async function PublicSurveyPage({ params }: PageProps) {
 
   if (data.isQuotaFull) {
     return (
-      <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-amber-100 shadow-xl shadow-amber-900/5 text-center space-y-5">
-          <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
-            <AlertTriangle className="w-8 h-8" />
+      <main className="min-h-screen bg-canvas flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-surface rounded-bento p-8 border border-stroke shadow-soft-card text-center space-y-5">
+          <div className="w-14 h-14 bg-pastel-green text-pastel-green-text rounded-2xl flex items-center justify-center mx-auto border border-emerald-300/60 shadow-2xs">
+            <AlertTriangle className="w-7 h-7" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-slate-900">Kuota Responden Terpenuhi</h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Target responden ({data.targetQuota} responden) untuk <b>{data.unitName}</b> telah terpenuhi. Terima kasih atas partisipasi masyarakat!
+            <h1 className="text-lg font-bold text-ink">Kuota Responden Terpenuhi</h1>
+            <p className="text-xs text-ink-secondary leading-relaxed">
+              Target responden ({data.targetQuota} responden) untuk <strong>{data.unitName}</strong> telah terpenuhi. Terima kasih atas partisipasi masyarakat!
             </p>
           </div>
         </div>

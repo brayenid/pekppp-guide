@@ -23,10 +23,7 @@ interface F03EvaluatorClientProps {
     name?: string | null
     totalScore: number
     scale5: number
-    answers: Array<{
-      questionCode: string
-      optionScore: number
-    }>
+    answers: Record<string, number> | Array<{ questionCode: string; optionScore: number }>
   }>
   proofUrl?: string | null
 }
@@ -53,8 +50,14 @@ export function F03EvaluatorClient({
     schema.kategori_penilaian.forEach((cat) => {
       cat.indikator.forEach((ind) => {
         const total = respondents.reduce((acc, r) => {
-          const ans = r.answers?.find((a) => a.questionCode === ind.kode)
-          return acc + (ans?.optionScore || 0)
+          let score = 0
+          if (Array.isArray(r.answers)) {
+            const ans = r.answers.find((a) => a.questionCode === ind.kode)
+            score = ans?.optionScore || 0
+          } else if (r.answers && typeof r.answers === 'object') {
+            score = Number((r.answers as Record<string, number>)[ind.kode]) || 0
+          }
+          return acc + score
         }, 0)
         questionAverages[ind.kode] = total / respondents.length
       })
@@ -189,8 +192,8 @@ export function F03EvaluatorClient({
           {schema?.kategori_penilaian?.map((cat, catIdx) => (
             <div key={cat.kategori_romawi} className={catIdx > 0 ? 'pt-6 space-y-3.5' : 'space-y-3.5'}>
               <div className="flex items-center justify-between pb-1.5 border-b border-stroke/30">
-                <span className="text-xs font-medium text-ink tracking-tight">
-                  KATEGORI {cat.kategori_romawi} · {cat.kategori}
+                <span className="text-xs font-semibold text-ink tracking-tight">
+                  INDIKATOR {catIdx + 1} · {cat.kategori}
                 </span>
                 <span className="text-[11px] text-ink-muted">
                   {cat.indikator.length} pertanyaan

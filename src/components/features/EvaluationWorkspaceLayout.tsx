@@ -38,6 +38,7 @@ import { F02GlobalSaveButton } from './F02GlobalSaveButton'
 import { ZoomableImageContainer } from './ZoomableImageContainer'
 import { formatScore } from '../../lib/utils'
 import { normalizeAspectCode } from '../../core/domain/evidence-slots-preset'
+import { NoticeBanner } from '../ui/NoticeBanner'
 import {
   getIndicatorEvidenceAction,
   EvidenceSlotItem,
@@ -892,37 +893,21 @@ export function EvaluationWorkspaceLayout({
     <div className="space-y-5">
       {/* Contextual Status Banner */}
       {userRole === 'OPD' && !isF01Editable && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl px-5 py-3 flex items-center justify-between gap-4 text-xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-            <div className="min-w-0">
-              <span className="font-semibold text-amber-900">Mode Arsip / Hanya Baca</span>
-              <p className="text-amber-800/90 text-[11px] mt-0.5">
-                Pengisian formulir F-01 dan bukti dukung untuk tahun ini telah ditutup atau sedang dalam masa arsip. Data ditampilkan hanya untuk referensi baca.
-              </p>
-            </div>
-          </div>
-          <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-full shrink-0 hidden sm:inline-block">
-            Arsip / Read-Only
-          </span>
-        </div>
+        <NoticeBanner
+          variant="warning"
+          title="Mode Arsip / Hanya Baca"
+          description="Pengisian formulir F-01 dan bukti dukung untuk tahun ini telah ditutup atau sedang dalam masa arsip. Data ditampilkan hanya untuk referensi baca."
+          badge="Arsip / Read-Only"
+        />
       )}
 
       {userRole === 'OPD' && isF01Editable && hasEvaluatorScoredAny && (
-        <div className="bg-emerald-500/15 border border-emerald-500/40 rounded-2xl px-5 py-3 flex items-center justify-between gap-4 text-xs shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 ring-2 ring-emerald-400/30" />
-            <div className="min-w-0">
-              <span className="font-bold text-emerald-900 dark:text-emerald-200">Unit Anda Telah / Sedang Dinilai Oleh Evaluator</span>
-              <p className="text-emerald-800 dark:text-emerald-300/90 text-[11px] mt-0.5 truncate font-normal">
-                Evaluator telah mengisi skor atau catatan rekomendasi pada beberapa indikator. Anda dapat melihat masukan evaluator dan memperbarui bukti dukung jika diperlukan.
-              </p>
-            </div>
-          </div>
-          <span className="text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-950/90 border border-emerald-300 dark:border-emerald-600/60 px-2.5 py-1 rounded-full shrink-0 hidden sm:inline-block shadow-2xs">
-            {filledF02Count} dari 31 Dinilai
-          </span>
-        </div>
+        <NoticeBanner
+          variant="success"
+          title="Unit Anda Telah / Sedang Dinilai Oleh Evaluator"
+          description="Evaluator telah mengisi skor atau catatan rekomendasi pada beberapa indikator. Anda dapat melihat masukan evaluator dan memperbarui bukti dukung jika diperlukan."
+          badge={`${filledF02Count} dari 31 Dinilai`}
+        />
       )}
 
       {userRole === 'SUPER_ADMIN' && (
@@ -930,7 +915,7 @@ export function EvaluationWorkspaceLayout({
           <div className="flex items-center gap-2 text-ink-secondary">
             <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
             <span>
-              Status Evaluasi: <strong className="text-ink">{filledF02Count}</strong> dari <strong className="text-ink">31</strong> indikator telah dinilai.
+              Status Evaluasi: <strong className="text-ink">{filledF02Count}</strong> dari <strong className="text-ink">31</strong> pertanyaan telah dinilai.
               {hasEvaluatorScoredAny && ' Notifikasi revisi otomatis aktif jika OPD memperbarui F01/bukti dukung pasca dinilai.'}
             </span>
           </div>
@@ -1006,6 +991,8 @@ export function EvaluationWorkspaceLayout({
                   {['I', 'II', 'III', 'IV', 'V', 'VI', 'TAMBAHAN'].map((code) => {
                     const isActive = activeAspectEvidence === code
                     const grp = groupedAspects.find((g) => g.aspect.code === code)
+                    const latinMap: Record<string, string> = { I: '1', II: '2', III: '3', IV: '4', V: '5', VI: '6', TAMBAHAN: 'Tambahan' }
+                    const latinNum = latinMap[code] || code
                     return (
                       <button
                         key={code}
@@ -1016,7 +1003,7 @@ export function EvaluationWorkspaceLayout({
                             ? 'bg-brand text-white shadow-hz-button font-semibold'
                             : 'bg-surface-subtle text-ink-secondary hover:text-ink hover:bg-surface-hover border border-stroke/40'
                         }`}>
-                        <span>{code === 'TAMBAHAN' ? 'Tambahan (Q31)' : `Aspek ${code}`}</span>
+                        <span>{code === 'TAMBAHAN' ? 'Tambahan (Q31)' : `Indikator ${latinNum}`}</span>
                         {grp && code !== 'TAMBAHAN' && (
                           <span className={`text-[10px] ml-1 hidden md:inline ${isActive ? 'text-white/80' : 'text-ink-muted'}`}>
                             ({grp.aspect.name})
@@ -1049,10 +1036,11 @@ export function EvaluationWorkspaceLayout({
                 onPrev={handleGoToEvidenceHub}
                 nextLabel={(() => {
                   const codes = ['I', 'II', 'III', 'IV', 'V', 'VI']
+                  const latinMap: Record<string, string> = { I: '1', II: '2', III: '3', IV: '4', V: '5', VI: '6' }
                   const idx = codes.indexOf(activeAspectEvidence)
                   return idx >= 0 && idx < codes.length - 1
-                    ? `Lanjut ke Aspek ${codes[idx + 1]}`
-                    : 'Selesai 6 Aspek'
+                    ? `Lanjut ke Indikator ${latinMap[codes[idx + 1]] || codes[idx + 1]}`
+                    : 'Selesai 6 Indikator'
                 })()}
                 onNext={(() => {
                   const codes = ['I', 'II', 'III', 'IV', 'V', 'VI']
@@ -1661,15 +1649,13 @@ export function EvaluationWorkspaceLayout({
                           ''
                         if (!note) return null
                         return (
-                          <div className="p-4 rounded-xl bg-pastel-amber/40 border border-pastel-amber-border text-xs space-y-1.5 shadow-2xs">
-                            <div className="flex items-center gap-2 font-medium text-ink">
-                              <MessageSquare className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                              <span>Catatan Rekomendasi Evaluator: Aspek {activeScoreItem.indicator.aspect.name}</span>
-                            </div>
-                            <p className="text-ink leading-relaxed whitespace-pre-wrap pl-5.5 font-normal">
-                              {note}
-                            </p>
-                          </div>
+                          <NoticeBanner
+                            variant="warning"
+                            icon={MessageSquare}
+                            title={`Catatan Rekomendasi Evaluator: Aspek ${activeScoreItem.indicator.aspect.name}`}
+                            description={note}
+                            className="shadow-2xs"
+                          />
                         )
                       })()}
 
@@ -1787,16 +1773,6 @@ export function EvaluationWorkspaceLayout({
                       }}
                     />
                   )}
-
-                  {/* Clarification Comments Section */}
-                  <div className="pt-2">
-                    <IndicatorCommentSection
-                      evaluationScoreId={activeScoreItem.id}
-                      comments={activeScoreItem.comments || []}
-                      unitId={unitId}
-                      authorId={userId}
-                    />
-                  </div>
                 </div>
 
                 {/* Footer Navigation Bar */}
@@ -1835,6 +1811,16 @@ export function EvaluationWorkspaceLayout({
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Separate Card for Discussion & Comments Below Navigation */}
+            <div className="rounded-bento border border-stroke bg-surface shadow-soft-card overflow-hidden p-4 sm:p-5">
+              <IndicatorCommentSection
+                evaluationScoreId={activeScoreItem.id}
+                comments={activeScoreItem.comments || []}
+                unitId={unitId}
+                authorId={userId}
+              />
             </div>
           </div>
         </div>

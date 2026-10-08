@@ -9,6 +9,7 @@ import { formatScore } from '../../../lib/utils'
 import { PrintBeritaAcaraButton } from '../../../components/ui/PrintBeritaAcaraButton'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
+import { NoticeBanner } from '../../../components/ui/NoticeBanner'
 
 export const revalidate = 0
 
@@ -263,15 +264,14 @@ export default async function PublicHasilDetailPage({
 
                 {/* Aspect Evaluator Note if present */}
                 {aspectNote && (
-                  <div className="mt-2 flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                    <MessageSquare className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-bold text-[10px] uppercase text-amber-800 tracking-wider font-mono">
-                        Catatan Evaluator Aspek {aspectCode}
-                      </div>
-                      <p className="mt-0.5 leading-relaxed whitespace-pre-wrap">{aspectNote}</p>
-                    </div>
-                  </div>
+                  <NoticeBanner
+                    variant="warning"
+                    icon={MessageSquare}
+                    title={`Catatan Evaluator Aspek ${aspectCode}`}
+                    description={aspectNote}
+                    compact
+                    className="mt-3"
+                  />
                 )}
               </div>
 

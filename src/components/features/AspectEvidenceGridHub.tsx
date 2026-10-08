@@ -134,7 +134,7 @@ export function AspectEvidenceGridHub({
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-surface-subtle text-ink border border-stroke/50">
-                    ASPEK {asp.aspectCode}
+                    INDIKATOR {asp.aspectCode === 'I' ? '1' : asp.aspectCode === 'II' ? '2' : asp.aspectCode === 'III' ? '3' : asp.aspectCode === 'IV' ? '4' : asp.aspectCode === 'V' ? '5' : asp.aspectCode === 'VI' ? '6' : asp.aspectCode}
                   </span>
 
                   <span

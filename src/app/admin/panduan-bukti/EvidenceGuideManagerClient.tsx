@@ -218,7 +218,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
                         : 'bg-brand hover:bg-brand-hover text-white'
                     }`}>
                     <UploadCloud className="w-3.5 h-3.5 text-white" />
-                    <span>{hasExamples ? 'Ganti / Tambah Contoh' : '+ Unggah Contoh'}</span>
+                    <span>{hasExamples ? 'Ganti / Tambah Contoh' : 'Unggah Contoh'}</span>
                     <input
                       type="file"
                       disabled={isProcessing}

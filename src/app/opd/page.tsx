@@ -7,6 +7,7 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { Badge } from '../../components/ui/Badge'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { NoticeBanner } from '../../components/ui/NoticeBanner'
 
 import { OpdYearSelect } from '../../components/features/OpdYearSelect'
 
@@ -266,13 +267,11 @@ export default async function OpdDashboardPage({
 
       {/* Read-Only Alert jika Pengisian F01 Sedang Tutup */}
       {timelineResult && !canFillF01 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 flex items-center gap-3 text-xs text-amber-900">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-          <div>
-            <span className="font-bold">Pengisian F-01 Saat Ini Terkunci (Mode Hanya Baca). </span>
-            <span>Anda tetap dapat meninjau riwayat isian dan berkas bukti dukung yang telah tersimpan.</span>
-          </div>
-        </div>
+        <NoticeBanner
+          variant="warning"
+          title="Pengisian F-01 Saat Ini Terkunci (Mode Hanya Baca)"
+          description="Anda tetap dapat meninjau riwayat isian dan berkas bukti dukung yang telah tersimpan."
+        />
       )}
 
       {/* Account Info Card */}

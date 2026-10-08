@@ -3,9 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   Users,
-  Plus,
-  Pencil,
-  Trash2,
   CheckCircle2,
   ChevronRight,
   AlertCircle,
@@ -25,11 +22,7 @@ import {
   Smartphone
 } from 'lucide-react'
 import QRCode from 'qrcode'
-import { FormModal } from '../ui/FormModal'
-import { ConfirmationModal } from '../ui/ConfirmationModal'
 import {
-  upsertF03RespondentAction,
-  deleteF03RespondentAction,
   updateF03ProofUrlAction,
   togglePublicSurveyAction
 } from '../../actions/f03-actions'
@@ -80,18 +73,11 @@ export function F03OpdClient({
   publicSurveyToken?: string | null
   initialIsPublicSurveyOpen?: boolean
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingRespondent, setEditingRespondent] = useState<F03RespondentData | null>(null)
-  const [name, setName] = useState('')
-  const [answers, setAnswers] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(false)
 
   // Proof URL state
   const [proofUrl, setProofUrl] = useState(initialProofUrl || '')
   const [savingProof, setSavingProof] = useState(false)
-
-  // Delete State
-  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   // QR & Public Survey State
   const [isSurveyOpen, setIsSurveyOpen] = useState(initialIsPublicSurveyOpen)
@@ -303,95 +289,6 @@ export function F03OpdClient({
     }
   }
 
-  const openCreateModal = () => {
-    if (respondents.length >= targetQuota) {
-      toast.error(`Target kuota responden (${targetQuota}) telah terpenuhi.`)
-      return
-    }
-    setEditingRespondent(null)
-    setName(`Masyarakat (Input Mandiri #${respondents.length + 1})`)
-
-    // Default answers 5 for fast input
-    const defaultAnswers: Record<string, number> = {}
-    schema.kategori_penilaian.forEach((cat) => {
-      cat.indikator.forEach((ind) => {
-        defaultAnswers[ind.kode] = 5
-      })
-    })
-    setAnswers(defaultAnswers)
-    setIsModalOpen(true)
-  }
-
-  const openEditModal = (r: F03RespondentData) => {
-    setEditingRespondent(r)
-    setName(r.name || `Responden #${r.respondentNo}`)
-    setAnswers(r.answers as Record<string, number>)
-    setIsModalOpen(true)
-  }
-
-  const handleScoreChange = (kode: string, score: number) => {
-    setAnswers((prev) => ({ ...prev, [kode]: score }))
-  }
-
-  const handleSaveSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Validate all 14 questions are rated
-    let missing = false
-    schema.kategori_penilaian.forEach((cat) => {
-      cat.indikator.forEach((ind) => {
-        if (answers[ind.kode] === undefined || answers[ind.kode] === null) {
-          missing = true
-        }
-      })
-    })
-
-    if (missing) {
-      toast.error('Harap isi nilai (0-5) untuk seluruh 14 indikator!')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const res = await upsertF03RespondentAction(evaluationId, editingRespondent?.id || null, {
-        name,
-        answers
-      })
-
-      if (res.success) {
-        toast.success(
-          editingRespondent ? 'Data responden berhasil diperbarui!' : 'Entri responden baru berhasil ditambahkan!'
-        )
-        setIsModalOpen(false)
-        setEditingRespondent(null)
-      } else {
-        toast.error(res.error || 'Gagal menyimpan responden.')
-      }
-    } catch {
-      toast.error('Terjadi kesalahan sistem.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!deletingId) return
-    setLoading(true)
-    try {
-      const res = await deleteF03RespondentAction(deletingId)
-      if (res.success) {
-        toast.success('Entri responden berhasil dihapus!')
-        setDeletingId(null)
-      } else {
-        toast.error(res.error || 'Gagal menghapus entri.')
-      }
-    } catch {
-      toast.error('Terjadi kesalahan sistem.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const currentCount = respondents.length
   const quotaPercentage = Math.round((currentCount / targetQuota) * 100)
 
@@ -418,18 +315,6 @@ export function F03OpdClient({
           <p className="text-xs text-slate-500">
             Publikasikan kuesioner mandiri kepada masyarakat penerima layanan di <strong className="text-slate-800 font-medium">{unitName}</strong>. Target kuota: <span className="font-semibold text-slate-900">{targetQuota}</span> responden.
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Secondary manual input button */}
-          <button
-            type="button"
-            onClick={openCreateModal}
-            disabled={!isPeriodOpen || currentCount >= targetQuota}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-medium text-xs transition-all shadow-xs disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
-            <Plus className="w-3.5 h-3.5 text-slate-500" />
-            <span>Input Cadangan Manual</span>
-          </button>
         </div>
       </div>
 
@@ -702,23 +587,6 @@ export function F03OpdClient({
                   <span className="text-xs font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke">
                     {rPct}%
                   </span>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(r)}
-                      className="w-7 h-7 rounded-full border border-stroke bg-card flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer"
-                      title="Edit Responden">
-                      <Pencil className="w-3 h-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeletingId(r.id)}
-                      className="w-7 h-7 rounded-full border border-stroke bg-card flex items-center justify-center text-ink-muted hover:border-rose-400/50 hover:bg-rose-500/10 hover:text-rose-500 transition-colors shadow-2xs cursor-pointer"
-                      title="Hapus Responden">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
                 </div>
               </div>
             )
@@ -734,108 +602,6 @@ export function F03OpdClient({
           )}
         </div>
       </div>
-
-      {/* Modal Form Fill F-03 (Cadangan Manual) */}
-      <FormModal
-        isOpen={isModalOpen}
-        title={editingRespondent ? `Edit Isian F-03 (${name})` : `Entri Responden Cadangan F-03`}
-        description="Beri skor 0 (sangat tidak sesuai) hingga 5 (sangat sesuai) untuk 14 pertanyaan survei."
-        onClose={() => setIsModalOpen(false)}>
-        <form onSubmit={handleSaveSubmit} className="space-y-5 pt-1 max-h-[75vh] overflow-y-auto pr-1">
-          {/* Identitas Field */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700">
-              Keterangan Responden
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Responden #1 atau Inisial"
-              required
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-[#D8902A] text-slate-900"
-            />
-          </div>
-
-          {/* 5 Categories & 14 Indicators */}
-          <div className="space-y-5 divide-y divide-slate-100">
-            {schema.kategori_penilaian.map((cat, catIdx) => (
-              <div key={cat.kategori_romawi} className={catIdx > 0 ? 'pt-5 space-y-3' : 'space-y-3'}>
-                <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                  <span className="text-xs font-bold text-slate-800 tracking-tight">
-                    KATEGORI {cat.kategori_romawi} · {cat.kategori}
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    {cat.indikator.length} pertanyaan
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  {cat.indikator.map((ind) => (
-                    <div key={ind.kode} className="py-2.5 space-y-2.5 border-b border-slate-100 last:border-b-0">
-                      <div className="text-xs text-slate-700 leading-relaxed">
-                        <strong className="text-slate-900 font-bold mr-1.5">{ind.no_urut}.</strong>
-                        {ind.isu}
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pt-1">
-                        <span className="text-xs text-slate-400 font-medium">Skala Penilaian:</span>
-                        <div className="flex items-center gap-1.5">
-                          {[0, 1, 2, 3, 4, 5].map((val) => {
-                            const isSelected = answers[ind.kode] === val
-                            return (
-                              <button
-                                key={val}
-                                type="button"
-                                onClick={() => handleScoreChange(ind.kode, val)}
-                                className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                                  isSelected
-                                    ? 'bg-[#D8902A] text-white shadow-md scale-105'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                }`}>
-                                {val}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Modal Actions */}
-          <div className="pt-3 border-t border-stroke flex justify-end gap-2 sticky bottom-0 bg-surface p-2 z-10">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 rounded-full border border-stroke text-xs font-medium text-ink-muted hover:bg-surface-subtle hover:text-ink cursor-pointer transition-colors">
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 rounded-full bg-[#D8902A] text-white font-bold text-xs hover:bg-[#c27f22] disabled:opacity-50 shadow-md cursor-pointer transition-all">
-              {loading ? 'Menyimpan...' : 'Simpan Responden'}
-            </button>
-          </div>
-        </form>
-      </FormModal>
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={deletingId !== null}
-        title="Hapus Entri Responden?"
-        description="Data nilai survei responden ini akan dihapus dan rerata skor F-03 akan dihitung ulang secara otomatis."
-        confirmText="Ya, Hapus"
-        cancelText="Batal"
-        variant="danger"
-        loading={loading}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setDeletingId(null)}
-      />
     </div>
   )
 }

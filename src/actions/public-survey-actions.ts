@@ -150,19 +150,18 @@ export async function submitPublicSurveyAction(payload: PublicSurveySubmitPayloa
       }
     }
 
-    // 4. Validasi 14 indikator harus lengkap dan bernilai 0..5
-    const requiredCodes = [
-      '1.a.K1', '2.a.K1', '3.a.K1', '4.a.K1',
-      '1.a.K2', '2.a.K2', '3.a.K2',
-      '1.a.K3', '2.a.K3', '3.a.K3',
-      '1.a.K4', '2.a.K4',
-      '1.a.K5', '2.a.K5'
-    ]
+    // 4. Validasi 14 indikator harus lengkap dan bernilai 0..5 (ekstrak kode resmi dari f03Schema)
+    const requiredCodes: string[] = []
+    f03Schema.kategori_penilaian.forEach((cat) => {
+      cat.indikator.forEach((ind) => {
+        requiredCodes.push(ind.kode)
+      })
+    })
 
     let totalScore = 0
     for (const code of requiredCodes) {
       const val = answers[code]
-      if (val === undefined || val === null || val < 0 || val > 5) {
+      if (val === undefined || val === null || typeof val !== 'number' || val < 0 || val > 5) {
         return {
           success: false,
           error: `Harap berikan penilaian yang valid (0 - 5) untuk seluruh pertanyaan survei.`
