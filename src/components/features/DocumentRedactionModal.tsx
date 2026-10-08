@@ -11,8 +11,6 @@ import {
   Save,
   X,
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   Info
 } from 'lucide-react'
 import { formatFileUrl } from '../../lib/utils'
@@ -36,6 +34,42 @@ export interface DocumentRedactionModalProps {
   onSaveRedacted: (redactedFile: File) => Promise<void>
 }
 
+const BASE_WIDTH = 760
+
+function PdfPageCanvas({ pdfDoc, pageNumber }: { pdfDoc: any; pageNumber: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    let task: any = null
+    ;(async () => {
+      const page = await pdfDoc.getPage(pageNumber)
+      if (cancelled || !canvasRef.current) return
+      // Render pada resolusi tinggi tetap; ukuran tampil diatur CSS (w-full)
+      const baseVp = page.getViewport({ scale: 1 })
+      const scale = (BASE_WIDTH * 2) / baseVp.width
+      const viewport = page.getViewport({ scale })
+      const canvas = canvasRef.current
+      canvas.width = viewport.width
+      canvas.height = viewport.height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      task = page.render({ canvasContext: ctx, viewport })
+      try {
+        await task.promise
+      } catch {
+        /* dibatalkan */
+      }
+    })()
+    return () => {
+      cancelled = true
+      task?.cancel?.()
+    }
+  }, [pdfDoc, pageNumber])
+
+  return <canvas ref={canvasRef} className="w-full h-auto block pointer-events-none" />
+}
+
 export function DocumentRedactionModal({
   isOpen,
   onClose,
@@ -51,15 +85,12 @@ export function DocumentRedactionModal({
   const [currentBox, setCurrentBox] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
   const [zoom, setZoom] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [drawPage, setDrawPage] = useState(1)
+  const activeRectRef = useRef<DOMRect | null>(null)
 
-  // PDF Page Navigation (untuk PDF)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  const imageRef = useRef<HTMLImageElement>(null)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  // PDF dirender sebagai canvas lewat pdfjs-dist (bukan iframe viewer bawaan browser)
+  const [pdfDoc, setPdfDoc] = useState<any>(null)
+  const [pdfError, setPdfError] = useState<string | null>(null)
 
   // Reset state saat modal dibuka
   useEffect(() => {
@@ -68,19 +99,48 @@ export function DocumentRedactionModal({
       setZoom(1)
       setIsDrawing(false)
       setCurrentBox(null)
-      setImageLoaded(false)
-      setCurrentPage(1)
-      setTotalPages(1)
     }
   }, [isOpen, fileUrl])
 
-  // Mouse Down -> Mulai tarik kotak
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
+  useEffect(() => {
+    if (!isOpen || !isPdf) return
+    let cancelled = false
+    setPdfDoc(null)
+    setPdfError(null)
+    ;(async () => {
+      try {
+        const pdfjs = await import('pdfjs-dist')
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+          'pdfjs-dist/build/pdf.worker.min.mjs',
+          import.meta.url
+        ).toString()
+        const doc = await pdfjs.getDocument({ url: formatFileUrl(fileUrl) }).promise
+        if (!cancelled) setPdfDoc(doc)
+      } catch (err) {
+        console.error(err)
+        if (!cancelled) setPdfError('Gagal memuat pratinjau PDF. Pastikan berkas dapat diakses.')
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [isOpen, isPdf, fileUrl])
 
+  const pointFromEvent = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    return {
+      x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)),
+      rect
+    }
+  }
+
+  // Mouse Down -> Mulai tarik kotak pada halaman tertentu
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>, page: number) => {
+    e.preventDefault()
+    const { x, y, rect } = pointFromEvent(e)
+    activeRectRef.current = rect
+    setDrawPage(page)
     setIsDrawing(true)
     setStartPoint({ x, y })
     setCurrentBox({ x, y, w: 0, h: 0 })
@@ -88,17 +148,16 @@ export function DocumentRedactionModal({
 
   // Mouse Move -> Update dimensi kotak saat ditarik
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDrawing || !startPoint || !containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const currentX = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
-    const currentY = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
-
-    const x = Math.min(startPoint.x, currentX)
-    const y = Math.min(startPoint.y, currentY)
-    const w = Math.abs(currentX - startPoint.x)
-    const h = Math.abs(currentY - startPoint.y)
-
-    setCurrentBox({ x, y, w, h })
+    if (!isDrawing || !startPoint || !activeRectRef.current) return
+    const rect = activeRectRef.current
+    const cx = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+    const cy = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
+    setCurrentBox({
+      x: Math.min(startPoint.x, cx),
+      y: Math.min(startPoint.y, cy),
+      w: Math.abs(cx - startPoint.x),
+      h: Math.abs(cy - startPoint.y)
+    })
   }
 
   // Mouse Up -> Simpan kotak yang selesai ditarik
@@ -106,21 +165,50 @@ export function DocumentRedactionModal({
     if (!isDrawing || !currentBox) return
     setIsDrawing(false)
 
-    // Abaikan jika kotaknya terlalu kecil (hanya klik tanpa sengaja)
-    if (currentBox.w > 1 && currentBox.h > 1) {
-      const newBox: RedactBox = {
-        id: `box_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-        x: currentBox.x,
-        y: currentBox.y,
-        width: currentBox.w,
-        height: currentBox.h,
-        page: currentPage
-      }
-      setBoxes((prev) => [...prev, newBox])
+    if (currentBox.w > 0.5 && currentBox.h > 0.3) {
+      setBoxes((prev) => [
+        ...prev,
+        {
+          id: `box_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          x: currentBox.x,
+          y: currentBox.y,
+          width: currentBox.w,
+          height: currentBox.h,
+          page: drawPage
+        }
+      ])
     }
     setCurrentBox(null)
     setStartPoint(null)
   }
+
+  const renderBoxes = (page: number) => (
+    <>
+      {boxes
+        .filter((b) => (b.page || 1) === page)
+        .map((box) => (
+          <div
+            key={box.id}
+            style={{ left: `${box.x}%`, top: `${box.y}%`, width: `${box.width}%`, height: `${box.height}%` }}
+            className="absolute bg-black border border-black/80 pointer-events-none z-10 flex items-center justify-center overflow-hidden">
+            <span className="text-[9px] text-white/50 font-mono tracking-tighter uppercase select-none">
+              [SENSOR]
+            </span>
+          </div>
+        ))}
+      {isDrawing && currentBox && drawPage === page && (
+        <div
+          style={{
+            left: `${currentBox.x}%`,
+            top: `${currentBox.y}%`,
+            width: `${currentBox.w}%`,
+            height: `${currentBox.h}%`
+          }}
+          className="absolute bg-black/80 border-2 border-amber-400 border-dashed pointer-events-none z-20"
+        />
+      )}
+    </>
+  )
 
   const handleUndo = () => {
     setBoxes((prev) => prev.slice(0, -1))
@@ -186,38 +274,46 @@ export function DocumentRedactionModal({
         toast.success('Berkas berhasil disensor dan disimpan!', { id: toastId })
         onClose()
       } else {
-        // --- 2. PROSES DOKUMEN PDF DENGAN PDF-LIB ---
-        const { PDFDocument, rgb } = await import('pdf-lib')
-        const response = await fetch(normalizedUrl)
-        const arrayBuffer = await response.arrayBuffer()
-        const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
-        const pages = pdfDoc.getPages()
+        // --- 2. PDF: render tiap halaman -> bakar kotak hitam -> susun ulang jadi PDF gambar ---
+        // Teks asli ikut hilang (bukan sekadar ditimpa), dan ukuran berkas kecil.
+        if (!pdfDoc) throw new Error('PDF belum selesai dimuat.')
+        const { PDFDocument } = await import('pdf-lib')
+        const out = await PDFDocument.create()
+        const TARGET_WIDTH = 1240
 
-        // Tambahkan persegi panjang hitam pekat pada setiap koordinat kotak
-        boxes.forEach((box) => {
-          const targetPageIndex = (box.page || 1) - 1
-          if (targetPageIndex >= 0 && targetPageIndex < pages.length) {
-            const page = pages[targetPageIndex]
-            const { width: pageWidth, height: pageHeight } = page.getSize()
+        for (let n = 1; n <= pdfDoc.numPages; n++) {
+          const page = await pdfDoc.getPage(n)
+          const base = page.getViewport({ scale: 1 })
+          const viewport = page.getViewport({ scale: TARGET_WIDTH / base.width })
+          const canvas = document.createElement('canvas')
+          canvas.width = Math.floor(viewport.width)
+          canvas.height = Math.floor(viewport.height)
+          const ctx = canvas.getContext('2d')
+          if (!ctx) throw new Error('Canvas 2D context tidak tersedia.')
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+          await page.render({ canvasContext: ctx, viewport }).promise
 
-            // pdf-lib menggunakan koordinat Y terbalik (0 di kiri bawah, bukan kiri atas)
-            const boxWidth = (box.width / 100) * pageWidth
-            const boxHeight = (box.height / 100) * pageHeight
-            const boxX = (box.x / 100) * pageWidth
-            const boxY = pageHeight - (box.y / 100) * pageHeight - boxHeight
-
-            page.drawRectangle({
-              x: boxX,
-              y: boxY,
-              width: boxWidth,
-              height: boxHeight,
-              color: rgb(0, 0, 0),
-              opacity: 1
+          ctx.fillStyle = '#000000'
+          boxes
+            .filter((b) => (b.page || 1) === n)
+            .forEach((b) => {
+              ctx.fillRect(
+                (b.x / 100) * canvas.width,
+                (b.y / 100) * canvas.height,
+                (b.width / 100) * canvas.width,
+                (b.height / 100) * canvas.height
+              )
             })
-          }
-        })
 
-        const pdfBytes = await pdfDoc.save({ useObjectStreams: true })
+          const jpgBlob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.72))
+          if (!jpgBlob) throw new Error('Gagal mengekspor halaman PDF.')
+          const img = await out.embedJpg(await jpgBlob.arrayBuffer())
+          const outPage = out.addPage([base.width, base.height])
+          outPage.drawImage(img, { x: 0, y: 0, width: base.width, height: base.height })
+        }
+
+        const pdfBytes = await out.save({ useObjectStreams: true })
         const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' })
         const safeFileName = fileName.replace(/\.[^/.]+$/, '') + '_tersensor.pdf'
         const redactedFile = new File([blob], safeFileName, { type: 'application/pdf' })
@@ -327,72 +423,51 @@ export function DocumentRedactionModal({
           </span>
         </div>
 
-        {/* Canvas / Document Workspace */}
-        <div className="flex-1 overflow-auto bg-slate-900/60 p-4 sm:p-6 flex items-center justify-center select-none cursor-crosshair">
-          <div
-            style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
-            className="transition-transform duration-100 ease-out">
-            <div
-              ref={containerRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              className="relative shadow-2xl bg-white border border-slate-700 rounded-sm overflow-hidden inline-block select-none">
-              {/* Document Rendering */}
-              {!isPdf ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
+        {/* Document Workspace (scrollable, zoom via width so scroll & coordinates stay accurate) */}
+        <div className="flex-1 overflow-auto bg-slate-900/60 p-4 sm:p-6 select-none">
+          <div className="mx-auto flex flex-col items-center gap-4" style={{ width: `${BASE_WIDTH * zoom}px` }}>
+            {!isPdf ? (
+              <div
+                onMouseDown={(e) => handleMouseDown(e, 1)}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                className="relative w-full shadow-2xl bg-white border border-slate-700 rounded-sm overflow-hidden select-none cursor-crosshair">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  ref={imageRef}
                   src={normalizedUrl}
                   alt={fileName}
                   draggable={false}
-                  onLoad={() => setImageLoaded(true)}
-                  className="max-h-[60vh] max-w-full object-contain pointer-events-none select-none block"
+                  className="w-full h-auto pointer-events-none select-none block"
                 />
-              ) : (
-                <div className="relative w-[595px] h-[842px] bg-white pointer-events-none select-none overflow-hidden">
-                  <iframe
-                    ref={iframeRef}
-                    src={normalizedUrl}
-                    className="w-full h-full border-0 pointer-events-none select-none"
-                    title={fileName}
-                  />
+                {renderBoxes(1)}
+              </div>
+            ) : pdfError ? (
+              <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-lg px-4 py-3">
+                {pdfError}
+              </div>
+            ) : !pdfDoc ? (
+              <div className="flex items-center gap-2 text-xs text-slate-300 py-10">
+                <Loader2 className="w-4 h-4 animate-spin" /> Memuat halaman PDF...
+              </div>
+            ) : (
+              Array.from({ length: pdfDoc.numPages }, (_, i) => i + 1).map((pageNum) => (
+                <div key={pageNum} className="w-full">
+                  <div className="text-[10px] text-slate-400 mb-1 font-medium">
+                    Halaman {pageNum} / {pdfDoc.numPages}
+                  </div>
+                  <div
+                    onMouseDown={(e) => handleMouseDown(e, pageNum)}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    className="relative w-full shadow-2xl bg-white border border-slate-700 rounded-sm overflow-hidden select-none cursor-crosshair">
+                    <PdfPageCanvas pdfDoc={pdfDoc} pageNumber={pageNum} />
+                    {renderBoxes(pageNum)}
+                  </div>
                 </div>
-              )}
-
-              {/* Render Applied Redaction Boxes */}
-              {boxes.map((box) => (
-                <div
-                  key={box.id}
-                  style={{
-                    left: `${box.x}%`,
-                    top: `${box.y}%`,
-                    width: `${box.width}%`,
-                    height: `${box.height}%`
-                  }}
-                  className="absolute bg-black border border-black/80 shadow-xs pointer-events-none z-10 flex items-center justify-center">
-                  <span className="text-[9px] text-white/50 font-mono tracking-tighter uppercase select-none">
-                    [SENSOR]
-                  </span>
-                </div>
-              ))}
-
-              {/* Render Active Drawing Box */}
-              {isDrawing && currentBox && (
-                <div
-                  style={{
-                    left: `${currentBox.x}%`,
-                    top: `${currentBox.y}%`,
-                    width: `${currentBox.w}%`,
-                    height: `${currentBox.h}%`
-                  }}
-                  className="absolute bg-black/80 border-2 border-amber-400 border-dashed pointer-events-none z-20 flex items-center justify-center">
-                  <span className="text-[9px] text-amber-300 font-mono tracking-tighter">
-                    Menyensor...
-                  </span>
-                </div>
-              )}
-            </div>
+              ))
+            )}
           </div>
         </div>
 

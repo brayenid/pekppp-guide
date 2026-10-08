@@ -875,6 +875,91 @@ export async function restoreAttachmentVersionAction(params: {
 }
 
 /**
+ * Menghapus satu item versi riwayat lampiran tertentu dan menghapus file fisiknya
+ */
+export async function deleteAttachmentVersionAction(params: {
+  evaluationId: string
+  aspectCode: string
+  slotKey: string
+  attachmentId: string
+  versionId: string
+  actorName?: string
+  path?: string
+}) {
+  try {
+    const { evaluationId, aspectCode, slotKey, attachmentId, versionId, actorName, path } = params
+    const norm = normalizeAspectCode(aspectCode)
+
+    const sub = await db.indicatorEvidenceSubmission.findFirst({
+      where: {
+        evaluationId,
+        aspectCode: { in: [aspectCode, norm] },
+        slotKey
+      }
+    })
+
+    if (!sub) {
+      return { success: false, error: 'Submisi berkas tidak ditemukan.' }
+    }
+
+    const attachments = extractAttachments(sub)
+    const targetIdx = attachments.findIndex((a) => a.id === attachmentId)
+    if (targetIdx === -1) {
+      return { success: false, error: 'Berkas lampiran tidak ditemukan.' }
+    }
+
+    const targetAtt = attachments[targetIdx]
+    const versions = targetAtt.versions || []
+    const selectedVer = versions.find((v) => v.id === versionId)
+
+    if (!selectedVer) {
+      return { success: false, error: 'Versi yang ingin dihapus tidak ditemukan.' }
+    }
+
+    // Hapus berkas fisik dari storage jika ada URL
+    if (selectedVer.fileUrl) {
+      try {
+        await StorageService.deleteFile(selectedVer.fileUrl)
+      } catch (storageErr) {
+        console.warn('Gagal menghapus berkas fisik versi lampiran:', selectedVer.fileUrl, storageErr)
+      }
+    }
+
+    // Update list versions
+    const updatedVersions = versions.filter((v) => v.id !== versionId)
+    attachments[targetIdx] = {
+      ...targetAtt,
+      versions: updatedVersions
+    }
+
+    const historyList = (Array.isArray(sub.history) ? [...sub.history] : []) as any[]
+    historyList.push({
+      id: `act_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      action: 'DELETE',
+      actorName: actorName || 'Admin OPD',
+      fileName: selectedVer.fileName,
+      fileUrl: selectedVer.fileUrl,
+      note: `Menghapus arsip Versi ${selectedVer.version}: ${selectedVer.fileName}`
+    })
+
+    await db.indicatorEvidenceSubmission.update({
+      where: { id: sub.id },
+      data: {
+        attachments: attachments as any,
+        history: historyList as any
+      }
+    })
+
+    if (path) revalidatePath(path)
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error deleting attachment version:', error)
+    return { success: false, error: error.message || 'Gagal menghapus riwayat versi berkas.' }
+  }
+}
+
+/**
  * Unggah berkas contoh format/panduan bukti dukung oleh Admin/Evaluator
  */
 export async function uploadAspectSlotExampleAction(formData: FormData) {
