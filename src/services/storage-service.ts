@@ -110,7 +110,10 @@ export class StorageService {
             })
           )
 
-          const publicBaseUrl = process.env.R2_PUBLIC_URL || `https://${bucketName}.r2.dev`
+          let publicBaseUrl = (process.env.R2_PUBLIC_URL || `https://${bucketName}.r2.dev`).trim()
+          if (!publicBaseUrl.startsWith('http://') && !publicBaseUrl.startsWith('https://')) {
+            publicBaseUrl = `https://${publicBaseUrl}`
+          }
           const fileUrl = `${publicBaseUrl.replace(/\/+$/, '')}/${r2Key}`
 
           return {

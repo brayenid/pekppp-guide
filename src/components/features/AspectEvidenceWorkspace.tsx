@@ -31,11 +31,13 @@ import {
   LayoutGrid,
   List,
   RotateCcw,
-  MoreVertical
+  MoreVertical,
+  ShieldAlert
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '../ui/Button'
 import { ConfirmationModal } from '../ui/ConfirmationModal'
+import { DocumentRedactionModal } from './DocumentRedactionModal'
 import {
   getIndicatorEvidenceAction,
   saveIndicatorEvidenceSlotAction,
@@ -52,6 +54,7 @@ import {
   EvidenceAttachmentItem,
   FileVersionItem
 } from '../../actions/evidence-slot-actions'
+import { formatFileUrl } from '../../lib/utils'
 
 export function AspectEvidenceWorkspace({
   evaluationId,
@@ -164,6 +167,12 @@ export function AspectEvidenceWorkspace({
     currentIndex: number
   } | null>(null)
 
+  // Redaction Studio Modal Target
+  const [redactModalTarget, setRedactModalTarget] = useState<{
+    slot: EvidenceSlotItem
+    attachment: EvidenceAttachmentItem
+  } | null>(null)
+
   // Version Management Modal Target
   const [versionModalTarget, setVersionModalTarget] = useState<{
     slot: EvidenceSlotItem
@@ -172,6 +181,36 @@ export function AspectEvidenceWorkspace({
   const [isUploadingVersion, setIsUploadingVersion] = useState(false)
   const [isRestoringVersion, setIsRestoringVersion] = useState(false)
   const versionFileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleSaveRedactedAttachment = async (redactedFile: File) => {
+    if (!redactModalTarget) return
+    const { slot, attachment } = redactModalTarget
+    const formData = new FormData()
+    formData.append('file', redactedFile)
+    formData.append('evaluationId', evaluationId)
+    formData.append('aspectCode', aspectCode)
+    formData.append('slotKey', slot.slotKey)
+    formData.append('attachmentId', attachment.id)
+    formData.append('unitId', unitId)
+    formData.append('uploaderName', uploaderName)
+    formData.append('note', 'Hasil sensor data pribadi/rahasia (Redacted)')
+
+    try {
+      const res = await uploadNewAttachmentVersionAction(formData)
+      if (res.success) {
+        toast.success(`Berkas hasil sensor berhasil disimpan sebagai versi v${res.newVersion}!`)
+        await loadSlots()
+        setRedactModalTarget(null)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('evidence-updated'))
+        }
+      } else {
+        toast.error(res.error || 'Gagal menyimpan berkas tersensor.')
+      }
+    } catch (err: any) {
+      toast.error('Gagal menyimpan berkas tersensor: ' + (err.message || 'Error'))
+    }
+  }
 
   // Dropdown Menu Target for Attachment (shadcn-style compact popover)
   const [openDropdownAttId, setOpenDropdownAttId] = useState<string | null>(null)
@@ -655,10 +694,16 @@ export function AspectEvidenceWorkspace({
 
   // Handle Upload Contoh Format Bukti (Admin / Evaluator)
   const handleUploadExample = async (slotKey: string, file: File) => {
-    const toastId = toast.loading(`Mengunggah contoh format "${file.name}"...`)
+    const toastId = toast.loading(`Mengoptimasi & mengunggah "${file.name}"...`)
     try {
+      let fileToUpload = file
+      if (file.type.startsWith('image/')) {
+        const { compressImageClient } = await import('../../lib/client-image-compressor')
+        fileToUpload = await compressImageClient(file)
+      }
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', fileToUpload)
       formData.append('aspectCode', aspectCode)
       formData.append('slotKey', slotKey)
       formData.append('path', `/evaluasi/${unitId}`)
@@ -1314,6 +1359,24 @@ export function AspectEvidenceWorkspace({
                                           )}
                                         </button>
 
+                                        {isEditable && (att.fileType === 'IMAGE' || att.fileType === 'PDF' || att.fileName.toLowerCase().endsWith('.pdf') || /\.(jpe?g|png|webp)$/i.test(att.fileName)) && (
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setOpenDropdownAttId(null)
+                                              setRedactModalTarget({ slot, attachment: att })
+                                            }}
+                                            className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-ink hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-400 transition-colors group cursor-pointer text-[11px] font-medium text-left">
+                                            <div className="flex items-center gap-2">
+                                              <ShieldAlert className="w-3.5 h-3.5 text-amber-500 group-hover:text-amber-600" />
+                                              <span>Sensor Data Pribadi</span>
+                                            </div>
+                                            <span className="text-[9px] px-1 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 font-semibold uppercase tracking-wider">
+                                              Studio
+                                            </span>
+                                          </button>
+                                        )}
+
                                         {isEditable && (
                                           <>
                                             <div className="h-px bg-stroke/40 my-1" />
@@ -1794,7 +1857,8 @@ export function AspectEvidenceWorkspace({
 
             {/* Viewer Body */}
             {(() => {
-              const currentUrl = activeExampleGallery.urls[activeExampleGallery.currentIndex]
+              const rawUrl = activeExampleGallery.urls[activeExampleGallery.currentIndex]
+              const currentUrl = formatFileUrl(rawUrl)
               const isPdf = currentUrl?.toLowerCase().endsWith('.pdf')
 
               return (
@@ -1815,7 +1879,7 @@ export function AspectEvidenceWorkspace({
                             <button
                               type="button"
                               onClick={async () => {
-                                await handleDeleteExample(currentUrl, activeExampleGallery.slotKey)
+                                await handleDeleteExample(rawUrl, activeExampleGallery.slotKey)
                                 setActiveExampleGallery(null)
                               }}
                               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-medium border border-rose-200 cursor-pointer">
@@ -1847,7 +1911,7 @@ export function AspectEvidenceWorkspace({
                           <button
                             type="button"
                             onClick={async () => {
-                              await handleDeleteExample(currentUrl, activeExampleGallery.slotKey)
+                              await handleDeleteExample(rawUrl, activeExampleGallery.slotKey)
                               setActiveExampleGallery(null)
                             }}
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-medium border border-rose-200 cursor-pointer">
@@ -2086,6 +2150,18 @@ export function AspectEvidenceWorkspace({
           </div>
         </div>,
         document.body
+      )}
+
+      {/* Redaction Studio Modal (Client-side Human-in-the-Loop Sensor PII) */}
+      {redactModalTarget && (
+        <DocumentRedactionModal
+          isOpen={!!redactModalTarget}
+          onClose={() => setRedactModalTarget(null)}
+          fileUrl={redactModalTarget.attachment.fileUrl}
+          fileName={redactModalTarget.attachment.fileName}
+          fileType={redactModalTarget.attachment.fileType}
+          onSaveRedacted={handleSaveRedactedAttachment}
+        />
       )}
     </div>
   )

@@ -890,12 +890,32 @@ export async function uploadAspectSlotExampleAction(formData: FormData) {
 
     const norm = normalizeAspectCode(aspectCode)
     const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    let buffer = Buffer.from(arrayBuffer)
+    let mimeType = file.type
+
+    // Optimasi & Kompresi PDF secara cerdas sebelum disimpan
+    if (file.name.toLowerCase().endsWith('.pdf') || mimeType === 'application/pdf') {
+      try {
+        const { PDFDocument } = await import('pdf-lib')
+        const srcDoc = await PDFDocument.load(buffer, { ignoreEncryption: true })
+        // Bersihkan metadata berlebih dan simpan dengan stream kompresi maksimal
+        srcDoc.setTitle('')
+        srcDoc.setAuthor('')
+        srcDoc.setProducer('PEKPPP Evidence Optimizer')
+        srcDoc.setCreator('PEKPPP')
+        const compressedBytes = await srcDoc.save({ useObjectStreams: true, addDefaultPage: false })
+        if (compressedBytes.length < buffer.length) {
+          buffer = Buffer.from(compressedBytes)
+        }
+      } catch (pdfErr) {
+        console.warn('PDF compression skipped or failed, using original buffer:', pdfErr)
+      }
+    }
 
     const uploadResult = await StorageService.uploadFile({
       buffer,
       fileName: file.name,
-      mimeType: file.type,
+      mimeType,
       unitId: 'admin_guidance_examples',
       aspectCode: norm,
       slotKey

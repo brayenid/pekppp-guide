@@ -21,6 +21,7 @@ import {
   uploadAspectSlotExampleAction,
   deleteAspectSlotExampleAction
 } from '../../../actions/evidence-slot-actions'
+import { formatFileUrl } from '../../../lib/utils'
 
 interface SlotWithGuide {
   aspectCode: string
@@ -53,10 +54,17 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
 
   const handleUpload = async (slotKey: string, file: File) => {
     setLoadingSlot(slotKey)
-    const toastId = toast.loading(`Mengunggah contoh "${file.name}"...`)
+    const toastId = toast.loading(`Mengoptimasi & mengunggah "${file.name}"...`)
     try {
+      // Kompres gambar otomatis jika format gambar
+      let fileToUpload = file
+      if (file.type.startsWith('image/')) {
+        const { compressImageClient } = await import('../../../lib/client-image-compressor')
+        fileToUpload = await compressImageClient(file)
+      }
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', fileToUpload)
       formData.append('aspectCode', activeAspect)
       formData.append('slotKey', slotKey)
       formData.append('path', '/admin/panduan-bukti')
@@ -318,15 +326,15 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
               </button>
             </div>
             <div className="flex-1 overflow-auto flex items-center justify-center bg-sand-canvas/50 rounded-xl p-3 min-h-[350px] border border-stroke/40">
-              {previewFile.toLowerCase().endsWith('.pdf') ? (
+              {formatFileUrl(previewFile).toLowerCase().endsWith('.pdf') ? (
                 <div className="w-full h-[65vh] flex flex-col items-center justify-between gap-3">
                   <iframe
-                    src={previewFile}
+                    src={formatFileUrl(previewFile)}
                     className="w-full flex-1 rounded-xl border border-stroke/50 bg-surface"
                     title="Contoh Dokumen PDF"
                   />
                   <a
-                    href={previewFile}
+                    href={formatFileUrl(previewFile)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-all shadow-hz-button">
@@ -336,7 +344,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
                 </div>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={previewFile} alt="Contoh" className="max-h-[65vh] object-contain rounded-xl shadow-sm" />
+                <img src={formatFileUrl(previewFile)} alt="Contoh" className="max-h-[65vh] object-contain rounded-xl shadow-sm" />
               )}
             </div>
           </div>
