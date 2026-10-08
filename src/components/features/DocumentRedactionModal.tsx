@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ShieldAlert,
   Undo2,
@@ -361,7 +362,9 @@ export function DocumentRedactionModal({
     }))
   }, [isPdf, pdfDoc, boxes])
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div className="fixed inset-0 z-[99999] bg-slate-950 flex flex-col text-ink animate-in fade-in duration-150 select-none">
       {/* Top Header Navbar (Clean & Minimalist) */}
       <header className="h-14 px-4 sm:px-6 bg-surface border-b border-stroke/70 flex items-center justify-between gap-3 shrink-0 z-20">
@@ -601,6 +604,7 @@ export function DocumentRedactionModal({
           </aside>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
