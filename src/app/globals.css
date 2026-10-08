@@ -29,26 +29,26 @@
 }
 
 .dark {
-  --canvas: #0B111E;
-  --card: #131D2E;
-  --surface: #131D2E;
-  --surface-elevated: #1A263B;
-  --surface-subtle: #182438;
-  --surface-muted: #0F1827;
-  --stroke: #22324C;
-  --stroke-soft: #1E2D44;
-  --stroke-faint: rgba(255, 255, 255, 0.05);
-  --ink: #F1F5F9;
-  --ink-secondary: #CBD5E1;
-  --ink-muted: #8E9FB8;
+  --canvas: #090E18;
+  --card: #121C2F;
+  --surface: #121C2F;
+  --surface-elevated: #1A2842;
+  --surface-subtle: #162238;
+  --surface-muted: #0D1524;
+  --stroke: #2A3F66;
+  --stroke-soft: #223454;
+  --stroke-faint: rgba(255, 255, 255, 0.08);
+  --ink: #FFFFFF;
+  --ink-secondary: #E2E8F0;
+  --ink-muted: #94A3B8;
   --ink-faint: #64748B;
-  --line: #22324C;
-  --line-subtle: #1E2D44;
-  --line-border: #22324C;
-  --brand: #2563EB;
-  --brand-hover: #1D4ED8;
-  --brand-light: #1E2D48;
-  --brand-muted: #1D3557;
+  --line: #2A3F66;
+  --line-subtle: #223454;
+  --line-border: #2A3F66;
+  --brand: #3B82F6;
+  --brand-hover: #2563EB;
+  --brand-light: #1E375E;
+  --brand-muted: #1D2E49;
 }
 
 body {
@@ -231,22 +231,95 @@ html {
   color: var(--ink);
 }
 
-/* 7. Pastel badges adaptation */
-.dark .bg-pastel-blue { background-color: rgba(37, 99, 235, 0.16) !important; }
-.dark .text-pastel-blue-text { color: #60A5FA !important; }
-.dark .border-pastel-blue-border { border-color: rgba(96, 165, 250, 0.25) !important; }
+/* 7. Semantic Alert & Badge Adaptation for High Contrast */
+.dark .text-emerald-800,
+.dark .text-emerald-900 {
+  color: #A7F3D0 !important; /* emerald-200 */
+}
+.dark .text-emerald-700 {
+  color: #6EE7B7 !important; /* emerald-300 */
+}
+.dark .text-emerald-600 {
+  color: #34D399 !important; /* emerald-400 */
+}
+.dark .bg-emerald-100 {
+  background-color: rgba(6, 78, 59, 0.6) !important;
+  border-color: rgba(52, 211, 153, 0.4) !important;
+}
+.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.35) !important;
+}
 
-.dark .bg-pastel-green { background-color: rgba(16, 185, 129, 0.16) !important; }
-.dark .text-pastel-green-text { color: #34D399 !important; }
-.dark .border-pastel-green-border { border-color: rgba(52, 211, 153, 0.25) !important; }
+.dark .text-amber-800,
+.dark .text-amber-900 {
+  color: #FDE68A !important; /* amber-200 */
+}
+.dark .text-amber-700 {
+  color: #FCD34D !important; /* amber-300 */
+}
+.dark .text-amber-600 {
+  color: #FBBF24 !important; /* amber-400 */
+}
+.dark .bg-amber-100 {
+  background-color: rgba(120, 53, 15, 0.6) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+.dark .bg-amber-50 {
+  background-color: rgba(120, 53, 15, 0.35) !important;
+}
 
-.dark .bg-pastel-amber { background-color: rgba(245, 158, 11, 0.16) !important; }
-.dark .text-pastel-amber-text { color: #FBBF24 !important; }
-.dark .border-pastel-amber-border { border-color: rgba(251, 191, 36, 0.25) !important; }
+.dark .text-rose-800,
+.dark .text-rose-900 {
+  color: #FECDD3 !important; /* rose-200 */
+}
+.dark .text-rose-700 {
+  color: #FDA4AF !important; /* rose-300 */
+}
+.dark .text-rose-600 {
+  color: #FB7185 !important; /* rose-400 */
+}
+.dark .bg-rose-100 {
+  background-color: rgba(136, 19, 55, 0.6) !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
+}
+.dark .bg-rose-50 {
+  background-color: rgba(136, 19, 55, 0.35) !important;
+}
 
-.dark .bg-pastel-rose { background-color: rgba(244, 63, 94, 0.16) !important; }
-.dark .text-pastel-rose-text { color: #FB7185 !important; }
-.dark .border-pastel-rose-border { border-color: rgba(251, 113, 133, 0.25) !important; }
+.dark .text-blue-800,
+.dark .text-blue-900 {
+  color: #BFDBFE !important; /* blue-200 */
+}
+.dark .text-blue-700 {
+  color: #93C5FD !important; /* blue-300 */
+}
+.dark .text-blue-600 {
+  color: #60A5FA !important; /* blue-400 */
+}
+.dark .bg-blue-100 {
+  background-color: rgba(30, 58, 138, 0.6) !important;
+  border-color: rgba(96, 165, 250, 0.4) !important;
+}
+.dark .bg-blue-50 {
+  background-color: rgba(30, 58, 138, 0.35) !important;
+}
+
+/* 8. Pastel badges adaptation */
+.dark .bg-pastel-blue { background-color: rgba(37, 99, 235, 0.2) !important; }
+.dark .text-pastel-blue-text { color: #93C5FD !important; }
+.dark .border-pastel-blue-border { border-color: rgba(96, 165, 250, 0.35) !important; }
+
+.dark .bg-pastel-green { background-color: rgba(16, 185, 129, 0.2) !important; }
+.dark .text-pastel-green-text { color: #6EE7B7 !important; }
+.dark .border-pastel-green-border { border-color: rgba(52, 211, 153, 0.35) !important; }
+
+.dark .bg-pastel-amber { background-color: rgba(245, 158, 11, 0.2) !important; }
+.dark .text-pastel-amber-text { color: #FCD34D !important; }
+.dark .border-pastel-amber-border { border-color: rgba(251, 191, 36, 0.35) !important; }
+
+.dark .bg-pastel-rose { background-color: rgba(244, 63, 94, 0.2) !important; }
+.dark .text-pastel-rose-text { color: #FDA4AF !important; }
+.dark .border-pastel-rose-border { border-color: rgba(251, 113, 133, 0.35) !important; }
 
 /* 8. Refined dark mode shadows */
 .dark .shadow-hz-card,

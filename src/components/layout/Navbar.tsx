@@ -159,20 +159,20 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
     <div
       className={`${className || 'hidden lg:flex'} items-center px-3.5 py-1.5 border rounded-full transition-all duration-300 ${
         hasUnsaved
-          ? 'bg-amber-500/5 border-amber-500/20 shadow-2xs'
-          : 'bg-emerald-500/5 border-emerald-500/20 shadow-2xs'
+          ? 'bg-amber-500/10 border-amber-500/30 shadow-2xs'
+          : 'bg-emerald-500/10 border-emerald-500/30 shadow-2xs'
       }`}>
       <div
-        className={`inline-flex items-center gap-1.5 text-xs font-medium transition-transform duration-300 ${
+        className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-transform duration-300 ${
           justChanged ? 'animate-status-pop' : ''
         }`}>
         {hasUnsaved ? (
-          <span className="inline-flex items-center gap-1.5 text-amber-700/80">
+          <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
             {/* Morphing Icon Container */}
             <span className="relative flex items-center justify-center w-3.5 h-3.5">
               {/* Alert Icon */}
               <AlertCircle
-                className={`absolute w-3.5 h-3.5 text-amber-600/80 transition-all duration-500 ease-out ${
+                className={`absolute w-3.5 h-3.5 text-amber-600 dark:text-amber-300 transition-all duration-500 ease-out ${
                   showTransientIcon
                     ? 'opacity-100 scale-100 rotate-0'
                     : 'opacity-0 scale-50 -rotate-45 pointer-events-none'
@@ -180,22 +180,22 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
               />
               {/* Dotted Indicator */}
               <span
-                className={`w-2 h-2 rounded-full bg-amber-500/70 transition-all duration-500 ease-out ${
+                className={`w-2 h-2 rounded-full bg-amber-500 transition-all duration-500 ease-out ${
                   showTransientIcon
                     ? 'opacity-0 scale-0'
-                    : 'opacity-100 scale-100 shadow-[0_0_4px_rgba(245,158,11,0.25)]'
+                    : 'opacity-100 scale-100 shadow-[0_0_6px_rgba(245,158,11,0.5)]'
                 }`}
               />
             </span>
             <span>Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-emerald-700/80">
+          <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
             {/* Morphing Icon Container */}
             <span className="relative flex items-center justify-center w-3.5 h-3.5">
               {/* Checkmark Icon */}
               <Check
-                className={`absolute w-3.5 h-3.5 text-emerald-600/80 transition-all duration-500 ease-out ${
+                className={`absolute w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300 transition-all duration-500 ease-out ${
                   showTransientIcon
                     ? 'opacity-100 scale-100 rotate-0'
                     : 'opacity-0 scale-50 rotate-45 pointer-events-none'
@@ -203,10 +203,10 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
               />
               {/* Dotted Indicator with soft bloom on reveal */}
               <span
-                className={`w-2 h-2 rounded-full bg-emerald-500/70 transition-all duration-500 ease-out ${
+                className={`w-2 h-2 rounded-full bg-emerald-500 transition-all duration-500 ease-out ${
                   showTransientIcon
                     ? 'opacity-0 scale-0'
-                    : 'opacity-100 scale-100 shadow-[0_0_4px_rgba(16,185,129,0.25)]'
+                    : 'opacity-100 scale-100 shadow-[0_0_6px_rgba(16,185,129,0.5)]'
                 }`}
               />
             </span>

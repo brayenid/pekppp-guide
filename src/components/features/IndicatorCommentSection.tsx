@@ -124,30 +124,30 @@ export function IndicatorCommentSection({
 
       {/* CASE 2: Has comments OR User clicked CTA -> Show full discussion directly */}
       {(hasComments || isOpen) && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+        <div className="rounded-2xl border border-stroke bg-surface-subtle/50 p-4 space-y-3">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
+          <div className="flex items-center justify-between pb-2 border-b border-stroke/60">
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#1D5BB9]" />
-              <span className="font-semibold text-xs text-slate-800">
+              <MessageSquare className="w-4 h-4 text-brand" />
+              <span className="font-semibold text-xs text-ink">
                 Diskusi &amp; Catatan Klarifikasi Soal
               </span>
               {hasComments && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-[#1D5BB9]">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-light text-brand border border-brand/20">
                   {comments.length}
                 </span>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-medium text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
+              <span className="text-[10px] font-semibold text-ink-muted bg-surface-elevated px-2.5 py-0.5 rounded-full border border-stroke">
                 Evaluator &amp; OPD
               </span>
               {!hasComments && (
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-white cursor-pointer transition-colors"
+                  className="p-1 rounded-md text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer transition-colors"
                   title="Tutup">
                   <ChevronUp className="w-4 h-4" />
                 </button>
@@ -168,19 +168,19 @@ export function IndicatorCommentSection({
                 }
               }}
               placeholder="Tulis catatan atau klarifikasi bukti dukung..."
-              className="w-full p-3 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#1D5BB9] focus:ring-1 focus:ring-[#1D5BB9] resize-none leading-relaxed transition-all"
+              className="w-full p-3 text-xs rounded-xl border border-stroke bg-surface-elevated text-ink placeholder:text-ink-muted/80 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none leading-relaxed transition-all shadow-2xs"
             />
 
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">
-                Tekan <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[10px] text-slate-600">Ctrl+Enter</kbd> untuk kirim
+              <span className="text-[11px] text-ink-muted">
+                Tekan <kbd className="px-1.5 py-0.5 rounded bg-surface border border-stroke font-mono text-[10px] text-ink font-semibold">Ctrl+Enter</kbd> untuk kirim
               </span>
               <div className="flex items-center gap-2">
                 {!hasComments && (
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 rounded-lg transition-colors cursor-pointer">
+                    className="px-3 py-1 text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-subtle rounded-lg transition-colors cursor-pointer">
                     Batal
                   </button>
                 )}
@@ -188,7 +188,7 @@ export function IndicatorCommentSection({
                   type="button"
                   onClick={(e) => handleAddComment(e as unknown as React.FormEvent)}
                   disabled={loading || !message.trim()}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1D5BB9] hover:bg-[#154694] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm">
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
                   {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   <span>Kirim</span>
                 </button>

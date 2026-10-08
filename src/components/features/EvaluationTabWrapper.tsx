@@ -137,14 +137,14 @@ export function EvaluationTabWrapper({
       {/* Clean Unified 3-Pillar Tab Switcher + Mode Fokus Toggle */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stroke/40 pb-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center p-1 bg-surface-subtle/80 border border-stroke/60 rounded-full shadow-2xs gap-1">
+          <div className="flex items-center p-1 bg-surface-subtle border border-stroke rounded-full shadow-2xs gap-1">
             {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
             <button
               type="button"
               onClick={() => handleTabClick('f02')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'f02'
-                  ? 'bg-surface-elevated text-ink shadow-pill'
+                  ? 'bg-surface-elevated text-ink border border-stroke shadow-pill'
                   : 'text-ink-secondary hover:text-ink'
               }`}>
               <ClipboardList className="w-3.5 h-3.5 text-inherit" />
@@ -155,18 +155,18 @@ export function EvaluationTabWrapper({
             <button
               type="button"
               onClick={() => handleTabClick('f03')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'f03'
-                  ? 'bg-surface-elevated text-ink shadow-pill'
+                  ? 'bg-surface-elevated text-ink border border-stroke shadow-pill'
                   : 'text-ink-secondary hover:text-ink'
               }`}>
               <FolderHeart className="w-3.5 h-3.5 text-inherit" />
               <span>Survei F03</span>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors ${
                   activeTab === 'f03'
                     ? 'bg-brand-light text-brand'
-                    : 'bg-surface-subtle text-ink-muted'
+                    : 'bg-surface-elevated text-ink border border-stroke'
                 }`}>
                 {f03Count}
               </span>
@@ -176,15 +176,15 @@ export function EvaluationTabWrapper({
             <button
               type="button"
               onClick={() => handleTabClick('evidence')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'evidence'
-                  ? 'bg-brand text-white shadow-hz-button'
+                  ? 'bg-brand text-white shadow-hz-button ring-1 ring-brand/40'
                   : 'text-ink-secondary hover:text-ink'
               }`}>
               <UploadCloud className="w-3.5 h-3.5 text-inherit" />
               <span>Unggah Bukti Dukung</span>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors ${
                   activeTab === 'evidence'
                     ? 'bg-white/20 text-white'
                     : incompleteCount === 0
@@ -216,10 +216,10 @@ export function EvaluationTabWrapper({
         <button
           type="button"
           onClick={() => setIsFocusMode(!isFocusMode)}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border cursor-pointer select-none ${
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border cursor-pointer select-none ${
             isFocusMode
-              ? 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke/80 shadow-soft-card'
-              : 'bg-surface-elevated hover:bg-surface-subtle text-ink-secondary hover:text-ink border-stroke/60 shadow-2xs'
+              ? 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-soft-card'
+              : 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs'
           }`}>
           {isFocusMode ? (
             <>

@@ -95,14 +95,14 @@ export default async function EvaluasiUnitPage({
   return (
     <div className="space-y-3">
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+      <nav className="flex items-center gap-1.5 text-xs text-ink-muted font-medium">
         <Link
           href={access.user?.role === 'OPD' ? '/opd' : '/admin/peserta'}
-          className="hover:text-slate-900 transition-colors">
+          className="hover:text-ink transition-colors">
           Dashboard
         </Link>
-        <span className="text-slate-300">/</span>
-        <span className="text-slate-900 font-bold">{evaluation.unit.name}</span>
+        <span className="text-stroke font-bold">/</span>
+        <span className="text-ink font-bold">{evaluation.unit.name}</span>
       </nav>
 
       {/* Instant Client-Side Tab Switcher Wrapper */}

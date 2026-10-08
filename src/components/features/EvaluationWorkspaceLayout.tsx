@@ -909,17 +909,17 @@ export function EvaluationWorkspaceLayout({
       )}
 
       {userRole === 'OPD' && isF01Editable && hasEvaluatorScoredAny && (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-5 py-3 flex items-center justify-between gap-4 text-xs">
+        <div className="bg-emerald-500/15 border border-emerald-500/40 rounded-2xl px-5 py-3 flex items-center justify-between gap-4 text-xs shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 ring-2 ring-emerald-400/30" />
             <div className="min-w-0">
-              <span className="font-semibold text-emerald-800">Unit Anda Telah / Sedang Dinilai Oleh Evaluator</span>
-              <p className="text-emerald-700/90 text-[11px] mt-0.5 truncate">
+              <span className="font-bold text-emerald-900 dark:text-emerald-200">Unit Anda Telah / Sedang Dinilai Oleh Evaluator</span>
+              <p className="text-emerald-800 dark:text-emerald-300/90 text-[11px] mt-0.5 truncate font-normal">
                 Evaluator telah mengisi skor atau catatan rekomendasi pada beberapa indikator. Anda dapat melihat masukan evaluator dan memperbarui bukti dukung jika diperlukan.
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-full shrink-0 hidden sm:inline-block">
+          <span className="text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-950/90 border border-emerald-300 dark:border-emerald-600/60 px-2.5 py-1 rounded-full shrink-0 hidden sm:inline-block shadow-2xs">
             {filledF02Count} dari 31 Dinilai
           </span>
         </div>
@@ -939,14 +939,14 @@ export function EvaluationWorkspaceLayout({
 
       {/* Minimalist Action Ribbon (Khusus Mode Formulir Pertanyaan F01 / F02) */}
       {activeMainMode !== 'EVIDENCE' && (
-        <div className="bg-surface rounded-2xl border border-stroke/50 px-5 py-3 flex items-center justify-between gap-4 shadow-soft-card mb-5">
+        <div className="bg-surface rounded-2xl border border-stroke px-5 py-3 flex items-center justify-between gap-4 shadow-soft-card mb-5">
           {/* Left: Indicator Breadcrumb */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="font-medium text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke/60 text-xs">
+            <span className="font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke text-xs">
               #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
             </span>
-            <span className="text-stroke">•</span>
-            <span className="text-ink-muted truncate max-w-[280px] sm:max-w-md">
+            <span className="text-stroke font-bold">•</span>
+            <span className="text-ink-secondary font-medium truncate max-w-[280px] sm:max-w-md">
               {activeScoreItem.indicator.aspect.name}
             </span>
           </div>
@@ -954,18 +954,18 @@ export function EvaluationWorkspaceLayout({
           {/* Right: Progress & Action */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-2.5 text-xs">
-              <span className="text-ink-muted font-normal">
+              <span className="text-ink-secondary font-medium">
                 {userRole === 'OPD'
                   ? `Kelengkapan: ${completedF01WithProofCount}/31`
                   : `Penilaian: ${filledF02Count}/31`}
               </span>
-              <div className="w-20 bg-surface-subtle h-1.5 rounded-full overflow-hidden hidden sm:block border border-stroke/40">
+              <div className="w-20 bg-surface-subtle h-2 rounded-full overflow-hidden hidden sm:block border border-stroke">
                 <div
                   className="bg-brand h-full transition-all duration-300 rounded-full"
                   style={{ width: `${overallProgress}%` }}
                 />
               </div>
-              <span className="text-xs font-medium text-ink">
+              <span className="text-xs font-bold text-ink">
                 {overallProgress}%
               </span>
             </div>
@@ -1088,12 +1088,12 @@ export function EvaluationWorkspaceLayout({
           {/* ------------------------------------------------------------- */}
           <div
             style={{ width: `${sidebarWidthPct}%`, minWidth: `${SIDEBAR_MIN}%`, maxWidth: `${SIDEBAR_MAX}%` }}
-            className="rounded-bento border border-stroke/50 bg-surface p-5 space-y-4 shadow-soft-card sticky top-24 shrink-0"
+            className="rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-24 shrink-0"
           >
             <div className="space-y-3.5">
-              <div className="flex items-center justify-between pb-3 text-xs border-b border-stroke/40">
+              <div className="flex items-center justify-between pb-3 text-xs border-b border-stroke">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-medium text-ink text-xs">Peta Navigasi</span>
+                  <span className="font-bold text-ink text-xs">Peta Navigasi</span>
                   {Math.abs(sidebarWidthPct - SIDEBAR_DEFAULT) > 0.5 && (
                     <button
                       type="button"
@@ -1106,7 +1106,7 @@ export function EvaluationWorkspaceLayout({
                     </button>
                   )}
                 </div>
-                <span className="text-[11px] font-medium text-brand bg-brand-light px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
                   Soal #{activeNumber}
                 </span>
               </div>
@@ -1300,11 +1300,11 @@ export function EvaluationWorkspaceLayout({
                   return (
                     <div key={aspect.code} className="space-y-2.5">
                       {/* Aspect Header */}
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className={`font-medium truncate ${isCurrentAspect ? 'text-ink font-semibold' : 'text-ink-muted'}`}>
+                      <div className="flex items-center justify-between text-[11px] pb-0.5">
+                        <span className={`truncate text-xs ${isCurrentAspect ? 'text-brand font-bold' : 'text-ink-secondary font-medium'}`}>
                           {aspect.code}. {aspect.name}
                         </span>
-                        <span className="text-[10px] text-ink-muted font-normal shrink-0">
+                        <span className="text-[10px] text-ink-muted font-medium shrink-0">
                           {items.length} soal
                         </span>
                       </div>
@@ -1333,24 +1333,24 @@ export function EvaluationWorkspaceLayout({
                               onClick={() => handleGoToNumber(indNum)}
                               className={`relative h-10 rounded-xl text-xs flex flex-col items-center justify-center transition-all border cursor-pointer ${
                                 isActive
-                                  ? 'bg-brand text-white border-brand shadow-hz-button font-medium'
+                                  ? 'bg-brand text-white border-brand shadow-hz-button font-bold scale-[1.02]'
                                   : isDirty
-                                    ? 'bg-pastel-rose text-pastel-rose-text border-rose-200 font-medium'
-                                    : 'bg-surface-elevated text-ink-secondary border-stroke/60 hover:border-stroke hover:bg-surface-subtle'
+                                    ? 'bg-pastel-rose text-pastel-rose-text border-rose-300 dark:border-rose-500/50 font-bold'
+                                    : 'bg-surface-elevated text-ink font-semibold border-stroke hover:border-brand/60 hover:bg-surface-subtle shadow-2xs'
                               }`}>
-                              <span className="leading-none text-xs font-normal">{indNum}</span>
+                              <span className="leading-none text-xs font-semibold">{indNum}</span>
 
                               {/* Subtle status indicator dots */}
                               {!isActive && (
                                 <span className="flex items-center gap-0.5 mt-1">
                                   {isDirty ? (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 ring-1 ring-rose-400/40" />
                                   ) : state === 'complete' || state === 'scored' ? (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1 ring-emerald-300/40" />
                                   ) : state === 'no_proof' || state === 'ready' ? (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ring-1 ring-amber-300/40" />
                                   ) : (
-                                    <span className="w-1 h-1 rounded-full bg-stroke" />
+                                    <span className="w-1 h-1 rounded-full bg-stroke-soft" />
                                   )}
                                   {commentCount > 0 && (
                                     <span className="w-1 h-1 rounded-full bg-brand" />
@@ -1550,25 +1550,25 @@ export function EvaluationWorkspaceLayout({
           <div className={`rounded-bento border bg-surface shadow-soft-card overflow-hidden transition-all duration-500 ${
             highlightTarget
               ? 'border-brand ring-4 ring-brand/20 shadow-soft-float'
-              : 'border-stroke/50'
+              : 'border-stroke'
           }`}>
             <div key={activeNumber} className="animate-fade-in-content">
                 {/* Clean Indicator Header (Warm Minimalist) */}
-                <div className="p-5 sm:p-6 border-b border-stroke/40 bg-surface-subtle/20 space-y-3">
+                <div className="p-5 sm:p-6 border-b border-stroke bg-surface-subtle/30 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-xs text-ink bg-surface-elevated px-3 py-1 rounded-full border border-stroke/60 shadow-2xs">
+                      <span className="font-semibold text-xs text-ink bg-surface-elevated px-3 py-1 rounded-full border border-stroke shadow-2xs">
                         #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
                       </span>
-                      <span className="text-stroke">•</span>
-                      <span className="font-medium text-ink-muted text-xs">
+                      <span className="text-stroke font-bold">•</span>
+                      <span className="font-medium text-ink-secondary text-xs">
                         Aspek {activeScoreItem.indicator.aspect.code}: {activeScoreItem.indicator.aspect.name}
                       </span>
-                      <span className="text-stroke">•</span>
+                      <span className="text-stroke font-bold">•</span>
                       <button
                         type="button"
                         onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
-                        className="inline-flex items-center gap-1 text-xs text-brand hover:text-brand-hover font-medium cursor-pointer">
+                        className="inline-flex items-center gap-1 text-xs text-brand hover:text-brand-hover font-semibold cursor-pointer">
                         <UploadCloud className="w-3.5 h-3.5 text-brand shrink-0" />
                         <span>Unggah Bukti Dukung ↗</span>
                       </button>

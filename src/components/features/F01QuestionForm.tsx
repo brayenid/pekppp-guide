@@ -212,10 +212,10 @@ export function F01QuestionForm({
                     return (
                       <label
                         key={opt}
-                        className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                        className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
                           isSelected
-                            ? 'bg-brand text-white border-transparent shadow-hz-button'
-                            : 'bg-surface text-ink-secondary border-stroke/60 hover:bg-surface-subtle hover:text-ink'
+                            ? 'bg-brand text-white border-brand shadow-hz-button ring-1 ring-brand/40'
+                            : 'bg-surface-elevated text-ink border-stroke hover:border-brand/60 hover:bg-surface-subtle'
                         }`}>
                         <input
                           type="radio"
@@ -243,8 +243,8 @@ export function F01QuestionForm({
                         key={opt}
                         className={`p-3 rounded-xl text-xs border flex items-center gap-2.5 cursor-pointer transition-all shadow-2xs ${
                           isSelected
-                            ? 'bg-brand/5 border-brand/40 text-brand font-medium ring-1 ring-brand/30'
-                            : 'bg-surface border-stroke/50 text-ink-secondary hover:bg-surface-subtle hover:text-ink font-normal'
+                            ? 'bg-brand-light/60 border-brand text-brand font-semibold ring-1 ring-brand/40'
+                            : 'bg-surface-elevated border-stroke text-ink hover:bg-surface-subtle hover:border-brand/40 font-normal'
                         }`}>
                         <input
                           type="radio"
@@ -273,8 +273,8 @@ export function F01QuestionForm({
                         key={opt}
                         className={`p-3 rounded-xl text-xs border flex items-center gap-2.5 cursor-pointer transition-all shadow-2xs ${
                           isChecked
-                            ? 'bg-brand/5 border-brand/40 text-brand font-medium ring-1 ring-brand/30'
-                            : 'bg-surface border-stroke/50 text-ink-secondary hover:bg-surface-subtle hover:text-ink font-normal'
+                            ? 'bg-brand-light/60 border-brand text-brand font-semibold ring-1 ring-brand/40'
+                            : 'bg-surface-elevated border-stroke text-ink hover:bg-surface-subtle hover:border-brand/40 font-normal'
                         }`}>
                         <input
                           type="checkbox"
