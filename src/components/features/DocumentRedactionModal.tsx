@@ -18,8 +18,11 @@ import {
   ChevronRight,
   ChevronDown,
   Copy,
-  RefreshCw
+  RefreshCw,
+  HelpCircle,
+  CheckCircle2
 } from 'lucide-react'
+import { ConfirmationModal } from '../ui/ConfirmationModal'
 import { formatFileUrl } from '../../lib/utils'
 import { toast } from 'sonner'
 
@@ -104,8 +107,7 @@ export function DocumentRedactionModal({
   const [pdfDoc, setPdfDoc] = useState<any>(null)
   const [pdfError, setPdfError] = useState<string | null>(null)
 
-  const [isSaveDropdownOpen, setIsSaveDropdownOpen] = useState(false)
-  const saveDropdownRef = useRef<HTMLDivElement | null>(null)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   // Reset state saat modal dibuka
   useEffect(() => {
@@ -115,23 +117,9 @@ export function DocumentRedactionModal({
       setZoom(1)
       setIsDrawing(false)
       setCurrentBox(null)
-      setIsSaveDropdownOpen(false)
+      setIsConfirmOpen(false)
     }
   }, [isOpen, fileUrl])
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (saveDropdownRef.current && !saveDropdownRef.current.contains(e.target as Node)) {
-        setIsSaveDropdownOpen(false)
-      }
-    }
-    if (isSaveDropdownOpen) {
-      document.addEventListener('mousedown', handleOutsideClick)
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [isSaveDropdownOpen])
 
   useEffect(() => {
     if (!isOpen || !isPdf) return
@@ -336,17 +324,23 @@ export function DocumentRedactionModal({
 
   // Eksekusi Simpan Berkas Tersensor ('new_version' = Buat Versi Baru, 'overwrite' = Timpa Berkas Aktif)
   const handleApplyRedaction = async (saveMode: 'new_version' | 'overwrite' = 'new_version') => {
-    if (boxes.length === 0) {
-      toast.info('Belum ada kotak sensor yang ditambahkan.')
-      return
-    }
-
-    setIsSaveDropdownOpen(false)
     setIsSaving(true)
     const toastId = toast.loading(
-      saveMode === 'overwrite' ? 'Menimpa berkas dengan hasil sensor...' : 'Menyimpan versi baru berkas tersensor...'
+      boxes.length === 0
+        ? 'Menyimpan berkas...'
+        : saveMode === 'overwrite'
+        ? 'Menimpa berkas dengan hasil sensor...'
+        : 'Menyimpan versi baru berkas tersensor...'
     )
     try {
+      // Jika berkas baru (pre-upload) dan tidak ada sensor sama sekali, kirim berkas mentah langsung
+      if (boxes.length === 0 && rawFile) {
+        await onSaveRedacted(rawFile, saveMode)
+        toast.dismiss(toastId)
+        onClose()
+        return
+      }
+
       const normalizedUrl = formatFileUrl(fileUrl)
 
       if (!isPdf) {
@@ -471,21 +465,12 @@ export function DocumentRedactionModal({
       {/* Top Header Navbar (Clean & Minimalist) */}
       <header className="h-14 px-4 sm:px-6 bg-surface border-b border-stroke/70 flex items-center justify-between gap-3 shrink-0 z-20">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <ShieldAlert className="w-4 h-4" />
-          </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="text-sm font-semibold text-ink truncate">Studio Sensor Berkas</h1>
               <span className="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium bg-surface-subtle text-ink-muted border border-stroke/50">
                 {isPdf ? 'PDF' : 'GAMBAR'}
               </span>
-              {isPreUpload && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                  <ShieldAlert className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                  <span>Pratinjau Sebelum Unggah (Belum Masuk Server)</span>
-                </span>
-              )}
             </div>
             <p className="text-[11px] text-ink-muted truncate max-w-sm sm:max-w-md">{fileName}</p>
           </div>
@@ -559,100 +544,20 @@ export function DocumentRedactionModal({
             Batal
           </button>
 
-          {isPreUpload ? (
-            /* Jika Berkas Baru (Pre-upload): Tombol langsung Simpan & Unggah (karena belum ada berkas lama untuk ditimpa) */
-            <button
-              type="button"
-              disabled={isSaving}
-              onClick={() => handleApplyRedaction('new_version')}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Mengunggah...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-3.5 h-3.5" />
-                  <span>
-                    {boxes.length > 0 ? `Simpan & Unggah (${boxes.length} Sensor)` : 'Unggah Tanpa Sensor'}
-                  </span>
-                </>
-              )}
-            </button>
-          ) : (
-            /* Jika Edit Berkas yang Sudah Ada: Dropdown Pilihan Versi Baru vs Timpa */
-            <div className="relative inline-flex items-center" ref={saveDropdownRef}>
-              <button
-                type="button"
-                disabled={isSaving || boxes.length === 0}
-                onClick={() => setIsSaveDropdownOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Menyimpan...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-3.5 h-3.5" />
-                    <span>Simpan ({boxes.length})</span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${isSaveDropdownOpen ? 'rotate-180' : ''}`} />
-                  </>
-                )}
-              </button>
-
-              {/* Dropdown Menu Modal */}
-              {isSaveDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-60 z-50 bg-surface rounded-xl border border-stroke/80 shadow-2xl p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-2.5 py-1 text-[10px] font-semibold text-ink-muted uppercase tracking-wider border-b border-stroke/40 mb-1">
-                    Pilih Cara Simpan:
-                  </div>
-
-                  {/* Opsi 1: Buat Versi Baru (Recommended) */}
-                  <button
-                    type="button"
-                    onClick={() => handleApplyRedaction('new_version')}
-                    className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-surface-subtle transition-colors cursor-pointer group">
-                    <div className="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0 mt-0.5">
-                      <Copy className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-ink text-xs flex items-center gap-1.5">
-                        <span>Buat Versi Baru</span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand/10 text-brand font-medium">Rekomendasi</span>
-                      </div>
-                      <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
-                        Simpan sebagai versi baru. Berkas asli tetap tersimpan di riwayat lampau.
-                      </p>
-                    </div>
-                  </button>
-
-                  {/* Opsi 2: Timpa Berkas Aktif Langsung */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (window.confirm('PERINGATAN: Menimpa akan mengganti berkas saat ini secara langsung. Lanjutkan?')) {
-                        handleApplyRedaction('overwrite')
-                      }
-                    }}
-                    className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-amber-500/10 transition-colors cursor-pointer group mt-0.5">
-                    <div className="w-6 h-6 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <RefreshCw className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-amber-700 dark:text-amber-400 text-xs">
-                        Timpa Berkas Aktif
-                      </div>
-                      <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
-                        Gantikan berkas ini langsung tanpa menambah nomor versi baru.
-                      </p>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={() => setIsConfirmOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
+            {isSaving ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <span>Simpan</span>
+            )}
+          </button>
         </div>
       </header>
 
@@ -800,6 +705,26 @@ export function DocumentRedactionModal({
           </aside>
         )}
       </div>
+
+      {/* Modal Konfirmasi Simpan (Bila Tanpa Sensor vs Ada Sensor) */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        title={boxes.length === 0 ? 'Konfirmasi Dokumen Tanpa Sensor' : 'Konfirmasi Penerapan Sensor'}
+        description={
+          boxes.length === 0
+            ? 'Apakah Anda yakin berkas ini tidak memuat data pribadi sensitif atau data rahasia (seperti NIK, NIP, nomor kontak, tanda tangan, atau identitas pribadi lainnya)?'
+            : `Apakah seluruh area data rahasia/pribadi yang Anda tandai (${boxes.length} area) sudah sesuai dan siap ditutup secara permanen?`
+        }
+        confirmText={boxes.length === 0 ? 'Ya, Simpan Berkas' : 'Ya, Terapkan & Simpan'}
+        cancelText="Periksa Kembali"
+        variant={boxes.length === 0 ? 'warning' : 'primary'}
+        loading={isSaving}
+        onCancel={() => setIsConfirmOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmOpen(false)
+          await handleApplyRedaction('new_version')
+        }}
+      />
     </div>,
     document.body
   )
