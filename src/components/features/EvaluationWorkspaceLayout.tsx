@@ -1774,12 +1774,12 @@ export function EvaluationWorkspaceLayout({
                 </div>
 
                 {/* Footer Navigation Bar */}
-                <div className="px-6 py-4 bg-surface-subtle/20 border-t border-stroke/40 flex items-center justify-between gap-3">
+                <div className="px-6 py-4 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-3">
                   <button
                     type="button"
                     disabled={!prevScoreItem}
                     onClick={() => prevScoreItem && handleGoToNumber(prevScoreItem.indicator.indicatorNumber)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-stroke/60 bg-surface hover:bg-surface-subtle text-ink-secondary font-normal text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Sebelumnya (#{prevScoreItem ? prevScoreItem.indicator.indicatorNumber : '-'})</span>
                   </button>

@@ -29,26 +29,26 @@
 }
 
 .dark {
-  --canvas: #090E18;
-  --card: #121C2F;
-  --surface: #121C2F;
-  --surface-elevated: #1A2842;
-  --surface-subtle: #162238;
-  --surface-muted: #0D1524;
-  --stroke: #2A3F66;
-  --stroke-soft: #223454;
-  --stroke-faint: rgba(255, 255, 255, 0.08);
-  --ink: #FFFFFF;
-  --ink-secondary: #E2E8F0;
-  --ink-muted: #94A3B8;
-  --ink-faint: #64748B;
-  --line: #2A3F66;
-  --line-subtle: #223454;
-  --line-border: #2A3F66;
+  --canvas: #121214;
+  --card: #18181C;
+  --surface: #18181C;
+  --surface-elevated: #24242A;
+  --surface-subtle: #1E1E23;
+  --surface-muted: #151518;
+  --stroke: #34343C;
+  --stroke-soft: #2B2B32;
+  --stroke-faint: rgba(255, 255, 255, 0.05);
+  --ink: #F4F4F6;
+  --ink-secondary: #D4D4D8;
+  --ink-muted: #9E9EA7;
+  --ink-faint: #71717A;
+  --line: #34343C;
+  --line-subtle: #2B2B32;
+  --line-border: #34343C;
   --brand: #3B82F6;
   --brand-hover: #2563EB;
-  --brand-light: #1E375E;
-  --brand-muted: #1D2E49;
+  --brand-light: #202638;
+  --brand-muted: #1D2333;
 }
 
 body {
@@ -158,19 +158,57 @@ html {
   background-color: var(--stroke) !important;
 }
 
-/* 3. Border overrides */
+/* 3. Universal Border Color Reset & Overrides for Dark Mode */
+.dark,
+.dark *,
+.dark *::before,
+.dark *::after {
+  border-color: var(--stroke);
+}
+
 .dark .border-slate-100,
 .dark .border-slate-200,
 .dark .border-slate-300,
+.dark .border-slate-400,
 .dark .border-gray-100,
 .dark .border-gray-200,
-.dark .border-gray-300 {
+.dark .border-gray-300,
+.dark .border-gray-400 {
   border-color: var(--stroke) !important;
 }
+
+/* Explicit support for all Tailwind border-stroke slash opacities */
+.dark [class*="border-stroke"] {
+  border-color: var(--stroke);
+}
+.dark .border-stroke\/20,
+.dark [class*="border-stroke\/20"] {
+  border-color: var(--stroke-faint) !important;
+}
+.dark .border-stroke\/30,
+.dark .border-stroke\/40,
+.dark .border-stroke\/50,
+.dark [class*="border-stroke\/30"],
+.dark [class*="border-stroke\/40"],
+.dark [class*="border-stroke\/50"] {
+  border-color: var(--stroke-soft) !important;
+}
+.dark .border-stroke\/60,
+.dark .border-stroke\/70,
+.dark .border-stroke\/80,
+.dark [class*="border-stroke\/60"],
+.dark [class*="border-stroke\/70"],
+.dark [class*="border-stroke\/80"] {
+  border-color: var(--stroke) !important;
+}
+
 .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
 .dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
 .dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
-.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-stroke\/30 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-stroke\/40 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-stroke\/50 > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--stroke) !important;
 }
 

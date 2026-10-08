@@ -203,7 +203,7 @@ export function IndicatorCommentSection({
                 <div
                   key={c.id}
                   className={`p-4 rounded-xl border text-xs space-y-2.5 ${
-                    c.isResolved ? 'bg-pastel-emerald/30 border-pastel-emerald-border' : 'bg-surface border-stroke/50 shadow-2xs'
+                    c.isResolved ? 'bg-pastel-green/15 border-pastel-green-border' : 'bg-surface border border-stroke shadow-2xs'
                   }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -230,8 +230,8 @@ export function IndicatorCommentSection({
                       onClick={() => handleToggleResolve(c.id, c.isResolved)}
                       className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border transition-colors cursor-pointer ${
                         c.isResolved
-                          ? 'bg-pastel-emerald text-pastel-emerald-text border-pastel-emerald-border'
-                          : 'bg-surface text-ink-secondary border-stroke/60 hover:bg-surface-subtle hover:text-ink'
+                          ? 'bg-pastel-green text-pastel-green-text border-pastel-green-border'
+                          : 'bg-surface-elevated text-ink-secondary border border-stroke hover:bg-surface-subtle hover:text-ink'
                       }`}>
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       {c.isResolved ? 'Selesai' : 'Tandai Selesai'}
@@ -264,7 +264,7 @@ export function IndicatorCommentSection({
                           }
                         }}
                         placeholder="Tulis balasan..."
-                        className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-stroke/60 bg-surface focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted shadow-2xs"
+                        className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-stroke bg-surface-elevated focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted shadow-2xs"
                       />
                       <button
                         type="button"
@@ -277,9 +277,9 @@ export function IndicatorCommentSection({
 
                   {/* Nested Replies */}
                   {c.replies && c.replies.length > 0 && (
-                    <div className="pl-3 mt-2 border-l-2 border-stroke/60 space-y-2">
+                    <div className="pl-3 mt-2 border-l-2 border-brand/50 space-y-2">
                       {c.replies.map((reply) => (
-                        <div key={reply.id} className="bg-surface-subtle/50 p-3 rounded-xl border border-stroke/40">
+                        <div key={reply.id} className="bg-surface-elevated p-3 rounded-xl border border-stroke">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 font-medium text-ink text-xs">
                               <CornerDownRight className="w-3.5 h-3.5 text-ink-muted" />

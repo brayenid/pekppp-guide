@@ -7,7 +7,7 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Skeleton({ className = '', ...props }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-xl bg-surface-subtle/80 border border-stroke/20 ${className}`}
+      className={`animate-pulse rounded-xl bg-surface-subtle dark:bg-surface-elevated ${className}`}
       {...props}
     />
   )
@@ -37,7 +37,7 @@ export function StatCardSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-bento border border-stroke/50 bg-surface p-5 space-y-3 shadow-2xs">
+          className="rounded-bento border border-stroke bg-surface p-5 space-y-3 shadow-2xs">
           <div className="flex items-center justify-between">
             <Skeleton className="w-28 h-3.5 rounded-md" />
             <Skeleton className="w-7 h-7 rounded-xl" />
@@ -52,9 +52,9 @@ export function StatCardSkeleton({ count = 3 }: { count?: number }) {
 
 export function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
   return (
-    <div className="rounded-bento border border-stroke/50 bg-surface overflow-hidden shadow-2xs">
+    <div className="rounded-bento border border-stroke bg-surface overflow-hidden shadow-2xs">
       {/* Table Header Skeleton */}
-      <div className="px-6 py-4 bg-surface-subtle/40 border-b border-stroke/40 flex items-center justify-between gap-4">
+      <div className="px-6 py-4 bg-surface-subtle/40 border-b border-stroke flex items-center justify-between gap-4">
         <Skeleton className="w-40 h-4 rounded-md" />
         <div className="flex items-center gap-2">
           <Skeleton className="w-44 h-7 rounded-full" />
@@ -91,7 +91,7 @@ export function CardGridSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-bento border border-stroke/50 bg-surface p-6 space-y-5 shadow-2xs">
+          className="rounded-bento border border-stroke bg-surface p-6 space-y-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
               <Skeleton className="w-24 h-6 rounded-lg" />
@@ -114,7 +114,7 @@ export function CardGridSkeleton({ count = 3 }: { count?: number }) {
             <Skeleton className="w-full h-2 rounded-full" />
           </div>
 
-          <div className="pt-4 border-t border-stroke/40 flex items-center justify-between">
+          <div className="pt-4 border-t border-stroke flex items-center justify-between">
             <div className="flex gap-2">
               <Skeleton className="w-8 h-8 rounded-full" />
               <Skeleton className="w-8 h-8 rounded-full" />
