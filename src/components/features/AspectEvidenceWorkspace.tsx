@@ -2425,10 +2425,10 @@ export function AspectEvidenceWorkspace({
                 <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="space-y-0.5 leading-relaxed text-[11px]">
                   <p className="font-semibold text-amber-800 dark:text-amber-300">
-                    Perlindungan Data Pribadi (Client-side)
+                    Perlindungan Data Pribadi
                   </p>
                   <p>
-                    Setelah menekan <strong>Unggah</strong>, berkas <strong>ditahan di browser</strong> Anda dan dibuka di Studio Sensor terlebih dahulu agar Anda dapat menutupi NIP, NIK, atau Tanda Tangan sebelum berkas dikirim ke server.
+                    Guna menghindari kebocoran data rahasia atau informasi sensitif, Anda diperkenankan menutupi (menyensor) NIP, NIK, tanda tangan, atau data identitas lainnya di Studio Sensor sebelum berkas resmi disimpan ke sistem.
                   </p>
                 </div>
               </div>
