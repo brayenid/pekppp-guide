@@ -75,9 +75,9 @@ export function AspectEvidenceGridHub({
       {/* Overview Metric Banner */}
       <div className="relative overflow-hidden p-6 bg-brand dark:bg-card dark:border dark:border-stroke rounded-bento shadow-soft-card space-y-4">
         {/* Aksen bubble transparan */}
-        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:bg-brand/10" />
-        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 w-44 h-44 rounded-full bg-white/[0.06] dark:bg-brand/[0.05]" />
-        <span aria-hidden className="pointer-events-none absolute top-6 right-1/3 w-14 h-14 rounded-full bg-white/[0.07] dark:bg-brand/[0.05]" />
+        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:opacity-20" />
+        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 w-44 h-44 rounded-full bg-white/[0.06] dark:opacity-20" />
+        <span aria-hidden className="pointer-events-none absolute top-6 right-1/3 w-14 h-14 rounded-full bg-white/[0.07] dark:opacity-20" />
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 dark:border-stroke pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
