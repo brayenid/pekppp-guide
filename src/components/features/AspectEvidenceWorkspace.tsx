@@ -183,7 +183,7 @@ export function AspectEvidenceWorkspace({
   const [isRestoringVersion, setIsRestoringVersion] = useState(false)
   const versionFileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const handleSaveRedactedAttachment = async (redactedFile: File) => {
+  const handleSaveRedactedAttachment = async (redactedFile: File, saveMode: 'new_version' | 'overwrite' = 'new_version') => {
     if (!redactModalTarget) return
     const { slot, attachment } = redactModalTarget
     const formData = new FormData()
@@ -194,12 +194,22 @@ export function AspectEvidenceWorkspace({
     formData.append('attachmentId', attachment.id)
     formData.append('unitId', unitId)
     formData.append('uploaderName', uploaderName)
-    formData.append('note', 'Hasil sensor data pribadi/rahasia (Redacted)')
+    formData.append('saveMode', saveMode)
+    formData.append(
+      'note',
+      saveMode === 'overwrite'
+        ? 'Menimpa berkas dengan hasil sensor data rahasia'
+        : 'Hasil sensor data pribadi/rahasia (Redacted)'
+    )
 
     try {
       const res = await uploadNewAttachmentVersionAction(formData)
       if (res.success) {
-        toast.success(`Berkas hasil sensor berhasil disimpan sebagai versi v${res.newVersion}!`)
+        if (saveMode === 'overwrite') {
+          toast.success(`Berkas berhasil disensor dan ditimpa langsung!`)
+        } else {
+          toast.success(`Berkas hasil sensor berhasil disimpan sebagai versi baru (v${res.newVersion})!`)
+        }
         await loadSlots()
         setRedactModalTarget(null)
         if (typeof window !== 'undefined') {

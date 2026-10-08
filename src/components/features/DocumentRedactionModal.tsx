@@ -15,7 +15,10 @@ import {
   FileText,
   AlertCircle,
   Trash2,
-  ChevronRight
+  ChevronRight,
+  ChevronDown,
+  Copy,
+  RefreshCw
 } from 'lucide-react'
 import { formatFileUrl } from '../../lib/utils'
 import { toast } from 'sonner'
@@ -35,7 +38,7 @@ export interface DocumentRedactionModalProps {
   fileUrl: string
   fileName: string
   fileType: 'IMAGE' | 'PDF' | string
-  onSaveRedacted: (redactedFile: File) => Promise<void>
+  onSaveRedacted: (redactedFile: File, saveMode: 'new_version' | 'overwrite') => Promise<void>
 }
 
 const BASE_WIDTH = 760
@@ -97,6 +100,9 @@ export function DocumentRedactionModal({
   const [pdfDoc, setPdfDoc] = useState<any>(null)
   const [pdfError, setPdfError] = useState<string | null>(null)
 
+  const [isSaveDropdownOpen, setIsSaveDropdownOpen] = useState(false)
+  const saveDropdownRef = useRef<HTMLDivElement | null>(null)
+
   // Reset state saat modal dibuka
   useEffect(() => {
     if (isOpen) {
@@ -105,8 +111,23 @@ export function DocumentRedactionModal({
       setZoom(1)
       setIsDrawing(false)
       setCurrentBox(null)
+      setIsSaveDropdownOpen(false)
     }
   }, [isOpen, fileUrl])
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (saveDropdownRef.current && !saveDropdownRef.current.contains(e.target as Node)) {
+        setIsSaveDropdownOpen(false)
+      }
+    }
+    if (isSaveDropdownOpen) {
+      document.addEventListener('mousedown', handleOutsideClick)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isSaveDropdownOpen])
 
   useEffect(() => {
     if (!isOpen || !isPdf) return
@@ -291,15 +312,18 @@ export function DocumentRedactionModal({
     }
   }
 
-  // Eksekusi Simpan Berkas Tersensor
-  const handleApplyRedaction = async () => {
+  // Eksekusi Simpan Berkas Tersensor ('new_version' = Buat Versi Baru, 'overwrite' = Timpa Berkas Aktif)
+  const handleApplyRedaction = async (saveMode: 'new_version' | 'overwrite' = 'new_version') => {
     if (boxes.length === 0) {
       toast.info('Belum ada kotak sensor yang ditambahkan.')
       return
     }
 
+    setIsSaveDropdownOpen(false)
     setIsSaving(true)
-    const toastId = toast.loading('Menerapkan sensor data pribadi...')
+    const toastId = toast.loading(
+      saveMode === 'overwrite' ? 'Menimpa berkas dengan hasil sensor...' : 'Menyimpan versi baru berkas tersensor...'
+    )
     try {
       const normalizedUrl = formatFileUrl(fileUrl)
 
@@ -340,8 +364,8 @@ export function DocumentRedactionModal({
         const safeFileName = fileName.replace(/\.[^/.]+$/, '') + '_tersensor.' + (mime === 'image/png' ? 'png' : 'jpg')
         const redactedFile = new File([blob], safeFileName, { type: mime })
 
-        await onSaveRedacted(redactedFile)
-        toast.success('Berkas berhasil disensor dan disimpan!', { id: toastId })
+        await onSaveRedacted(redactedFile, saveMode)
+        toast.dismiss(toastId)
         onClose()
       } else {
         // --- 2. PDF: render tiap halaman -> bakar kotak hitam -> susun ulang jadi PDF gambar ---
@@ -388,8 +412,8 @@ export function DocumentRedactionModal({
         const safeFileName = fileName.replace(/\.[^/.]+$/, '') + '_tersensor.pdf'
         const redactedFile = new File([blob], safeFileName, { type: 'application/pdf' })
 
-        await onSaveRedacted(redactedFile)
-        toast.success('Dokumen PDF berhasil disensor dan disimpan!', { id: toastId })
+        await onSaveRedacted(redactedFile, saveMode)
+        toast.dismiss(toastId)
         onClose()
       }
     } catch (err: any) {
@@ -507,23 +531,87 @@ export function DocumentRedactionModal({
             Batal
           </button>
 
-          <button
-            type="button"
-            disabled={isSaving || boxes.length === 0}
-            onClick={handleApplyRedaction}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
-            {isSaving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Menyimpan...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-3.5 h-3.5" />
-                <span>Simpan ({boxes.length})</span>
-              </>
+          {/* Dropdown Tombol Simpan (Pilihan: Versi Baru vs Timpa) */}
+          <div className="relative inline-flex items-center" ref={saveDropdownRef}>
+            {/* Tombol Utama (Default: Buat Versi Baru) */}
+            <button
+              type="button"
+              disabled={isSaving || boxes.length === 0}
+              onClick={() => handleApplyRedaction('new_version')}
+              className="inline-flex items-center gap-1.5 pl-3.5 pr-2.5 py-1.5 rounded-l-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer border-r border-white/20">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Menyimpan...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Simpan Versi Baru ({boxes.length})</span>
+                </>
+              )}
+            </button>
+
+            {/* Toggle Dropdown Chevron */}
+            <button
+              type="button"
+              disabled={isSaving || boxes.length === 0}
+              onClick={() => setIsSaveDropdownOpen((v) => !v)}
+              className="p-1.5 rounded-r-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center"
+              title="Opsi Penyimpanan">
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Dropdown Menu Modal */}
+            {isSaveDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-60 z-50 bg-surface rounded-xl border border-stroke/80 shadow-2xl p-1.5 text-xs animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-2.5 py-1 text-[10px] font-semibold text-ink-muted uppercase tracking-wider border-b border-stroke/40 mb-1">
+                  Pilih Cara Simpan:
+                </div>
+
+                {/* Opsi 1: Buat Versi Baru (Recommended) */}
+                <button
+                  type="button"
+                  onClick={() => handleApplyRedaction('new_version')}
+                  className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-surface-subtle transition-colors cursor-pointer group">
+                  <div className="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0 mt-0.5">
+                    <Copy className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-ink text-xs flex items-center gap-1.5">
+                      <span>Buat Versi Baru</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand/10 text-brand font-medium">Rekomendasi</span>
+                    </div>
+                    <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
+                      Simpan sebagai versi baru. Berkas asli tetap tersimpan di riwayat lampau.
+                    </p>
+                  </div>
+                </button>
+
+                {/* Opsi 2: Timpa Berkas Aktif Langsung */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('PERINGATAN: Menimpa akan mengganti berkas saat ini secara langsung. Lanjutkan?')) {
+                      handleApplyRedaction('overwrite')
+                    }
+                  }}
+                  className="flex items-start gap-2.5 w-full p-2 rounded-lg text-left hover:bg-amber-500/10 transition-colors cursor-pointer group mt-0.5">
+                  <div className="w-6 h-6 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-amber-700 dark:text-amber-400 text-xs">
+                      Timpa Berkas Aktif
+                    </div>
+                    <p className="text-[10px] text-ink-muted leading-tight mt-0.5">
+                      Gantikan berkas ini langsung tanpa menambah nomor versi baru.
+                    </p>
+                  </div>
+                </button>
+              </div>
             )}
-          </button>
+          </div>
         </div>
       </header>
 

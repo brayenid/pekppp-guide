@@ -659,6 +659,8 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
     const attachmentId = formData.get('attachmentId') as string
     const unitId = (formData.get('unitId') as string) || 'unit_shared'
     const uploaderName = (formData.get('uploaderName') as string) || 'Admin OPD'
+    const note = (formData.get('note') as string) || ''
+    const saveMode = (formData.get('saveMode') as string) || 'new_version' // 'new_version' | 'overwrite'
     const path = formData.get('path') as string | null
 
     if (!file || !evaluationId || !aspectCode || !slotKey || !attachmentId) {
@@ -699,38 +701,63 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
     })
 
     if (!uploadResult.success) {
-      return { success: false, error: uploadResult.error || 'Gagal menyimpan berkas versi baru.' }
+      return { success: false, error: uploadResult.error || 'Gagal menyimpan berkas.' }
     }
 
-    // Arsipkan versi lama ke versions array milik berkas ini
     const currentVersionNum = targetAtt.version || 1
     const previousVersions = targetAtt.versions || []
+    const isOverwrite = saveMode === 'overwrite'
 
-    const archivedVersion = {
-      id: `ver_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      version: currentVersionNum,
-      fileName: targetAtt.fileName,
-      fileUrl: targetAtt.fileUrl,
-      fileSize: targetAtt.fileSize,
-      fileType: targetAtt.fileType,
-      uploadedAt: targetAtt.uploadedAt,
-      uploaderName: uploaderName
+    if (isOverwrite) {
+      // MODE TIMPA: Hapus berkas fisik lama yang sedang aktif jika ada
+      if (targetAtt.fileUrl && targetAtt.fileUrl !== uploadResult.fileUrl) {
+        try {
+          await StorageService.deleteFile(targetAtt.fileUrl)
+        } catch (err) {
+          console.warn('Gagal menghapus berkas fisik lama saat overwrite:', targetAtt.fileUrl, err)
+        }
+      }
+
+      // Pertahankan nomor versi yang sama, hanya perbarui file aktifnya
+      attachments[targetIdx] = {
+        ...targetAtt,
+        fileUrl: uploadResult.fileUrl,
+        fileName: uploadResult.fileName,
+        fileSize: uploadResult.fileSize,
+        fileType: uploadResult.fileType,
+        storageProvider: uploadResult.provider,
+        uploadedAt: new Date().toISOString()
+      }
+    } else {
+      // MODE VERSI BARU: Arsipkan versi lama ke versions array milik berkas ini
+      const archivedVersion = {
+        id: `ver_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        version: currentVersionNum,
+        fileName: targetAtt.fileName,
+        fileUrl: targetAtt.fileUrl,
+        fileSize: targetAtt.fileSize,
+        fileType: targetAtt.fileType,
+        uploadedAt: targetAtt.uploadedAt,
+        uploaderName: uploaderName,
+        note: note || undefined
+      }
+
+      const nextVersionNum = currentVersionNum + 1
+
+      attachments[targetIdx] = {
+        ...targetAtt,
+        fileUrl: uploadResult.fileUrl,
+        fileName: uploadResult.fileName,
+        fileSize: uploadResult.fileSize,
+        fileType: uploadResult.fileType,
+        storageProvider: uploadResult.provider,
+        uploadedAt: new Date().toISOString(),
+        version: nextVersionNum,
+        versions: [archivedVersion, ...previousVersions]
+      }
     }
 
-    const nextVersionNum = currentVersionNum + 1
-
-    // Update target attachment dengan versi baru
-    attachments[targetIdx] = {
-      ...targetAtt,
-      fileUrl: uploadResult.fileUrl,
-      fileName: uploadResult.fileName,
-      fileSize: uploadResult.fileSize,
-      fileType: uploadResult.fileType,
-      storageProvider: uploadResult.provider,
-      uploadedAt: new Date().toISOString(),
-      version: nextVersionNum,
-      versions: [archivedVersion, ...previousVersions]
-    }
+    const finalVersionNum = isOverwrite ? currentVersionNum : currentVersionNum + 1
 
     // Catat log aktivitas slot
     const historyList = (Array.isArray(sub.history) ? [...sub.history] : []) as any[]
@@ -742,7 +769,9 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
       fileName: uploadResult.fileName,
       fileUrl: uploadResult.fileUrl,
       previousUrl: targetAtt.fileUrl,
-      note: `Memperbarui versi ${nextVersionNum} untuk berkas: ${uploadResult.fileName} (menggantikan ${targetAtt.fileName})`
+      note: isOverwrite
+        ? `Menimpa berkas (v${finalVersionNum}): ${uploadResult.fileName}`
+        : `Memperbarui versi v${finalVersionNum} untuk berkas: ${uploadResult.fileName}`
     })
 
     // Update database
@@ -763,10 +792,10 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
     } catch {}
 
     if (path) revalidatePath(path)
-    return { success: true, newVersion: nextVersionNum }
+    return { success: true, newVersion: finalVersionNum, isOverwrite }
   } catch (error: any) {
-    console.error('Error uploading new version:', error)
-    return { success: false, error: error.message || 'Gagal mengunggah versi baru.' }
+    console.error('Error uploading attachment version:', error)
+    return { success: false, error: error.message || 'Gagal menyimpan berkas.' }
   }
 }
 
