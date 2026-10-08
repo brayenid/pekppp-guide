@@ -42,10 +42,10 @@ export function ConfirmationModal({
 
   return createPortal(
     <div
-      className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-ink/40 backdrop-blur-xs animate-fade-in-content`}
+      className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in-content`}
       onClick={() => { if (!loading) onCancel() }}>
       <div
-        className="w-full max-w-sm bg-card rounded-2xl border border-line p-6 shadow-subtle space-y-4"
+        className="w-full max-w-sm bg-surface rounded-2xl border border-stroke/80 p-6 shadow-2xl space-y-4 text-ink"
         onClick={(e) => e.stopPropagation()}>
         <div>
           <h3 className="text-base font-bold text-ink tracking-tight">{title}</h3>
