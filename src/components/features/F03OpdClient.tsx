@@ -647,22 +647,22 @@ export function F03OpdClient({
       </div>
 
       {/* Daftar Responden Table / Document list */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+      <div className="rounded-2xl border border-stroke bg-card shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-stroke flex items-center justify-between bg-surface-subtle/40">
           <div className="flex items-center gap-2.5">
-            <span className="text-xs font-bold text-slate-800">
+            <span className="text-xs font-bold text-ink">
               Daftar Masukan Responden
             </span>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-[#D8902A] border border-amber-200/60">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
               {currentCount} entri
             </span>
           </div>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-ink-muted">
             14 Indikator • Skala 0 - 5
           </span>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-stroke/40">
           {respondents.map((r) => {
             const rPct = ((r.totalScore / 70) * 100).toFixed(1)
             const isPublic = r.submittedVia === 'PUBLIC' || !r.name?.includes('Input Mandiri')
@@ -670,38 +670,38 @@ export function F03OpdClient({
             return (
               <div
                 key={r.id}
-                className="px-6 py-3.5 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors">
+                className="px-6 py-3.5 flex items-center justify-between gap-4 hover:bg-surface-subtle/50 transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+                  <span className="w-8 h-8 rounded-full bg-surface-subtle border border-stroke text-ink-secondary font-bold text-xs flex items-center justify-center shrink-0">
                     {r.respondentNo}
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-xs text-slate-900 truncate">
+                      <span className="font-semibold text-xs text-ink truncate">
                         {r.name || `Responden #${r.respondentNo}`}
                       </span>
                       {isPublic ? (
-                        <span className="text-[10px] font-semibold px-2 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <span className="text-[10px] font-semibold px-2 py-0.2 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                           Publik (QR)
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        <span className="text-[10px] font-semibold px-2 py-0.2 rounded-full bg-surface-subtle text-ink-muted border border-stroke">
                           Manual OPD
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
-                      <span>Total: <strong className="text-slate-800 font-medium">{r.totalScore}</strong>/70</span>
-                      <span className="text-slate-300">•</span>
-                      <span>Skala 5: <strong className="text-slate-800 font-medium">{r.scale5.toFixed(2)}</strong></span>
-                      <span className="text-slate-300">•</span>
+                    <div className="text-[11px] text-ink-muted flex items-center gap-2 mt-0.5">
+                      <span>Total: <strong className="text-ink font-medium">{r.totalScore}</strong>/70</span>
+                      <span className="text-stroke">|</span>
+                      <span>Skala 5: <strong className="text-ink font-medium">{r.scale5.toFixed(2)}</strong></span>
+                      <span className="text-stroke">|</span>
                       <span>{new Date(r.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs font-semibold text-slate-800 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                  <span className="text-xs font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke">
                     {rPct}%
                   </span>
 
@@ -709,14 +709,14 @@ export function F03OpdClient({
                     <button
                       type="button"
                       onClick={() => openEditModal(r)}
-                      className="w-7 h-7 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors shadow-2xs cursor-pointer"
+                      className="w-7 h-7 rounded-full border border-stroke bg-card flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer"
                       title="Edit Responden">
                       <Pencil className="w-3 h-3" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeletingId(r.id)}
-                      className="w-7 h-7 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-2xs cursor-pointer"
+                      className="w-7 h-7 rounded-full border border-stroke bg-card flex items-center justify-center text-ink-muted hover:border-rose-400/50 hover:bg-rose-500/10 hover:text-rose-500 transition-colors shadow-2xs cursor-pointer"
                       title="Hapus Responden">
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -809,11 +809,11 @@ export function F03OpdClient({
           </div>
 
           {/* Modal Actions */}
-          <div className="pt-3 border-t border-slate-200 flex justify-end gap-2 sticky bottom-0 bg-white p-2 z-10">
+          <div className="pt-3 border-t border-stroke flex justify-end gap-2 sticky bottom-0 bg-surface p-2 z-10">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors">
+              className="px-4 py-2 rounded-full border border-stroke text-xs font-medium text-ink-muted hover:bg-surface-subtle hover:text-ink cursor-pointer transition-colors">
               Batal
             </button>
             <button

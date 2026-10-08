@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, Bell, LogOut, ChevronDown, Key, Eye, EyeOff, CheckCircle2, Moon, Sun } from 'lucide-react'
+import { LayoutDashboard, Bell, LogOut, ChevronDown, Key, Eye, EyeOff, CheckCircle2, Moon, Sun, Monitor } from 'lucide-react'
 import { UserSession, logoutAction, updateOwnPasswordAction } from '../../actions/auth-actions'
 import { FormModal } from '../ui/FormModal'
 import { Button } from '../ui/Button'
@@ -12,31 +12,45 @@ export function UserNavDropdown({ user }: { user: UserSession }) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Dark Mode state
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  // 3-way Theme Mode state: 'system' | 'dark' | 'light'
+  const [themeMode, setThemeMode] = useState<'system' | 'dark' | 'light'>('system')
 
-  useEffect(() => {
+  const applyTheme = (mode: 'system' | 'dark' | 'light') => {
+    setThemeMode(mode)
     try {
-      const storedTheme = localStorage.getItem('pekppp-theme')
+      localStorage.setItem('pekppp-theme', mode)
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      const isDark = storedTheme === 'dark' || (!storedTheme && systemDark)
-      setIsDarkMode(isDark)
-    } catch {}
-  }, [])
-
-  const toggleDarkMode = () => {
-    const nextMode = !isDarkMode
-    setIsDarkMode(nextMode)
-    try {
-      if (nextMode) {
+      const isDark = mode === 'dark' || (mode === 'system' && systemDark)
+      if (isDark) {
         document.documentElement.classList.add('dark')
-        localStorage.setItem('pekppp-theme', 'dark')
       } else {
         document.documentElement.classList.remove('dark')
-        localStorage.setItem('pekppp-theme', 'light')
       }
     } catch {}
   }
+
+  useEffect(() => {
+    try {
+      const stored = (localStorage.getItem('pekppp-theme') as 'system' | 'dark' | 'light') || 'system'
+      setThemeMode(stored)
+    } catch {}
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      try {
+        const stored = (localStorage.getItem('pekppp-theme') as 'system' | 'dark' | 'light') || 'system'
+        if (stored === 'system') {
+          if (mediaQuery.matches) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
+        }
+      } catch {}
+    }
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
 
   // Password Modal states
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
@@ -158,32 +172,52 @@ export function UserNavDropdown({ user }: { user: UserSession }) {
               <span>Ubah Password</span>
             </button>
 
-            {/* Dark Mode Switcher */}
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-ink-secondary hover:bg-surface-subtle hover:text-ink transition-colors">
-              <div className="flex items-center gap-2.5">
-                {isDarkMode ? (
-                  <Moon className="w-4 h-4 text-brand" />
-                ) : (
-                  <Sun className="w-4 h-4 text-amber-500" />
-                )}
-                <span>Mode Gelap</span>
+            {/* 3-way Theme Switcher (System, Dark, Light) */}
+            <div className="px-3 py-2 space-y-1.5 border-t border-stroke/40 my-0.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-medium text-ink-muted">Tema Tampilan</span>
+                <span className="text-[10px] text-brand font-medium">
+                  {themeMode === 'system' ? 'Sistem' : themeMode === 'dark' ? 'Gelap' : 'Terang'}
+                </span>
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  toggleDarkMode()
-                }}
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isDarkMode ? 'bg-brand' : 'bg-stroke'
-                }`}
-                title={isDarkMode ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}>
-                <span
-                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
-                    isDarkMode ? 'translate-x-4' : 'translate-x-0'
+              <div className="grid grid-cols-3 gap-1 bg-surface-subtle/80 p-0.5 rounded-xl border border-stroke/50">
+                <button
+                  type="button"
+                  onClick={() => applyTheme('light')}
+                  className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    themeMode === 'light'
+                      ? 'bg-card text-ink shadow-2xs font-semibold'
+                      : 'text-ink-muted hover:text-ink'
                   }`}
-                />
-              </button>
+                  title="Mode Terang">
+                  <Sun className={`w-3.5 h-3.5 ${themeMode === 'light' ? 'text-amber-500' : 'text-ink-muted'}`} />
+                  <span className="text-[11px]">Terang</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyTheme('dark')}
+                  className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    themeMode === 'dark'
+                      ? 'bg-card text-ink shadow-2xs font-semibold'
+                      : 'text-ink-muted hover:text-ink'
+                  }`}
+                  title="Mode Gelap">
+                  <Moon className={`w-3.5 h-3.5 ${themeMode === 'dark' ? 'text-brand' : 'text-ink-muted'}`} />
+                  <span className="text-[11px]">Gelap</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyTheme('system')}
+                  className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    themeMode === 'system'
+                      ? 'bg-card text-ink shadow-2xs font-semibold'
+                      : 'text-ink-muted hover:text-ink'
+                  }`}
+                  title="Ikuti Sistem">
+                  <Monitor className={`w-3.5 h-3.5 ${themeMode === 'system' ? 'text-brand' : 'text-ink-muted'}`} />
+                  <span className="text-[11px]">Sistem</span>
+                </button>
+              </div>
             </div>
           </div>
 

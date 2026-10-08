@@ -114,6 +114,174 @@ html {
   box-shadow: 0px 4px 12px rgba(29, 91, 185, 0.22) !important;
 }
 
+/* ==========================================================================
+   Comprehensive Dark Mode Overrides & Adapters
+   ========================================================================== */
+
+/* 1. Bento & Legacy hz- utilities adapt in dark mode */
+.dark .bg-hz-bg {
+  background-color: var(--canvas) !important;
+}
+.dark .bg-hz-card {
+  background-color: var(--card) !important;
+}
+.dark .bg-hz-brand-light {
+  background-color: var(--brand-light) !important;
+}
+.dark .text-hz-heading {
+  color: var(--ink) !important;
+}
+.dark .text-hz-body {
+  color: var(--ink-secondary) !important;
+}
+.dark .text-hz-muted {
+  color: var(--ink-muted) !important;
+}
+.dark .border-hz-border {
+  border-color: var(--stroke) !important;
+}
+
+/* 2. Generic background utility adaptation */
+.dark .bg-white:not([data-force-white]):not([data-keep-white]):not(.keep-white) {
+  background-color: var(--card) !important;
+}
+.dark .bg-slate-50:not([data-force-light]),
+.dark .bg-gray-50:not([data-force-light]) {
+  background-color: var(--surface-subtle) !important;
+}
+.dark .bg-slate-100:not([data-force-light]),
+.dark .bg-gray-100:not([data-force-light]) {
+  background-color: var(--surface-muted) !important;
+}
+.dark .bg-slate-200:not([data-force-light]),
+.dark .bg-gray-200:not([data-force-light]) {
+  background-color: var(--stroke) !important;
+}
+
+/* 3. Border overrides */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: var(--stroke) !important;
+}
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--stroke) !important;
+}
+
+/* 4. Text typography color adaptations */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: var(--ink) !important;
+}
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: var(--ink-secondary) !important;
+}
+.dark .text-slate-500,
+.dark .text-slate-400,
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: var(--ink-muted) !important;
+}
+
+/* 5. Hover state adaptations */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-gray-100:hover {
+  background-color: var(--surface-subtle) !important;
+}
+.dark .hover\:text-slate-900:hover,
+.dark .hover\:text-slate-800:hover,
+.dark .hover\:text-gray-900:hover,
+.dark .hover\:text-gray-800:hover {
+  color: var(--ink) !important;
+}
+.dark .hover\:text-slate-700:hover,
+.dark .hover\:text-slate-600:hover,
+.dark .hover\:text-gray-700:hover,
+.dark .hover\:text-gray-600:hover {
+  color: var(--ink-secondary) !important;
+}
+
+/* 6. Form inputs, select, and textarea in dark mode */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="file"]):not([data-force-light]),
+.dark select:not([data-force-light]),
+.dark textarea:not([data-force-light]) {
+  background-color: var(--surface-subtle) !important;
+  border-color: var(--stroke) !important;
+  color: var(--ink) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--ink-muted) !important;
+}
+.dark select option {
+  background-color: var(--card);
+  color: var(--ink);
+}
+
+/* 7. Pastel badges adaptation */
+.dark .bg-pastel-blue { background-color: rgba(37, 99, 235, 0.16) !important; }
+.dark .text-pastel-blue-text { color: #60A5FA !important; }
+.dark .border-pastel-blue-border { border-color: rgba(96, 165, 250, 0.25) !important; }
+
+.dark .bg-pastel-green { background-color: rgba(16, 185, 129, 0.16) !important; }
+.dark .text-pastel-green-text { color: #34D399 !important; }
+.dark .border-pastel-green-border { border-color: rgba(52, 211, 153, 0.25) !important; }
+
+.dark .bg-pastel-amber { background-color: rgba(245, 158, 11, 0.16) !important; }
+.dark .text-pastel-amber-text { color: #FBBF24 !important; }
+.dark .border-pastel-amber-border { border-color: rgba(251, 191, 36, 0.25) !important; }
+
+.dark .bg-pastel-rose { background-color: rgba(244, 63, 94, 0.16) !important; }
+.dark .text-pastel-rose-text { color: #FB7185 !important; }
+.dark .border-pastel-rose-border { border-color: rgba(251, 113, 133, 0.25) !important; }
+
+/* 8. Refined dark mode shadows */
+.dark .shadow-hz-card,
+.dark .shadow-soft-card,
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.25) !important;
+}
+.dark .shadow-soft-float,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 9. Dark mode scrollbar track and thumb */
+.dark * {
+  scrollbar-color: #22324C transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #22324C;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #334B73;
+}
+
+/* 10. Print stylesheet guarantee */
+@media print {
+  body, html, #print-area, #print-area * {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #CCCCCC !important;
+  }
+}
+
 /* Subtle micro transition */
 @keyframes fadeInContent {
   from {
