@@ -5,6 +5,7 @@ import React from 'react'
 export interface PageHeaderProps {
   tag?: string
   title: string
+  titleClassName?: string
   description?: string | React.ReactNode
   icon?: React.ReactNode
   badge?: React.ReactNode
@@ -15,6 +16,7 @@ export interface PageHeaderProps {
 export function PageHeader({
   tag,
   title,
+  titleClassName = '',
   description,
   icon,
   badge,
@@ -36,7 +38,7 @@ export function PageHeader({
         )}
 
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
+          <h1 className={titleClassName || "text-2xl sm:text-3xl font-semibold text-ink tracking-tight"}>
             {title}
           </h1>
           {!tag && badge && <div>{badge}</div>}

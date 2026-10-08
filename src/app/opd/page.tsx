@@ -101,6 +101,7 @@ export default async function OpdDashboardPage({
       {/* Header Banner Sederhana tanpa Icon dan pakai Selector */}
       <PageHeader
         title={`Selamat Datang, ${user.fullName}`}
+        titleClassName="text-lg sm:text-xl font-semibold text-ink tracking-tight"
         description="Lengkapi formulir evaluasi mandiri F01 dan F03 untuk setiap unit pelayanan yang ditautkan ke akun Anda."
         actions={
           <div className="flex items-center gap-2">
@@ -109,14 +110,6 @@ export default async function OpdDashboardPage({
               selectedYear={selectedYear}
               defaultYear={defaultYear}
             />
-
-            {selectedYear && (
-              <Badge
-                variant={isCurrentYearActive ? 'success' : 'neutral'}
-                size="sm">
-                {isCurrentYearActive ? 'Periode Berjalan' : 'Arsip / Ditutup'}
-              </Badge>
-            )}
           </div>
         }
       />
