@@ -30,7 +30,7 @@ export function Navbar() {
   const isEvaluation = pathname.startsWith('/evaluasi')
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-canvas/90 backdrop-blur-md border-b border-stroke shadow-2xs">
+    <nav className="sticky top-0 z-50 w-full bg-canvas border-b border-stroke shadow-2xs">
       <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-3 group py-0.5">
@@ -45,7 +45,7 @@ export function Navbar() {
 
         {/* Center Section: Admin / OPD / Evaluation Context Capsule or Public Nav Pills */}
         {isAdmin ? (
-          <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle/80 border border-stroke/60 rounded-full shadow-2xs">
+          <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-brand" />
             <span className="text-xs font-medium text-ink">Portal Super Admin</span>
             <span className="text-stroke">|</span>
@@ -56,7 +56,7 @@ export function Navbar() {
             </Link>
           </div>
         ) : isOpd ? (
-          <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle/80 border border-stroke/60 rounded-full shadow-2xs">
+          <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-brand" />
             <span className="text-xs font-medium text-ink">Portal Unit Pelayanan (OPD)</span>
             <span className="text-stroke">|</span>
@@ -69,7 +69,7 @@ export function Navbar() {
         ) : isEvaluation ? (
           <EvaluationNavbarStatus userRole={user?.role} />
         ) : (
-          <div className="hidden lg:flex items-center gap-1 p-1.5 bg-surface-subtle/80 border border-stroke/60 rounded-full shadow-2xs backdrop-blur-xs">
+          <div className="hidden lg:flex items-center gap-1 p-1.5 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -159,8 +159,8 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
     <div
       className={`${className || 'hidden lg:flex'} items-center px-3.5 py-1.5 border rounded-full transition-all duration-300 ${
         hasUnsaved
-          ? 'bg-amber-500/10 border-amber-500/30 shadow-2xs'
-          : 'bg-emerald-500/10 border-emerald-500/30 shadow-2xs'
+          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60 shadow-2xs'
+          : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60 shadow-2xs'
       }`}>
       <div
         className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-transform duration-300 ${
