@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import {
   ShieldAlert,
   Undo2,
+  Redo2,
   RotateCcw,
   ZoomIn,
   ZoomOut,
@@ -83,6 +84,7 @@ export function DocumentRedactionModal({
 }: DocumentRedactionModalProps) {
   const isPdf = fileType === 'PDF' || fileName.toLowerCase().endsWith('.pdf')
   const [boxes, setBoxes] = useState<RedactBox[]>([])
+  const [redoBoxes, setRedoBoxes] = useState<RedactBox[]>([])
   const [isDrawing, setIsDrawing] = useState(false)
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null)
   const [currentBox, setCurrentBox] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
@@ -99,6 +101,7 @@ export function DocumentRedactionModal({
   useEffect(() => {
     if (isOpen) {
       setBoxes([])
+      setRedoBoxes([])
       setZoom(1)
       setIsDrawing(false)
       setCurrentBox(null)
@@ -180,6 +183,8 @@ export function DocumentRedactionModal({
           page: drawPage
         }
       ])
+      // Reset tumpukan redo ketika ada aksi gambar kotak baru
+      setRedoBoxes([])
     }
     setCurrentBox(null)
     setStartPoint(null)
@@ -213,9 +218,59 @@ export function DocumentRedactionModal({
     </>
   )
 
-  const handleUndo = () => {
-    setBoxes((prev) => prev.slice(0, -1))
-  }
+  const handleUndo = useCallback(() => {
+    setBoxes((prev) => {
+      if (prev.length === 0) return prev
+      const last = prev[prev.length - 1]
+      setRedoBoxes((r) => [...r, last])
+      return prev.slice(0, -1)
+    })
+  }, [])
+
+  const handleRedo = useCallback(() => {
+    setRedoBoxes((prevRedo) => {
+      if (prevRedo.length === 0) return prevRedo
+      const itemToRestore = prevRedo[prevRedo.length - 1]
+      setBoxes((b) => [...b, itemToRestore])
+      return prevRedo.slice(0, -1)
+    })
+  }, [])
+
+  // Keyboard shortcut listener: Ctrl+Z (Undo) dan Ctrl+Y / Ctrl+Shift+Z (Redo)
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Pastikan bukan sedang mengetik di input / textarea
+      const target = e.target as HTMLElement | null
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return
+      }
+
+      const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+      const isCmdOrCtrl = isMac ? e.metaKey : e.ctrlKey
+
+      if (isCmdOrCtrl && !e.altKey) {
+        // Redo: Ctrl+Y atau Ctrl+Shift+Z
+        if (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z')) {
+          e.preventDefault()
+          handleRedo()
+          return
+        }
+        // Undo: Ctrl+Z (tanpa shift)
+        if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+          e.preventDefault()
+          handleUndo()
+          return
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, handleUndo, handleRedo])
 
   const handleRemoveBox = (boxId: string) => {
     setBoxes((prev) => prev.filter((b) => b.id !== boxId))
@@ -225,6 +280,7 @@ export function DocumentRedactionModal({
     if (boxes.length === 0) return
     if (window.confirm('Hapus seluruh kotak sensor pada dokumen ini?')) {
       setBoxes([])
+      setRedoBoxes([])
     }
   }
 
@@ -390,10 +446,21 @@ export function DocumentRedactionModal({
             onClick={handleUndo}
             disabled={boxes.length === 0 || isSaving}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface hover:bg-surface-elevated border border-stroke/70 text-xs font-medium text-ink disabled:opacity-40 cursor-pointer transition-colors"
-            title="Batalkan kotak sensor terakhir">
+            title="Batalkan sensor terakhir (Ctrl+Z)">
             <Undo2 className="w-3.5 h-3.5 text-ink-muted" />
             <span className="hidden sm:inline">Undo</span>
             {boxes.length > 0 && <span className="text-[10px] font-mono text-ink-muted">({boxes.length})</span>}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRedo}
+            disabled={redoBoxes.length === 0 || isSaving}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface hover:bg-surface-elevated border border-stroke/70 text-xs font-medium text-ink disabled:opacity-40 cursor-pointer transition-colors"
+            title="Ulangi sensor yang dibatalkan (Ctrl+Y)">
+            <Redo2 className="w-3.5 h-3.5 text-ink-muted" />
+            <span className="hidden sm:inline">Redo</span>
+            {redoBoxes.length > 0 && <span className="text-[10px] font-mono text-ink-muted">({redoBoxes.length})</span>}
           </button>
 
           <button
