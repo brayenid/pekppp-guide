@@ -531,14 +531,13 @@ export function DocumentRedactionModal({
             Batal
           </button>
 
-          {/* Dropdown Tombol Simpan (Pilihan: Versi Baru vs Timpa) */}
+          {/* Dropdown Tombol Simpan (Single Unified Button) */}
           <div className="relative inline-flex items-center" ref={saveDropdownRef}>
-            {/* Tombol Utama (Default: Buat Versi Baru) */}
             <button
               type="button"
               disabled={isSaving || boxes.length === 0}
-              onClick={() => handleApplyRedaction('new_version')}
-              className="inline-flex items-center gap-1.5 pl-3.5 pr-2.5 py-1.5 rounded-l-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer border-r border-white/20">
+              onClick={() => setIsSaveDropdownOpen((v) => !v)}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
               {isSaving ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -547,19 +546,10 @@ export function DocumentRedactionModal({
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />
-                  <span>Simpan Versi Baru ({boxes.length})</span>
+                  <span>Simpan ({boxes.length})</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${isSaveDropdownOpen ? 'rotate-180' : ''}`} />
                 </>
               )}
-            </button>
-
-            {/* Toggle Dropdown Chevron */}
-            <button
-              type="button"
-              disabled={isSaving || boxes.length === 0}
-              onClick={() => setIsSaveDropdownOpen((v) => !v)}
-              className="p-1.5 rounded-r-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center"
-              title="Opsi Penyimpanan">
-              <ChevronDown className="w-3.5 h-3.5" />
             </button>
 
             {/* Dropdown Menu Modal */}
