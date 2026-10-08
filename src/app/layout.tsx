@@ -18,7 +18,24 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={plusJakarta.variable}>
+    <html lang="id" className={plusJakarta.variable} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('pekppp-theme');
+                const isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `
+          }}
+        />
+      </head>
       <body className={`${plusJakarta.className} min-h-screen bg-canvas text-ink flex flex-col antialiased selection:bg-[#C9DCFB] selection:text-[#0E2D60]`}>
         <NextTopLoader color="#1D5BB9" showSpinner={false} height={3} />
         <AppLayoutWrapper>

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, Bell, LogOut, ChevronDown, Key, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
+import { LayoutDashboard, Bell, LogOut, ChevronDown, Key, Eye, EyeOff, CheckCircle2, Moon, Sun } from 'lucide-react'
 import { UserSession, logoutAction, updateOwnPasswordAction } from '../../actions/auth-actions'
 import { FormModal } from '../ui/FormModal'
 import { Button } from '../ui/Button'
@@ -11,6 +11,32 @@ import { toast } from 'sonner'
 export function UserNavDropdown({ user }: { user: UserSession }) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Dark Mode state
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  useEffect(() => {
+    try {
+      const storedTheme = localStorage.getItem('pekppp-theme')
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const isDark = storedTheme === 'dark' || (!storedTheme && systemDark)
+      setIsDarkMode(isDark)
+    } catch {}
+  }, [])
+
+  const toggleDarkMode = () => {
+    const nextMode = !isDarkMode
+    setIsDarkMode(nextMode)
+    try {
+      if (nextMode) {
+        document.documentElement.classList.add('dark')
+        localStorage.setItem('pekppp-theme', 'dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+        localStorage.setItem('pekppp-theme', 'light')
+      }
+    } catch {}
+  }
 
   // Password Modal states
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
@@ -131,6 +157,34 @@ export function UserNavDropdown({ user }: { user: UserSession }) {
               <Key className="w-4 h-4 text-ink-muted" />
               <span>Ubah Password</span>
             </button>
+
+            {/* Dark Mode Switcher */}
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-ink-secondary hover:bg-surface-subtle hover:text-ink transition-colors">
+              <div className="flex items-center gap-2.5">
+                {isDarkMode ? (
+                  <Moon className="w-4 h-4 text-brand" />
+                ) : (
+                  <Sun className="w-4 h-4 text-amber-500" />
+                )}
+                <span>Mode Gelap</span>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleDarkMode()
+                }}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  isDarkMode ? 'bg-brand' : 'bg-stroke'
+                }`}
+                title={isDarkMode ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}>
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                    isDarkMode ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Divider & Logout */}

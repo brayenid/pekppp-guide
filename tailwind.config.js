@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,36 +9,36 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas: '#EBF3FA',
-        card: '#FFFFFF',
+        canvas: 'var(--canvas)',
+        card: 'var(--card)',
         surface: {
-          DEFAULT: '#FFFFFF',
-          elevated: '#FFFFFF',
-          subtle: '#DFEDF8',
-          muted: '#EBF3FA',
+          DEFAULT: 'var(--surface)',
+          elevated: 'var(--surface-elevated)',
+          subtle: 'var(--surface-subtle)',
+          muted: 'var(--surface-muted)',
         },
         brand: {
-          DEFAULT: '#1D5BB9',
-          hover: '#154694',
-          light: '#EEF4FD',
-          muted: '#C9DCFB',
+          DEFAULT: 'var(--brand)',
+          hover: 'var(--brand-hover)',
+          light: 'var(--brand-light)',
+          muted: 'var(--brand-muted)',
         },
         stroke: {
-          DEFAULT: '#D3E3F2',
-          soft: '#D3E3F2',
-          faint: 'rgba(15, 23, 42, 0.04)',
+          DEFAULT: 'var(--stroke)',
+          soft: 'var(--stroke-soft)',
+          faint: 'var(--stroke-faint)',
         },
         ink: {
-          DEFAULT: '#0F172A',
-          primary: '#0F172A',
-          secondary: '#334155',
-          muted: '#64748B',
-          faint: '#94A3B8',
+          DEFAULT: 'var(--ink)',
+          primary: 'var(--ink)',
+          secondary: 'var(--ink-secondary)',
+          muted: 'var(--ink-muted)',
+          faint: 'var(--ink-faint)',
         },
         line: {
-          DEFAULT: '#D3E3F2',
-          subtle: '#DFEDF8',
-          border: '#D3E3F2',
+          DEFAULT: 'var(--line)',
+          subtle: 'var(--line-subtle)',
+          border: 'var(--line-border)',
         },
         hz: {
           bg: '#EBF3FA',
