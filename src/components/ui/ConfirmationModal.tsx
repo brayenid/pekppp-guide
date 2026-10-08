@@ -12,6 +12,7 @@ export interface ConfirmationModalProps {
   cancelText?: string
   variant?: 'danger' | 'primary' | 'warning'
   loading?: boolean
+  zIndex?: string
   onConfirm: () => void | Promise<void>
   onCancel: () => void
 }
@@ -24,6 +25,7 @@ export function ConfirmationModal({
   cancelText = 'Batal',
   variant = 'primary',
   loading = false,
+  zIndex = 'z-[300]',
   onConfirm,
   onCancel
 }: ConfirmationModalProps) {
@@ -40,7 +42,7 @@ export function ConfirmationModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-ink/40 backdrop-blur-xs animate-fade-in-content"
+      className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-ink/40 backdrop-blur-xs animate-fade-in-content`}
       onClick={() => { if (!loading) onCancel() }}>
       <div
         className="w-full max-w-sm bg-card rounded-2xl border border-line p-6 shadow-subtle space-y-4"

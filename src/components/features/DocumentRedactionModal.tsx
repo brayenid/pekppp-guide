@@ -709,6 +709,7 @@ export function DocumentRedactionModal({
       {/* Modal Konfirmasi Simpan (Bila Tanpa Sensor vs Ada Sensor) */}
       <ConfirmationModal
         isOpen={isConfirmOpen}
+        zIndex="z-[999999]"
         title={boxes.length === 0 ? 'Konfirmasi Dokumen Tanpa Sensor' : 'Konfirmasi Penerapan Sensor'}
         description={
           boxes.length === 0
