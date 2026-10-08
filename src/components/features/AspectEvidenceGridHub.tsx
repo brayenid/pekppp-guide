@@ -73,36 +73,36 @@ export function AspectEvidenceGridHub({
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Overview Metric Banner */}
-      <div className="relative overflow-hidden p-6 bg-brand rounded-bento shadow-soft-card space-y-4">
+      <div className="relative overflow-hidden p-6 bg-brand dark:bg-card dark:border dark:border-stroke rounded-bento shadow-soft-card space-y-4">
         {/* Aksen bubble transparan */}
-        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
-        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 w-44 h-44 rounded-full bg-white/[0.06]" />
-        <span aria-hidden className="pointer-events-none absolute top-6 right-1/3 w-14 h-14 rounded-full bg-white/[0.07]" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
+        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:bg-brand/10" />
+        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 w-44 h-44 rounded-full bg-white/[0.06] dark:bg-brand/[0.05]" />
+        <span aria-hidden className="pointer-events-none absolute top-6 right-1/3 w-14 h-14 rounded-full bg-white/[0.07] dark:bg-brand/[0.05]" />
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 dark:border-stroke pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <span className="w-9 h-9 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 rounded-full bg-white/20 dark:bg-brand-light text-white dark:text-brand flex items-center justify-center shrink-0">
                 <UploadCloud className="w-4.5 h-4.5" />
               </span>
-              <h2 className="font-semibold text-lg text-white tracking-tight">
+              <h2 className="font-semibold text-lg text-white dark:text-ink tracking-tight">
                 Pusat Unggah &amp; Pemenuhan Bukti Dukung (6 Aspek)
               </h2>
             </div>
-            <p className="text-sm text-white/85 pl-11.5 leading-relaxed">
+            <p className="text-sm text-white/85 dark:text-ink-secondary pl-11.5 leading-relaxed">
               Unggah berkas fisik resmi dan pantau pemenuhan dokumen bukti untuk 6 Aspek evaluasi pada unit {unitName}.
             </p>
           </div>
 
           <div className="flex items-center gap-3.5 shrink-0 self-start sm:self-auto">
             <div className="text-right">
-              <span className="text-xs font-medium text-white/75 block">
+              <span className="text-xs font-medium text-white/75 dark:text-ink-muted block">
                 TOTAL DOKUMEN
               </span>
-              <span className="text-xl font-semibold text-white">
-                {totalUploaded} <span className="text-sm text-white/75 font-normal">/ {totalRequired}</span>
+              <span className="text-xl font-semibold text-white dark:text-ink">
+                {totalUploaded} <span className="text-sm text-white/75 dark:text-ink-muted font-normal">/ {totalRequired}</span>
               </span>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center font-semibold text-sm text-white border border-white/20 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 dark:bg-surface-elevated flex items-center justify-center font-semibold text-sm text-white dark:text-ink border border-white/20 dark:border-stroke shadow-xs">
               {totalPercentage}%
             </div>
           </div>
@@ -110,13 +110,13 @@ export function AspectEvidenceGridHub({
 
         {/* Global Progress Bar */}
         <div className="relative space-y-2">
-          <div className="w-full bg-white/20 h-2.5 rounded-full overflow-hidden">
+          <div className="w-full bg-white/20 dark:bg-surface-elevated h-2.5 rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500 bg-white"
+              className="h-full rounded-full transition-all duration-500 bg-white dark:!bg-brand"
               style={{ width: `${totalPercentage}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-white/80 font-normal pt-0.5">
+          <div className="flex justify-between text-xs text-white/80 dark:text-ink-muted font-normal pt-0.5">
             <span>0 Dokumen</span>
             <span>{totalPercentage === 100 ? 'Semua Dokumen Lengkap' : `${totalRequired - totalUploaded} dokumen belum diunggah`}</span>
             <span>{totalRequired} Dokumen Wajib</span>

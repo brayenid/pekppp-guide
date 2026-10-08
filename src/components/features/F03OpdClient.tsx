@@ -434,22 +434,22 @@ export function F03OpdClient({
       </div>
 
       {/* Hero: Public Questionnaire Generator Card - Primary Bubble Banner Version */}
-      <div className="relative overflow-hidden rounded-2xl bg-brand p-4 sm:p-5 shadow-soft-card">
+      <div className="relative overflow-hidden rounded-2xl bg-brand dark:bg-card dark:border dark:border-stroke p-4 sm:p-5 shadow-soft-card">
         {/* Aksen bubble transparan */}
-        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
-        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/4 w-44 h-44 rounded-full bg-white/[0.06]" />
-        <span aria-hidden className="pointer-events-none absolute top-4 right-1/3 w-14 h-14 rounded-full bg-white/[0.07]" />
+        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:bg-brand/10" />
+        <span aria-hidden className="pointer-events-none absolute -bottom-20 left-1/4 w-44 h-44 rounded-full bg-white/[0.06] dark:bg-brand/[0.05]" />
+        <span aria-hidden className="pointer-events-none absolute top-4 right-1/3 w-14 h-14 rounded-full bg-white/[0.07] dark:bg-brand/[0.05]" />
 
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/20 pb-3.5 mb-3.5">
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/20 dark:border-stroke pb-3.5 mb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-white/20 dark:bg-brand-light text-white dark:text-brand flex items-center justify-center shrink-0">
               <QrCode className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-semibold text-white leading-tight">
+              <h3 className="text-sm sm:text-base font-semibold text-white dark:text-ink leading-tight">
                 Generator Kuesioner Publik
               </h3>
-              <p className="text-xs text-white/80 mt-0.5">
+              <p className="text-xs text-white/80 dark:text-ink-muted mt-0.5">
                 Pajang kode QR di loket layanan agar masyarakat dapat mengisi survei mandiri dari ponsel.
               </p>
             </div>
@@ -461,14 +461,14 @@ export function F03OpdClient({
             onClick={handleToggleSurvey}
             disabled={togglingSurvey}
             title={isSurveyOpen ? 'Klik untuk menutup kuesioner' : 'Klik untuk membuka kuesioner'}
-            className="flex items-center gap-2 self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/20 text-white transition-all cursor-pointer disabled:opacity-50 border border-white/15"
+            className="flex items-center gap-2 self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white/15 dark:bg-surface-elevated hover:bg-white/20 dark:hover:bg-stroke/40 text-white dark:text-ink transition-all cursor-pointer disabled:opacity-50 border border-white/15 dark:border-stroke"
           >
-            <span className="text-xs font-medium text-white/90">
+            <span className="text-xs font-medium text-white/90 dark:text-ink-secondary">
               Kuesioner {isSurveyOpen ? 'Aktif' : 'Ditutup'}
             </span>
-            <span className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors ${isSurveyOpen ? 'bg-emerald-400' : 'bg-white/30'}`}>
+            <span className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors ${isSurveyOpen ? 'bg-emerald-400' : 'bg-white/30 dark:bg-stroke'}`}>
               <span
-                className={`bg-white w-3.5 h-3.5 rounded-full shadow-xs transform transition-transform ${
+                className={`bg-white dark:!bg-white w-3.5 h-3.5 rounded-full shadow-xs transform transition-transform ${
                   isSurveyOpen ? 'translate-x-3.5' : 'translate-x-0'
                 }`}
               />
@@ -479,12 +479,12 @@ export function F03OpdClient({
         {/* QR Display + Direct Link Action */}
         <div className="relative grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
           {/* QR Canvas */}
-          <div className="sm:col-span-4 md:col-span-3 flex flex-col items-center justify-center p-3 bg-white rounded-xl shadow-soft-card">
+          <div className="sm:col-span-4 md:col-span-3 flex flex-col items-center justify-center p-3 bg-white dark:bg-surface-elevated rounded-xl shadow-soft-card border border-transparent dark:border-stroke">
             {qrDataUrl ? (
               <img
                 src={qrDataUrl}
                 alt="QR Code Survei Publik"
-                className="w-32 h-32 sm:w-36 sm:h-36 rounded-lg object-contain"
+                className="w-32 h-32 sm:w-36 sm:h-36 rounded-lg object-contain bg-white p-1"
               />
             ) : (
               <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-lg bg-surface-subtle flex items-center justify-center text-xs text-ink-muted">
@@ -499,8 +499,8 @@ export function F03OpdClient({
           {/* Action info and download */}
           <div className="sm:col-span-8 md:col-span-9 space-y-3">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-white/90" />
+              <label className="text-xs font-semibold text-white dark:text-ink flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-white/90 dark:text-brand" />
                 Tautan Kuesioner Online
               </label>
               <div className="flex gap-2">
@@ -508,13 +508,13 @@ export function F03OpdClient({
                   type="text"
                   readOnly
                   value={fullSurveyUrl || 'Menyiapkan tautan...'}
-                  className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white text-ink border border-white/30 select-all font-mono focus:outline-none shadow-2xs"
+                  className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-surface-elevated text-ink border border-white/30 dark:border-stroke select-all font-mono focus:outline-none shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white font-medium text-xs inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 border border-white/25 shadow-2xs">
-                  {copiedLink ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                  className="px-3.5 py-1.5 rounded-lg bg-white/20 dark:bg-surface-elevated hover:bg-white/30 dark:hover:bg-stroke/40 text-white dark:text-ink font-medium text-xs inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 border border-white/25 dark:border-stroke shadow-2xs">
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-white dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white dark:text-ink" />}
                   <span>{copiedLink ? 'Tersalin' : 'Salin'}</span>
                 </button>
               </div>
@@ -525,8 +525,8 @@ export function F03OpdClient({
               <button
                 type="button"
                 onClick={handleDownloadQR}
-                className="px-4 py-2 rounded-lg bg-white text-brand hover:bg-white/90 font-semibold text-xs inline-flex items-center gap-1.5 transition-all shadow-hz-button cursor-pointer">
-                <Download className="w-3.5 h-3.5 text-brand" />
+                className="px-4 py-2 rounded-lg bg-white dark:bg-brand text-brand dark:text-white hover:bg-white/90 dark:hover:bg-brand-hover font-semibold text-xs inline-flex items-center gap-1.5 transition-all shadow-hz-button cursor-pointer">
+                <Download className="w-3.5 h-3.5 text-brand dark:text-white" />
                 <span>Unduh QR Siap Cetak (PNG)</span>
               </button>
 
@@ -535,15 +535,15 @@ export function F03OpdClient({
                   href={fullSurveyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 border border-white/25 text-white font-medium text-xs inline-flex items-center gap-1.5 transition-colors shadow-2xs">
+                  className="px-3.5 py-2 rounded-lg bg-white/15 dark:bg-surface-elevated hover:bg-white/25 dark:hover:bg-stroke/40 border border-white/25 dark:border-stroke text-white dark:text-ink font-medium text-xs inline-flex items-center gap-1.5 transition-colors shadow-2xs">
                   <span>Pratinjau Kuesioner</span>
-                  <ExternalLink className="w-3 h-3 text-white/80" />
+                  <ExternalLink className="w-3 h-3 text-white/80 dark:text-ink-muted" />
                 </a>
               )}
             </div>
 
-            <div className="p-2.5 bg-white/10 rounded-lg border border-white/15 text-[11px] text-white/90 leading-relaxed flex items-start gap-2 backdrop-blur-2xs">
-              <Smartphone className="w-3.5 h-3.5 text-white shrink-0 mt-0.5" />
+            <div className="p-2.5 bg-white/10 dark:bg-surface-elevated/60 rounded-lg border border-white/15 dark:border-stroke text-[11px] text-white/90 dark:text-ink-secondary leading-relaxed flex items-start gap-2 backdrop-blur-2xs">
+              <Smartphone className="w-3.5 h-3.5 text-white dark:text-brand shrink-0 mt-0.5" />
               <span>
                 <strong>Tips:</strong> Cetak QR ini dan letakkan di meja loket. Responden tidak diminta nama/identitas, sehingga proses cepat dan objektif.
               </span>
