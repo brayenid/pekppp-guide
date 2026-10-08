@@ -39,6 +39,7 @@ export interface DocumentRedactionModalProps {
   fileName: string
   fileType: 'IMAGE' | 'PDF' | string
   isPreUpload?: boolean
+  rawFile?: File
   onSaveRedacted: (redactedFile: File, saveMode: 'new_version' | 'overwrite') => Promise<void>
 }
 
@@ -85,6 +86,7 @@ export function DocumentRedactionModal({
   fileName,
   fileType,
   isPreUpload = false,
+  rawFile,
   onSaveRedacted
 }: DocumentRedactionModalProps) {
   const isPdf = fileType === 'PDF' || fileName.toLowerCase().endsWith('.pdf')
@@ -143,17 +145,35 @@ export function DocumentRedactionModal({
           'pdfjs-dist/build/pdf.worker.min.mjs',
           import.meta.url
         ).toString()
-        const doc = await pdfjs.getDocument({ url: formatFileUrl(fileUrl) }).promise
+
+        let doc: any
+        // Jika ada rawFile langsung (dari pre-upload di browser client), baca sebagai ArrayBuffer
+        if (rawFile) {
+          const ab = await rawFile.arrayBuffer()
+          doc = await pdfjs.getDocument({ data: ab }).promise
+        } else if (fileUrl && fileUrl.startsWith('blob:')) {
+          // Jika URL berupa blob URL lokal
+          const res = await fetch(fileUrl)
+          const ab = await res.arrayBuffer()
+          doc = await pdfjs.getDocument({ data: ab }).promise
+        } else if (fileUrl) {
+          // Jika URL berupa remote server/CDN URL
+          const resolvedUrl = formatFileUrl(fileUrl)
+          doc = await pdfjs.getDocument({ url: resolvedUrl }).promise
+        } else {
+          throw new Error('URL atau berkas PDF tidak tersedia.')
+        }
+
         if (!cancelled) setPdfDoc(doc)
-      } catch (err) {
-        console.error(err)
+      } catch (err: any) {
+        console.error('Error loading PDF in studio:', err)
         if (!cancelled) setPdfError('Gagal memuat pratinjau PDF. Pastikan berkas dapat diakses.')
       }
     })()
     return () => {
       cancelled = true
     }
-  }, [isOpen, isPdf, fileUrl])
+  }, [isOpen, isPdf, fileUrl, rawFile])
 
   const pointFromEvent = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()

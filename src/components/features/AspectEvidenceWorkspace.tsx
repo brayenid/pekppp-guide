@@ -2473,6 +2473,7 @@ export function AspectEvidenceWorkspace({
           fileName={preUploadRedactTarget.file.name}
           fileType={preUploadRedactTarget.file.type.startsWith('image/') ? 'IMAGE' : 'PDF'}
           isPreUpload={true}
+          rawFile={preUploadRedactTarget.file}
           onSaveRedacted={async (redactedFile) => {
             await handleSavePreUploadFile(redactedFile)
           }}
