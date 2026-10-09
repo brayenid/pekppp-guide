@@ -229,10 +229,23 @@ export function DocumentRedactionModal({
           <div
             key={box.id}
             style={{ left: `${box.x}%`, top: `${box.y}%`, width: `${box.width}%`, height: `${box.height}%` }}
-            className="absolute bg-black border border-black/80 pointer-events-none z-10 flex items-center justify-center overflow-hidden">
-            <span className="text-[9px] text-white/50 font-mono tracking-tighter uppercase select-none">
+            onClick={(e) => {
+              e.stopPropagation()
+              handleRemoveBox(box.id)
+            }}
+            onMouseDown={(e) => {
+              // Mencegah trigger drag baru saat mengklik kotak yang sudah ada
+              e.stopPropagation()
+            }}
+            className="absolute bg-black/90 hover:bg-rose-950/90 border border-black hover:border-rose-500 z-10 flex items-center justify-center overflow-hidden cursor-pointer group transition-colors shadow-sm select-none"
+            title="Klik untuk menghapus sensor ini">
+            <span className="text-[9px] text-white/50 group-hover:hidden font-mono tracking-tighter uppercase select-none">
               [SENSOR]
             </span>
+            <div className="hidden group-hover:flex items-center gap-1 text-[10px] text-rose-300 font-semibold select-none px-1 py-0.5 rounded bg-rose-900/60 border border-rose-500/40 animate-in fade-in zoom-in-95 duration-100">
+              <Trash2 className="w-3 h-3 text-rose-400 shrink-0" />
+              <span>Hapus</span>
+            </div>
           </div>
         ))}
       {isDrawing && currentBox && drawPage === page && (
@@ -636,7 +649,7 @@ export function DocumentRedactionModal({
 
             {/* Petunjuk Singkat */}
             <div className="p-3 bg-amber-500/10 border-b border-amber-500/20 text-[11px] text-amber-900 dark:text-amber-200 leading-snug">
-              Klik dan tarik mouse langsung di atas dokumen untuk menambal balok hitam pekat.
+              Tarik kursor untuk menambah sensor. Klik kotak sensor langsung di atas dokumen untuk menghapusnya.
             </div>
 
             {/* List Halaman Dokumen */}
