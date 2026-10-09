@@ -45,11 +45,11 @@ export function ConfirmationModal({
       className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in-content`}
       onClick={() => { if (!loading) onCancel() }}>
       <div
-        className="w-full max-w-sm bg-surface rounded-2xl border border-stroke/80 p-6 shadow-2xl space-y-4 text-ink"
+        className="w-full max-w-md bg-surface rounded-2xl border border-stroke/80 p-6 shadow-2xl space-y-4 text-ink overflow-hidden"
         onClick={(e) => e.stopPropagation()}>
-        <div>
-          <h3 className="text-base font-bold text-ink tracking-tight">{title}</h3>
-          <p className="text-xs text-ink-muted mt-1.5 leading-relaxed">{description}</p>
+        <div className="min-w-0 space-y-1.5">
+          <h3 className="text-base font-bold text-ink tracking-tight break-words [word-break:break-word]">{title}</h3>
+          <p className="text-xs text-ink-muted leading-relaxed break-words [word-break:break-word]">{description}</p>
         </div>
 
         <div className="flex items-center justify-end gap-2.5 pt-2">
