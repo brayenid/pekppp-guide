@@ -102,6 +102,22 @@ export function AspectEvidenceWorkspace({
     checkedAt?: string
   } | null>(null)
   const [cooldownRemaining, setCooldownRemaining] = useState<number>(0)
+  const latinMap: Record<string, string> = { I: '1', II: '2', III: '3', IV: '4', V: '5', VI: '6', TAMBAHAN: 'Tambahan (Q31)' }
+  const indicatorNumberLabel = latinMap[aspectCode] || aspectCode
+
+  const defaultAspectNames: Record<string, string> = {
+    'I': 'Kebijakan Pelayanan',
+    'II': 'Profesionalisme SDM',
+    'III': 'Sarana & Prasarana',
+    'IV': 'Sistem Informasi Pelayanan Publik',
+    'V': 'Konsultasi & Pengaduan',
+    'VI': 'Inovasi Pelayanan Publik',
+    'TAMBAHAN': 'Informasi Tambahan (Q31)'
+  }
+  const resolvedAspectName =
+    aspectName && aspectName !== aspectCode && !['I', 'II', 'III', 'IV', 'V', 'VI', 'TAMBAHAN'].includes(aspectName)
+      ? aspectName
+      : defaultAspectNames[aspectCode] || aspectName || `Aspek ${aspectCode}`
 
   // Rate Limiting Cooldown Timer (60s)
   useEffect(() => {
@@ -1047,18 +1063,15 @@ export function AspectEvidenceWorkspace({
           <div className="flex items-center gap-2 flex-wrap min-w-0"
             title={
               isEditable
-                ? `Lengkapi dokumen bukti fisik untuk seluruh indikator Aspek ${aspectName}.`
-                : `Verifikasi kelengkapan dokumen bukti fisik Aspek ${aspectName}.`
+                ? `Lengkapi dokumen bukti fisik untuk seluruh indikator ${resolvedAspectName}.`
+                : `Verifikasi kelengkapan dokumen bukti fisik ${resolvedAspectName}.`
             }>
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-light text-brand shrink-0">
-              Indikator {aspectCode === 'I' ? '1' : aspectCode === 'II' ? '2' : aspectCode === 'III' ? '3' : aspectCode === 'IV' ? '4' : aspectCode === 'V' ? '5' : aspectCode === 'VI' ? '6' : aspectCode}
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-light text-brand shrink-0">
+              Indikator {indicatorNumberLabel}
             </span>
             <h1 className="text-sm sm:text-base font-semibold text-ink tracking-tight truncate">
-              Bukti Dukung: {aspectName}
+              {resolvedAspectName}
             </h1>
-            <span className="text-xs text-ink-muted font-normal hidden sm:inline">
-              • {isEditable ? 'Mode Lokus' : 'Mode Evaluator'}
-            </span>
           </div>
 
           {/* Compact Inline Counter */}

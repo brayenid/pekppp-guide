@@ -1032,8 +1032,11 @@ export function EvaluationWorkspaceLayout({
                 evaluationId={evaluationId}
                 aspectCode={activeAspectEvidence}
                 aspectName={
-                  groupedAspects.find((g) => g.aspect.code === activeAspectEvidence)?.aspect.name ||
-                  activeAspectEvidence
+                  groupedAspects.find(
+                    (g) =>
+                      g.aspect.code === activeAspectEvidence ||
+                      normalizeAspectCode(g.aspect.code) === normalizeAspectCode(activeAspectEvidence)
+                  )?.aspect.name || activeAspectEvidence
                 }
                 isEditable={userRole === 'OPD' && isEvidenceEditable}
                 isEvaluator={userRole === 'SUPER_ADMIN'}
