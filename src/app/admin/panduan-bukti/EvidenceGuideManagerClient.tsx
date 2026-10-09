@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Badge } from '../../../components/ui/Badge'
+import { Tabs, TabsList, TabsTrigger } from '../../../components/ui/Tabs'
 import {
   uploadAspectSlotExampleAction,
   deleteAspectSlotExampleAction
@@ -144,35 +145,32 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
       />
 
       {/* Aspect Selector Tabs */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card overflow-x-auto text-xs font-medium">
-        {ASPECTS.map((asp) => {
-          const count = slots.filter((s) => s.aspectCode === asp.code).length
-          const filled = slots.filter((s) => s.aspectCode === asp.code && s.exampleImages && s.exampleImages.length > 0).length
-          const isActive = activeAspect === asp.code
+      <Tabs value={activeAspect} onValueChange={setActiveAspect}>
+        <TabsList className="w-full justify-start overflow-x-auto p-1.5 hide-scrollbar">
+          {ASPECTS.map((asp) => {
+            const count = slots.filter((s) => s.aspectCode === asp.code).length
+            const filled = slots.filter((s) => s.aspectCode === asp.code && s.exampleImages && s.exampleImages.length > 0).length
+            const isActive = activeAspect === asp.code
 
-          return (
-            <button
-              key={asp.code}
-              type="button"
-              onClick={() => setActiveAspect(asp.code)}
-              className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 text-xs ${
-                isActive
-                  ? 'bg-brand text-white shadow-hz-button font-semibold'
-                  : 'bg-surface-subtle text-ink-secondary hover:text-ink hover:bg-surface-hover border border-stroke/40 font-medium'
-              }`}>
-              <span>Aspek {asp.code}</span>
-              <span
-                className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                  isActive
-                    ? 'bg-white/20 text-white'
-                    : 'bg-surface text-ink-muted border border-stroke/40'
-                }`}>
-                {filled}/{count}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+            return (
+              <TabsTrigger
+                key={asp.code}
+                value={asp.code}
+                className="gap-2">
+                <span>Aspek {asp.code}</span>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-surface text-ink-muted border border-stroke/40'
+                  }`}>
+                  {filled}/{count}
+                </span>
+              </TabsTrigger>
+            )
+          })}
+        </TabsList>
+      </Tabs>
 
       {/* Aspect Info Banner */}
       <div className="p-5 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card flex items-center justify-between gap-4">

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ClipboardList, FolderHeart, Maximize2, Minimize2, UploadCloud } from 'lucide-react'
 import { EvaluationNavbarStatus } from '../layout/Navbar'
+import { Tabs, TabsList, TabsTrigger } from '../ui/Tabs'
 
 export function EvaluationTabWrapper({
   f02Content,
@@ -137,69 +138,50 @@ export function EvaluationTabWrapper({
       {/* Clean Unified 3-Pillar Tab Switcher + Mode Fokus Toggle */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stroke/40 pb-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center p-1 bg-surface-subtle border border-stroke rounded-full shadow-2xs gap-1">
-            {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
-            <button
-              type="button"
-              onClick={() => handleTabClick('f02')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'f02'
-                  ? 'bg-surface-elevated text-ink border border-stroke shadow-pill'
-                  : 'text-ink-secondary hover:text-ink'
-              }`}>
-              <ClipboardList className="w-3.5 h-3.5 text-inherit" />
-              <span>{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
-            </button>
+          <Tabs value={activeTab} onValueChange={(val) => handleTabClick(val as 'f02' | 'evidence' | 'f03')}>
+            <TabsList>
+              {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
+              <TabsTrigger value="f02">
+                <ClipboardList className="w-4 h-4" />
+                <span>{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
+              </TabsTrigger>
 
-            {/* 2. Formulir Uji Petik: F03 */}
-            <button
-              type="button"
-              onClick={() => handleTabClick('f03')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'f03'
-                  ? 'bg-surface-elevated text-ink border border-stroke shadow-pill'
-                  : 'text-ink-secondary hover:text-ink'
-              }`}>
-              <FolderHeart className="w-3.5 h-3.5 text-inherit" />
-              <span>Survei F03</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors ${
-                  activeTab === 'f03'
-                    ? 'bg-brand-light text-brand'
-                    : 'bg-surface-elevated text-ink border border-stroke'
-                }`}>
-                {f03Count}
-              </span>
-            </button>
+              {/* 2. Formulir Uji Petik: F03 */}
+              <TabsTrigger value="f03">
+                <FolderHeart className="w-4 h-4" />
+                <span>Survei F03</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold transition-colors ${
+                    activeTab === 'f03'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-surface text-ink-secondary border border-stroke/50'
+                  }`}>
+                  {f03Count}
+                </span>
+              </TabsTrigger>
 
-            {/* 3. Bukti Dukung (Aksen Amber Warm Minimalist) */}
-            <button
-              type="button"
-              onClick={() => handleTabClick('evidence')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'evidence'
-                  ? 'bg-brand text-white shadow-hz-button ring-1 ring-brand/40'
-                  : 'text-ink-secondary hover:text-ink'
-              }`}>
-              <UploadCloud className="w-3.5 h-3.5 text-inherit" />
-              <span>Unggah Bukti Dukung</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors ${
-                  activeTab === 'evidence'
-                    ? 'bg-white/20 text-white'
-                    : incompleteCount === 0
-                    ? 'bg-pastel-green text-pastel-green-text'
-                    : 'bg-pastel-rose text-pastel-rose-text'
-                }`}
-                title={
-                  incompleteCount === 0
-                    ? 'Seluruh 6 aspek telah lengkap'
-                    : `${incompleteCount} dari 6 aspek belum lengkap / belum diisi`
-                }>
-                {incompleteCount}
-              </span>
-            </button>
-          </div>
+              {/* 3. Bukti Dukung */}
+              <TabsTrigger value="evidence">
+                <UploadCloud className="w-4 h-4" />
+                <span>Unggah Bukti Dukung</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold transition-colors ${
+                    activeTab === 'evidence'
+                      ? 'bg-white/20 text-white'
+                      : incompleteCount === 0
+                      ? 'bg-pastel-green text-pastel-green-text'
+                      : 'bg-pastel-rose text-pastel-rose-text'
+                  }`}
+                  title={
+                    incompleteCount === 0
+                      ? 'Seluruh 6 aspek telah lengkap'
+                      : `${incompleteCount} dari 6 aspek belum lengkap / belum diisi`
+                  }>
+                  {incompleteCount}
+                </span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           {/* Status Disimpan / Belum Disimpan - Beranimasi saat Mode Fokus Aktif */}
           <div

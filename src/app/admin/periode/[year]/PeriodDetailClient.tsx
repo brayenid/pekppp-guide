@@ -34,6 +34,7 @@ import { Button } from '../../../../components/ui/Button'
 import { Badge } from '../../../../components/ui/Badge'
 import { Card } from '../../../../components/ui/Card'
 import { StatCard } from '../../../../components/ui/StatCard'
+import { Tabs, TabsList, TabsTrigger } from '../../../../components/ui/Tabs'
 import { MenpanSyncModal } from '../../../../components/features/MenpanSyncModal'
 import { ComprehensiveReportModal } from '../../../../components/features/ComprehensiveReportModal'
 import {
@@ -580,34 +581,21 @@ export default function PeriodDetailClient({
       </div>
 
       {/* Tab Switcher: Lokus Evaluasi vs Jadwal & Tahapan Penilaian */}
-      <div className="flex items-center gap-2 border-b border-stroke/50 pb-1">
-        <button
-          type="button"
-          onClick={() => setActiveTab('lokus')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'lokus'
-              ? 'bg-brand text-white shadow-hz-button'
-              : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle'
-          }`}>
-          <Building2 className="w-4 h-4" />
-          <span>Daftar Lokus Peserta ({totalUnits})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('jadwal')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'jadwal'
-              ? 'bg-brand text-white shadow-hz-button'
-              : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle'
-          }`}>
-          <CalendarDays className="w-4 h-4" />
-          <span>Jadwal &amp; Jendela Waktu Penilaian</span>
-          {timelineResult?.activeWindow && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-1" />
-          )}
-        </button>
-      </div>
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'lokus' | 'jadwal')}>
+        <TabsList>
+          <TabsTrigger value="lokus">
+            <Building2 className="w-4 h-4" />
+            <span>Daftar Lokus Peserta ({totalUnits})</span>
+          </TabsTrigger>
+          <TabsTrigger value="jadwal">
+            <CalendarDays className="w-4 h-4" />
+            <span>Jadwal &amp; Jendela Waktu Penilaian</span>
+            {timelineResult?.activeWindow && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
+            )}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {activeTab === 'jadwal' && timelineResult && (
         <PeriodTimelineManager
