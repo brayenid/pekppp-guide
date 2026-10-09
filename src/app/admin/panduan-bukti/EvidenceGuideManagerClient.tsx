@@ -21,6 +21,7 @@ import {
   uploadAspectSlotExampleAction,
   deleteAspectSlotExampleAction
 } from '../../../actions/evidence-slot-actions'
+import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
 import { formatFileUrl } from '../../../lib/utils'
 
 interface SlotWithGuide {
@@ -49,6 +50,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
   const [activeAspect, setActiveAspect] = useState<string>('I')
   const [previewFile, setPreviewFile] = useState<string | null>(null)
   const [loadingSlot, setLoadingSlot] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ slotKey: string; slotTitle: string; exampleUrl: string } | null>(null)
 
   const currentSlots = slots.filter((s) => s.aspectCode === activeAspect)
 
@@ -95,8 +97,9 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
     }
   }
 
-  const handleDelete = async (slotKey: string, exampleUrl: string) => {
-    if (!window.confirm('Hapus contoh format ini dari panduan?')) return
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    const { slotKey, exampleUrl } = deleteTarget
     setLoadingSlot(slotKey)
     const toastId = toast.loading('Menghapus contoh...')
     try {
@@ -121,6 +124,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
             return s
           })
         )
+        setDeleteTarget(null)
       } else {
         toast.error(res.error || 'Gagal menghapus berkas.', { id: toastId })
       }
@@ -291,7 +295,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
                             <button
                               type="button"
                               disabled={isProcessing}
-                              onClick={() => handleDelete(slot.slotKey, imgUrl)}
+                              onClick={() => setDeleteTarget({ slotKey: slot.slotKey, slotTitle: slot.title, exampleUrl: imgUrl })}
                               className="p-1.5 rounded-full text-ink-muted hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                               title="Hapus berkas contoh ini">
                               <Trash2 className="w-3.5 h-3.5" />
@@ -307,6 +311,19 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
           )
         })}
       </div>
+
+      {/* Modal Konfirmasi Hapus Contoh Format */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteTarget)}
+        title="Hapus Contoh Format"
+        description={`Hapus berkas contoh ini dari panduan "${deleteTarget?.slotTitle || ''}"? Tindakan ini tidak dapat dibatalkan.`}
+        confirmText="Hapus Contoh"
+        cancelText="Batal"
+        variant="danger"
+        loading={Boolean(loadingSlot)}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
 
       {/* Preview Modal */}
       {previewFile && typeof document !== 'undefined' && createPortal(

@@ -160,6 +160,11 @@ export function AspectEvidenceWorkspace({
 
   // Delete Confirmation
   const [deleteTarget, setDeleteTarget] = useState<EvidenceSlotItem | null>(null)
+  const [restoreVersionTarget, setRestoreVersionTarget] = useState<{ targetVersionId: string; verNum: number } | null>(null)
+  const [deleteVersionTarget, setDeleteVersionTarget] = useState<{ targetVersionId: string; verNum: number; fileName: string } | null>(null)
+  const [deleteAttachmentTarget, setDeleteAttachmentTarget] = useState<{ slot: EvidenceSlotItem; attachmentId: string; fileName: string } | null>(null)
+  const [deleteHistoryTarget, setDeleteHistoryTarget] = useState<{ slot: EvidenceSlotItem; activityId: string; fileName?: string } | null>(null)
+  const [deleteExampleTarget, setDeleteExampleTarget] = useState<{ exampleUrl: string; slotKey: string } | null>(null)
   const [activeImageExample, setActiveImageExample] = useState<string | null>(null)
   const [activeExampleGallery, setActiveExampleGallery] = useState<{
     slotKey: string
@@ -382,11 +387,11 @@ export function AspectEvidenceWorkspace({
     }
   }
 
-  const handleRestoreVersion = async (targetVersionId: string, verNum: number) => {
-    if (!versionModalTarget) return
-    if (!confirm(`Pulihkan dan jadikan Versi ${verNum} sebagai berkas aktif utama?`)) return
+  const handleConfirmRestoreVersion = async () => {
+    if (!versionModalTarget || !restoreVersionTarget) return
     setIsRestoringVersion(true)
     const { slot, attachment } = versionModalTarget
+    const { targetVersionId } = restoreVersionTarget
 
     try {
       const res = await restoreAttachmentVersionAction({
@@ -401,6 +406,7 @@ export function AspectEvidenceWorkspace({
         toast.success(`Versi ${res.restoredVersion} berhasil dipulihkan menjadi berkas aktif!`)
         await loadSlots()
         setVersionModalTarget(null)
+        setRestoreVersionTarget(null)
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('evidence-updated'))
         }
@@ -416,11 +422,11 @@ export function AspectEvidenceWorkspace({
 
   const [isDeletingVersion, setIsDeletingVersion] = useState(false)
 
-  const handleDeleteVersion = async (targetVersionId: string, verNum: number, fileName: string) => {
-    if (!versionModalTarget) return
-    if (!confirm(`Hapus permanen arsip Versi ${verNum} (${fileName})? Berkas yang dihapus tidak dapat dipulihkan kembali.`)) return
+  const handleConfirmDeleteVersion = async () => {
+    if (!versionModalTarget || !deleteVersionTarget) return
     setIsDeletingVersion(true)
     const { slot, attachment } = versionModalTarget
+    const { targetVersionId, verNum } = deleteVersionTarget
 
     try {
       const res = await deleteAttachmentVersionAction({
@@ -433,6 +439,7 @@ export function AspectEvidenceWorkspace({
       })
       if (res.success) {
         toast.success(`Arsip Versi ${verNum} berhasil dihapus permanen!`)
+        setDeleteVersionTarget(null)
         // Update local modal target versi agar langsung reaktif tanpa harus tutup modal
         const updatedSlotList = await loadSlots()
         const refreshedSlot = updatedSlotList?.find((s) => s.slotKey === slot.slotKey)
@@ -674,8 +681,9 @@ export function AspectEvidenceWorkspace({
   }
 
   // Handle Delete Attachment Spesifik
-  const handleDeleteAttachment = async (slot: EvidenceSlotItem, attachmentId: string, fileName: string) => {
-    if (!confirm(`Hapus berkas "${fileName}" dari slot ini?`)) return
+  const handleConfirmDeleteAttachment = async () => {
+    if (!deleteAttachmentTarget) return
+    const { slot, attachmentId, fileName } = deleteAttachmentTarget
 
     setUploadingKey(slot.slotKey)
     try {
@@ -689,6 +697,7 @@ export function AspectEvidenceWorkspace({
 
       if (res.success) {
         toast.success(`Berkas "${fileName}" berhasil dihapus.`)
+        setDeleteAttachmentTarget(null)
         await loadSlots()
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('evidence-updated'))
@@ -833,18 +842,22 @@ export function AspectEvidenceWorkspace({
   }
 
   // Handle Delete Single History Item
-  const handleDeleteHistoryItem = async (slot: EvidenceSlotItem, activityId: string, fileName?: string) => {
-    if (!slot.submissionId) return
-    if (!window.confirm(`Hapus versi riwayat berkas "${fileName || 'ini'}"?`)) return
+  const handleConfirmDeleteHistoryItem = async () => {
+    if (!deleteHistoryTarget || !deleteHistoryTarget.slot.submissionId) return
+    const { slot, activityId, fileName } = deleteHistoryTarget
+    const submissionId = slot.submissionId
+    if (!submissionId) return
+
     setLoading(true)
     try {
       const res = await deleteHistoryItemAction({
-        submissionId: slot.submissionId,
+        submissionId,
         activityId,
         path: `/evaluasi/${unitId}`
       })
       if (res.success) {
-        toast.success(`Versi berkas berhasil dihapus dari riwayat.`)
+        toast.success(`Versi berkas "${fileName || ''}" berhasil dihapus dari riwayat.`)
+        setDeleteHistoryTarget(null)
         await loadSlots()
       } else {
         toast.error(res.error || 'Gagal menghapus versi riwayat.')
@@ -885,8 +898,10 @@ export function AspectEvidenceWorkspace({
   }
 
   // Handle Hapus Contoh Format Bukti (Admin / Evaluator)
-  const handleDeleteExample = async (exampleUrl: string, slotKey: string) => {
-    if (!window.confirm('Hapus contoh format berkas ini dari panduan?')) return
+  const handleConfirmDeleteExample = async () => {
+    if (!deleteExampleTarget) return
+    const { exampleUrl, slotKey } = deleteExampleTarget
+
     const toastId = toast.loading('Menghapus contoh format...')
     try {
       const res = await deleteAspectSlotExampleAction({
@@ -897,6 +912,7 @@ export function AspectEvidenceWorkspace({
       })
       if (res.success) {
         toast.success('Contoh format berhasil dihapus.', { id: toastId })
+        setDeleteExampleTarget(null)
         await loadSlots()
       } else {
         toast.error(res.error || 'Gagal menghapus contoh format.', { id: toastId })
@@ -1549,7 +1565,7 @@ export function AspectEvidenceWorkspace({
                                               disabled={isUploading}
                                               onClick={() => {
                                                 setOpenDropdownAttId(null)
-                                                handleDeleteAttachment(slot, att.id, att.fileName)
+                                                setDeleteAttachmentTarget({ slot, attachmentId: att.id, fileName: att.fileName })
                                               }}
                                               className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors group cursor-pointer text-[11px] font-medium text-left">
                                               <Trash2 className="w-3.5 h-3.5 text-rose-500 group-hover:text-rose-700" />
@@ -1721,7 +1737,7 @@ export function AspectEvidenceWorkspace({
                                   {isEditable && (
                                     <button
                                       type="button"
-                                      onClick={() => handleDeleteHistoryItem(slot, h.id, h.fileName)}
+                                      onClick={() => setDeleteHistoryTarget({ slot, activityId: h.id, fileName: h.fileName })}
                                       className="p-1 rounded-full text-ink-muted hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                                       title="Hapus versi berkas ini dari riwayat">
                                       <Trash2 className="w-3.5 h-3.5" />
@@ -2042,8 +2058,8 @@ export function AspectEvidenceWorkspace({
                           {isEvaluator && (
                             <button
                               type="button"
-                              onClick={async () => {
-                                await handleDeleteExample(rawUrl, activeExampleGallery.slotKey)
+                              onClick={() => {
+                                setDeleteExampleTarget({ exampleUrl: rawUrl, slotKey: activeExampleGallery.slotKey })
                                 setActiveExampleGallery(null)
                               }}
                               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-medium border border-rose-200 cursor-pointer">
@@ -2074,8 +2090,8 @@ export function AspectEvidenceWorkspace({
                         <div className="pt-2">
                           <button
                             type="button"
-                            onClick={async () => {
-                              await handleDeleteExample(rawUrl, activeExampleGallery.slotKey)
+                            onClick={() => {
+                              setDeleteExampleTarget({ exampleUrl: rawUrl, slotKey: activeExampleGallery.slotKey })
                               setActiveExampleGallery(null)
                             }}
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-medium border border-rose-200 cursor-pointer">
@@ -2094,20 +2110,82 @@ export function AspectEvidenceWorkspace({
         document.body
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal (Slot Utama) */}
       <ConfirmationModal
         isOpen={Boolean(deleteTarget)}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={handleDeleteSlot}
         loading={loading}
         variant="danger"
-        title={`Hapus Berkas "${deleteTarget?.fileName || deleteTarget?.title}"?`}
+        title="Hapus Berkas"
         description={
           deleteTarget?.history && deleteTarget.history.length > 1
-            ? `Hanya berkas versi aktif ini yang akan dihapus. Berkas versi sebelumnya (${deleteTarget.history.length - 1} riwayat) akan tetap aman dan otomatis dipulihkan.`
-            : 'Berkas fisik ini akan dihapus dari penyimpanan dan status dokumen akan dikosongkan.'
+            ? `Hapus berkas "${deleteTarget?.fileName || deleteTarget?.title}"? Hanya berkas versi aktif ini yang akan dihapus. Berkas versi sebelumnya (${deleteTarget.history.length - 1} riwayat) akan tetap aman dan otomatis dipulihkan.`
+            : `Hapus berkas "${deleteTarget?.fileName || deleteTarget?.title}"? Berkas fisik ini akan dihapus dari penyimpanan dan status dokumen akan dikosongkan.`
         }
-        confirmText="Hapus Berkas Ini"
+        confirmText="Hapus Berkas"
+      />
+
+      {/* Modal Konfirmasi Hapus Lampiran Spesifik */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteAttachmentTarget)}
+        onCancel={() => setDeleteAttachmentTarget(null)}
+        onConfirm={handleConfirmDeleteAttachment}
+        loading={Boolean(uploadingKey)}
+        variant="danger"
+        title="Hapus Berkas"
+        description={`Hapus berkas "${deleteAttachmentTarget?.fileName || ''}" dari slot "${deleteAttachmentTarget?.slot.title || ''}"? Berkas fisik akan dihapus dari penyimpanan.`}
+        confirmText="Hapus Berkas"
+      />
+
+      {/* Modal Konfirmasi Pulihkan / Pakai Kembali Versi Lampau */}
+      <ConfirmationModal
+        isOpen={Boolean(restoreVersionTarget)}
+        zIndex="z-[99999]"
+        onCancel={() => setRestoreVersionTarget(null)}
+        onConfirm={handleConfirmRestoreVersion}
+        loading={isRestoringVersion}
+        variant="primary"
+        title="Pakai Versi Ini"
+        description={`Jadikan Versi ${restoreVersionTarget?.verNum || ''} sebagai berkas aktif utama? Versi berkas yang sedang aktif saat ini akan tetap tersimpan di riwayat versi.`}
+        confirmText="Ya, Jadikan Berkas Aktif"
+      />
+
+      {/* Modal Konfirmasi Hapus Permanen Arsip Versi */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteVersionTarget)}
+        zIndex="z-[99999]"
+        onCancel={() => setDeleteVersionTarget(null)}
+        onConfirm={handleConfirmDeleteVersion}
+        loading={isDeletingVersion}
+        variant="danger"
+        title="Hapus Arsip Versi"
+        description={`Hapus arsip Versi ${deleteVersionTarget?.verNum || ''} ("${deleteVersionTarget?.fileName || ''}") secara permanen? Berkas arsip ini tidak dapat dipulihkan kembali.`}
+        confirmText="Hapus Permanen"
+      />
+
+      {/* Modal Konfirmasi Hapus Item Riwayat Submisi */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteHistoryTarget)}
+        onCancel={() => setDeleteHistoryTarget(null)}
+        onConfirm={handleConfirmDeleteHistoryItem}
+        loading={loading}
+        variant="danger"
+        title="Hapus Riwayat Berkas"
+        description={`Hapus catatan riwayat berkas "${deleteHistoryTarget?.fileName || 'ini'}"? Berkas versi lampau ini akan dihapus dari daftar riwayat.`}
+        confirmText="Hapus Riwayat"
+      />
+
+      {/* Modal Konfirmasi Hapus Contoh Format Bukti (Workspace) */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteExampleTarget)}
+        zIndex="z-[99999]"
+        onCancel={() => setDeleteExampleTarget(null)}
+        onConfirm={handleConfirmDeleteExample}
+        variant="danger"
+        title="Hapus Contoh Format"
+        description="Hapus berkas contoh format bukti ini dari panduan? Tindakan ini akan menghapus acuan contoh untuk slot ini."
+        confirmText="Hapus Contoh"
       />
 
       {/* Version Management Modal (Google Drive Style) */}
@@ -2286,7 +2364,7 @@ export function AspectEvidenceWorkspace({
                               <button
                                 type="button"
                                 disabled={isUploadingVersion || isRestoringVersion || isDeletingVersion}
-                                onClick={() => handleRestoreVersion(ver.id, ver.version)}
+                                onClick={() => setRestoreVersionTarget({ targetVersionId: ver.id, verNum: ver.version })}
                                 className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-brand hover:text-white hover:bg-brand bg-brand/10 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                                 title="Jadikan versi ini sebagai berkas aktif">
                                 {isRestoringVersion ? (
@@ -2300,7 +2378,7 @@ export function AspectEvidenceWorkspace({
                               <button
                                 type="button"
                                 disabled={isUploadingVersion || isRestoringVersion || isDeletingVersion}
-                                onClick={() => handleDeleteVersion(ver.id, ver.version, ver.fileName)}
+                                onClick={() => setDeleteVersionTarget({ targetVersionId: ver.id, verNum: ver.version, fileName: ver.fileName })}
                                 className="p-1 rounded-lg text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/30 transition-colors cursor-pointer disabled:opacity-50"
                                 title="Hapus permanen arsip versi ini">
                                 <Trash2 className="w-3.5 h-3.5" />

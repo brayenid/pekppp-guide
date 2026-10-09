@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
+import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
 import {
   AiEvaluatorConfig,
   DEFAULT_ASPECT_CONTEXTS
@@ -45,6 +46,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
   const [activeTab, setActiveTab] = useState<string>('I')
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
+  const [isResetAllConfirmOpen, setIsResetAllConfirmOpen] = useState(false)
 
   const aspectKeys = ['I', 'II', 'III', 'IV', 'V', 'VI']
 
@@ -91,8 +93,8 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
     }
   }
 
-  const handleResetAll = async () => {
-    if (!confirm('Kembalikan seluruh teks konteks 6 Aspek Utama ke Standar Emas default KemenPAN-RB?')) return
+  const handleConfirmResetAll = async () => {
+    setIsResetAllConfirmOpen(false)
     setResetting(true)
     try {
       const allDefaults: Record<string, string> = {}
@@ -303,7 +305,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
             <button
               type="button"
               disabled={resetting}
-              onClick={handleResetAll}
+              onClick={() => setIsResetAllConfirmOpen(true)}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill border border-stroke/60 bg-surface hover:bg-surface-subtle text-xs font-medium text-rose-600 transition-all cursor-pointer shadow-2xs">
               <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
               <span>Reset Semua (6 Aspek)</span>
@@ -398,6 +400,19 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
           Simpan Semua Pengaturan
         </Button>
       </div>
+
+      {/* Modal Konfirmasi Reset Semua Konteks AI */}
+      <ConfirmationModal
+        isOpen={isResetAllConfirmOpen}
+        title="Reset Konteks AI"
+        description="Kembalikan seluruh teks konteks 6 Aspek Utama ke Standar Emas default KemenPAN-RB? Perubahan yang belum disimpan akan digantikan."
+        confirmText="Ya, Reset Semua"
+        cancelText="Batal"
+        variant="warning"
+        loading={resetting}
+        onCancel={() => setIsResetAllConfirmOpen(false)}
+        onConfirm={handleConfirmResetAll}
+      />
     </form>
   )
 }

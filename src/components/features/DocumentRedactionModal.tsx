@@ -108,6 +108,7 @@ export function DocumentRedactionModal({
   const [pdfError, setPdfError] = useState<string | null>(null)
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
 
   // Reset state saat modal dibuka
   useEffect(() => {
@@ -118,6 +119,7 @@ export function DocumentRedactionModal({
       setIsDrawing(false)
       setCurrentBox(null)
       setIsConfirmOpen(false)
+      setIsResetConfirmOpen(false)
     }
   }, [isOpen, fileUrl])
 
@@ -322,10 +324,13 @@ export function DocumentRedactionModal({
 
   const handleReset = () => {
     if (boxes.length === 0) return
-    if (window.confirm('Hapus seluruh kotak sensor pada dokumen ini?')) {
-      setBoxes([])
-      setRedoBoxes([])
-    }
+    setIsResetConfirmOpen(true)
+  }
+
+  const handleConfirmReset = () => {
+    setBoxes([])
+    setRedoBoxes([])
+    setIsResetConfirmOpen(false)
   }
 
   const scrollToPage = (pageNum: number) => {
@@ -723,11 +728,11 @@ export function DocumentRedactionModal({
       <ConfirmationModal
         isOpen={isConfirmOpen}
         zIndex="z-[999999]"
-        title={boxes.length === 0 ? 'Konfirmasi Dokumen Tanpa Sensor' : 'Konfirmasi Penerapan Sensor'}
+        title={boxes.length === 0 ? 'Simpan Dokumen' : 'Terapkan Sensor'}
         description={
           boxes.length === 0
             ? 'Apakah Anda yakin berkas ini tidak memuat data pribadi sensitif atau data rahasia (seperti NIK, NIP, nomor kontak, tanda tangan, atau identitas pribadi lainnya)?'
-            : `Apakah seluruh area data rahasia/pribadi yang Anda tandai (${boxes.length} area) sudah sesuai dan siap ditutup secara permanen?`
+            : `Apakah seluruh area sensor yang ditandai (${boxes.length} area) sudah sesuai dan siap ditutup secara permanen?`
         }
         confirmText={boxes.length === 0 ? 'Ya, Simpan Berkas' : 'Ya, Terapkan & Simpan'}
         cancelText="Periksa Kembali"
@@ -738,6 +743,19 @@ export function DocumentRedactionModal({
           setIsConfirmOpen(false)
           await handleApplyRedaction('new_version')
         }}
+      />
+
+      {/* Modal Konfirmasi Reset Semua Sensor */}
+      <ConfirmationModal
+        isOpen={isResetConfirmOpen}
+        zIndex="z-[999999]"
+        title="Reset Semua Sensor"
+        description={`Hapus seluruh ${boxes.length} area sensor yang telah ditandai pada dokumen ini? Tindakan ini akan mengosongkan semua sensor.`}
+        confirmText="Ya, Hapus Semua"
+        cancelText="Batal"
+        variant="danger"
+        onCancel={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
       />
     </div>,
     document.body
