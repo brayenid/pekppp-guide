@@ -63,7 +63,7 @@ export function ConfirmationModal({
           </Button>
           <Button
             type="button"
-            variant={variant === 'danger' ? 'danger' : 'primary'}
+            variant={variant === 'danger' ? 'danger' : 'brand'}
             size="sm"
             isLoading={loading}
             onClick={onConfirm}>
