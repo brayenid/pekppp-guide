@@ -106,9 +106,54 @@ export function Navbar() {
   const isEvaluation = pathname.startsWith('/evaluasi')
   const dashboardHref = user?.role === 'SUPER_ADMIN' ? '/admin' : '/opd'
 
+  const [translateY, setTranslateY] = useState(0)
+  const prevScrollY = useRef(0)
+  const currentTranslateY = useRef(0)
+  const NAVBAR_HEIGHT = 64
+
+  // Proportional delta scroll (auto-hide & auto-reveal)
+  useEffect(() => {
+    // Reset saat drawer terbuka atau rute berubah
+    if (mobileDrawerOpen) {
+      currentTranslateY.current = 0
+      setTranslateY(0)
+      return
+    }
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY
+      const deltaY = scrollY - prevScrollY.current
+
+      // Jika di paling atas halaman, kunci terlihat penuh
+      if (scrollY <= 0) {
+        currentTranslateY.current = 0
+        setTranslateY(0)
+        prevScrollY.current = scrollY
+        return
+      }
+
+      // Hitung pergeseran proporsional: deltaY positif (scroll ke bawah) -> geser ke atas (-px)
+      // deltaY negatif (scroll ke atas) -> geser ke bawah (+px)
+      const nextTranslate = Math.max(
+        -NAVBAR_HEIGHT,
+        Math.min(0, currentTranslateY.current - deltaY)
+      )
+
+      currentTranslateY.current = nextTranslate
+      setTranslateY(nextTranslate)
+      prevScrollY.current = scrollY
+    }
+
+    prevScrollY.current = window.scrollY
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [mobileDrawerOpen, pathname])
+
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full bg-canvas border-b border-stroke shadow-2xs">
+      <nav
+        style={{ transform: `translate3d(0, ${translateY}px, 0)` }}
+        className="sticky top-0 z-50 w-full bg-canvas/95 backdrop-blur-md border-b border-stroke shadow-2xs will-change-transform">
         <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-3 group py-0.5">
