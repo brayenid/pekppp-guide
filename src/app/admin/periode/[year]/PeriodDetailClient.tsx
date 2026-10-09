@@ -687,8 +687,7 @@ export default function PeriodDetailClient({
             <table className="w-full text-left text-xs">
               <thead className="border-b border-stroke/40 text-ink-muted font-medium text-[11px] uppercase tracking-wider bg-surface-subtle/20">
                 <tr>
-                  <th className="pl-6 pr-3 py-2.5 w-10 text-center font-normal">No</th>
-                  <th className="px-4 py-2.5 font-normal">Lokus Unit Kerja</th>
+                  <th className="pl-6 pr-4 py-2.5 font-normal">Lokus Unit Kerja</th>
                   <th className="px-4 py-2.5 font-normal">Audit F-01 &amp; F-02</th>
                   <th className="px-3 py-2.5 text-center font-normal">Survei F-03</th>
                   <th className="px-3 py-2.5 text-center font-normal">Bukti Fisik</th>
@@ -698,7 +697,7 @@ export default function PeriodDetailClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-stroke/25">
-                {filteredEvaluations.map((ev, idx) => {
+                {filteredEvaluations.map((ev) => {
                   const filledScores = ev.scores.filter((s) => s.score !== null).length
                   const f01Count = ev.scores.filter((s) => s.f01Submitted).length
                   const f03Count = ev._count.f03Respondents || 0
@@ -707,11 +706,7 @@ export default function PeriodDetailClient({
 
                   return (
                     <tr key={ev.id} className="hover:bg-surface-subtle/30 transition-colors group">
-                      <td className="pl-6 pr-3 py-2.5 font-mono text-[11px] text-ink-muted text-center">
-                        {idx + 1}
-                      </td>
-
-                      <td className="px-4 py-2.5 max-w-xs sm:max-w-sm">
+                      <td className="pl-6 pr-4 py-2.5 max-w-xs sm:max-w-sm">
                         <div className="flex items-start gap-1.5">
                           {/* 1-Click Toggle Star Prioritas */}
                           <button
