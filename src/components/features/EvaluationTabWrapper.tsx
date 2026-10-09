@@ -141,13 +141,13 @@ export function EvaluationTabWrapper({
           <Tabs value={activeTab} onValueChange={(val) => handleTabClick(val as 'f02' | 'evidence' | 'f03')}>
             <TabsList>
               {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
-              <TabsTrigger value="f02">
+              <TabsTrigger value="f02" size="sm">
                 <ClipboardList className="w-3.5 h-3.5" />
                 <span>{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
               </TabsTrigger>
 
               {/* 2. Formulir Uji Petik: F03 */}
-              <TabsTrigger value="f03">
+              <TabsTrigger value="f03" size="sm">
                 <FolderHeart className="w-3.5 h-3.5" />
                 <span>Survei F03</span>
                 <span
@@ -161,7 +161,7 @@ export function EvaluationTabWrapper({
               </TabsTrigger>
 
               {/* 3. Bukti Dukung */}
-              <TabsTrigger value="evidence">
+              <TabsTrigger value="evidence" size="sm">
                 <UploadCloud className="w-3.5 h-3.5" />
                 <span>Unggah Bukti Dukung</span>
                 <span

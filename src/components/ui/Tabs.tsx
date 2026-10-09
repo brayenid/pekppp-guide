@@ -21,18 +21,26 @@ const TabsList = React.forwardRef<
 ))
 TabsList.displayName = TabsPrimitive.List.displayName
 
+export interface TabsTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
+  size?: 'default' | 'sm' | 'md'
+}
+
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
+  TabsTriggerProps
+>(({ className, size = 'default', ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all cursor-pointer select-none',
+      'inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all cursor-pointer select-none',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1',
       'disabled:pointer-events-none disabled:opacity-50',
       'text-ink-secondary hover:text-ink hover:bg-surface/60',
       'data-[state=active]:bg-brand data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-hz-button',
+      size === 'sm'
+        ? 'gap-1.5 px-3 py-1.5 text-xs'
+        : 'gap-2 px-4 py-2 text-sm',
       className
     )}
     {...props}
