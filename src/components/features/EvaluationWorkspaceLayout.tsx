@@ -904,6 +904,7 @@ export function EvaluationWorkspaceLayout({
       {userRole === 'OPD' && isF01Editable && hasEvaluatorScoredAny && (
         <NoticeBanner
           variant="success"
+          compact
           title="Unit Anda Telah / Sedang Dinilai Oleh Evaluator"
           description="Evaluator telah mengisi skor atau catatan rekomendasi pada beberapa indikator. Anda dapat melihat masukan evaluator dan memperbarui bukti dukung jika diperlukan."
           badge={`${filledF02Count} dari 31 Dinilai`}

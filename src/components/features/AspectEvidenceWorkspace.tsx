@@ -1041,136 +1041,30 @@ export function AspectEvidenceWorkspace({
 
   return (
     <div className="space-y-6">
-      {/* 1. Header & Progress Banner */}
-      <div className="px-5 py-4 rounded-bento bg-surface border border-stroke/50 shadow-soft-card">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-          <div className="space-y-2.5 min-w-0">
-            <div
-              className="flex items-center gap-2 flex-wrap"
-              title={
-                isEditable
-                  ? `Lengkapi dokumen bukti fisik untuk seluruh indikator Aspek ${aspectName}.`
-                  : `Verifikasi kelengkapan dokumen bukti fisik Aspek ${aspectName}.`
-              }>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-light text-brand">
-                Indikator {aspectCode === 'I' ? '1' : aspectCode === 'II' ? '2' : aspectCode === 'III' ? '3' : aspectCode === 'IV' ? '4' : aspectCode === 'V' ? '5' : aspectCode === 'VI' ? '6' : aspectCode}
-              </span>
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                Bukti Dukung: {aspectName}
-              </h1>
-              <span className="text-xs text-ink-muted font-normal">
-                • {isEditable ? 'Mode Lokus (Unggah Berkas)' : 'Mode Evaluator (Verifikasi)'}
-              </span>
-            </div>
-
-            {/* Action Buttons & Helper Notes (satu alur, wrap otomatis) */}
-            <div className="flex items-center gap-x-2 gap-y-1.5 flex-wrap">
-              <div className="contents">
-                {/* Tombol Cek Kelayakan (Hanya tampil untuk OPD / Lokus Mandiri) */}
-                {!isEvaluator && (
-                  <button
-                    type="button"
-                    disabled={!canExecuteComplianceCheck || isCheckingCompliance || cooldownRemaining > 0}
-                    onClick={handleCheckDocumentCompliance}
-                    title={
-                      !isAllMandatoryUploaded
-                        ? `Lengkapi seluruh ${mandatoryTotal} dokumen wajib terlebih dahulu`
-                        : hasEverChecked && !hasNewFilesSinceLastCheck
-                        ? 'Tidak ada perubahan berkas baru. Unggah berkas revisi atau tambahan untuk memeriksa ulang.'
-                        : 'Mulai pemeriksaan kelayakan dokumen aspek ini'
-                    }
-                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      !canExecuteComplianceCheck || cooldownRemaining > 0
-                        ? 'bg-surface-subtle text-ink-muted cursor-not-allowed border border-stroke/50'
-                        : 'bg-brand hover:bg-brand-hover text-white cursor-pointer shadow-hz-button'
-                    }`}>
-                    {isCheckingCompliance ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                        <span>Memeriksa Kelayakan...</span>
-                      </>
-                    ) : cooldownRemaining > 0 ? (
-                      <>
-                        <Clock className="w-3.5 h-3.5 text-ink-muted" />
-                        <span>Tunggu Cooldown ({cooldownRemaining}s)</span>
-                      </>
-                    ) : !isAllMandatoryUploaded ? (
-                      <span>Cek Kelayakan • Kurang {mandatoryTotal - filledMandatoryCount} dokumen wajib</span>
-                    ) : hasEverChecked && !hasNewFilesSinceLastCheck ? (
-                      <span>Dokumen Sudah Diperiksa (Terkini)</span>
-                    ) : (
-                      <span>Cek Kelayakan Dokumen Aspek Ini</span>
-                    )}
-                  </button>
-                )}
-
-                {/* AI Action Trigger Button (Selalu tampil untuk Evaluator) */}
-                {isEvaluator && (
-                  <button
-                    type="button"
-                    disabled={isAnalyzingAi || !hasUploadedEvidence}
-                    onClick={handleTriggerAiAnalysis}
-                    title={
-                      !hasUploadedEvidence
-                        ? 'Belum ada dokumen bukti dukung yang diunggah untuk dianalisis'
-                        : 'Mulai analisis nilai indikator berdasarkan berkas bukti fisik'
-                    }
-                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      !hasUploadedEvidence
-                        ? 'bg-surface-subtle text-ink-muted border border-stroke/50 cursor-not-allowed opacity-60'
-                        : 'bg-brand hover:bg-brand-hover text-white cursor-pointer shadow-hz-button disabled:opacity-50'
-                    }`}>
-                    {isAnalyzingAi ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                        <span>Menganalisis Bukti via AI...</span>
-                      </>
-                    ) : (
-                      <span>Analisis Nilai AI (Evaluator)</span>
-                    )}
-                  </button>
-                )}
-
-                {/* Tombol Buka Halaman Berkas Bukti (URL Publik / Sinkron MenPAN) */}
-                <a
-                  href={`/shared/evidence/${evaluationId}/${aspectCode}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Buka tampilan bundel berkas bukti dukung aspek ini yang ditautkan ke portal MenPAN-RB"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface hover:bg-surface-hover text-ink border border-stroke/60 shadow-2xs transition-all">
-                  <ExternalLink className="w-3.5 h-3.5 text-ink-muted" />
-                  <span>Lihat Berkas Bukti (Tautan Publik)</span>
-                </a>
-              </div>
-
-              {/* Informative helper note for Evaluator when empty */}
-              {isEvaluator && !hasUploadedEvidence && (
-                <div className="flex items-center gap-1.5 text-xs text-ink-muted bg-surface-subtle px-3 py-1 rounded-full border border-stroke/40 w-fit">
-                  <Info className="w-3.5 h-3.5 text-ink-muted shrink-0" />
-                  <span>Analisis AI aktif setelah unit pelayanan mengunggah berkas bukti dukung.</span>
-                </div>
-              )}
-
-              {!isEvaluator && isAllMandatoryUploaded && hasEverChecked && !hasNewFilesSinceLastCheck && (
-                <div className="flex items-center gap-1.5 text-xs text-ink-muted bg-surface-subtle px-3 py-1 rounded-full border border-stroke/40 w-fit">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Seluruh berkas sudah diperiksa. Unggah berkas revisi atau lampiran baru jika ingin mengecek ulang.</span>
-                </div>
-              )}
-
-              {!isEvaluator && isAllMandatoryUploaded && cooldownRemaining > 0 && (
-                <div className="flex items-center gap-1.5 text-xs text-ink-muted bg-surface-subtle px-3 py-1 rounded-full border border-stroke/40 w-fit">
-                  <Clock className="w-3.5 h-3.5 text-ink-muted shrink-0" />
-                  <span>Pengecekan dibatasi 1 menit sekali ({cooldownRemaining} detik tersisa).</span>
-                </div>
-              )}
-            </div>
+      {/* 1. Header & Progress Banner (Compact Integrated Bento) */}
+      <div className="px-4 py-3 rounded-bento bg-surface border border-stroke/50 shadow-soft-card space-y-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap min-w-0"
+            title={
+              isEditable
+                ? `Lengkapi dokumen bukti fisik untuk seluruh indikator Aspek ${aspectName}.`
+                : `Verifikasi kelengkapan dokumen bukti fisik Aspek ${aspectName}.`
+            }>
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-light text-brand shrink-0">
+              Indikator {aspectCode === 'I' ? '1' : aspectCode === 'II' ? '2' : aspectCode === 'III' ? '3' : aspectCode === 'IV' ? '4' : aspectCode === 'V' ? '5' : aspectCode === 'VI' ? '6' : aspectCode}
+            </span>
+            <h1 className="text-sm sm:text-base font-semibold text-ink tracking-tight truncate">
+              Bukti Dukung: {aspectName}
+            </h1>
+            <span className="text-xs text-ink-muted font-normal hidden sm:inline">
+              • {isEditable ? 'Mode Lokus' : 'Mode Evaluator'}
+            </span>
           </div>
 
           {/* Compact Inline Counter */}
-          <div className="flex items-center gap-2.5 shrink-0 text-xs">
-            <span className="font-medium text-ink">Kelengkapan Wajib</span>
-            <div className="w-24 h-1.5 rounded-full bg-surface-subtle overflow-hidden">
+          <div className="flex items-center gap-2 shrink-0 text-xs self-start sm:self-auto bg-surface-subtle px-2.5 py-1 rounded-full border border-stroke/50">
+            <span className="font-medium text-ink">Kelengkapan</span>
+            <div className="w-16 sm:w-20 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
               <div
                 className="h-full bg-brand transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
@@ -1178,31 +1072,133 @@ export function AspectEvidenceWorkspace({
             </div>
             <span className="font-semibold text-ink">{progressPercent}%</span>
             <span className="text-ink-muted">
-              • {filledMandatoryCount}/{mandatoryTotal}
+              ({filledMandatoryCount}/{mandatoryTotal})
             </span>
           </div>
         </div>
-      </div>
 
-      {/* BANNER HASIL CEK KELAYAKAN DOKUMEN (KHUSUS OPD / LOKUS MANDIRI) */}
-      {!isEvaluator && complianceSummary && hasUploadedEvidence && (
-        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3.5 space-y-1.5 shadow-2xs border-l-4 border-l-slate-900">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-1.5">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-xs text-slate-900">
-                Hasil Cek Kelayakan: Aspek {aspectCode}
-              </span>
-              <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-900">
-                Kesiapan: {complianceSummary.overallReadinessScore}%
+        {/* Action Buttons & Helpers */}
+        <div className="flex items-center gap-2 flex-wrap text-xs pt-1 border-t border-stroke/40">
+          {/* Tombol Cek Kelayakan (Hanya tampil untuk OPD / Lokus Mandiri) */}
+          {!isEvaluator && (
+            <button
+              type="button"
+              disabled={!canExecuteComplianceCheck || isCheckingCompliance || cooldownRemaining > 0}
+              onClick={handleCheckDocumentCompliance}
+              title={
+                !isAllMandatoryUploaded
+                  ? `Lengkapi seluruh ${mandatoryTotal} dokumen wajib terlebih dahulu`
+                  : hasEverChecked && !hasNewFilesSinceLastCheck
+                  ? 'Tidak ada perubahan berkas baru. Unggah berkas revisi atau tambahan untuk memeriksa ulang.'
+                  : 'Mulai pemeriksaan kelayakan dokumen aspek ini'
+              }
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                !canExecuteComplianceCheck || cooldownRemaining > 0
+                  ? 'bg-surface-subtle text-ink-muted cursor-not-allowed border border-stroke/50'
+                  : 'bg-brand hover:bg-brand-hover text-white cursor-pointer shadow-hz-button'
+              }`}>
+              {isCheckingCompliance ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                  <span>Memeriksa Kelayakan...</span>
+                </>
+              ) : cooldownRemaining > 0 ? (
+                <>
+                  <Clock className="w-3.5 h-3.5 text-ink-muted" />
+                  <span>Cooldown ({cooldownRemaining}s)</span>
+                </>
+              ) : !isAllMandatoryUploaded ? (
+                <span>Cek Kelayakan • Kurang {mandatoryTotal - filledMandatoryCount} dokumen</span>
+              ) : hasEverChecked && !hasNewFilesSinceLastCheck ? (
+                <span>Dokumen Sudah Diperiksa (Terkini)</span>
+              ) : (
+                <span>Cek Kelayakan Dokumen</span>
+              )}
+            </button>
+          )}
+
+          {/* AI Action Trigger Button (Selalu tampil untuk Evaluator) */}
+          {isEvaluator && (
+            <button
+              type="button"
+              disabled={isAnalyzingAi || !hasUploadedEvidence}
+              onClick={handleTriggerAiAnalysis}
+              title={
+                !hasUploadedEvidence
+                  ? 'Belum ada dokumen bukti dukung yang diunggah untuk dianalisis'
+                  : 'Mulai analisis nilai indikator berdasarkan berkas bukti fisik'
+              }
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                !hasUploadedEvidence
+                  ? 'bg-surface-subtle text-ink-muted border border-stroke/50 cursor-not-allowed opacity-60'
+                  : 'bg-brand hover:bg-brand-hover text-white cursor-pointer shadow-hz-button disabled:opacity-50'
+              }`}>
+              {isAnalyzingAi ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                  <span>Menganalisis AI...</span>
+                </>
+              ) : (
+                <span>Analisis Nilai AI (Evaluator)</span>
+              )}
+            </button>
+          )}
+
+          {/* Tombol Buka Halaman Berkas Bukti (URL Publik / Sinkron MenPAN) */}
+          <a
+            href={`/shared/evidence/${evaluationId}/${aspectCode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Buka tampilan bundel berkas bukti dukung aspek ini yang ditautkan ke portal MenPAN-RB"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-surface hover:bg-surface-hover text-ink border border-stroke/60 shadow-2xs transition-all">
+            <ExternalLink className="w-3.5 h-3.5 text-ink-muted" />
+            <span>Tautan Publik Berkas</span>
+          </a>
+
+          {/* Informative helper notes */}
+          {isEvaluator && !hasUploadedEvidence && (
+            <span className="text-ink-muted text-[11px] inline-flex items-center gap-1">
+              <Info className="w-3 h-3 text-ink-muted shrink-0" />
+              AI aktif setelah bukti diunggah
+            </span>
+          )}
+
+          {!isEvaluator && isAllMandatoryUploaded && hasEverChecked && !hasNewFilesSinceLastCheck && (
+            <span className="text-emerald-700 dark:text-emerald-400 text-[11px] inline-flex items-center gap-1 font-medium">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+              Semua berkas telah diperiksa
+            </span>
+          )}
+
+          {!isEvaluator && isAllMandatoryUploaded && cooldownRemaining > 0 && (
+            <span className="text-ink-muted text-[11px] inline-flex items-center gap-1">
+              <Clock className="w-3 h-3 text-ink-muted shrink-0" />
+              Batas pengecekan 1 mnt ({cooldownRemaining}s)
+            </span>
+          )}
+        </div>
+
+        {/* Hasil Cek Kelayakan Dokumen (Integrated Micro Callout Strip) */}
+        {!isEvaluator && complianceSummary && hasUploadedEvidence && (
+          <div className="pt-2 border-t border-stroke/40 flex flex-col sm:flex-row sm:items-start gap-2 bg-surface-subtle/80 p-2.5 rounded-xl border border-stroke/50 text-xs">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="font-semibold text-ink">Hasil Cek:</span>
+              <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                complianceSummary.overallReadinessScore >= 80
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                  : complianceSummary.overallReadinessScore >= 50
+                  ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                  : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+              }`}>
+                Kesiapan {complianceSummary.overallReadinessScore}%
               </span>
             </div>
+            <p className="text-ink-secondary text-xs leading-relaxed flex-1">
+              {complianceSummary.overallSummary}
+            </p>
           </div>
-
-          <p className="text-xs text-slate-900 font-medium leading-relaxed">
-            {complianceSummary.overallSummary}
-          </p>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* SOKET AI PRE-EVALUATOR: LAPORAN AUDIT KHUSUS EVALUATOR (LEVEL ASPEK) */}
       {isEvaluator && evaluatorAiNote && hasUploadedEvidence && (
