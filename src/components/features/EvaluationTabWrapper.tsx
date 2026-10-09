@@ -142,16 +142,16 @@ export function EvaluationTabWrapper({
             <TabsList>
               {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
               <TabsTrigger value="f02">
-                <ClipboardList className="w-4 h-4" />
+                <ClipboardList className="w-3.5 h-3.5" />
                 <span>{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
               </TabsTrigger>
 
               {/* 2. Formulir Uji Petik: F03 */}
               <TabsTrigger value="f03">
-                <FolderHeart className="w-4 h-4" />
+                <FolderHeart className="w-3.5 h-3.5" />
                 <span>Survei F03</span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-bold transition-colors ${
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors ${
                     activeTab === 'f03'
                       ? 'bg-white/20 text-white'
                       : 'bg-surface text-ink-secondary border border-stroke/50'
@@ -162,10 +162,10 @@ export function EvaluationTabWrapper({
 
               {/* 3. Bukti Dukung */}
               <TabsTrigger value="evidence">
-                <UploadCloud className="w-4 h-4" />
+                <UploadCloud className="w-3.5 h-3.5" />
                 <span>Unggah Bukti Dukung</span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-bold transition-colors ${
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors ${
                     activeTab === 'evidence'
                       ? 'bg-white/20 text-white'
                       : incompleteCount === 0
