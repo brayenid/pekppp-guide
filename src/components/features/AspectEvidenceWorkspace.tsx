@@ -66,6 +66,7 @@ export function AspectEvidenceWorkspace({
   evaluatorAiNote = null,
   unitId,
   uploaderName = 'Admin OPD',
+  filledF02Count = 0,
   onPrev,
   onNext,
   prevLabel,
@@ -86,6 +87,7 @@ export function AspectEvidenceWorkspace({
   } | null
   unitId: string
   uploaderName?: string
+  filledF02Count?: number
   onPrev?: () => void
   onNext?: () => void
   prevLabel?: string
@@ -1074,19 +1076,28 @@ export function AspectEvidenceWorkspace({
             </h1>
           </div>
 
-          {/* Compact Inline Counter */}
-          <div className="flex items-center gap-2 shrink-0 text-xs self-start sm:self-auto bg-surface-subtle px-2.5 py-1 rounded-full border border-stroke/50">
-            <span className="font-medium text-ink">Kelengkapan</span>
-            <div className="w-16 sm:w-20 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
-              <div
-                className="h-full bg-brand transition-all duration-300 rounded-full"
-                style={{ width: `${progressPercent}%` }}
-              />
+          {/* Right: Counter kelengkapan & Status Dinilai Evaluator */}
+          <div className="flex items-center gap-2 shrink-0 text-xs self-start sm:self-auto flex-wrap">
+            {filledF02Count > 0 && (
+              <span
+                title={`${filledF02Count} dari 31 indikator formulir telah dinilai oleh Evaluator`}
+                className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                {filledF02Count} dari 31 Dinilai
+              </span>
+            )}
+            <div className="flex items-center gap-2 bg-surface-subtle px-2.5 py-1 rounded-full border border-stroke/50">
+              <span className="font-medium text-ink">Kelengkapan</span>
+              <div className="w-16 sm:w-20 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
+                <div
+                  className="h-full bg-brand transition-all duration-300 rounded-full"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="font-semibold text-ink">{progressPercent}%</span>
+              <span className="text-ink-muted">
+                ({filledMandatoryCount}/{mandatoryTotal})
+              </span>
             </div>
-            <span className="font-semibold text-ink">{progressPercent}%</span>
-            <span className="text-ink-muted">
-              ({filledMandatoryCount}/{mandatoryTotal})
-            </span>
           </div>
         </div>
 

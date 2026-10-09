@@ -901,15 +901,6 @@ export function EvaluationWorkspaceLayout({
         />
       )}
 
-      {userRole === 'OPD' && isF01Editable && hasEvaluatorScoredAny && (
-        <NoticeBanner
-          variant="success"
-          compact
-          title="Unit Anda Telah / Sedang Dinilai Oleh Evaluator"
-          description="Evaluator telah mengisi skor atau catatan rekomendasi pada beberapa indikator. Anda dapat melihat masukan evaluator dan memperbarui bukti dukung jika diperlukan."
-          badge={`${filledF02Count} dari 31 Dinilai`}
-        />
-      )}
 
       {userRole === 'SUPER_ADMIN' && (
         <div className="bg-surface-subtle/70 border border-stroke/50 rounded-2xl px-5 py-2.5 flex items-center justify-between gap-4 text-xs">
@@ -1048,6 +1039,7 @@ export function EvaluationWorkspaceLayout({
                 }
                 unitId={unitId}
                 uploaderName={unitName}
+                filledF02Count={filledF02Count}
                 prevLabel="Kembali ke Grid 6 Aspek"
                 onPrev={handleGoToEvidenceHub}
                 nextLabel={(() => {
