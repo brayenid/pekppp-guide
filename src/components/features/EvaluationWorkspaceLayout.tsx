@@ -925,8 +925,8 @@ export function EvaluationWorkspaceLayout({
       {/* Minimalist Action Ribbon (Khusus Mode Formulir Pertanyaan F01 / F02) */}
       {activeMainMode !== 'EVIDENCE' && (
         <div className="bg-surface rounded-2xl border border-stroke px-4 sm:px-5 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-soft-card mb-5">
-          {/* Left: Indicator Breadcrumb */}
-          <div className="flex items-center gap-2 text-xs">
+          {/* Left: Indicator Breadcrumb + Save Status Text */}
+          <div className="flex items-center gap-2 text-xs flex-wrap min-w-0">
             <span className="font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke text-xs shrink-0">
               #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
             </span>
@@ -934,6 +934,18 @@ export function EvaluationWorkspaceLayout({
             <span className="text-ink-secondary font-medium truncate max-w-[280px] sm:max-w-md">
               {activeScoreItem.indicator.aspect.name}
             </span>
+            <span className="text-stroke font-bold hidden sm:inline">•</span>
+            {hasUnsavedChanges ? (
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span>Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 shrink-0">
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Telah Disimpan</span>
+              </span>
+            )}
           </div>
 
           {/* Right: Progress & Action */}

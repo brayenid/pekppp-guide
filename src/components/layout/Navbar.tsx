@@ -144,9 +144,7 @@ export function Navbar() {
                 Lihat Situs Publik →
               </Link>
             </div>
-          ) : isEvaluation ? (
-            <EvaluationNavbarStatus userRole={user?.role} />
-          ) : (
+          ) : isEvaluation ? null : (
             <div className="hidden lg:flex items-center gap-1 p-1.5 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href
