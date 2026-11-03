@@ -226,7 +226,7 @@ export function Navbar() {
 
           {/* Right Section: Notification Bell + Profile (Desktop) + Hamburger (Mobile) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {isEvaluation && <EvaluationNavbarStatus className="flex text-white" />}
+            {isEvaluation && <EvaluationNavbarStatus variant="navbar" className="flex" />}
             {user && <NotificationBell />}
 
             {/* Desktop User Dropdown */}
@@ -243,13 +243,13 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Mobile Hamburger Toggle Button (min 44x44px touch target) */}
+            {/* Mobile Hamburger Toggle Button (unified 36x36px matching Bell) */}
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
               aria-label="Buka menu navigasi"
-              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:border-stroke dark:text-ink flex items-center justify-center transition-all cursor-pointer shadow-sm">
-              <Menu className="w-4.5 h-4.5" />
+              className="lg:hidden w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:border-stroke dark:text-ink flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0">
+              <Menu className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -423,13 +423,19 @@ export function Navbar() {
   )
 }
 
-export function EvaluationNavbarStatus({ userRole, className }: { userRole?: string; className?: string }) {
+export function EvaluationNavbarStatus({
+  userRole,
+  className,
+  variant = 'navbar'
+}: {
+  userRole?: string
+  className?: string
+  variant?: 'navbar' | 'page'
+}) {
   const [hasUnsaved, setHasUnsaved] = useState<boolean>(false)
   const [unsavedCount, setUnsavedCount] = useState<number>(0)
-  const [showTransientIcon, setShowTransientIcon] = useState<boolean>(false)
   const [justChanged, setJustChanged] = useState<boolean>(false)
   const prevHasUnsavedRef = useRef<boolean | null>(null)
-  const iconTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const handleStatusChange = (e: Event) => {
@@ -438,23 +444,13 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
         const nextHasUnsaved = customEvent.detail.hasUnsaved
         const nextCount = customEvent.detail.count
 
-        // Trigger transient icon & animation only when status genuinely toggles
         if (prevHasUnsavedRef.current !== null && prevHasUnsavedRef.current !== nextHasUnsaved) {
           setJustChanged(true)
-          setShowTransientIcon(true)
-
-          if (iconTimerRef.current) clearTimeout(iconTimerRef.current)
-          iconTimerRef.current = setTimeout(() => {
-            setShowTransientIcon(false)
-          }, 3000)
-
           const popTimer = setTimeout(() => setJustChanged(false), 500)
           prevHasUnsavedRef.current = nextHasUnsaved
           setHasUnsaved(nextHasUnsaved)
           setUnsavedCount(nextCount)
-          return () => {
-            clearTimeout(popTimer)
-          }
+          return () => clearTimeout(popTimer)
         }
 
         prevHasUnsavedRef.current = nextHasUnsaved
@@ -466,71 +462,64 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
     window.addEventListener('evaluation-status-change', handleStatusChange)
     return () => {
       window.removeEventListener('evaluation-status-change', handleStatusChange)
-      if (iconTimerRef.current) clearTimeout(iconTimerRef.current)
     }
   }, [])
 
-  return (
-    <div
-      title={hasUnsaved ? `Belum Disimpan (${unsavedCount} perubahan)` : 'Seluruh perubahan telah tersimpan'}
-      className={`${className || 'hidden lg:flex'} items-center px-2 sm:px-3.5 py-1 sm:py-1.5 border rounded-full transition-all duration-300 ${
-        hasUnsaved
-          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60 shadow-2xs'
-          : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60 shadow-2xs'
-      }`}>
+  const tooltipText = hasUnsaved
+    ? `Belum Disimpan (${unsavedCount} perubahan)`
+    : 'Seluruh perubahan telah tersimpan'
+
+  if (variant === 'page') {
+    return (
       <div
-        className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-transform duration-300 ${
-          justChanged ? 'animate-status-pop' : ''
-        }`}>
+        title={tooltipText}
+        className={`${className || 'flex'} h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl border items-center gap-1.5 transition-colors shrink-0 ${
+          hasUnsaved
+            ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300'
+            : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+        } ${justChanged ? 'animate-status-pop' : ''}`}>
         {hasUnsaved ? (
-          <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
-            {/* Morphing Icon Container */}
-            <span className="relative flex items-center justify-center w-3.5 h-3.5">
-              {/* Alert Icon */}
-              <AlertCircle
-                className={`absolute w-3.5 h-3.5 text-amber-600 dark:text-amber-300 transition-all duration-500 ease-out ${
-                  showTransientIcon
-                    ? 'opacity-100 scale-100 rotate-0'
-                    : 'opacity-0 scale-50 -rotate-45 pointer-events-none'
-                }`}
-              />
-              {/* Dotted Indicator */}
-              <span
-                className={`w-2 h-2 rounded-full bg-amber-500 transition-all duration-500 ease-out ${
-                  showTransientIcon
-                    ? 'opacity-0 scale-0'
-                    : 'opacity-100 scale-100 shadow-[0_0_6px_rgba(245,158,11,0.5)]'
-                }`}
-              />
-            </span>
-            <span className="hidden sm:inline">Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
-            <span className="sm:hidden text-[11px] font-mono">{unsavedCount > 0 ? `${unsavedCount}` : '!'}</span>
-          </span>
+          <>
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-xs font-medium">Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
+          </>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
-            {/* Morphing Icon Container */}
-            <span className="relative flex items-center justify-center w-3.5 h-3.5">
-              {/* Checkmark Icon */}
-              <Check
-                className={`absolute w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300 transition-all duration-500 ease-out ${
-                  showTransientIcon
-                    ? 'opacity-100 scale-100 rotate-0'
-                    : 'opacity-0 scale-50 rotate-45 pointer-events-none'
-                }`}
-              />
-              {/* Dotted Indicator with soft bloom on reveal */}
-              <span
-                className={`w-2 h-2 rounded-full bg-emerald-500 transition-all duration-500 ease-out ${
-                  showTransientIcon
-                    ? 'opacity-0 scale-0'
-                    : 'opacity-100 scale-100 shadow-[0_0_6px_rgba(16,185,129,0.5)]'
-                }`}
-              />
-            </span>
-            <span className="hidden sm:inline">Telah Disimpan</span>
-          </span>
+          <>
+            <Check className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-xs font-medium">Tersimpan</span>
+          </>
         )}
       </div>
+    )
+  }
+
+  // Variant: navbar
+  return (
+    <div
+      title={tooltipText}
+      className={`${className || 'flex'} relative h-9 w-9 sm:w-auto sm:px-3 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:border-stroke dark:text-ink items-center justify-center sm:justify-start gap-1.5 shrink-0 shadow-sm transition-all select-none ${
+        justChanged ? 'animate-status-pop' : ''
+      }`}>
+      {hasUnsaved ? (
+        <>
+          <AlertCircle className="w-4 h-4 text-amber-300 dark:text-amber-400 shrink-0" />
+          <span className="hidden sm:inline text-xs font-medium text-amber-200 dark:text-amber-300 whitespace-nowrap">
+            Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}
+          </span>
+          {unsavedCount > 0 && (
+            <span className="sm:hidden absolute -top-1 -right-1 min-w-[18px] h-4.5 px-1 rounded-full bg-amber-500 text-white text-[9px] font-mono font-bold flex items-center justify-center border-2 border-brand dark:border-[#0B0C10] shadow-xs">
+              {unsavedCount > 9 ? '9+' : unsavedCount}
+            </span>
+          )}
+        </>
+      ) : (
+        <>
+          <Check className="w-4 h-4 text-emerald-300 dark:text-emerald-400 shrink-0" />
+          <span className="hidden sm:inline text-xs font-medium text-white/95 dark:text-ink whitespace-nowrap">
+            Tersimpan
+          </span>
+        </>
+      )}
     </div>
   )
 }

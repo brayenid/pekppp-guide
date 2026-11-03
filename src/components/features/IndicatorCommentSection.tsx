@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { addCommentAction, toggleResolveCommentAction } from '../../actions/comment-actions'
-import { MessageSquare, Send, CheckCircle2, Reply, CornerDownRight, User, Loader2, ChevronUp } from 'lucide-react'
+import { MessageSquare, Send, CheckCircle2, Reply, CornerDownRight, User, Loader2, ChevronUp, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
 export interface CommentItem {
@@ -17,6 +17,11 @@ export interface CommentItem {
   replies?: CommentItem[]
 }
 
+function formatCommentDate(date: Date | string) {
+  const d = new Date(date)
+  return `${d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • ${d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
+}
+
 export function IndicatorCommentSection({
   evaluationScoreId,
   comments,
@@ -29,7 +34,6 @@ export function IndicatorCommentSection({
   authorId: string
 }) {
   const hasComments = comments && comments.length > 0
-  // If there are already comments, show them directly without needing a button!
   const [isOpen, setIsOpen] = useState(hasComments)
   const [message, setMessage] = useState('')
   const [replyParentId, setReplyParentId] = useState<string | null>(null)
@@ -83,80 +87,69 @@ export function IndicatorCommentSection({
   const handleToggleResolve = async (commentId: string, currentResolved: boolean) => {
     try {
       await toggleResolveCommentAction(commentId, !currentResolved, `/evaluasi/${unitId}`)
-      toast.success(!currentResolved ? 'Thread ditandai Selesai (Resolved)!' : 'Thread dibuka kembali.')
+      toast.success(!currentResolved ? 'Thread ditandai Selesai!' : 'Thread dibuka kembali.')
     } catch {
-      toast.error('Gagal mengubah status resolve.')
+      toast.error('Gagal mengubah status.')
     }
   }
 
   return (
     <>
+      {/* CASE 1: No comments yet and closed -> Slim, low-profile trigger */}
       {!hasComments && !isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="w-full text-left p-4 sm:p-5 rounded-bento border border-stroke bg-surface shadow-soft-card hover:border-brand/40 hover:bg-surface-subtle/30 transition-all flex items-center justify-between gap-3 group cursor-pointer">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-brand-light text-brand flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
-              <MessageSquare className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-xs sm:text-sm text-ink group-hover:text-brand transition-colors">
-                  Diskusi &amp; Catatan Klarifikasi Soal
-                </span>
-                <span className="text-[10px] font-medium text-brand bg-brand-light px-2 py-0.5 rounded border border-brand/20">
-                  Komentar
-                </span>
-              </div>
-              <p className="text-[11px] sm:text-xs text-ink-muted">
-                Punya pertanyaan atau butuh klarifikasi bukti dukung indikator ini dengan Evaluator/OPD?
-              </p>
-            </div>
+          className="w-full text-left px-3.5 py-2.5 rounded-xl border border-stroke/70 bg-surface hover:bg-surface-subtle/50 transition-all flex items-center justify-between gap-3 group cursor-pointer">
+          <div className="flex items-center gap-2 min-w-0">
+            <MessageSquare className="w-3.5 h-3.5 text-brand shrink-0" />
+            <span className="text-xs font-medium text-ink group-hover:text-brand transition-colors truncate">
+              Diskusi &amp; Catatan Klarifikasi Soal
+            </span>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-subtle group-hover:bg-brand group-hover:text-white text-ink transition-colors shrink-0 border border-stroke/50">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Tulis Komentar</span>
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-brand group-hover:underline shrink-0">
+            <Plus className="w-3.5 h-3.5" />
+            <span>Tulis Catatan</span>
           </span>
         </button>
       )}
 
-      {/* CASE 2: Has comments OR User clicked CTA -> Show full discussion directly */}
+      {/* CASE 2: Has comments OR User clicked CTA -> Compact modern thread */}
       {(hasComments || isOpen) && (
-        <div className="rounded-bento border border-stroke bg-surface shadow-soft-card p-5 sm:p-6 space-y-4">
+        <div className="rounded-xl border border-stroke/70 bg-surface shadow-xs p-3 sm:p-4 space-y-3">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-stroke/60">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-brand" />
-              <span className="font-semibold text-xs sm:text-sm text-ink">
-                Diskusi &amp; Catatan Klarifikasi Soal
+          <div className="flex items-center justify-between pb-2 border-b border-stroke/50 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <MessageSquare className="w-3.5 h-3.5 text-brand shrink-0" />
+              <span className="font-semibold text-xs text-ink truncate">
+                Diskusi &amp; Catatan Klarifikasi
               </span>
               {hasComments && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-light text-brand border border-brand/20">
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-medium bg-brand/10 text-brand border border-brand/20">
                   {comments.length}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold text-ink-muted bg-surface-elevated px-2.5 py-0.5 rounded-full border border-stroke">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded-full border border-stroke/50">
                 Evaluator &amp; OPD
               </span>
               {!hasComments && (
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded-md text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer transition-colors"
+                  className="p-1 rounded text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
                   title="Tutup">
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
           </div>
 
           {/* Form Input Komentar */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <textarea
               rows={2}
               value={message}
@@ -168,19 +161,19 @@ export function IndicatorCommentSection({
                 }
               }}
               placeholder="Tulis catatan atau klarifikasi bukti dukung..."
-              className="w-full p-3 text-xs rounded-xl border border-stroke bg-surface-elevated text-ink placeholder:text-ink-muted/80 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none leading-relaxed transition-all shadow-2xs"
+              className="w-full p-2.5 text-xs rounded-lg border border-stroke bg-surface-elevated text-ink placeholder:text-ink-muted/70 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none leading-relaxed transition-all shadow-2xs"
             />
 
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-ink-muted">
-                Tekan <kbd className="px-1.5 py-0.5 rounded bg-surface border border-stroke font-mono text-[10px] text-ink font-semibold">Ctrl+Enter</kbd> untuk kirim
+              <span className="hidden sm:inline text-[10px] text-ink-muted">
+                Tekan <kbd className="px-1 py-0.2 rounded bg-surface border border-stroke font-mono text-[9px] text-ink">Ctrl+Enter</kbd> untuk kirim
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 ml-auto">
                 {!hasComments && (
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="px-3 py-1 text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-subtle rounded-lg transition-colors cursor-pointer">
+                    className="px-2.5 py-1 text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-subtle rounded-md transition-colors cursor-pointer">
                     Batal
                   </button>
                 )}
@@ -188,8 +181,8 @@ export function IndicatorCommentSection({
                   type="button"
                   onClick={() => handleAddComment()}
                   disabled={loading || !message.trim()}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
-                  {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                  {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
                   <span>Kirim</span>
                 </button>
               </div>
@@ -198,61 +191,65 @@ export function IndicatorCommentSection({
 
           {/* List of Comment Threads */}
           {hasComments && (
-            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 divide-y divide-stroke/40 pt-1">
               {comments.map((c) => (
                 <div
                   key={c.id}
-                  className={`p-4 rounded-xl border text-xs space-y-2.5 ${
-                    c.isResolved ? 'bg-pastel-green/15 border-pastel-green-border' : 'bg-surface border border-stroke shadow-2xs'
+                  className={`pt-2.5 first:pt-0 space-y-1.5 ${
+                    c.isResolved ? 'opacity-80' : ''
                   }`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-brand/10 flex items-center justify-center text-brand font-medium text-xs">
-                        <User className="w-3.5 h-3.5" />
+                  {/* Author Header */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                      <div className="w-5 h-5 rounded-full bg-brand/10 dark:bg-brand/20 flex items-center justify-center text-brand shrink-0">
+                        <User className="w-3 h-3" />
                       </div>
-                      <span className="font-medium text-ink text-xs">{c.author?.fullName || 'Evaluator'}</span>
-                      <span className="text-[11px] text-ink-muted">
-                        {new Date(c.createdAt).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}{' '}
-                        •{' '}
-                        {new Date(c.createdAt).toLocaleTimeString('id-ID', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                      <span className="font-semibold text-xs text-ink truncate">
+                        {c.author?.fullName || 'Evaluator'}
+                      </span>
+                      <span className="text-[10px] text-ink-muted shrink-0 hidden xs:inline">
+                        • {formatCommentDate(c.createdAt)}
                       </span>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => handleToggleResolve(c.id, c.isResolved)}
-                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border transition-colors cursor-pointer ${
+                      title={c.isResolved ? 'Thread ditandai selesai' : 'Tandai selesai'}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors cursor-pointer shrink-0 ${
                         c.isResolved
-                          ? 'bg-pastel-green text-pastel-green-text border-pastel-green-border'
-                          : 'bg-surface-elevated text-ink-secondary border border-stroke hover:bg-surface-subtle hover:text-ink'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                          : 'bg-surface-elevated text-ink-muted border-stroke hover:text-ink hover:border-ink-muted'
                       }`}>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {c.isResolved ? 'Selesai' : 'Tandai Selesai'}
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>{c.isResolved ? 'Selesai' : 'Tandai Selesai'}</span>
                     </button>
                   </div>
 
-                  <p className="text-ink leading-relaxed text-xs">{c.message}</p>
+                  {/* Mobile timestamp below header if screen is too narrow */}
+                  <div className="xs:hidden pl-6.5 text-[10px] text-ink-muted -mt-0.5">
+                    {formatCommentDate(c.createdAt)}
+                  </div>
 
-                  {/* Reply Button */}
-                  <div className="pt-0.5">
+                  {/* Comment Body */}
+                  <p className="text-xs text-ink leading-relaxed pl-6.5">
+                    {c.message}
+                  </p>
+
+                  {/* Reply Button Trigger */}
+                  <div className="pl-6.5 pt-0.5">
                     <button
                       type="button"
                       onClick={() => setReplyParentId(replyParentId === c.id ? null : c.id)}
-                      className="text-xs text-brand hover:underline font-medium flex items-center gap-1 cursor-pointer">
-                      <Reply className="w-3.5 h-3.5" /> Balas
+                      className="inline-flex items-center gap-1 text-[11px] text-ink-muted hover:text-brand font-medium cursor-pointer transition-colors">
+                      <Reply className="w-3 h-3" />
+                      <span>Balas</span>
                     </button>
                   </div>
 
                   {/* Inline Reply Input */}
                   {replyParentId === c.id && (
-                    <div className="mt-2 pl-3 border-l-2 border-brand flex gap-2">
+                    <div className="ml-6.5 mt-1.5 pl-2.5 border-l-2 border-brand/40 flex items-center gap-1.5">
                       <input
                         type="text"
                         value={replyMessage}
@@ -264,42 +261,37 @@ export function IndicatorCommentSection({
                           }
                         }}
                         placeholder="Tulis balasan..."
-                        className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-stroke bg-surface-elevated focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted shadow-2xs"
+                        className="flex-1 px-2.5 py-1 text-xs rounded-md border border-stroke bg-surface-elevated focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted/70"
                       />
                       <button
                         type="button"
                         onClick={() => handleReply(c.id)}
-                        className="px-3.5 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-colors cursor-pointer shadow-hz-button">
+                        disabled={loading || !replyMessage.trim()}
+                        className="px-2.5 py-1 rounded-md bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-colors disabled:opacity-40 cursor-pointer shrink-0">
                         Kirim
                       </button>
                     </div>
                   )}
 
-                  {/* Nested Replies */}
+                  {/* Nested Replies Stream */}
                   {c.replies && c.replies.length > 0 && (
-                    <div className="pl-3 mt-2 border-l-2 border-brand/50 space-y-2">
+                    <div className="ml-6.5 mt-2 pl-2.5 border-l-2 border-brand/25 dark:border-brand/35 space-y-1.5">
                       {c.replies.map((reply) => (
-                        <div key={reply.id} className="bg-surface-elevated p-3 rounded-xl border border-stroke">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 font-medium text-ink text-xs">
-                              <CornerDownRight className="w-3.5 h-3.5 text-ink-muted" />
+                        <div key={reply.id} className="text-xs space-y-0.5 py-0.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <CornerDownRight className="w-3 h-3 text-brand/60 shrink-0" />
+                            <span className="font-semibold text-ink text-[11px]">
                               {reply.author?.fullName || 'OPD'}
-                            </div>
+                            </span>
                             {reply.createdAt && (
                               <span className="text-[10px] text-ink-muted">
-                                {new Date(reply.createdAt).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
-                                  month: 'short'
-                                })}{' '}
-                                •{' '}
-                                {new Date(reply.createdAt).toLocaleTimeString('id-ID', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                • {formatCommentDate(reply.createdAt)}
                               </span>
                             )}
                           </div>
-                          <p className="text-ink-secondary text-xs mt-1 leading-relaxed">{reply.message}</p>
+                          <p className="text-ink-secondary dark:text-ink-muted text-xs pl-4.5 leading-relaxed">
+                            {reply.message}
+                          </p>
                         </div>
                       ))}
                     </div>

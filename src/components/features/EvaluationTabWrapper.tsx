@@ -193,7 +193,7 @@ export function EvaluationTabWrapper({
                 ? 'opacity-100 max-w-[260px] translate-x-0 scale-100'
                 : 'opacity-0 max-w-0 -translate-x-2 scale-95 pointer-events-none'
             }`}>
-            <EvaluationNavbarStatus userRole={userRole} className="flex" />
+            <EvaluationNavbarStatus userRole={userRole} variant="page" className="flex" />
           </div>
         </div>
 
