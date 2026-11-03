@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import {
   CalendarDays,
   Building2,
@@ -100,22 +100,28 @@ import { PeriodTimelineResult } from '../../../../services/period-window-service
 
 export default function PeriodDetailClient({
   period,
-  evaluations: initialEvaluations = [],
+  initialEvaluations = [],
+  totalCount: initialTotalCount = 0,
+  enrolledUnitIds = [],
+  initialStats,
   allUnits = [],
   timelineResult
 }: {
   period: { id: string; year: number; isOpen: boolean; isPublished?: boolean; targetF03Quota?: number | null; f03CalculationMethod?: string | null; title?: string | null }
-  evaluations: EvaluationRow[]
+  initialEvaluations?: EvaluationRow[]
+  totalCount?: number
+  enrolledUnitIds?: string[]
+  initialStats?: {
+    totalUnits: number
+    priorityCount: number
+    finishedCount: number
+    avgIpp: number
+  }
   allUnits: UnitItem[]
   timelineResult?: PeriodTimelineResult
 }) {
   const router = useRouter()
-  const [evaluations, setEvaluations] = useState<EvaluationRow[]>(initialEvaluations)
   const [activeTab, setActiveTab] = useState<'lokus' | 'jadwal'>('lokus')
-
-  useEffect(() => {
-    setEvaluations(initialEvaluations)
-  }, [initialEvaluations])
 
   const [loading, setLoading] = useState(false)
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false)
@@ -212,7 +218,10 @@ export default function PeriodDetailClient({
   }
 
   // Enrolled unit IDs set for Modal
-  const initialEnrolled = new Set(evaluations.map((e) => e.unitId))
+  const initialEnrolled = useMemo(
+    () => new Set(enrolledUnitIds.length > 0 ? enrolledUnitIds : initialEvaluations.map((e) => e.unitId)),
+    [enrolledUnitIds, initialEvaluations]
+  )
   const [selectedUnitIds, setSelectedUnitIds] = useState<Set<string>>(initialEnrolled)
 
   // Table filter & search
@@ -221,33 +230,125 @@ export default function PeriodDetailClient({
   const [priorityFilter, setPriorityFilter] = useState<'ALL' | 'PRIORITY' | 'REGULAR'>('ALL')
   const [updateFilter, setUpdateFilter] = useState<'ALL' | 'UPDATED' | 'REVISION'>('ALL')
 
+  // Server-side paginated state (real network refetch)
+  const [items, setItems] = useState<EvaluationRow[]>(initialEvaluations)
+  const [page, setPage] = useState<number>(1)
+  const [total, setTotal] = useState<number>(initialTotalCount || initialEvaluations.length)
+  const [hasMore, setHasMore] = useState<boolean>(initialEvaluations.length < (initialTotalCount || initialEvaluations.length))
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const isInitialMount = useRef<boolean>(true)
+
   // Categories list
-  const categories = Array.from(
-    new Map(
-      allUnits
-        .filter((u) => u.category)
-        .map((u) => [u.category!.id, { id: u.category!.id, name: u.category!.name }])
-    ).values()
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          allUnits
+            .filter((u) => u.category)
+            .map((u) => [u.category!.id, { id: u.category!.id, name: u.category!.name }])
+        ).values()
+      ),
+    [allUnits]
   )
 
-  // Filtered Evaluations for Table
-  const filteredEvaluations = evaluations.filter((ev) => {
-    const matchCat =
-      categoryFilter === 'ALL' ||
-      ev.unit.categoryId === categoryFilter ||
-      ev.unit.category?.id === categoryFilter ||
-      ev.unit.category?.name === categoryFilter
-    const matchSearch = ev.unit.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchPriority =
-      priorityFilter === 'ALL' ||
-      (priorityFilter === 'PRIORITY' && !!ev.isPriority) ||
-      (priorityFilter === 'REGULAR' && !ev.isPriority)
-    const matchUpdate =
-      updateFilter === 'ALL' ||
-      (updateFilter === 'UPDATED' && !!ev.recentUpdate) ||
-      (updateFilter === 'REVISION' && ev.recentUpdate?.type === 'F01_REVISION')
-    return matchCat && matchSearch && matchPriority && matchUpdate
-  })
+  // Real refetch saat filter atau pencarian berubah
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
+    let isCancelled = false
+    const fetchFiltered = async () => {
+      setIsLoadingMore(true)
+      try {
+        const params = new URLSearchParams()
+        params.set('page', '1')
+        params.set('limit', '15')
+        if (searchTerm.trim()) {
+          params.set('searchTerm', searchTerm.trim())
+        }
+        params.set('categoryFilter', categoryFilter)
+        params.set('priorityFilter', priorityFilter)
+        params.set('updateFilter', updateFilter)
+
+        const res = await fetch(`/api/admin/periode/${period.year}/evaluations?${params.toString()}`)
+        if (!res.ok) throw new Error('Gagal memuat lokus periode')
+        const data = await res.json()
+        if (!isCancelled && data.success && Array.isArray(data.items)) {
+          setItems(data.items)
+          setPage(1)
+          setTotal(data.total)
+          setHasMore(data.hasMore)
+        }
+      } catch (err) {
+        console.error('Error fetching filtered evaluations:', err)
+      } finally {
+        if (!isCancelled) setIsLoadingMore(false)
+      }
+    }
+
+    fetchFiltered()
+    return () => {
+      isCancelled = true
+    }
+  }, [searchTerm, categoryFilter, priorityFilter, updateFilter, period.year])
+
+  // Real refetch saat scrolling (auto loadmore)
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return
+    setIsLoadingMore(true)
+
+    try {
+      const nextPage = page + 1
+      const params = new URLSearchParams()
+      params.set('page', String(nextPage))
+      params.set('limit', '15')
+      if (searchTerm.trim()) {
+        params.set('searchTerm', searchTerm.trim())
+      }
+      params.set('categoryFilter', categoryFilter)
+      params.set('priorityFilter', priorityFilter)
+      params.set('updateFilter', updateFilter)
+
+      const res = await fetch(`/api/admin/periode/${period.year}/evaluations?${params.toString()}`)
+      if (!res.ok) throw new Error('Gagal memuat halaman berikutnya')
+      const data = await res.json()
+      if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+        setItems((prev) => [...prev, ...data.items])
+        setPage(nextPage)
+        setTotal(data.total)
+        setHasMore(data.hasMore)
+      } else {
+        setHasMore(false)
+      }
+    } catch (err) {
+      console.error('Error loading more evaluations:', err)
+      setHasMore(false)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }, [isLoadingMore, hasMore, page, period.year, searchTerm, categoryFilter, priorityFilter, updateFilter])
+
+  // IntersectionObserver untuk auto refetch
+  useEffect(() => {
+    if (!hasMore || isLoadingMore) return
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore && hasMore) {
+          loadMore()
+        }
+      },
+      { root: null, rootMargin: '250px', threshold: 0.1 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, isLoadingMore, loadMore])
 
   // Filtered Units for Modal
   const [modalSearch, setModalSearch] = useState('')
@@ -263,15 +364,11 @@ export default function PeriodDetailClient({
     return matchCat && matchSearch
   })
 
-  // Stats
-  const totalUnits = evaluations.length
-  const priorityCount = evaluations.filter((e) => e.isPriority).length
-  const finishedCount = evaluations.filter((e) => e.isFinished).length
-  const ratedUnits = evaluations.filter((e) => e.finalIppScore > 0)
-  const avgIpp =
-    ratedUnits.length > 0
-      ? ratedUnits.reduce((acc, e) => acc + e.finalIppScore, 0) / ratedUnits.length
-      : 0
+  // Global Stats
+  const totalUnits = initialStats?.totalUnits ?? total
+  const priorityCount = initialStats?.priorityCount ?? items.filter((e) => e.isPriority).length
+  const finishedCount = initialStats?.finishedCount ?? items.filter((e) => e.isFinished).length
+  const avgIpp = initialStats?.avgIpp ?? 0
 
   // Predicate Helper
   const getPredicateBadge = (score: number) => {
@@ -365,7 +462,7 @@ export default function PeriodDetailClient({
   const handleToggleFinished = async (ev: EvaluationRow) => {
     const nextFinished = !ev.isFinished
     // Optimistic UI update
-    setEvaluations((prev) =>
+    setItems((prev) =>
       prev.map((item) => (item.id === ev.id ? { ...item, isFinished: nextFinished } : item))
     )
 
@@ -379,14 +476,14 @@ export default function PeriodDetailClient({
         )
       } else {
         // Rollback
-        setEvaluations((prev) =>
+        setItems((prev) =>
           prev.map((item) => (item.id === ev.id ? { ...item, isFinished: ev.isFinished } : item))
         )
         toast.error('Gagal mengubah status selesai.')
       }
     } catch {
       // Rollback
-      setEvaluations((prev) =>
+      setItems((prev) =>
         prev.map((item) => (item.id === ev.id ? { ...item, isFinished: ev.isFinished } : item))
       )
       toast.error('Terjadi kesalahan koneksi.')
@@ -396,7 +493,7 @@ export default function PeriodDetailClient({
   const handleTogglePriority = async (ev: EvaluationRow) => {
     const nextState = !ev.isPriority
     // Optimistic UI update (Instant feedback tanpa reload / refetch)
-    setEvaluations((prev) =>
+    setItems((prev) =>
       prev.map((item) => (item.id === ev.id ? { ...item, isPriority: nextState } : item))
     )
 
@@ -410,14 +507,14 @@ export default function PeriodDetailClient({
         )
       } else {
         // Rollback if failed
-        setEvaluations((prev) =>
+        setItems((prev) =>
           prev.map((item) => (item.id === ev.id ? { ...item, isPriority: ev.isPriority } : item))
         )
         toast.error('Gagal memperbarui status prioritas.')
       }
     } catch {
       // Rollback if network error
-      setEvaluations((prev) =>
+      setItems((prev) =>
         prev.map((item) => (item.id === ev.id ? { ...item, isPriority: ev.isPriority } : item))
       )
       toast.error('Terjadi kesalahan koneksi.')
@@ -492,7 +589,7 @@ export default function PeriodDetailClient({
                     <button
                       onClick={() => {
                         setIsActionDropdownOpen(false)
-                        setSelectedUnitIds(new Set(evaluations.map((e) => e.unitId)))
+                        setSelectedUnitIds(new Set(enrolledUnitIds.length > 0 ? enrolledUnitIds : items.map((e) => e.unitId)))
                         setIsEnrollModalOpen(true)
                       }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
@@ -718,20 +815,22 @@ export default function PeriodDetailClient({
       /* Unified Table Card */
       <Card padding="none">
         {/* Table Content */}
-        {filteredEvaluations.length === 0 ? (
+        {items.length === 0 ? (
           <div className="p-10 text-center space-y-3">
             <Building2 className="w-9 h-9 text-ink-muted mx-auto" />
             <h3 className="font-medium text-ink text-sm">
-              {evaluations.length === 0
-                ? 'Belum Ada Lokus Terdaftar'
-                : 'Tidak Ada Lokus yang Cocok'}
+              {isLoadingMore
+                ? 'Memuat data dari server...'
+                : total === 0
+                  ? 'Belum Ada Lokus Terdaftar'
+                  : 'Tidak Ada Lokus yang Cocok'}
             </h3>
             <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed">
-              {evaluations.length === 0
+              {total === 0
                 ? `Belum ada lokus unit kerja yang didaftarkan pada Evaluasi PEKPPP Tahun ${period.year}.`
                 : 'Tidak ada lokus peserta yang sesuai dengan kata kunci pencarian atau filter yang dipilih.'}
             </p>
-            {evaluations.length === 0 ? (
+            {total === 0 ? (
               <div className="pt-1">
                 <Button
                   variant="brand"
@@ -772,7 +871,7 @@ export default function PeriodDetailClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-stroke/25">
-                {filteredEvaluations.map((ev) => {
+                {items.map((ev) => {
                   const filledScores = ev.scores.filter((s) => s.score !== null).length
                   const f01Count = ev.scores.filter((s) => s.f01Submitted).length
                   const f03Count = ev._count.f03Respondents || 0
@@ -998,6 +1097,39 @@ export default function PeriodDetailClient({
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Sentinel & Auto Load More Indicator (Server-Side Refetch) */}
+        {hasMore && (
+          <div ref={sentinelRef} className="p-4 text-center border-t border-stroke/40 bg-surface-subtle/30">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-muted">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                <span>
+                  {isLoadingMore
+                    ? 'Memuat lokus berikutnya dari server...'
+                    : `Menampilkan ${items.length} dari ${total} lokus peserta`}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                disabled={isLoadingMore}
+                onClick={() => loadMore()}
+                className="text-xs font-semibold text-brand hover:text-brand-hover hover:underline cursor-pointer disabled:opacity-50">
+                {isLoadingMore
+                  ? 'Memuat...'
+                  : `Muat lebih banyak (${Math.min(15, total - items.length)} tersisa)`}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Footer saat semua data sudah dimuat */}
+        {!hasMore && total > 15 && (
+          <div className="py-2.5 px-4 border-t border-stroke/40 bg-surface-subtle/20 text-center text-xs text-ink-muted font-normal">
+            Menampilkan seluruh {total} lokus peserta
           </div>
         )}
       </Card>

@@ -85,10 +85,27 @@ export default async function PeriodDetailPage({
     }
   })
 
+  const totalUnits = evaluationsWithUpdates.length
+  const priorityCount = evaluationsWithUpdates.filter((e) => e.isPriority).length
+  const finishedCount = evaluationsWithUpdates.filter((e) => e.isFinished).length
+  const ratedUnits = evaluationsWithUpdates.filter((e) => e.finalIppScore > 0)
+  const avgIpp =
+    ratedUnits.length > 0
+      ? ratedUnits.reduce((acc, curr) => acc + curr.finalIppScore, 0) / ratedUnits.length
+      : 0
+
   return (
     <PeriodDetailClient
       period={period}
-      evaluations={evaluationsWithUpdates as any}
+      initialEvaluations={evaluationsWithUpdates.slice(0, 15) as any}
+      totalCount={totalUnits}
+      enrolledUnitIds={unitIds}
+      initialStats={{
+        totalUnits,
+        priorityCount,
+        finishedCount,
+        avgIpp
+      }}
       allUnits={allUnits}
       timelineResult={timelineResult as any}
     />
