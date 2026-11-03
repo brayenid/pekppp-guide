@@ -1187,7 +1187,7 @@ export function AspectEvidenceWorkspace({
                 : `Verifikasi kelengkapan dokumen bukti fisik ${resolvedAspectName}.`
             }>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-light text-brand shrink-0">
-              Indikator {indicatorNumberLabel}
+              Aspek {indicatorNumberLabel}
             </span>
             <h1 className="text-sm sm:text-base font-semibold text-ink tracking-tight truncate">
               {resolvedAspectName}
@@ -1344,7 +1344,7 @@ export function AspectEvidenceWorkspace({
 
       {/* SOKET AI PRE-EVALUATOR: LAPORAN AUDIT KHUSUS EVALUATOR (LEVEL ASPEK) */}
       {isEvaluator && evaluatorAiNote && hasUploadedEvidence && (
-        <div className="rounded-2xl border border-stroke/50 bg-surface-subtle p-5 space-y-3 shadow-soft-card border-l-4 border-l-brand">
+        <div className="rounded-2xl border border-stroke/70 bg-surface-subtle p-4 sm:p-5 space-y-3 shadow-soft-card">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stroke/40 pb-2.5">
             <div className="flex items-center gap-2">
               <span className="font-medium text-xs sm:text-sm text-ink">
@@ -2101,7 +2101,7 @@ export function AspectEvidenceWorkspace({
                         <button
                           type="button"
                           onClick={() => setDeleteTarget(slot)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-ink-muted hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-200 transition-colors cursor-pointer"
                           title="Hapus berkas tambahan">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

@@ -983,7 +983,7 @@ export function EvaluationWorkspaceLayout({
         /* ------------------------------------------------------------- */
         /* MODE: MATRIKS BUKTI DUKUNG (6 ASPEK)                           */
         /* ------------------------------------------------------------- */
-        <div id="active-workspace-card" className="space-y-4 min-w-0 max-w-full">
+        <div id="active-workspace-card" className="space-y-4 min-w-0 max-w-full pb-20 sm:pb-8">
           {!activeAspectEvidence ? (
             /* A. Bento Grid Index 6 Aspek */
             <AspectEvidenceGridHub
@@ -994,7 +994,7 @@ export function EvaluationWorkspaceLayout({
             />
           ) : (
             /* B. Workspace Berkas Aspek Terpilih */
-            <div className="space-y-4 min-w-0 max-w-full">
+            <div className="space-y-4 min-w-0 max-w-full pb-16 sm:pb-6">
               {/* Aspect Quick Navigation Tabs */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card min-w-0 max-w-full">
                 <button
@@ -1021,7 +1021,7 @@ export function EvaluationWorkspaceLayout({
                             ? 'bg-brand text-white shadow-hz-button font-semibold'
                             : 'bg-surface-subtle text-ink-secondary hover:text-ink hover:bg-surface-hover border border-stroke/40'
                         }`}>
-                        <span>{code === 'TAMBAHAN' ? 'Tambahan (Q31)' : `Indikator ${latinNum}`}</span>
+                        <span>{code === 'TAMBAHAN' ? 'Tambahan (Q31)' : `Aspek ${latinNum}`}</span>
                         {grp && code !== 'TAMBAHAN' && (
                           <span className={`text-[10px] ml-1 hidden md:inline ${isActive ? 'text-white/80' : 'text-ink-muted'}`}>
                             ({grp.aspect.name})
@@ -1061,8 +1061,8 @@ export function EvaluationWorkspaceLayout({
                   const latinMap: Record<string, string> = { I: '1', II: '2', III: '3', IV: '4', V: '5', VI: '6' }
                   const idx = codes.indexOf(activeAspectEvidence)
                   return idx >= 0 && idx < codes.length - 1
-                    ? `Lanjut ke Indikator ${latinMap[codes[idx + 1]] || codes[idx + 1]}`
-                    : 'Selesai 6 Indikator'
+                    ? `Lanjut ke Aspek ${latinMap[codes[idx + 1]] || codes[idx + 1]}`
+                    : 'Selesai 6 Aspek'
                 })()}
                 onNext={(() => {
                   const codes = ['I', 'II', 'III', 'IV', 'V', 'VI']
@@ -1743,7 +1743,7 @@ export function EvaluationWorkspaceLayout({
                 </div>
 
                 {/* Body Content */}
-                <div className="p-5 sm:p-6 space-y-6">
+                <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6">
                   {/* Evaluator View: OPD Self-Assessment Summary (F01) */}
                   {userRole === 'SUPER_ADMIN' && (
                     <F01SummaryCard
@@ -1892,12 +1892,12 @@ export function EvaluationWorkspaceLayout({
                 </div>
 
                 {/* Footer Navigation Bar */}
-                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-2.5 sm:gap-3 flex-wrap">
+                <div className="px-3.5 sm:px-6 py-2.5 sm:py-3.5 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
                   <button
                     type="button"
                     disabled={!prevScoreItem}
                     onClick={() => prevScoreItem && handleGoToNumber(prevScoreItem.indicator.indicatorNumber)}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Sebelumnya ({prevScoreItem ? `#${prevScoreItem.indicator.indicatorNumber}` : '-'})</span>
                   </button>
@@ -1910,7 +1910,7 @@ export function EvaluationWorkspaceLayout({
                     <button
                       type="button"
                       onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button">
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button">
                       <UploadCloud className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">Upload Bukti Aspek {activeScoreItem.indicator.aspect.name}</span>
                       <span className="sm:hidden">Upload Bukti Aspek</span>
@@ -1921,7 +1921,7 @@ export function EvaluationWorkspaceLayout({
                       type="button"
                       disabled={!nextScoreItem}
                       onClick={() => nextScoreItem && handleGoToNumber(nextScoreItem.indicator.indicatorNumber)}
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
                       <span>Berikutnya ({nextScoreItem ? `#${nextScoreItem.indicator.indicatorNumber}` : 'Selesai'})</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>

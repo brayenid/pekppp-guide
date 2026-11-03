@@ -71,89 +71,103 @@ export function AspectEvidenceGridHub({
   }
 
   return (
-    <div className="space-y-5 animate-fade-in">
-      {/* Overview Metric Banner */}
-      <div className="relative overflow-hidden p-4.5 sm:p-6 bg-brand dark:bg-card dark:border dark:border-stroke rounded-bento shadow-soft-card space-y-4">
-        {/* Aksen bubble transparan di sudut */}
-        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 dark:opacity-10" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 border-b border-white/20 dark:border-stroke pb-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 dark:bg-brand-light text-white dark:text-brand flex items-center justify-center shrink-0">
-                <UploadCloud className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-              </span>
-              <h2 className="font-semibold text-base sm:text-lg text-white dark:text-ink tracking-tight">
-                Pusat Unggah &amp; Pemenuhan Bukti Dukung (6 Aspek)
+    <div className="space-y-4 sm:space-y-5 animate-fade-in pb-16 sm:pb-6">
+      {/* Overview Metric Banner (Compact & Viewport-Safe on Mobile) */}
+      <div className="relative overflow-hidden p-3.5 sm:p-5 bg-brand dark:bg-card dark:border dark:border-stroke rounded-2xl shadow-soft-card space-y-3">
+        {/* Subtle decorative glow */}
+        <span aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-48 h-48 rounded-full bg-white/10 dark:opacity-10" />
+
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-8 h-8 rounded-full bg-white/20 dark:bg-brand-light text-white dark:text-brand flex items-center justify-center shrink-0">
+              <UploadCloud className="w-4 h-4" />
+            </span>
+            <div className="min-w-0">
+              <h2 className="font-semibold text-sm sm:text-base text-white dark:text-ink truncate">
+                Pusat Bukti Dukung (6 Aspek)
               </h2>
+              <p className="text-[11px] sm:text-xs text-white/80 dark:text-ink-secondary truncate">
+                Unit {unitName}
+              </p>
             </div>
-            <p className="text-xs sm:text-sm text-white/85 dark:text-ink-secondary pl-0 sm:pl-11.5 leading-relaxed">
-              Unggah berkas fisik resmi dan pantau pemenuhan dokumen bukti untuk 6 Aspek evaluasi pada unit {unitName}.
-            </p>
           </div>
 
-          <div className="flex items-center justify-between sm:justify-end gap-3.5 w-full sm:w-auto pt-2 sm:pt-0 border-t border-white/10 sm:border-t-0">
-            <div className="text-left sm:text-right">
-              <span className="text-[11px] sm:text-xs font-medium text-white/75 dark:text-ink-muted block">
-                TOTAL DOKUMEN
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="text-right hidden xs:block">
+              <span className="text-[10px] text-white/70 dark:text-ink-muted block uppercase tracking-wider font-medium">
+                Terunggah
               </span>
-              <span className="text-lg sm:text-xl font-semibold text-white dark:text-ink">
-                {totalUploaded} <span className="text-xs sm:text-sm text-white/75 dark:text-ink-muted font-normal">/ {totalRequired}</span>
+              <span className="text-xs sm:text-sm font-semibold text-white dark:text-ink font-mono">
+                {totalUploaded} / {totalRequired}
               </span>
             </div>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white/15 dark:bg-surface-elevated flex items-center justify-center font-semibold text-xs sm:text-sm text-white dark:text-ink border border-white/20 dark:border-stroke shadow-xs shrink-0">
+            <div className="px-2.5 py-1 rounded-xl bg-white/20 dark:bg-surface-elevated font-mono font-bold text-xs sm:text-sm text-white dark:text-ink border border-white/20 dark:border-stroke shadow-xs shrink-0">
               {totalPercentage}%
             </div>
           </div>
         </div>
 
         {/* Global Progress Bar */}
-        <div className="relative space-y-2">
-          <div className="w-full bg-white/20 dark:bg-surface-elevated h-2.5 rounded-full overflow-hidden">
+        <div className="relative space-y-1.5 pt-1">
+          <div className="w-full bg-white/20 dark:bg-surface-elevated h-2 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500 bg-white dark:!bg-brand"
               style={{ width: `${totalPercentage}%` }}
             />
           </div>
-          <div className="flex flex-wrap sm:flex-nowrap justify-between text-[11px] sm:text-xs text-white/80 dark:text-ink-muted font-normal pt-0.5 gap-1">
-            <span>0 Dokumen</span>
-            <span>{totalPercentage === 100 ? 'Semua Dokumen Lengkap' : `${totalRequired - totalUploaded} dokumen belum diunggah`}</span>
-            <span>{totalRequired} Dokumen Wajib</span>
+          <div className="flex items-center justify-between text-[11px] text-white/85 dark:text-ink-muted font-normal">
+            <span>
+              {totalUploaded} dari {totalRequired} dokumen terunggah
+            </span>
+            <span>
+              {totalPercentage === 100
+                ? 'Semua Lengkap (100%)'
+                : `${totalRequired - totalUploaded} belum diunggah`}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Bento Grid 6 Aspek */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {overview.map((asp) => {
+          const aspectNum =
+            asp.aspectCode === 'I' ? '1' :
+            asp.aspectCode === 'II' ? '2' :
+            asp.aspectCode === 'III' ? '3' :
+            asp.aspectCode === 'IV' ? '4' :
+            asp.aspectCode === 'V' ? '5' :
+            asp.aspectCode === 'VI' ? '6' : asp.aspectCode
+
           return (
             <div
               key={asp.aspectCode}
               onClick={() => onSelectAspect(asp.aspectCode)}
-              className="p-4.5 sm:p-6 bg-surface rounded-bento border border-stroke/50 hover:border-brand/50 hover:shadow-card transition-all cursor-pointer flex flex-col justify-between space-y-4 group relative">
+              className="p-3.5 sm:p-5 bg-surface rounded-2xl border border-stroke/70 hover:border-brand/50 hover:shadow-card transition-all cursor-pointer flex flex-col justify-between space-y-3 group relative shadow-2xs">
               {/* Card Header */}
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-surface-subtle text-ink border border-stroke/50">
-                    INDIKATOR {asp.aspectCode === 'I' ? '1' : asp.aspectCode === 'II' ? '2' : asp.aspectCode === 'III' ? '3' : asp.aspectCode === 'IV' ? '4' : asp.aspectCode === 'V' ? '5' : asp.aspectCode === 'VI' ? '6' : asp.aspectCode}
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-surface-subtle text-ink border border-stroke/50">
+                    ASPEK {aspectNum}
                   </span>
 
                   <span
-                    className={`px-3 py-1 rounded-full text-[11px] font-medium flex items-center gap-1.5 ${
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 ${
                       asp.isComplete
-                        ? 'bg-pastel-green text-pastel-green-text border border-emerald-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
                         : asp.uploadedCount > 0
-                        ? 'bg-pastel-amber text-pastel-amber-text border border-amber-200'
+                        ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
                         : 'bg-surface-subtle text-ink-muted border border-stroke/50'
                     }`}>
                     {asp.isComplete ? (
                       <>
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         <span>Lengkap</span>
                       </>
                     ) : asp.uploadedCount > 0 ? (
                       <>
-                        <Clock className="w-3 h-3 text-amber-600" />
-                        <span>Proses</span>
+                        <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                        <span>{asp.percentage}%</span>
                       </>
                     ) : (
                       <span>Belum Ada</span>
@@ -161,16 +175,16 @@ export function AspectEvidenceGridHub({
                   </span>
                 </div>
 
-                <h3 className="font-medium text-sm text-ink leading-snug group-hover:text-brand transition-colors">
+                <h3 className="font-semibold text-xs sm:text-sm text-ink leading-snug group-hover:text-brand transition-colors">
                   {asp.aspectName}
                 </h3>
               </div>
 
               {/* Progress & Stats */}
-              <div className="space-y-3 pt-3 border-t border-stroke/30">
+              <div className="space-y-2.5 pt-2.5 border-t border-stroke/40">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-ink-muted font-normal">Dokumen Terunggah:</span>
-                  <span className="text-xs font-medium text-ink">
+                  <span className="text-ink-muted text-[11px]">Dokumen Terunggah:</span>
+                  <span className="text-xs font-semibold text-ink">
                     {asp.uploadedCount} / {asp.totalRequired}
                   </span>
                 </div>
@@ -178,7 +192,7 @@ export function AspectEvidenceGridHub({
                 {/* Micro Progress Bar */}
                 <div className="w-full bg-surface-subtle h-1.5 rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${
+                    className={`h-full rounded-full transition-all duration-300 ${
                       asp.isComplete ? 'bg-emerald-500' : 'bg-brand'
                     }`}
                     style={{ width: `${asp.percentage}%` }}
@@ -187,14 +201,14 @@ export function AspectEvidenceGridHub({
 
                 {/* Evaluator AI status indicator */}
                 {isEvaluator && asp.hasAiAnalysis && (
-                  <div className="inline-flex items-center gap-1 text-[11px] text-brand bg-brand-light px-2.5 py-0.5 rounded-full font-medium">
+                  <div className="inline-flex items-center gap-1 text-[10px] text-brand bg-brand-light dark:bg-brand/15 px-2 py-0.5 rounded-full font-medium">
                     <Sparkles className="w-3 h-3 text-brand shrink-0" />
                     <span>Tersedia Telaah AI</span>
                   </div>
                 )}
 
                 {/* Footer Action */}
-                <div className="pt-2 flex items-center justify-between text-xs font-medium border-t border-stroke/30">
+                <div className="pt-2 flex items-center justify-between text-xs font-medium border-t border-stroke/40">
                   <div className="flex items-center gap-1 text-brand group-hover:text-brand-hover transition-colors">
                     <span>Unggah Bukti</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

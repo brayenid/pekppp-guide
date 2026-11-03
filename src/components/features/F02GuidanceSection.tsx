@@ -333,54 +333,44 @@ export function F02GuidanceSection({
         </div>
       </div>
 
-      {/* Collapsible Guidance & Data Sources (Warm Minimalist Bento) */}
+      {/* Collapsible Guidance & Data Sources (Compact & Modern) */}
       {guidance && (guidance.explanation || (guidance.data_sources && guidance.data_sources.length > 0)) && (
-        <div className="rounded-2xl border border-stroke/70 bg-surface-subtle/25 overflow-hidden shadow-soft-card">
+        <div className="rounded-xl border border-stroke/70 bg-surface-subtle/20 overflow-hidden">
           <button
             type="button"
             onClick={() => setShowGuidanceDetails(!showGuidanceDetails)}
-            className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-surface-subtle/50 transition-colors cursor-pointer">
-            <div className="flex items-center gap-2.5 text-xs font-medium text-ink">
-              <div className="w-6 h-6 rounded-lg bg-surface-elevated border border-stroke/80 flex items-center justify-center shrink-0 text-ink-secondary shadow-2xs">
-                <HelpCircle className="w-3.5 h-3.5 text-ink-muted" />
-              </div>
-              <span>Petunjuk Penilaian &amp; Dokumen Acuan Pembuktian</span>
+            className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 flex items-center justify-between gap-2 text-left hover:bg-surface-subtle/50 transition-colors cursor-pointer">
+            <div className="flex items-center gap-2 text-xs font-medium text-ink min-w-0">
+              <HelpCircle className="w-3.5 h-3.5 text-brand shrink-0" />
+              <span className="truncate">Petunjuk &amp; Acuan Pembuktian</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-ink-muted font-medium">
-              <span>{showGuidanceDetails ? 'Sembunyikan' : 'Buka Petunjuk'}</span>
-              {showGuidanceDetails ? (
-                <ChevronUp className="w-3.5 h-3.5 text-ink-muted" />
-              ) : (
-                <ChevronDown className="w-3.5 h-3.5 text-ink-muted" />
-              )}
+            <div className="flex items-center gap-1 text-[11px] text-brand hover:underline font-medium shrink-0">
+              <span>{showGuidanceDetails ? 'Tutup' : 'Petunjuk'}</span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${showGuidanceDetails ? 'rotate-180' : ''}`} />
             </div>
           </button>
 
           {showGuidanceDetails && (
-            <div className="p-4 sm:p-5 pt-3 space-y-4 border-t border-stroke/40 bg-surface/60 text-xs">
+            <div className="p-3 sm:p-4 pt-2.5 space-y-3 border-t border-stroke/40 bg-surface/50 text-xs">
               {/* Explanation */}
               {guidance.explanation && (
-                <div className="space-y-1.5">
-                  <div className="font-medium text-xs text-ink flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-md bg-pastel-blue border border-pastel-blue-border text-pastel-blue-text flex items-center justify-center shrink-0">
-                      <Info className="w-3 h-3 text-blue-600" />
-                    </div>
-                    <span>Petunjuk Penilaian:</span>
+                <div className="space-y-1">
+                  <div className="font-semibold text-[11px] text-ink uppercase tracking-wider flex items-center gap-1.5">
+                    <Info className="w-3 h-3 text-brand shrink-0" />
+                    <span>Petunjuk Penilaian</span>
                   </div>
-                  <p className="text-sm text-ink-secondary font-normal leading-relaxed pl-7">{guidance.explanation}</p>
+                  <p className="text-xs text-ink-secondary leading-relaxed pl-4.5">{guidance.explanation}</p>
                 </div>
               )}
 
               {/* Data Sources */}
               {guidance.data_sources && guidance.data_sources.length > 0 && (
-                <div className="space-y-1.5 pt-3 border-t border-stroke/30">
-                  <div className="font-semibold text-xs sm:text-sm text-ink flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-md bg-pastel-amber border border-pastel-amber-border text-pastel-amber-text flex items-center justify-center shrink-0">
-                      <FileSearch className="w-3.5 h-3.5 text-amber-600" />
-                    </div>
-                    <span>Dokumen / Data Acuan Pembuktian:</span>
+                <div className="space-y-1 pt-2.5 border-t border-stroke/30">
+                  <div className="font-semibold text-[11px] text-ink uppercase tracking-wider flex items-center gap-1.5">
+                    <FileSearch className="w-3 h-3 text-amber-600 shrink-0" />
+                    <span>Dokumen / Data Acuan Pembuktian</span>
                   </div>
-                  <ul className="list-disc list-inside text-sm text-ink-secondary font-normal space-y-1.5 pl-7 leading-relaxed">
+                  <ul className="list-disc list-inside text-xs text-ink-secondary space-y-1 pl-4.5 leading-relaxed">
                     {guidance.data_sources.map((ds: string, i: number) => (
                       <li key={i}>{ds}</li>
                     ))}
@@ -633,22 +623,22 @@ export function F02GuidanceSection({
 
       {/* Scale Options — primary scoring tool */}
       {guidance && (
-        <div className="space-y-3 pt-2">
-          <span className="text-xs font-medium text-ink block">Pilih Nilai Skala (0–5):</span>
-          <div className="space-y-2">
+        <div className="space-y-2 pt-1 sm:pt-2">
+          <span className="text-xs font-semibold text-ink block">Pilih Nilai Skala (0–5):</span>
+          <div className="space-y-1.5 sm:space-y-2">
             {guidance.scale_options.map((opt: F02ScaleOption) => {
               const isSelected = selectedScore === String(opt.value)
               return (
                 <div
                   key={opt.value}
                   onClick={() => handleScoreSelect(String(opt.value))}
-                  className={`p-3.5 sm:p-4 rounded-xl border text-sm cursor-pointer transition-all flex items-start gap-3.5 ${
+                  className={`p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all flex items-start gap-2.5 sm:gap-3.5 ${
                     isSelected
                       ? 'bg-brand-light/30 border-brand text-ink shadow-soft-card font-medium'
                       : 'bg-surface-elevated border-stroke/60 hover:border-stroke hover:bg-surface-subtle text-ink-secondary'
                   }`}>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all ${
+                    className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-semibold shrink-0 transition-all ${
                       isSelected
                         ? 'bg-brand text-white shadow-hz-button'
                         : 'bg-surface-subtle text-ink-muted border border-stroke/50'
@@ -656,7 +646,7 @@ export function F02GuidanceSection({
                     Skala {opt.value}
                   </span>
                   <div className="flex-1 pt-0.5">
-                    <p className={`leading-relaxed text-sm ${isSelected ? 'text-ink font-semibold' : 'text-ink-secondary'}`}>
+                    <p className={`leading-relaxed text-xs sm:text-sm ${isSelected ? 'text-ink font-semibold' : 'text-ink-secondary'}`}>
                       {opt.label}
                     </p>
                   </div>
@@ -675,53 +665,53 @@ export function F02GuidanceSection({
       )}
 
       {/* CATATAN INDIKATOR / ASPEK RESMI MENPAN-RB (1 CATATAN PER ASPEK) */}
-      <div className="space-y-2.5 pt-4 border-t border-stroke/40">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <span>
-              Catatan Rekomendasi Aspek {aspectName}
+      <div className="space-y-2 pt-3 border-t border-stroke/40">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-ink min-w-0">
+            <span className="truncate">
+              Catatan Rekomendasi ({aspectName})
             </span>
-            <span className="text-xs text-ink-muted bg-surface-subtle px-2.5 py-0.5 rounded-full border border-stroke/50">
-              Portal MenPAN-RB
+            <span className="text-[10px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded-full border border-stroke/50 shrink-0">
+              MenPAN-RB
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             {isAspectDirty ? (
               <button
                 type="button"
                 disabled={isSavingAspect}
                 onClick={handleSaveAspectNote}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-hz-button">
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all cursor-pointer shadow-xs">
                 {isSavingAspect ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Menyimpan...
+                    <Loader2 className="w-3 h-3 animate-spin" /> Menyimpan...
                   </>
                 ) : (
                   <>
-                    <Save className="w-3.5 h-3.5" /> Simpan Catatan Aspek
+                    <Save className="w-3 h-3" /> Simpan Catatan
                   </>
                 )}
               </button>
             ) : baseAspectNote ? (
-              <span className="text-xs font-semibold text-pastel-green-text bg-pastel-green px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Tersimpan untuk MenPAN
+              <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Tersimpan
               </span>
             ) : null}
           </div>
         </div>
 
         <textarea
-          rows={3}
+          rows={2}
           value={aspectNote}
           onChange={(e) => handleAspectNoteChange(e.target.value)}
-          placeholder={`Tuliskan narasi catatan hasil pengamatan / rekomendasi untuk Aspek ${aspectName} yang disinkronkan ke web MenPAN-RB...`}
-          className="w-full px-4 py-3 text-sm font-normal rounded-xl border border-stroke/60 bg-surface-elevated text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand resize-y min-h-[80px] shadow-2xs leading-relaxed"
+          placeholder={`Tuliskan narasi catatan / rekomendasi resmi untuk Aspek ${aspectName}...`}
+          className="w-full px-3 py-2 text-xs font-normal rounded-lg border border-stroke/70 bg-surface-elevated text-ink placeholder:text-ink-muted/70 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-y min-h-[56px] shadow-2xs leading-relaxed"
         />
 
-        <div className="flex items-center justify-between text-[11px] text-ink-muted">
-          <span>Catatan ini adalah rekomendasi resmi per aspek yang akan dikirimkan ke MenPAN-RB.</span>
-          {isAspectDirty && <span className="text-pastel-rose-text font-normal">• Ada perubahan belum disimpan</span>}
+        <div className="flex items-center justify-between text-[10px] text-ink-muted">
+          <span className="truncate">Rekomendasi resmi per aspek untuk sinkronisasi MenPAN-RB</span>
+          {isAspectDirty && <span className="text-amber-600 dark:text-amber-400 font-medium shrink-0 ml-1.5">• Belum disimpan</span>}
         </div>
       </div>
     </div>
