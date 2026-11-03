@@ -199,7 +199,7 @@ export function OpdSidebar({
         />
 
         <aside
-          className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand text-white shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
+          className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand dark:bg-[#0B0C10] text-white dark:text-ink shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
           {/* Drawer Header (Stay Pinned) */}
@@ -215,10 +215,10 @@ export function OpdSidebar({
                 />
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="font-semibold text-sm tracking-tight text-white">
-                  PEKPPP<span className="text-sky-200 font-medium">.ext</span>
+                <span className="font-semibold text-sm tracking-tight text-white dark:text-ink">
+                  PEKPPP<span className="text-sky-200 dark:text-brand font-medium">.ext</span>
                 </span>
-                <span className="text-[10px] font-medium tracking-wider text-sky-100">
+                <span className="text-[10px] font-medium tracking-wider text-sky-100 dark:text-ink-muted">
                   Kutai Barat
                 </span>
               </div>
@@ -227,7 +227,7 @@ export function OpdSidebar({
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Tutup menu OPD"
-              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20 shrink-0">
+              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:text-ink dark:border-stroke flex items-center justify-center transition-colors cursor-pointer border border-white/20 shrink-0">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -237,11 +237,11 @@ export function OpdSidebar({
             <div className="space-y-3">
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 dark:text-ink-muted block">
                     Lokus Pelayanan
                   </span>
                   {isPending && (
-                    <Loader2 className="w-2.5 h-2.5 animate-spin text-sky-300" />
+                    <Loader2 className="w-2.5 h-2.5 animate-spin text-sky-300 dark:text-brand" />
                   )}
                 </div>
                 {allBoundUnits.length > 1 ? (
@@ -250,31 +250,31 @@ export function OpdSidebar({
                       value={selectedUnitId}
                       onChange={(e) => handleSelectUnit(e.target.value)}
                       disabled={isPending}
-                      className="w-full px-3 py-2 pr-8 rounded-xl bg-white/10 text-white border border-white/20 text-xs font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-sky-400/30 cursor-pointer disabled:opacity-60 disabled:cursor-wait">
+                      className="w-full px-3 py-2 pr-8 rounded-xl bg-white/10 dark:bg-surface-elevated text-white dark:text-ink border border-white/20 dark:border-stroke text-xs font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-sky-400/30 cursor-pointer disabled:opacity-60 disabled:cursor-wait">
                       {allBoundUnits.map((u) => (
                         <option key={u.id} value={u.id} className="text-ink bg-surface">
                           {u.name}
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="w-3.5 h-3.5 text-white/70 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="w-3.5 h-3.5 text-white/70 dark:text-ink-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 ) : activeUnit ? (
-                  <div className="px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs font-semibold text-white truncate">
+                  <div className="px-3 py-2 rounded-xl bg-white/10 dark:bg-surface-elevated border border-white/20 dark:border-stroke text-xs font-semibold text-white dark:text-ink truncate">
                     {activeUnit.name}
                   </div>
                 ) : null}
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 dark:text-ink-muted block">
                   Tahun Evaluasi
                 </span>
                 <OpdYearSelect
                   years={availableYears}
                   selectedYear={selectedYear}
                   defaultYear={defaultYear}
-                  className="!bg-white/10 !text-white !border-white/20"
+                  className="!bg-white/10 dark:!bg-surface-elevated !text-white dark:!text-ink !border-white/20 dark:!border-stroke"
                   onChangeYear={handleSelectYear}
                 />
               </div>
@@ -282,7 +282,7 @@ export function OpdSidebar({
 
             {/* Navigasi Utama */}
             <div className="pt-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 block mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 dark:text-ink-muted block mb-1.5">
                 Menu
               </span>
               <nav className="space-y-1.5">
@@ -293,12 +293,12 @@ export function OpdSidebar({
                     onClick={() => setMobileOpen(false)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-white text-[#1D5BB9] font-bold shadow-md'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                        ? 'bg-white text-[#1D5BB9] font-bold shadow-md dark:bg-brand dark:text-white dark:shadow-none'
+                        : 'text-white/80 hover:bg-white/10 hover:text-white dark:text-ink-secondary dark:hover:bg-white/[0.08] dark:hover:text-ink'
                     }`}>
                     <div className="flex items-center gap-2.5 min-w-0">
                       <Icon
-                        className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D5BB9]' : 'text-white/70'}`}
+                        className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D5BB9] dark:text-white' : 'text-white/70 dark:text-ink-muted'}`}
                       />
                       <span className="truncate">{label}</span>
                     </div>
@@ -314,8 +314,8 @@ export function OpdSidebar({
             <Link
               href="/"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs text-white/90 hover:text-white hover:bg-white/15 font-medium transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5 text-white" />
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs text-white/90 hover:text-white hover:bg-white/15 dark:bg-surface-elevated dark:border-stroke dark:text-ink dark:hover:bg-surface-subtle font-medium transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5 text-white dark:text-ink" />
               <span>Kembali ke Situs</span>
             </Link>
           </div>
@@ -323,7 +323,7 @@ export function OpdSidebar({
       </div>
 
       {/* ── Desktop Persistent Sidebar (≥ lg) ───────────────────────── */}
-      <aside className="hidden lg:flex w-64 h-screen shrink-0 bg-brand text-white flex-col overflow-hidden z-20">
+      <aside className="hidden lg:flex w-64 h-screen shrink-0 bg-brand dark:bg-[#0B0C10] text-white dark:text-ink flex-col overflow-hidden z-20 transition-colors">
         {/* Top 56px Header: Website Title & Logo (Stay Pinned) */}
         <div className="h-14 px-4 flex items-center justify-between shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -337,10 +337,10 @@ export function OpdSidebar({
               />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-bold text-sm tracking-tight text-white">
-                PEKPPP<span className="text-sky-200 font-medium">.ext</span>
+              <span className="font-bold text-sm tracking-tight text-white dark:text-ink">
+                PEKPPP<span className="text-sky-200 dark:text-brand font-medium">.ext</span>
               </span>
-              <span className="text-[10px] font-medium tracking-wider text-sky-100">
+              <span className="text-[10px] font-medium tracking-wider text-sky-100 dark:text-ink-muted">
                 Kutai Barat
               </span>
             </div>
@@ -353,11 +353,11 @@ export function OpdSidebar({
           <div className="space-y-2.5">
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 dark:text-ink-muted block">
                   Lokus Pelayanan
                 </span>
                 {isPending && (
-                  <Loader2 className="w-2.5 h-2.5 animate-spin text-sky-300" />
+                  <Loader2 className="w-2.5 h-2.5 animate-spin text-sky-300 dark:text-brand" />
                 )}
               </div>
               {allBoundUnits.length > 1 ? (
@@ -367,31 +367,31 @@ export function OpdSidebar({
                     onChange={(e) => handleSelectUnit(e.target.value)}
                     disabled={isPending}
                     aria-label="Pilih Lokus Pelayanan"
-                    className="w-full px-2.5 py-1.5 pr-7 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-semibold text-white appearance-none focus:outline-none focus:ring-2 focus:ring-sky-400/30 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-wait">
+                    className="w-full px-2.5 py-1.5 pr-7 rounded-lg bg-white/10 hover:bg-white/15 dark:bg-surface-elevated dark:hover:bg-surface-subtle border border-white/20 dark:border-stroke text-xs font-semibold text-white dark:text-ink appearance-none focus:outline-none focus:ring-2 focus:ring-sky-400/30 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-wait">
                     {allBoundUnits.map((u) => (
                       <option key={u.id} value={u.id} className="text-ink bg-surface">
                         {u.name}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-white/70 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-white/70 dark:text-ink-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               ) : activeUnit ? (
-                <div className="px-2.5 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs font-semibold text-white truncate">
+                <div className="px-2.5 py-1.5 rounded-lg bg-white/10 dark:bg-surface-elevated border border-white/20 dark:border-stroke text-xs font-semibold text-white dark:text-ink truncate">
                   {activeUnit.name}
                 </div>
               ) : null}
             </div>
 
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 dark:text-ink-muted block">
                 Tahun Evaluasi
               </span>
               <OpdYearSelect
                 years={availableYears}
                 selectedYear={selectedYear}
                 defaultYear={defaultYear}
-                className="!bg-white/10 hover:!bg-white/15 !border-white/20 !text-white"
+                className="!bg-white/10 hover:!bg-white/15 dark:!bg-surface-elevated dark:hover:!bg-surface-subtle !border-white/20 dark:!border-stroke !text-white dark:!text-ink"
                 onChangeYear={handleSelectYear}
               />
             </div>
@@ -399,7 +399,7 @@ export function OpdSidebar({
 
           {/* Nav Items */}
           <div className="pt-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 block mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 dark:text-ink-muted block mb-1">
               Menu
             </span>
             <nav className="space-y-1.5">
@@ -409,12 +409,12 @@ export function OpdSidebar({
                   href={getHrefWithParams(href)}
                   className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-white text-[#1D5BB9] font-bold shadow-md'
-                      : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      ? 'bg-white text-[#1D5BB9] font-bold shadow-md dark:bg-brand dark:text-white dark:shadow-none'
+                      : 'text-white/80 hover:bg-white/10 hover:text-white dark:text-ink-secondary dark:hover:bg-white/[0.08] dark:hover:text-ink'
                   }`}>
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Icon
-                      className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D5BB9]' : 'text-white/70'}`}
+                      className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D5BB9] dark:text-white' : 'text-white/70 dark:text-ink-muted'}`}
                     />
                     <span className="truncate">{label}</span>
                   </div>
@@ -429,8 +429,8 @@ export function OpdSidebar({
         <div className="p-3 shrink-0">
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 font-semibold transition-all shadow-2xs">
-            <ArrowLeft className="w-3.5 h-3.5 text-white" />
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 dark:bg-surface-elevated dark:border-stroke dark:text-ink dark:hover:bg-surface-subtle font-semibold transition-all shadow-2xs">
+            <ArrowLeft className="w-3.5 h-3.5 text-white dark:text-ink" />
             <span>Kembali ke Situs</span>
           </Link>
         </div>

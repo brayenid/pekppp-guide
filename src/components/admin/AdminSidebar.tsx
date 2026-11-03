@@ -138,7 +138,7 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
 
         {/* Drawer Panel from Left */}
         <aside
-          className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand text-white shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
+          className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand dark:bg-[#0B0C10] text-white dark:text-ink shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
           {/* Drawer Header (Stay Pinned) */}
@@ -154,10 +154,10 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
                 />
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="font-semibold text-sm tracking-tight text-white">
-                  PEKPPP<span className="text-sky-200 font-medium">.ext</span>
+                <span className="font-semibold text-sm tracking-tight text-white dark:text-ink">
+                  PEKPPP<span className="text-sky-200 dark:text-brand font-medium">.ext</span>
                 </span>
-                <span className="text-[10px] font-medium tracking-wider text-sky-100">
+                <span className="text-[10px] font-medium tracking-wider text-sky-100 dark:text-ink-muted">
                   Kutai Barat
                 </span>
               </div>
@@ -166,7 +166,7 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Tutup menu admin"
-              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20">
+              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:text-ink dark:border-stroke flex items-center justify-center transition-colors cursor-pointer border border-white/20">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -183,20 +183,20 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-start gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 min-h-[40px] ${
                     isActive
-                      ? 'bg-white text-brand font-bold shadow-md'
-                      : 'text-white/85 hover:bg-white/10 hover:text-white border border-transparent'
+                      ? 'bg-white text-brand font-bold shadow-md dark:bg-brand dark:text-white dark:shadow-none'
+                      : 'text-white/85 hover:bg-white/10 hover:text-white dark:text-ink-secondary dark:hover:bg-white/[0.08] dark:hover:text-ink border border-transparent'
                   }`}>
                   <div
                     className={`p-1.5 rounded-lg transition-colors shrink-0 mt-0.5 ${
-                      isActive ? 'bg-brand-light text-brand' : 'bg-white/10 text-white/75'
+                      isActive ? 'bg-brand-light text-brand dark:bg-white/20 dark:text-white' : 'bg-white/10 text-white/75 dark:bg-white/[0.06] dark:text-ink-muted'
                     }`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className={`text-xs leading-tight ${isActive ? 'font-bold text-brand' : 'font-medium text-white'}`}>
+                    <div className={`text-xs leading-tight ${isActive ? 'font-bold text-brand dark:text-white' : 'font-medium text-white dark:text-ink'}`}>
                       {label}
                     </div>
-                    <div className={`text-[10px] leading-tight mt-0.5 line-clamp-1 ${isActive ? 'text-brand/80 font-medium' : 'text-white/60'}`}>
+                    <div className={`text-[10px] leading-tight mt-0.5 line-clamp-1 ${isActive ? 'text-brand/80 font-medium dark:text-sky-100' : 'text-white/60 dark:text-ink-muted'}`}>
                       {description}
                     </div>
                   </div>
@@ -210,8 +210,8 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
             <Link
               href="/"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 font-semibold transition-all min-h-[40px]">
-              <ArrowLeft className="w-3.5 h-3.5 text-white" />
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 dark:bg-surface-elevated dark:border-stroke dark:text-ink dark:hover:bg-surface-subtle font-semibold transition-all min-h-[40px]">
+              <ArrowLeft className="w-3.5 h-3.5 text-white dark:text-ink" />
               <span>Kembali ke Situs Publik</span>
             </Link>
           </div>
@@ -219,7 +219,7 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
       </div>
 
       {/* ── Desktop Persistent Sidebar (≥ lg) ───────────────────────── */}
-      <aside className="hidden lg:flex w-64 h-screen shrink-0 bg-brand flex-col overflow-hidden z-20">
+      <aside className="hidden lg:flex w-64 h-screen shrink-0 bg-brand dark:bg-[#0B0C10] flex-col overflow-hidden z-20 transition-colors">
         {/* Top 56px Header: Website Title & Logo (Stay Pinned) */}
         <div className="h-14 px-4 flex items-center justify-between shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -233,10 +233,10 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
               />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-bold text-sm tracking-tight text-white">
-                PEKPPP<span className="text-sky-200 font-medium">.ext</span>
+              <span className="font-bold text-sm tracking-tight text-white dark:text-ink">
+                PEKPPP<span className="text-sky-200 dark:text-brand font-medium">.ext</span>
               </span>
-              <span className="text-[10px] font-medium tracking-wider text-sky-100">
+              <span className="text-[10px] font-medium tracking-wider text-sky-100 dark:text-ink-muted">
                 Kutai Barat
               </span>
             </div>
@@ -254,20 +254,20 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
                 href={href}
                 className={`flex items-start gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group ${
                   isActive
-                    ? 'bg-white text-brand font-bold shadow-md'
-                    : 'text-white/85 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white text-brand font-bold shadow-md dark:bg-brand dark:text-white dark:shadow-none'
+                    : 'text-white/85 hover:bg-white/10 hover:text-white dark:text-ink-secondary dark:hover:bg-white/[0.08] dark:hover:text-ink'
                 }`}>
                 <div
                   className={`p-1.5 rounded-lg transition-colors shrink-0 mt-0.5 ${
-                    isActive ? 'bg-brand-light text-brand' : 'bg-white/10 text-white/75 group-hover:text-white group-hover:bg-white/15'
+                    isActive ? 'bg-brand-light text-brand dark:bg-white/20 dark:text-white' : 'bg-white/10 text-white/75 group-hover:text-white group-hover:bg-white/15 dark:bg-white/[0.06] dark:text-ink-muted dark:group-hover:text-ink dark:group-hover:bg-white/10'
                   }`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className={`text-xs leading-tight ${isActive ? 'font-bold text-brand' : 'font-medium text-white group-hover:text-white'}`}>
+                  <div className={`text-xs leading-tight ${isActive ? 'font-bold text-brand dark:text-white' : 'font-medium text-white group-hover:text-white dark:text-ink-secondary dark:group-hover:text-ink'}`}>
                     {label}
                   </div>
-                  <div className={`text-[10px] leading-tight mt-0.5 line-clamp-1 ${isActive ? 'text-brand/80 font-medium' : 'text-white/60 group-hover:text-white/80'}`}>
+                  <div className={`text-[10px] leading-tight mt-0.5 line-clamp-1 ${isActive ? 'text-brand/80 font-medium dark:text-sky-100' : 'text-white/60 group-hover:text-white/80 dark:text-ink-muted dark:group-hover:text-ink-secondary'}`}>
                     {description}
                   </div>
                 </div>
@@ -280,8 +280,8 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
         <div className="p-3 shrink-0">
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 transition-all font-semibold shadow-2xs">
-            <ArrowLeft className="w-3.5 h-3.5 text-white" />
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 dark:bg-surface-elevated dark:border-stroke dark:text-ink dark:hover:bg-surface-subtle transition-all font-semibold shadow-2xs">
+            <ArrowLeft className="w-3.5 h-3.5 text-white dark:text-ink" />
             <span>Kembali ke Situs</span>
           </Link>
         </div>

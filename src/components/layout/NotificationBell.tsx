@@ -121,9 +121,9 @@ export function NotificationBell() {
         }}
         className="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-sm group shrink-0"
         title="Notifikasi">
-        <Bell className="w-4.5 h-4.5 text-white group-hover:scale-110 transition-transform" />
+        <Bell className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold flex items-center justify-center border-2 border-brand shadow-xs">
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold flex items-center justify-center border-2 border-brand dark:border-[#0B0C10] shadow-xs">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -131,7 +131,15 @@ export function NotificationBell() {
 
       {/* Dropdown Overlay */}
       {isOpen && (
-        <div className="absolute right-0 mt-1.5 w-80 sm:w-96 bg-surface border border-stroke/50 rounded-2xl shadow-soft-float z-50 overflow-hidden flex flex-col max-h-[500px] animate-fade-in-content">
+        <>
+          {/* Mobile backdrop */}
+          <div
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-40 sm:hidden bg-black/40 backdrop-blur-xs"
+            aria-hidden="true"
+          />
+
+          <div className="fixed inset-x-3.5 top-[58px] z-50 sm:inset-x-auto sm:top-full sm:absolute sm:right-0 sm:mt-1.5 w-auto sm:w-96 max-w-[calc(100vw-1.75rem)] sm:max-w-md bg-surface border border-stroke/70 rounded-2xl shadow-soft-float overflow-hidden flex flex-col max-h-[calc(100vh-80px)] sm:max-h-[500px] animate-fade-in-content">
           {/* Dropdown Header */}
           <div className="px-4 py-3 bg-surface-subtle/40 border-b border-stroke/40 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -226,6 +234,7 @@ export function NotificationBell() {
             </Link>
           </div>
         </div>
+        </>
       )}
     </div>
   )

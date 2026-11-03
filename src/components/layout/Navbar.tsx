@@ -184,7 +184,7 @@ export function Navbar() {
     <>
       <nav
         style={{ transform: `translate3d(0, ${translateY}px, 0)` }}
-        className="sticky top-0 z-30 w-full bg-brand text-white border-b border-brand-hover shadow-md will-change-transform">
+        className="sticky top-0 z-30 w-full bg-brand dark:bg-[#0B0C10]/95 dark:backdrop-blur-md text-white border-b border-brand-hover dark:border-white/[0.08] shadow-md dark:shadow-none will-change-transform">
         <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group py-0.5 min-w-0 shrink-0">
@@ -198,14 +198,14 @@ export function Navbar() {
               />
             </div>
             <div className="flex flex-col leading-tight min-w-0">
-              <span className="font-semibold text-sm sm:text-base tracking-tight text-white">PEKPPP.ext</span>
-              <span className="text-[10px] sm:text-[11px] font-medium tracking-wider text-white/80">Kutai Barat</span>
+              <span className="font-semibold text-sm sm:text-base tracking-tight text-white dark:text-ink">PEKPPP.ext</span>
+              <span className="text-[10px] sm:text-[11px] font-medium tracking-wider text-white/80 dark:text-ink-muted">Kutai Barat</span>
             </div>
           </Link>
 
           {/* Center Section: Public Nav Pills */}
           {!isEvaluation && (
-            <div className="hidden lg:flex items-center gap-1 p-1 bg-black/15 backdrop-blur-sm border border-white/15 rounded-full shadow-inner">
+            <div className="hidden lg:flex items-center gap-1 p-1 bg-black/15 backdrop-blur-sm border border-white/15 rounded-full shadow-inner dark:bg-white/[0.06] dark:border-white/10">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -214,8 +214,8 @@ export function Navbar() {
                     href={item.href}
                     className={`px-4 py-1.5 rounded-full text-xs transition-all whitespace-nowrap ${
                       isActive
-                        ? 'bg-white text-brand font-semibold shadow-sm'
-                        : 'text-white/85 hover:text-white hover:bg-white/10 font-normal'
+                        ? 'bg-white text-brand dark:bg-brand dark:text-white font-semibold shadow-sm'
+                        : 'text-white/85 hover:text-white hover:bg-white/10 dark:text-ink-secondary dark:hover:text-white dark:hover:bg-white/[0.08] font-normal'
                     }`}>
                     {item.label}
                   </Link>
@@ -236,7 +236,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white hover:bg-white/90 text-brand text-xs font-semibold transition-all shadow-sm cursor-pointer">
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white hover:bg-white/90 text-brand dark:bg-brand dark:hover:bg-brand-hover dark:text-white text-xs font-semibold transition-all shadow-sm cursor-pointer">
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Masuk</span>
                 </Link>
@@ -248,8 +248,8 @@ export function Navbar() {
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
               aria-label="Buka menu navigasi"
-              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-sm">
-              <Menu className="w-5 h-5" />
+              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:border-stroke dark:text-ink flex items-center justify-center transition-all cursor-pointer shadow-sm">
+              <Menu className="w-4.5 h-4.5" />
             </button>
           </div>
         </div>

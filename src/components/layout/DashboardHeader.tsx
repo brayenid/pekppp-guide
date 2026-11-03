@@ -27,24 +27,24 @@ export function DashboardHeader({
   }
 
   return (
-    <header className="h-14 bg-brand text-white px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
+    <header className="h-14 bg-brand dark:bg-[#0B0C10] text-white dark:text-ink px-4 sm:px-6 flex items-center justify-between shrink-0 z-30 transition-colors">
       {/* Mobile: Hamburger & Active Page Title */}
       <div className="flex items-center gap-2.5 lg:hidden min-w-0">
         <button
           type="button"
           onClick={handleToggleMobileMenu}
           aria-label="Buka Menu Navigasi"
-          className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20 shrink-0">
-          <Menu className="w-4.5 h-4.5" />
+          className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:border-stroke dark:text-ink flex items-center justify-center transition-colors cursor-pointer shrink-0">
+          <Menu className="w-4 h-4" />
         </button>
-        <span className="text-xs sm:text-sm font-medium text-white truncate">
+        <span className="text-xs sm:text-sm font-medium text-white dark:text-ink truncate">
           {headerConfig.title || (role === 'admin' ? 'Admin Dashboard' : 'Portal OPD')}
         </span>
       </div>
 
       {/* Desktop: Active Page Title (Unbolded, Clean, No Icon) */}
       <div className="hidden lg:flex items-center gap-2.5 min-w-0 flex-1 mr-4">
-        <h1 className="text-sm font-normal text-white/95 tracking-normal truncate">
+        <h1 className="text-sm font-normal text-white/95 dark:text-ink tracking-normal truncate">
           {headerConfig.title || (role === 'admin' ? 'Admin Dashboard' : 'Portal OPD')}
         </h1>
         {headerConfig.badge}
@@ -54,7 +54,7 @@ export function DashboardHeader({
       <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
         {/* Action Buttons Slot (e.g. + Tambah Tahun Penilaian, Tambah Lokus, etc.) */}
         {headerConfig.actions && (
-          <div className="hidden sm:flex items-center gap-2 shrink-0 [&_button]:!h-9 [&_button]:!px-3.5 [&_button]:!text-xs [&_button]:!rounded-full [&_button]:font-medium [&_button]:inline-flex [&_button]:items-center [&_button]:justify-center [&_button]:transition-all [&_button]:cursor-pointer [&_button.bg-brand]:!bg-white [&_button.bg-brand]:!text-brand [&_button.bg-brand]:hover:!bg-white/90 [&_button.bg-brand]:!shadow-sm [&_button.bg-brand]:!border-0 [&_button.bg-brand_svg]:!text-brand [&_button.bg-surface-elevated]:!bg-white/15 [&_button.bg-surface-elevated]:!text-white [&_button.bg-surface-elevated]:hover:!bg-white/25 [&_button.bg-surface-elevated]:!border-white/25 [&_button.bg-surface-elevated_svg]:!text-white">
+          <div className="hidden sm:flex items-center gap-2 shrink-0 [&_button]:!h-9 [&_button]:!px-3.5 [&_button]:!text-xs [&_button]:!rounded-full [&_button]:font-medium [&_button]:inline-flex [&_button]:items-center [&_button]:justify-center [&_button]:transition-all [&_button]:cursor-pointer [&_button.bg-brand]:!bg-white [&_button.bg-brand]:!text-brand [&_button.bg-brand]:hover:!bg-white/90 [&_button.bg-brand]:!shadow-sm [&_button.bg-brand]:!border-0 [&_button.bg-brand_svg]:!text-brand dark:[&_button.bg-brand]:!bg-brand dark:[&_button.bg-brand]:!text-white dark:[&_button.bg-brand_svg]:!text-white [&_button.bg-surface-elevated]:!bg-white/15 [&_button.bg-surface-elevated]:!text-white [&_button.bg-surface-elevated]:hover:!bg-white/25 [&_button.bg-surface-elevated]:!border-white/25 [&_button.bg-surface-elevated_svg]:!text-white dark:[&_button.bg-surface-elevated]:!bg-surface-elevated dark:[&_button.bg-surface-elevated]:!text-ink dark:[&_button.bg-surface-elevated]:!border-stroke">
             {headerConfig.actions}
           </div>
         )}
@@ -68,7 +68,7 @@ export function DashboardHeader({
         ) : (
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-white hover:bg-white/90 text-brand text-xs font-semibold transition-all shadow-sm cursor-pointer">
+            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-white hover:bg-white/90 text-brand dark:bg-brand dark:hover:bg-brand-hover dark:text-white text-xs font-semibold transition-all shadow-sm cursor-pointer">
             <LogIn className="w-3.5 h-3.5" />
             <span>Masuk</span>
           </Link>
