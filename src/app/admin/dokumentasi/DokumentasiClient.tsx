@@ -435,6 +435,14 @@ export function DokumentasiClient() {
         icon={<BookOpen className="w-5 h-5 text-brand" />}
         title="Dokumentasi dan Spesifikasi API"
         description="Referensi fitur sistem PEKPPP, skema data JSON internal, serta kompatibilitas OpenAPI 3.0.3 (spec.json) Portal Nasional MenPAN-RB."
+        speedDialItems={[
+          {
+            label: 'Buka Pengaturan API',
+            icon: <Server className="w-4 h-4" />,
+            href: '/admin/pengaturan-api',
+            variant: 'brand'
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2">
             <Badge variant="info" size="sm">

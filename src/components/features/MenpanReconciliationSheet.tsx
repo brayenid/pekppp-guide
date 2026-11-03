@@ -511,7 +511,7 @@ export function MenpanReconciliationSheet({
                         : ''
                     }`}>
                     {/* Index */}
-                    <td className="pl-6 pr-2 py-3 text-center text-ink-muted font-mono text-[11px]">
+                    <td className="pl-6 pr-2 py-3 text-center text-ink-muted text-[11px] tabular-nums">
                       {idx + 1}
                     </td>
 
@@ -529,12 +529,12 @@ export function MenpanReconciliationSheet({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[10px] text-ink-muted font-mono">
+                        <div className="flex items-center gap-2 text-[10px] text-ink-muted">
                           <span className="truncate max-w-[130px]" title={r.remoteUuid}>
                             {r.remoteUuid.slice(0, 8)}...
                           </span>
                           <span>•</span>
-                          <span className="font-sans text-ink-muted truncate max-w-[140px]">
+                          <span className="text-ink-muted truncate max-w-[140px]">
                             {r.formSheetName || 'F-01'}
                           </span>
                         </div>

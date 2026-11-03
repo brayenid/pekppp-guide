@@ -129,8 +129,8 @@ export function HasilLeaderboardClient({
 
   return (
     <div className="rounded-bento border border-stroke/50 bg-surface overflow-hidden shadow-soft-card">
-      {/* Table Header */}
-      <div className="grid grid-cols-12 gap-4 px-5 py-3.5 bg-surface-subtle border-b border-stroke/50 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+      {/* Desktop Table Header */}
+      <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3.5 bg-surface-subtle border-b border-stroke/50 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
         <div className="col-span-1">#</div>
         <div className="col-span-4">Unit / Lokus</div>
         <div className="col-span-2">Kategori</div>
@@ -138,7 +138,7 @@ export function HasilLeaderboardClient({
         <div className="col-span-3 text-right">Grade &amp; Rincian</div>
       </div>
 
-      {/* Table Rows */}
+      {/* Table Rows & Mobile Cards */}
       <div className="divide-y divide-stroke/40">
         {items.map((ev, idx) => {
           const grade = getGrade(ev.finalPct)
@@ -146,62 +146,106 @@ export function HasilLeaderboardClient({
           const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null
 
           return (
-            <div
-              key={ev.id}
-              className="grid grid-cols-12 gap-4 px-5 py-4 items-center hover:bg-surface-subtle/50 transition-colors animate-fade-in-content">
-              <div className="col-span-1 text-sm font-semibold text-ink-muted font-mono">
-                {medal ?? <span>{idx + 1}</span>}
+            <div key={ev.id} className="hover:bg-surface-subtle/50 transition-colors animate-fade-in-content">
+              {/* 1. Mobile Card Layout (< sm) */}
+              <div className="sm:hidden p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg bg-surface-subtle border border-stroke/70 text-xs font-bold flex items-center justify-center shrink-0 tabular-nums">
+                      {medal ?? idx + 1}
+                    </span>
+                    <div>
+                      <h4 className="font-semibold text-xs text-ink">{ev.unit.name}</h4>
+                      <div className="flex items-center gap-2 text-[10px] text-ink-muted mt-0.5">
+                        <span>{ev.unit.category?.name || 'OPD'}</span>
+                        <span>•</span>
+                        <span>Tahun {ev.year}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant={cfg.badgeVariant} size="sm">
+                    {grade} - {cfg.label}
+                  </Badge>
+                </div>
+
+                <div className="p-3 bg-surface-subtle/40 rounded-xl border border-stroke/40 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-ink-muted block">Skor IPP Final</span>
+                    <span className="font-bold text-sm text-ink tabular-nums">
+                      {ev.finalPct.toFixed(1)}%
+                    </span>
+                    <span className="text-[10px] text-ink-muted ml-1.5 tabular-nums">
+                      (Skala 5: {ev.finalScale5.toFixed(2)})
+                    </span>
+                  </div>
+                  <Link href={`/hasil/${ev.id}`}>
+                    <Button
+                      type="button"
+                      variant="brand"
+                      size="sm"
+                      leftIcon={<ClipboardList className="w-3.5 h-3.5" />}>
+                      Detail Rapor
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
-              <div className="col-span-4">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-semibold text-xs text-ink">{ev.unit.name}</span>
-                  {ev.isFinished ? (
-                    <Badge variant="success" size="sm">
-                      <CheckCircle2 className="w-3 h-3 mr-0.5" /> Selesai
-                    </Badge>
-                  ) : (
-                    <Badge variant="neutral" size="sm">
-                      Progres
-                    </Badge>
+              {/* 2. Desktop Grid Layout (≥ sm) */}
+              <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-4 items-center">
+                <div className="col-span-1 text-sm font-semibold text-ink-muted tabular-nums">
+                  {medal ?? <span>{idx + 1}</span>}
+                </div>
+
+                <div className="col-span-4">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-semibold text-xs text-ink">{ev.unit.name}</span>
+                    {ev.isFinished ? (
+                      <Badge variant="success" size="sm">
+                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> Selesai
+                      </Badge>
+                    ) : (
+                      <Badge variant="neutral" size="sm">
+                        Progres
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-[10px] text-ink-muted mt-0.5 tabular-nums">Tahun {ev.year}</div>
+                </div>
+
+                <div className="col-span-2">
+                  <Badge variant="neutral" size="sm">
+                    {ev.unit.category?.name || '-'}
+                  </Badge>
+                </div>
+
+                <div className="col-span-2 text-right">
+                  <span className="font-semibold text-sm text-ink tracking-tight tabular-nums">
+                    {ev.finalPct.toFixed(1)}%
+                  </span>
+                  <div className="text-[10px] text-ink-muted tabular-nums">
+                    Skala 5: {ev.finalScale5.toFixed(2)}
+                  </div>
+                  {ev.hasF03 && (
+                    <div className="text-[10px] text-pastel-blue-text font-semibold tabular-nums">
+                      F02: {ev.f02Pct.toFixed(0)}% · F03: {ev.f03Pct.toFixed(0)}%
+                    </div>
                   )}
                 </div>
-                <div className="text-[10px] font-mono text-ink-muted mt-0.5">Tahun {ev.year}</div>
-              </div>
 
-              <div className="col-span-2">
-                <Badge variant="neutral" size="sm">
-                  {ev.unit.category?.name || '-'}
-                </Badge>
-              </div>
-
-              <div className="col-span-2 text-right">
-                <span className="font-semibold text-sm text-ink font-mono tracking-tight tabular-nums">
-                  {ev.finalPct.toFixed(1)}%
-                </span>
-                <div className="text-[10px] font-mono text-ink-muted tabular-nums">
-                  Skala 5: {ev.finalScale5.toFixed(2)}
+                <div className="col-span-3 text-right flex items-center justify-end gap-2">
+                  <Badge variant={cfg.badgeVariant} size="sm">
+                    {grade} - {cfg.label}
+                  </Badge>
+                  <Link href={`/hasil/${ev.id}`}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      leftIcon={<ClipboardList className="w-3.5 h-3.5" />}>
+                      Detail
+                    </Button>
+                  </Link>
                 </div>
-                {ev.hasF03 && (
-                  <div className="text-[10px] font-mono text-pastel-blue-text font-semibold">
-                    F02: {ev.f02Pct.toFixed(0)}% · F03: {ev.f03Pct.toFixed(0)}%
-                  </div>
-                )}
-              </div>
-
-              <div className="col-span-3 text-right flex items-center justify-end gap-2">
-                <Badge variant={cfg.badgeVariant} size="sm">
-                  {grade} - {cfg.label}
-                </Badge>
-                <Link href={`/hasil/${ev.id}`}>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    leftIcon={<ClipboardList className="w-3.5 h-3.5" />}>
-                    Detail
-                  </Button>
-                </Link>
               </div>
             </div>
           )

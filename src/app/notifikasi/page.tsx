@@ -303,7 +303,7 @@ function NotificationContent() {
             <option value="F01">Isian F01 OPD</option>
             <option value="DRIVE">Bukti Drive</option>
           </select>
-          <span className="text-[11px] text-ink-muted hidden sm:inline pl-2 border-l border-stroke/40 font-mono">
+          <span className="text-[11px] text-ink-muted hidden sm:inline pl-2 border-l border-stroke/40 tabular-nums">
             {filteredNotifications.length} Notifikasi
           </span>
         </div>
@@ -352,7 +352,7 @@ function NotificationContent() {
                   <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       {getTypeBadge(item.type)}
-                      <span className="text-[11px] text-ink-muted font-mono">
+                      <span className="text-[11px] text-ink-muted tabular-nums">
                         {new Date(item.createdAt).toLocaleString('id-ID', {
                           dateStyle: 'medium',
                           timeStyle: 'short'

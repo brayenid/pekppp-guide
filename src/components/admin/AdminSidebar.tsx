@@ -4,75 +4,72 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { ArrowLeft, X } from 'lucide-react'
 import {
-  CalendarDays,
-  Building2,
-  Users,
-  UserCog,
-  ArrowLeft,
-  ShieldCheck,
-  Sparkles,
-  FileCheck,
-  FolderArchive,
-  Sliders,
-  BookOpen,
-  Menu,
-  X
-} from 'lucide-react'
+  CalendarBlankDuotoneIcon,
+  BuildingDuotoneIcon,
+  ArchiveDuotoneIcon,
+  FilesDuotoneIcon,
+  GavelDuotoneIcon,
+  UsersDuotoneIcon,
+  SparkleDuotoneIcon,
+  CodeBlockDuotoneIcon,
+  BookBookmarkDuotoneIcon
+} from '../ui/icons/SidebarIcons'
 
 const ADMIN_NAV = [
   {
     href: '/admin/periode',
     label: 'Tahun Penilaian PEKPPP',
-    icon: CalendarDays,
+    icon: CalendarBlankDuotoneIcon,
     description: 'Lokus & evaluasi PEKPPP'
   },
   {
     href: '/admin/lokus',
     label: 'Master Lokus',
-    icon: Building2,
+    icon: BuildingDuotoneIcon,
     description: 'Daftar master unit kerja'
   },
   {
     href: '/admin/master-bukti',
     label: 'Master Bukti Dukung',
-    icon: FolderArchive,
+    icon: ArchiveDuotoneIcon,
     description: 'Living document & versi berkas'
   },
   {
     href: '/admin/panduan-bukti',
     label: 'Master Panduan Bukti',
-    icon: FileCheck,
+    icon: FilesDuotoneIcon,
     description: 'Contoh berkas 6 Aspek'
   },
   {
     href: '/admin/pengaturan-bukti',
     label: 'Aturan Bukti Dukung',
-    icon: Sliders,
+    icon: GavelDuotoneIcon,
     description: 'Format, kuota & ukuran 6 Aspek'
   },
   {
     href: '/admin/akun',
     label: 'Manajemen Akun',
-    icon: UserCog,
+    icon: UsersDuotoneIcon,
     description: 'Super Admin & OPD'
   },
   {
     href: '/admin/pengaturan-ai',
     label: 'Pengaturan & Konteks AI',
-    icon: Sparkles,
+    icon: SparkleDuotoneIcon,
     description: 'Model, biaya & 6 Aspek Utama'
   },
   {
     href: '/admin/pengaturan-api',
     label: 'Pengaturan API',
-    icon: ShieldCheck,
+    icon: CodeBlockDuotoneIcon,
     description: 'Integrasi API MenPAN-RB'
   },
   {
     href: '/admin/dokumentasi',
     label: 'Dokumentasi & Spec API',
-    icon: BookOpen,
+    icon: BookBookmarkDuotoneIcon,
     description: 'Fitur & skema JSON MenPAN-RB'
   }
 ]
@@ -141,19 +138,19 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
 
         {/* Drawer Panel from Left */}
         <aside
-          className={`absolute top-0 left-0 bottom-0 w-[85vw] max-w-[320px] bg-brand text-white border-r border-[#154694] shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
+          className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand text-white shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
           {/* Drawer Header (Stay Pinned) */}
-          <div className="p-4 border-b border-[#154694] flex items-center justify-between gap-3 bg-black/10 shrink-0">
+          <div className="h-14 px-4 flex items-center justify-between gap-3 shrink-0">
             <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm ring-1 ring-white/20 shrink-0">
+              <div className="w-7 h-7 flex items-center justify-center shrink-0">
                 <Image
                   src="/kubar.png"
                   alt="Logo Kutai Barat"
                   width={28}
                   height={28}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain grayscale contrast-125 brightness-110"
                 />
               </div>
               <div className="flex flex-col leading-tight">
@@ -169,13 +166,13 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Tutup menu admin"
-              className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20">
+              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Nav Items (Only Menu Scrolls) */}
-          <nav className="flex-1 overflow-y-auto min-h-0 p-3 space-y-1.5">
+          <nav className="flex-1 overflow-y-auto min-h-0 p-2.5 space-y-1.5">
             {ADMIN_NAV.map(({ href, label, icon: Icon, description }) => {
               const isActive = pathname === href || pathname.startsWith(href + '/')
 
@@ -184,13 +181,13 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
                   key={href}
                   href={href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-start gap-3 px-3.5 py-2.5 rounded-2xl transition-all duration-200 min-h-[44px] ${
+                  className={`flex items-start gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 min-h-[40px] ${
                     isActive
                       ? 'bg-white text-brand font-bold shadow-md'
                       : 'text-white/85 hover:bg-white/10 hover:text-white border border-transparent'
                   }`}>
                   <div
-                    className={`p-1.5 rounded-xl transition-colors shrink-0 mt-0.5 ${
+                    className={`p-1.5 rounded-lg transition-colors shrink-0 mt-0.5 ${
                       isActive ? 'bg-brand-light text-brand' : 'bg-white/10 text-white/75'
                     }`}>
                     <Icon className="w-4 h-4" />
@@ -209,11 +206,11 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
           </nav>
 
           {/* Back to Site (Stay Pinned) */}
-          <div className="p-4 border-t border-[#154694] bg-black/10 shrink-0">
+          <div className="p-3 shrink-0">
             <Link
               href="/"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 font-semibold transition-all min-h-[44px]">
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 font-semibold transition-all min-h-[40px]">
               <ArrowLeft className="w-3.5 h-3.5 text-white" />
               <span>Kembali ke Situs Publik</span>
             </Link>
@@ -222,21 +219,21 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
       </div>
 
       {/* ── Desktop Persistent Sidebar (≥ lg) ───────────────────────── */}
-      <aside className="hidden lg:flex w-72 h-screen shrink-0 bg-brand border-r border-[#154694] flex-col overflow-hidden shadow-md z-20">
-        {/* Top 64px Header: Website Title & Logo (Stay Pinned) */}
-        <div className="h-16 px-5 border-b border-[#154694] bg-black/10 flex items-center justify-between shrink-0">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-xl bg-white p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm ring-1 ring-white/20 shrink-0">
+      <aside className="hidden lg:flex w-64 h-screen shrink-0 bg-brand flex-col overflow-hidden z-20">
+        {/* Top 56px Header: Website Title & Logo (Stay Pinned) */}
+        <div className="h-14 px-4 flex items-center justify-between shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-7 h-7 flex items-center justify-center shrink-0">
               <Image
                 src="/kubar.png"
                 alt="Logo Kutai Barat"
                 width={28}
                 height={28}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain grayscale contrast-125 brightness-110 group-hover:scale-105 transition-transform"
               />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-bold text-base tracking-tight text-white">
+              <span className="font-bold text-sm tracking-tight text-white">
                 PEKPPP<span className="text-sky-200 font-medium">.ext</span>
               </span>
               <span className="text-[10px] font-medium tracking-wider text-sky-100">
@@ -247,7 +244,7 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
         </div>
 
         {/* Nav Items (Only Menu Scrolls) */}
-        <nav className="flex-1 overflow-y-auto min-h-0 p-3.5 space-y-1.5">
+        <nav className="flex-1 overflow-y-auto min-h-0 p-2.5 space-y-1.5">
           {ADMIN_NAV.map(({ href, label, icon: Icon, description }) => {
             const isActive = pathname === href || pathname.startsWith(href + '/')
 
@@ -255,13 +252,13 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
               <Link
                 key={href}
                 href={href}
-                className={`flex items-start gap-3 px-3.5 py-2.5 rounded-2xl transition-all duration-200 group ${
+                className={`flex items-start gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group ${
                   isActive
                     ? 'bg-white text-brand font-bold shadow-md'
                     : 'text-white/85 hover:bg-white/10 hover:text-white'
                 }`}>
                 <div
-                  className={`p-1.5 rounded-xl transition-colors shrink-0 mt-0.5 ${
+                  className={`p-1.5 rounded-lg transition-colors shrink-0 mt-0.5 ${
                     isActive ? 'bg-brand-light text-brand' : 'bg-white/10 text-white/75 group-hover:text-white group-hover:bg-white/15'
                   }`}>
                   <Icon className="w-4 h-4" />
@@ -280,10 +277,10 @@ export default function AdminSidebar({ periods = [] }: { periods?: PeriodItem[] 
         </nav>
 
         {/* Back to Site (Stay Pinned) */}
-        <div className="p-4 border-t border-[#154694] bg-black/10 shrink-0">
+        <div className="p-3 shrink-0">
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 transition-all font-semibold shadow-2xs">
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 transition-all font-semibold shadow-2xs">
             <ArrowLeft className="w-3.5 h-3.5 text-white" />
             <span>Kembali ke Situs</span>
           </Link>

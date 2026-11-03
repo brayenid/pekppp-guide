@@ -116,8 +116,8 @@ export function UserNavDropdown({ user }: { user: UserSession }) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/25 h-10 px-1.5 pr-3 rounded-full transition-all cursor-pointer shadow-2xs group">
-        <div className="w-7 h-7 rounded-full bg-white text-brand border border-white/30 flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+        className="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/25 h-9 px-1.5 pr-2.5 rounded-full transition-all cursor-pointer shadow-2xs group">
+        <div className="w-6 h-6 rounded-full bg-white text-brand border border-white/30 flex items-center justify-center text-[11px] font-bold shrink-0 shadow-2xs">
           {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
         </div>
 

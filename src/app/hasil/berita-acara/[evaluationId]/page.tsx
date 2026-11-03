@@ -170,7 +170,7 @@ export default async function BeritaAcaraPage({
             </tr>
             <tr className="border-b border-[#e8e8e8]">
               <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Tahun Penilaian</td>
-              <td className="px-4 py-2.5 text-[#202020] font-mono">{evaluation.year}</td>
+              <td className="px-4 py-2.5 text-[#202020] font-medium tabular-nums">{evaluation.year}</td>
             </tr>
             <tr className="border-b border-[#e8e8e8]">
               <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Status Penilaian</td>
@@ -234,7 +234,7 @@ export default async function BeritaAcaraPage({
 
           <div className="border border-[#e8e8e8] rounded-[8px] overflow-hidden">
             <table className="w-full text-xs text-left">
-              <thead className="bg-[#f8f9fa] border-b border-[#e8e8e8] text-[10px] font-mono uppercase tracking-[0.06em] text-[#838383]">
+              <thead className="bg-[#f8f9fa] border-b border-[#e8e8e8] text-[10px] font-semibold uppercase tracking-[0.06em] text-[#838383]">
                 <tr>
                   <th className="px-3 py-2 text-center w-[50px]">No</th>
                   <th className="px-3 py-2">Pertanyaan</th>

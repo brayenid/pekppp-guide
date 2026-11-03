@@ -43,7 +43,7 @@ export function Breadcrumb({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={`flex items-center flex-wrap gap-1 sm:gap-1.5 text-xs text-ink-muted mb-5 sm:mb-6 pt-0.5 min-h-[32px] ${className}`}>
+      className={`flex items-center flex-wrap gap-1 sm:gap-1.5 text-xs text-ink-muted mb-4 sm:mb-6 pt-0.5 min-h-[32px] min-w-0 max-w-full overflow-hidden ${className}`}>
       {backLink && (
         <>
           {backLink.href ? (
@@ -66,14 +66,14 @@ export function Breadcrumb({
         </>
       )}
 
-      <ol className="flex items-center flex-wrap gap-1 sm:gap-1.5">
+      <ol className="flex items-center flex-wrap gap-1 sm:gap-1.5 min-w-0 max-w-full">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
           const isFirst = index === 0
           const Icon = item.icon
 
           return (
-            <li key={index} className="flex items-center gap-1 sm:gap-1.5">
+            <li key={index} className="flex items-center gap-1 sm:gap-1.5 min-w-0">
               {index > 0 && (
                 <span className="text-ink-muted/40 select-none shrink-0 px-0.5" aria-hidden="true">
                   {separator === 'slash' ? (
@@ -87,7 +87,7 @@ export function Breadcrumb({
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="hover:text-ink text-ink-muted hover:bg-surface-elevated/70 px-2 py-1 -my-1 rounded-md font-medium transition-all inline-flex items-center gap-1.5 max-w-[180px] sm:max-w-[260px] md:max-w-none truncate group">
+                  className="hover:text-ink text-ink-muted hover:bg-surface-elevated/70 px-2 py-1 -my-1 rounded-md font-medium transition-all inline-flex items-center gap-1.5 max-w-[130px] sm:max-w-[260px] md:max-w-none truncate min-w-0 group">
                   {showBackOnFirst && isFirst && !backLink && (
                     <ArrowLeft className="w-3.5 h-3.5 text-ink-muted group-hover:text-ink group-hover:-translate-x-0.5 transition-transform shrink-0" />
                   )}
@@ -98,7 +98,7 @@ export function Breadcrumb({
                 <button
                   type="button"
                   onClick={item.onClick}
-                  className="hover:text-ink text-ink-muted hover:bg-surface-elevated/70 px-2 py-1 -my-1 rounded-md font-medium transition-all inline-flex items-center gap-1.5 max-w-[180px] sm:max-w-[260px] md:max-w-none truncate group cursor-pointer">
+                  className="hover:text-ink text-ink-muted hover:bg-surface-elevated/70 px-2 py-1 -my-1 rounded-md font-medium transition-all inline-flex items-center gap-1.5 max-w-[130px] sm:max-w-[260px] md:max-w-none truncate min-w-0 group cursor-pointer">
                   {showBackOnFirst && isFirst && !backLink && (
                     <ArrowLeft className="w-3.5 h-3.5 text-ink-muted group-hover:text-ink group-hover:-translate-x-0.5 transition-transform shrink-0" />
                   )}
@@ -107,7 +107,7 @@ export function Breadcrumb({
                 </button>
               ) : (
                 <span
-                  className={`inline-flex items-center gap-1.5 px-1 py-0.5 max-w-[220px] sm:max-w-[340px] md:max-w-none truncate ${
+                  className={`inline-flex items-center gap-1.5 px-1 py-0.5 max-w-[150px] sm:max-w-[340px] md:max-w-none truncate min-w-0 ${
                     isLast ? 'text-ink font-semibold' : 'font-medium'
                   }`}
                   aria-current={isLast ? 'page' : undefined}>

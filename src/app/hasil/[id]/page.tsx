@@ -211,24 +211,24 @@ export default async function PublicHasilDetailPage({
 
           <div className="flex items-center justify-between sm:justify-end gap-3.5 w-full sm:w-auto pt-2 sm:pt-0 border-t border-white/10 sm:border-t-0">
             <div className="text-left sm:text-right">
-              <span className="text-[11px] sm:text-xs font-medium text-white/75 dark:text-ink-muted block font-mono uppercase tracking-wider">
+              <span className="text-[11px] sm:text-xs font-semibold text-white/75 dark:text-ink-muted block uppercase tracking-wider">
                 {hasF03 ? 'SKOR IPP FINAL' : 'SKOR IPP (F-02)'}
               </span>
-              <span className="text-lg sm:text-xl font-semibold text-white dark:text-ink font-mono tabular-nums">
+              <span className="text-lg sm:text-xl font-bold text-white dark:text-ink tabular-nums">
                 {formatScore(finalIppPct)}%
-                <span className="text-xs sm:text-sm text-white/75 dark:text-ink-muted font-normal ml-1.5">
+                <span className="text-xs sm:text-sm text-white/75 dark:text-ink-muted font-normal ml-1.5 tabular-nums">
                   ({formatScore(finalIppScale5, 2)} / 5.00)
                 </span>
               </span>
               {hasF03 && (
-                <span className="text-[10px] text-white/80 dark:text-emerald-400 block font-mono">
+                <span className="text-[10px] text-white/80 dark:text-emerald-400 block tabular-nums">
                   F02: {formatScore(f02Pct, 1)}% | F03: {formatScore(f03Pct, 1)}%
                 </span>
               )}
             </div>
 
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/15 dark:bg-brand/10 border border-white/25 dark:border-brand/20 flex flex-col items-center justify-center text-white dark:text-brand font-semibold text-xs sm:text-sm shrink-0">
-              <span className="text-[10px] opacity-75 font-mono leading-none">Grade</span>
+              <span className="text-[10px] opacity-75 leading-none">Grade</span>
               <span className="text-base sm:text-lg font-bold leading-tight mt-0.5">{grade}</span>
             </div>
           </div>
@@ -242,10 +242,10 @@ export default async function PublicHasilDetailPage({
               style={{ width: `${Math.min(100, Math.max(0, finalIppPct))}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-[11px] text-white/80 dark:text-ink-muted font-medium font-mono">
+          <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-white/80 dark:text-ink-muted font-medium tabular-nums">
             <span>Capaian Indeks: {formatScore(finalIppPct)}%</span>
             <span>Grade {grade} · {gradeCfg.label}</span>
-            <span>Target Maksimal: 100%</span>
+            <span>Target: 100%</span>
           </div>
         </div>
       </div>
@@ -351,12 +351,12 @@ export default async function PublicHasilDetailPage({
         <div className="rounded-bento border border-stroke bg-surface p-5 sm:p-6 space-y-4 shadow-soft-card">
           <div className="flex items-center justify-between border-b border-stroke pb-3">
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+              <div className="text-[10px] uppercase tracking-wider text-ink-muted font-semibold">
                 INSTRUMEN SURVEI · BOBOT 25% IPP
               </div>
               <h3 className="font-semibold text-sm sm:text-base text-ink">Hasil Survei Responden F-03</h3>
             </div>
-            <div className="text-right font-mono font-semibold text-base sm:text-lg text-ink">
+            <div className="text-right font-semibold text-base sm:text-lg text-ink tabular-nums">
               {formatScore(f03AvgPct)}%
             </div>
           </div>
@@ -373,16 +373,16 @@ export default async function PublicHasilDetailPage({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
             <div className="p-3 bg-surface-subtle/50 rounded-xl border border-stroke">
-              <div className="text-xl font-semibold text-ink font-mono">{evaluation.f03Count}</div>
-              <div className="text-[10px] font-mono text-ink-muted uppercase font-medium">Jumlah Responden</div>
+              <div className="text-xl font-semibold text-ink tabular-nums">{evaluation.f03Count}</div>
+              <div className="text-[10px] text-ink-muted uppercase font-medium">Jumlah Responden</div>
             </div>
             <div className="p-3 bg-surface-subtle/50 rounded-xl border border-stroke">
-              <div className="text-xl font-semibold text-ink font-mono">{formatScore(f03AvgPct)}%</div>
-              <div className="text-[10px] font-mono text-ink-muted uppercase font-medium">Agregat F-03</div>
+              <div className="text-xl font-semibold text-ink tabular-nums">{formatScore(f03AvgPct)}%</div>
+              <div className="text-[10px] text-ink-muted uppercase font-medium">Agregat F-03</div>
             </div>
             <div className="p-3 bg-surface-subtle/50 rounded-xl border border-stroke">
-              <div className="text-xl font-semibold text-ink font-mono">{formatScore(evaluation.f03Scale5, 2)} / 5.00</div>
-              <div className="text-[10px] font-mono text-ink-muted uppercase font-medium">Skala 0-5</div>
+              <div className="text-xl font-semibold text-ink tabular-nums">{formatScore(evaluation.f03Scale5, 2)} / 5.00</div>
+              <div className="text-[10px] text-ink-muted uppercase font-medium">Skala 0-5</div>
             </div>
           </div>
 

@@ -27,7 +27,7 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   return (
     <HeaderProvider>
       <Navbar />
-      <main className="flex-1 w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-6 min-w-0 max-w-full overflow-x-clip">
         {children}
       </main>
       <Footer />

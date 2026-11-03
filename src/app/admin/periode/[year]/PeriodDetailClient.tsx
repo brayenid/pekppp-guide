@@ -560,6 +560,37 @@ export default function PeriodDetailClient({
         icon={<CalendarDays className="w-5 h-5 text-brand" />}
         title={`Evaluasi PEKPPP Tahun ${period.year}`}
         description={`Pusat kendali evaluasi pelayanan publik Tahun ${period.year}. Pantau audit F-01 & F-02 (31 indikator), survei kepuasan F-03, dan skor IPP akhir seluruh lokus.`}
+        speedDialItems={[
+          {
+            label: `Kelola Lokus (${totalUnits})`,
+            icon: <Plus className="w-4 h-4" />,
+            onClick: () => {
+              setSelectedUnitIds(new Set(enrolledUnitIds.length > 0 ? enrolledUnitIds : items.map((e) => e.unitId)))
+              setIsEnrollModalOpen(true)
+            }
+          },
+          {
+            label: 'Rekonsiliasi MenPAN-RB',
+            icon: <FileSpreadsheet className="w-4 h-4" />,
+            onClick: () => setIsReconciliationOpen(true)
+          },
+          {
+            label: 'Laporan Komprehensif',
+            icon: <FileText className="w-4 h-4" />,
+            onClick: handleOpenReport
+          },
+          {
+            label: 'Pengaturan Periode',
+            icon: <SlidersHorizontal className="w-4 h-4" />,
+            onClick: () => {
+              setEditYear(period.year)
+              setEditTargetQuota(period.targetF03Quota || 30)
+              setEditF03Method(period.f03CalculationMethod || 'PROPORTIONAL')
+              setEditTitle(period.title || `Evaluasi PEKPPP Tahun ${period.year}`)
+              setIsEditPeriodOpen(true)
+            }
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2.5">
             {/* Dropdown Menu Aksi Sederhana */}
@@ -858,7 +889,12 @@ export default function PeriodDetailClient({
           </div>
         ) : (
           <div className="overflow-x-auto min-h-[260px] pb-20">
-            <table className="w-full text-left text-xs">
+            {/* Mobile Scroll Hint */}
+            <div className="sm:hidden px-4 py-2 text-[10px] text-ink-muted flex items-center justify-between border-b border-stroke/30 bg-surface-subtle/25">
+              <span>Geser tabel ke samping untuk melihat detail &rarr;</span>
+              <span className="font-semibold text-brand">7 Kolom</span>
+            </div>
+            <table className="w-full min-w-[680px] text-left text-xs">
               <thead className="border-b border-stroke/40 text-ink-muted font-medium text-[11px] uppercase tracking-wider bg-surface-subtle/20">
                 <tr>
                   <th className="pl-6 pr-4 py-2.5 font-normal">Lokus Unit Kerja</th>
@@ -973,7 +1009,7 @@ export default function PeriodDetailClient({
 
                       <td className="px-4 py-2.5">
                         <div className="space-y-1 w-28">
-                          <div className="flex items-center justify-between text-[10px] font-mono leading-none">
+                          <div className="flex items-center justify-between text-[10px] tabular-nums leading-none">
                             <span className="text-ink font-medium">F-02: {filledScores}/31</span>
                             <span className="text-ink-muted">F-01: {f01Count}</span>
                           </div>
@@ -988,7 +1024,7 @@ export default function PeriodDetailClient({
 
                       <td className="px-3 py-2.5 text-center">
                         <span
-                          className={`inline-flex items-center gap-1 text-[11px] font-mono ${
+                          className={`inline-flex items-center gap-1 text-[11px] tabular-nums ${
                             f03Count >= targetQuota
                               ? 'text-emerald-700 font-medium'
                               : 'text-ink-secondary'
@@ -1001,7 +1037,7 @@ export default function PeriodDetailClient({
                       </td>
 
                       <td className="px-3 py-2.5 text-center">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-ink-secondary">
+                        <span className="inline-flex items-center gap-1 text-[11px] tabular-nums text-ink-secondary">
                           <FolderOpen className="w-3 h-3 text-ink-muted" />
                           <span>{evidenceCount} Dok</span>
                         </span>
@@ -1009,7 +1045,7 @@ export default function PeriodDetailClient({
 
                       <td className="px-3 py-2.5 text-center">
                         <div className="leading-tight">
-                          <span className="font-semibold text-xs text-ink font-mono">
+                          <span className="font-semibold text-xs text-ink tabular-nums">
                             {ev.finalIppScore > 0 ? ev.finalIppScore.toFixed(2) : '-'}
                           </span>
                           {ev.finalIppScore > 0 && (
@@ -1231,7 +1267,7 @@ export default function PeriodDetailClient({
           </div>
 
           <div className="flex items-center justify-between pt-3 border-t border-line">
-            <span className="text-xs font-mono font-bold text-ink-muted">
+            <span className="text-xs font-semibold tabular-nums text-ink-muted">
               {selectedUnitIds.size} Lokus Terpilih
             </span>
 
@@ -1341,7 +1377,7 @@ export default function PeriodDetailClient({
                 value={editYear}
                 onChange={(e) => setEditYear(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="Contoh: 2027"
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-semibold tabular-nums focus:outline-none focus:border-brand shadow-2xs"
                 required
               />
               <p className="text-[10px] text-ink-muted mt-1">
@@ -1359,7 +1395,7 @@ export default function PeriodDetailClient({
                 max="1000"
                 value={editTargetQuota}
                 onChange={(e) => setEditTargetQuota(parseInt(e.target.value) || 30)}
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-semibold tabular-nums focus:outline-none focus:border-brand shadow-2xs"
               />
               <p className="text-[10px] text-ink-muted mt-1">
                 Target minimal responden per lokus unit kerja.

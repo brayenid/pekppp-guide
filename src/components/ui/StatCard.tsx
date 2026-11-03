@@ -53,7 +53,7 @@ export function StatCard({
           <span
             className={`${
               compact ? 'text-2xl font-semibold' : 'text-2xl sm:text-3xl font-semibold'
-            } text-ink tracking-tight font-mono tabular-nums ${valueClassName}`}
+            } text-ink tracking-tight tabular-nums ${valueClassName}`}
           >
             {value}
           </span>

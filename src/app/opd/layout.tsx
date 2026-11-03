@@ -124,7 +124,7 @@ export default async function OpdLayout({
   }))
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-canvas">
+    <div className="flex h-screen w-screen overflow-hidden bg-brand">
       {/* Kolom 1: Sidebar OPD Desktop (100vh) & Drawer Mobile */}
       <OpdSidebar
         user={{
@@ -140,9 +140,9 @@ export default async function OpdLayout({
       />
 
       {/* Kolom 2: Lane Kerja Terpadu (Header + Konten dalam 1 Kolom Vertikal) */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-brand">
         <DashboardHeader role="opd" />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-canvas min-w-0">
+        <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-7 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(8rem+env(safe-area-inset-bottom,0px))] lg:pb-7 bg-canvas min-w-0 rounded-t-2xl lg:rounded-tr-none lg:rounded-tl-[20px]">
           {children}
         </main>
       </div>

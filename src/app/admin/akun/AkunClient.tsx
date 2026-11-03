@@ -400,6 +400,20 @@ export default function AkunClient({
         icon={<UserCog className="w-5 h-5 text-brand" />}
         title="Manajemen Akun"
         description="Kelola akun Super Admin dan OPD. Tautkan (bind) lokus pelayanan ke akun OPD terkait."
+        speedDialItems={[
+          {
+            label: 'Tambah Akun Baru',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: () => setIsFormOpen(true),
+            variant: 'brand'
+          },
+          {
+            label: 'Import Excel',
+            icon: <FileSpreadsheet className="w-4 h-4" />,
+            onClick: () => setIsImportOpen(true),
+            variant: 'secondary'
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2.5">
             <Button
@@ -520,7 +534,7 @@ export default function AkunClient({
                       {profile.phone && (
                         <>
                           <span className="text-ink-muted/40">•</span>
-                          <span className="font-mono text-emerald-700 font-medium">WA: {profile.phone}</span>
+                          <span className="tabular-nums text-emerald-700 font-medium">WA: {profile.phone}</span>
                         </>
                       )}
                       <span className="text-ink-muted/40">•</span>

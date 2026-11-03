@@ -435,6 +435,15 @@ export default function MasterEvidenceClient({
         icon={<FolderArchive className="w-5 h-5 text-brand" />}
         title="Master Bukti Dukung"
         description="Repositori induk bukti dukung seluruh lokus pelayanan publik. Berkas di dalam master otomatis diwariskan saat tahun penilaian baru dimulai dan menjaga kesinambungan versi (v1, v2, dst.) lintas tahun."
+        speedDialItems={[
+          {
+            label: isSyncing ? 'Menyinkronkan...' : 'Sinkronkan Master & Warisan',
+            icon: <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />,
+            onClick: handleSyncAll,
+            disabled: isSyncing,
+            variant: 'brand'
+          }
+        ]}
         actions={
           <Button
             type="button"
@@ -607,7 +616,7 @@ export default function MasterEvidenceClient({
                         {row.unit.name}
                       </button>
                       {row.unit.code && (
-                        <span className="text-[10px] text-ink-muted font-mono">{row.unit.code}</span>
+                        <span className="text-[10px] text-ink-muted">{row.unit.code}</span>
                       )}
                     </td>
                     <td className="py-2.5 px-3.5 text-ink-secondary text-xs">

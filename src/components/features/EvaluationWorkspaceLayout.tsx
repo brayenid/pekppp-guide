@@ -310,6 +310,22 @@ export function EvaluationWorkspaceLayout({
   const splitContainerRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
   const rafRef = useRef<number | null>(null)
+  const mobileCarouselRef = useRef<HTMLDivElement>(null)
+
+  // Smooth scroll container to keep active indicator centered in mobile carousel without window panning
+  useEffect(() => {
+    if (mobileCarouselRef.current) {
+      const activeBtn = mobileCarouselRef.current.querySelector<HTMLButtonElement>('[data-active-indicator="true"]')
+      if (activeBtn) {
+        const container = mobileCarouselRef.current
+        const btnLeft = activeBtn.offsetLeft
+        const btnWidth = activeBtn.offsetWidth
+        const containerWidth = container.offsetWidth
+        const targetScrollLeft = btnLeft - (containerWidth / 2) + (btnWidth / 2)
+        container.scrollTo({ left: Math.max(0, targetScrollLeft), behavior: 'smooth' })
+      }
+    }
+  }, [activeNumber])
 
   // Baca dari localStorage hanya setelah komponen mounted di browser & sinkronkan jika ada perubahan
   useEffect(() => {
@@ -939,7 +955,7 @@ export function EvaluationWorkspaceLayout({
   }, [internalScores])
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5 min-w-0 max-w-full overflow-hidden">
       {/* Contextual Status Banner */}
       {userRole === 'OPD' && !isF01Editable && (
         <NoticeBanner
@@ -952,10 +968,10 @@ export function EvaluationWorkspaceLayout({
 
 
       {userRole === 'SUPER_ADMIN' && (
-        <div className="bg-surface-subtle/70 border border-stroke/50 rounded-2xl px-5 py-2.5 flex items-center justify-between gap-4 text-xs">
-          <div className="flex items-center gap-2 text-ink-secondary">
+        <div className="bg-surface-subtle/70 border border-stroke/50 rounded-2xl px-3.5 sm:px-5 py-2.5 flex items-center justify-between gap-3 text-xs min-w-0 max-w-full">
+          <div className="flex items-center gap-2 text-ink-secondary min-w-0">
             <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
-            <span>
+            <span className="leading-relaxed">
               Status Evaluasi: <strong className="text-ink">{filledF02Count}</strong> dari <strong className="text-ink">31</strong> pertanyaan telah dinilai.
               {hasEvaluatorScoredAny && ' Notifikasi revisi otomatis aktif jika OPD memperbarui F01/bukti dukung pasca dinilai.'}
             </span>
@@ -967,7 +983,7 @@ export function EvaluationWorkspaceLayout({
         /* ------------------------------------------------------------- */
         /* MODE: MATRIKS BUKTI DUKUNG (6 ASPEK)                           */
         /* ------------------------------------------------------------- */
-        <div id="active-workspace-card" className="space-y-4">
+        <div id="active-workspace-card" className="space-y-4 min-w-0 max-w-full">
           {!activeAspectEvidence ? (
             /* A. Bento Grid Index 6 Aspek */
             <AspectEvidenceGridHub
@@ -978,9 +994,9 @@ export function EvaluationWorkspaceLayout({
             />
           ) : (
             /* B. Workspace Berkas Aspek Terpilih */
-            <div className="space-y-4">
+            <div className="space-y-4 min-w-0 max-w-full">
               {/* Aspect Quick Navigation Tabs */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card min-w-0 max-w-full">
                 <button
                   type="button"
                   onClick={handleGoToEvidenceHub}
@@ -989,7 +1005,7 @@ export function EvaluationWorkspaceLayout({
                   <span>Grid 6 Aspek</span>
                 </button>
 
-                <div className="flex items-center gap-1.5 overflow-x-auto text-xs py-0.5 max-w-full">
+                <div className="flex items-center gap-1.5 overflow-x-auto text-xs py-0.5 max-w-full overscroll-x-contain">
                   {['I', 'II', 'III', 'IV', 'V', 'VI', 'TAMBAHAN'].map((code) => {
                     const isActive = activeAspectEvidence === code
                     const grp = groupedAspects.find((g) => g.aspect.code === code)
@@ -1065,13 +1081,13 @@ export function EvaluationWorkspaceLayout({
         /* ------------------------------------------------------------- */
         /* MODE: PENGISIAN INSTRUMEN SOAL (SPLIT-PANEL)                  */
         /* ------------------------------------------------------------- */
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5 min-w-0 max-w-full">
         {/* Mobile: Horizontal Indicator Navigation Carousel */}
-        <div className="lg:hidden rounded-bento border border-stroke/50 bg-surface p-3 sm:p-4 space-y-2.5 shadow-soft-card">
+        <div className="lg:hidden rounded-bento border border-stroke/50 bg-surface p-3 sm:p-4 space-y-2.5 shadow-soft-card min-w-0 max-w-full overflow-hidden">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-ink">Peta Indikator Soal (1–31)</span>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-brand font-mono">
+              <span className="text-[11px] font-semibold text-brand tabular-nums">
                 {userRole === 'OPD' ? `${completedF01WithProofCount}/31` : `${filledF02Count}/31`} ({overallProgress}%)
               </span>
               <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
@@ -1085,7 +1101,10 @@ export function EvaluationWorkspaceLayout({
               style={{ width: `${overallProgress}%` }}
             />
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
+          <div
+            ref={mobileCarouselRef}
+            className="flex items-center gap-1.5 overflow-x-auto pb-1 hide-scrollbar overscroll-x-contain touch-pan-x select-none"
+          >
             {internalScores.map((sc) => {
               const num = sc.indicator.indicatorNumber
               const isSelected = num === activeNumber
@@ -1095,6 +1114,7 @@ export function EvaluationWorkspaceLayout({
                 <button
                   key={sc.indicator.id}
                   type="button"
+                  data-active-indicator={isSelected ? 'true' : 'false'}
                   onClick={() => handleGoToNumber(num)}
                   className={`min-w-[40px] h-9 px-2 rounded-xl text-xs font-semibold flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                     isSelected
@@ -1113,7 +1133,7 @@ export function EvaluationWorkspaceLayout({
         {/* Workspace Layout: Split panel on desktop, single column on mobile */}
         <div
           ref={splitContainerRef}
-          className="flex flex-col lg:flex-row items-stretch lg:items-start gap-4 lg:gap-0 mt-2 sm:mt-5"
+          className="flex flex-col lg:flex-row items-stretch lg:items-start gap-4 lg:gap-0 mt-2 sm:mt-5 min-w-0 max-w-full"
         >
           {/* ------------------------------------------------------------- */}
           {/* LEFT PANEL: PETA PERTANYAAN (Desktop Only)                    */}
@@ -1652,19 +1672,19 @@ export function EvaluationWorkspaceLayout({
           {/* ------------------------------------------------------------- */}
           {/* RIGHT PANEL: SPACIOUS WORKSPACE (~67% width)                 */}
           {/* ------------------------------------------------------------- */}
-          <div id="active-workspace-card" className={`w-full lg:flex-1 min-w-0 space-y-4 ${isResizing ? 'select-none [&_iframe]:pointer-events-none' : ''}`}>
+          <div id="active-workspace-card" className={`w-full lg:flex-1 min-w-0 max-w-full space-y-4 ${isResizing ? 'select-none [&_iframe]:pointer-events-none' : ''}`}>
           {/* Standard Question Form View */}
           <div className={`rounded-bento border bg-surface shadow-soft-card overflow-hidden transition-[border-color,box-shadow] duration-500 ${
             highlightTarget
               ? 'border-brand ring-4 ring-brand/20 shadow-soft-float'
               : 'border-stroke'
           }`}>
-            <div key={activeNumber} className="animate-fade-in-content">
+            <div key={activeNumber} className="animate-fade-in-content min-w-0 max-w-full">
                 {/* Clean Indicator Header (Warm Minimalist) */}
-                <div className="p-5 sm:p-6 border-b border-stroke bg-surface-subtle/30 space-y-3">
+                <div className="p-4 sm:p-6 border-b border-stroke bg-surface-subtle/30 space-y-3 min-w-0 max-w-full">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-xs sm:text-sm text-ink bg-surface-elevated px-3 py-1 rounded-full border border-stroke shadow-2xs">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                      <span className="font-semibold text-xs sm:text-sm text-ink bg-surface-elevated px-2.5 sm:px-3 py-1 rounded-full border border-stroke shadow-2xs">
                         #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
                       </span>
                       <span className="text-stroke font-bold">•</span>
@@ -1710,13 +1730,13 @@ export function EvaluationWorkspaceLayout({
                   )}
 
                   {/* Question Title */}
-                  <div className="space-y-1.5 pt-0.5">
+                  <div className="space-y-1.5 pt-0.5 min-w-0">
                     {activeScoreItem.indicator.isSupplementary && (
                       <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-surface-subtle text-ink-muted border border-stroke/50 mb-1">
                         Pertanyaan Tambahan
                       </span>
                     )}
-                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-ink leading-relaxed">
+                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-ink leading-relaxed break-words">
                       {activeScoreItem.indicator.question}
                     </h2>
                   </div>
@@ -1877,7 +1897,7 @@ export function EvaluationWorkspaceLayout({
                     type="button"
                     disabled={!prevScoreItem}
                     onClick={() => prevScoreItem && handleGoToNumber(prevScoreItem.indicator.indicatorNumber)}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Sebelumnya ({prevScoreItem ? `#${prevScoreItem.indicator.indicatorNumber}` : '-'})</span>
                   </button>
@@ -1890,9 +1910,10 @@ export function EvaluationWorkspaceLayout({
                     <button
                       type="button"
                       onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button">
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button">
                       <UploadCloud className="w-3.5 h-3.5" />
-                      <span>Upload Bukti Aspek {activeScoreItem.indicator.aspect.name}</span>
+                      <span className="hidden sm:inline">Upload Bukti Aspek {activeScoreItem.indicator.aspect.name}</span>
+                      <span className="sm:hidden">Upload Bukti Aspek</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (
@@ -1900,7 +1921,7 @@ export function EvaluationWorkspaceLayout({
                       type="button"
                       disabled={!nextScoreItem}
                       onClick={() => nextScoreItem && handleGoToNumber(nextScoreItem.indicator.indicatorNumber)}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
                       <span>Berikutnya ({nextScoreItem ? `#${nextScoreItem.indicator.indicatorNumber}` : 'Selesai'})</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>

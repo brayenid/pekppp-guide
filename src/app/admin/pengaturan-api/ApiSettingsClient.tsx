@@ -78,6 +78,15 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
         icon={<ShieldCheck className="w-5 h-5 text-brand" />}
         title="Pengaturan API MenPAN-RB"
         description="Konfigurasi endpoint dan kredensial akses resmi untuk sinkronisasi evaluasi ke portal nasional."
+        speedDialItems={[
+          {
+            label: testing ? 'Menguji...' : 'Uji Koneksi API',
+            icon: <RefreshCw className={`w-4 h-4 ${testing ? 'animate-spin' : ''}`} />,
+            onClick: handleTestConnection,
+            disabled: testing,
+            variant: 'brand'
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2.5">
             {isConfigured ? (

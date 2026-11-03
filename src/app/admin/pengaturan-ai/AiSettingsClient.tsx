@@ -122,6 +122,18 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
         icon={<Sparkles className="w-5 h-5 text-brand" />}
         title="Pengaturan & Konteks AI"
         description="Konfigurasi model, batas token & berkas, serta direktif acuan analisis 6 Aspek."
+        speedDialItems={[
+          {
+            label: saving ? 'Menyimpan...' : 'Simpan Pengaturan',
+            icon: <Save className="w-4 h-4" />,
+            onClick: () => {
+              const form = document.querySelector('form')
+              form?.requestSubmit()
+            },
+            disabled: saving,
+            variant: 'brand'
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2.5">
             {hasApiKey ? (

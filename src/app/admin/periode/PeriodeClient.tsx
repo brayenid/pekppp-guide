@@ -259,6 +259,17 @@ export default function PeriodeClient({
         icon={<CalendarDays className="w-5 h-5 text-brand" />}
         title="Tahun Penilaian PEKPPP"
         description="Kelola tahun penilaian evaluasi kinerja pelayanan publik. Setiap tahun merupakan agenda PEKPPP terpadu yang memuat seluruh lokus peserta."
+        speedDialItems={[
+          {
+            label: 'Tambah Tahun Penilaian',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: () => {
+              setSelectedUnitIds(new Set(allUnits.map((u) => u.id)))
+              setIsFormOpen(true)
+            },
+            variant: 'brand'
+          }
+        ]}
         actions={
           <Button
             variant="brand"
@@ -315,7 +326,7 @@ export default function PeriodeClient({
                 value={year}
                 onChange={(e) => setYear(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="Contoh: 2027"
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-semibold tabular-nums focus:outline-none focus:border-brand shadow-2xs"
                 required
               />
             </div>
@@ -330,7 +341,7 @@ export default function PeriodeClient({
                 max="1000"
                 value={targetQuota}
                 onChange={(e) => setTargetQuota(parseInt(e.target.value) || 30)}
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-semibold tabular-nums focus:outline-none focus:border-brand shadow-2xs"
               />
             </div>
           </div>
@@ -479,7 +490,7 @@ export default function PeriodeClient({
                 value={editYear}
                 onChange={(e) => setEditYear(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="Contoh: 2027"
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-semibold tabular-nums focus:outline-none focus:border-brand shadow-2xs"
                 required
               />
               <p className="text-[10px] text-ink-muted mt-1">
@@ -497,7 +508,7 @@ export default function PeriodeClient({
                 max="1000"
                 value={editTargetQuota}
                 onChange={(e) => setEditTargetQuota(parseInt(e.target.value) || 30)}
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-semibold tabular-nums focus:outline-none focus:border-brand shadow-2xs"
               />
             </div>
           </div>

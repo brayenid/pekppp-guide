@@ -136,22 +136,24 @@ export function EvaluationTabWrapper({
   const content = (
     <div className="space-y-4">
       {/* Clean Unified 3-Pillar Tab Switcher + Mode Fokus Toggle */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stroke/40 pb-3">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Tabs value={activeTab} onValueChange={(val) => handleTabClick(val as 'f02' | 'evidence' | 'f03')}>
-            <TabsList>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-b border-stroke/40 pb-3 min-w-0 max-w-full">
+        <div className="flex items-center gap-2.5 min-w-0 max-w-full overflow-x-auto no-scrollbar overscroll-x-contain py-0.5">
+          <Tabs value={activeTab} className="min-w-0 shrink-0" onValueChange={(val) => handleTabClick(val as 'f02' | 'evidence' | 'f03')}>
+            <TabsList className="inline-flex min-w-max p-1 gap-1">
               {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
-              <TabsTrigger value="f02" size="default">
-                <ClipboardList className="w-4 h-4" />
-                <span>{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
+              <TabsTrigger value="f02" size="default" className="gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
+                <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="hidden xs:inline">{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
+                <span className="xs:hidden">{isOpd ? 'F01' : 'F02'}</span>
               </TabsTrigger>
 
               {/* 2. Formulir Uji Petik: F03 */}
-              <TabsTrigger value="f03" size="default">
-                <FolderHeart className="w-4 h-4" />
-                <span>Survei F03</span>
+              <TabsTrigger value="f03" size="default" className="gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
+                <FolderHeart className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="hidden xs:inline">Survei F03</span>
+                <span className="xs:hidden">F03</span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors ${
+                  className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold transition-colors ${
                     activeTab === 'f03'
                       ? 'bg-white/20 text-white'
                       : 'bg-surface text-ink-secondary border border-stroke/50'
@@ -161,11 +163,12 @@ export function EvaluationTabWrapper({
               </TabsTrigger>
 
               {/* 3. Bukti Dukung */}
-              <TabsTrigger value="evidence" size="default">
-                <UploadCloud className="w-4 h-4" />
-                <span>Unggah Bukti Dukung</span>
+              <TabsTrigger value="evidence" size="default" className="gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
+                <UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="hidden sm:inline">Unggah Bukti Dukung</span>
+                <span className="sm:hidden">Bukti Dukung</span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors ${
+                  className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold transition-colors ${
                     activeTab === 'evidence'
                       ? 'bg-white/20 text-white'
                       : incompleteCount === 0
@@ -185,7 +188,7 @@ export function EvaluationTabWrapper({
 
           {/* Status Disimpan / Belum Disimpan - Beranimasi saat Mode Fokus Aktif */}
           <div
-            className={`transition-all duration-300 ease-out overflow-hidden flex items-center ${
+            className={`transition-all duration-300 ease-out overflow-hidden flex items-center shrink-0 ${
               isFocusMode
                 ? 'opacity-100 max-w-[260px] translate-x-0 scale-100'
                 : 'opacity-0 max-w-0 -translate-x-2 scale-95 pointer-events-none'
@@ -198,19 +201,19 @@ export function EvaluationTabWrapper({
         <button
           type="button"
           onClick={() => setIsFocusMode(!isFocusMode)}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border cursor-pointer select-none ${
+          className={`self-end sm:self-auto inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border cursor-pointer select-none shrink-0 ${
             isFocusMode
               ? 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-soft-card'
               : 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs'
           }`}>
           {isFocusMode ? (
             <>
-              <Minimize2 className="w-4 h-4 text-brand" />
+              <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand" />
               <span>Keluar Mode Fokus</span>
             </>
           ) : (
             <>
-              <Maximize2 className="w-4 h-4 text-ink-muted" />
+              <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink-muted" />
               <span>Mode Fokus</span>
             </>
           )}

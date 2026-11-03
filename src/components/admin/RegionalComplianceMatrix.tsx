@@ -673,7 +673,7 @@ export function RegionalComplianceMatrix({
                           {p.unitName}
                         </button>
                         {p.unitCode && (
-                          <span className="text-[10px] text-ink-muted font-mono">{p.unitCode}</span>
+                          <span className="text-[10px] text-ink-muted">{p.unitCode}</span>
                         )}
                       </td>
 
@@ -994,7 +994,7 @@ export function RegionalComplianceMatrix({
                           {item.unitName}
                         </button>
                         {item.unitCode && (
-                          <span className="text-[10px] text-ink-muted font-mono">{item.unitCode}</span>
+                          <span className="text-[10px] text-ink-muted">{item.unitCode}</span>
                         )}
                       </td>
 

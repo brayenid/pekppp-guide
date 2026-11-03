@@ -535,6 +535,23 @@ export default function LokusClient({
         icon={<Building2 className="w-5 h-5 text-brand" />}
         title="Master Lokus"
         description="Daftar unit pelayanan perangkat daerah (reusable across periods). Tambahkan lokus baru atau kelola secara massal."
+        speedDialItems={[
+          {
+            label: 'Tambah Lokus Baru',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: () => setIsFormOpen(true),
+            variant: 'brand'
+          },
+          {
+            label: 'Kelola Massal',
+            icon: <Users className="w-4 h-4" />,
+            onClick: () => {
+              handleTabChange('insert')
+              setIsBulkOpen(true)
+            },
+            variant: 'secondary'
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2.5">
             <Button
@@ -629,9 +646,9 @@ export default function LokusClient({
               {tableUnits.map((u) => (
                 <div
                   key={u.id}
-                  className="px-5 py-3.5 flex items-center justify-between hover:bg-surface-subtle transition-colors">
-                  <div className="min-w-0 flex-1 pr-4">
-                    <div className="flex items-center gap-2">
+                  className="px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface-subtle transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-xs text-ink truncate">{u.name}</span>
                       <Badge variant="neutral" size="sm">
                         {u.category?.name || 'OPD'}
@@ -682,7 +699,7 @@ export default function LokusClient({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap pt-1 sm:pt-0 border-t sm:border-t-0 border-stroke/30">
                     <button
                       type="button"
                       onClick={() => {
@@ -1272,7 +1289,7 @@ export default function LokusClient({
                     const isBound = Boolean(ev.menpanEvaluationId)
                     return (
                       <tr key={ev.id} className="hover:bg-surface-subtle/50 transition-colors">
-                        <td className="px-3 py-2.5 text-center font-bold font-mono text-ink">
+                        <td className="px-3 py-2.5 text-center font-bold tabular-nums text-ink">
                           {ev.year}
                         </td>
                         <td className="px-3 py-2.5">
@@ -1298,7 +1315,7 @@ export default function LokusClient({
                             </span>
                           )}
                         </td>
-                        <td className="px-3 py-2.5 font-mono text-[10px] text-ink-muted">
+                        <td className="px-3 py-2.5 text-[10px] text-ink-muted">
                           {isBound ? (
                             <span className="bg-surface-subtle px-1.5 py-0.5 rounded border border-stroke/40" title={ev.menpanEvaluationId!}>
                               {ev.menpanEvaluationId!.slice(0, 8)}...

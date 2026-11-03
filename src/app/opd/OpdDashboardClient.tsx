@@ -17,7 +17,8 @@ import {
   Image as ImageIcon,
   ChevronRight,
   ExternalLink,
-  AlertTriangle
+  AlertTriangle,
+  FolderArchive
 } from 'lucide-react'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { DataTable } from '../../components/ui/DataTable'
@@ -72,6 +73,20 @@ export function OpdDashboardClient({
         icon={<Building2 className="w-5 h-5 text-brand" />}
         title="Daftar Lokus Anda"
         description="Kelola pengisian kuesioner evaluasi mandiri F-01 dan pantau status penilaian unit pelayanan Anda."
+        speedDialItems={[
+          {
+            label: 'Master Bukti Dukung',
+            icon: <FolderArchive className="w-4 h-4" />,
+            href: '/opd/master-bukti',
+            variant: 'brand'
+          },
+          {
+            label: 'Panduan Indikator',
+            icon: <FileText className="w-4 h-4" />,
+            href: '/panduan',
+            variant: 'secondary'
+          }
+        ]}
       />
 
       {/* Unified Compact Timeline & Active Stage Strip */}

@@ -185,21 +185,21 @@ export function Navbar() {
       <nav
         style={{ transform: `translate3d(0, ${translateY}px, 0)` }}
         className="sticky top-0 z-30 w-full bg-brand text-white border-b border-brand-hover shadow-md will-change-transform">
-        <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
           {/* Brand */}
-          <Link href="/" className="flex items-center gap-3 group py-0.5">
-            <div className="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm ring-1 ring-white/20 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group py-0.5 min-w-0 shrink-0">
+            <div className="w-8 h-8 flex items-center justify-center shrink-0">
               <Image
                 src="/kubar.png"
                 alt="Logo Kutai Barat"
-                width={30}
-                height={30}
-                className="w-full h-full object-contain"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain grayscale contrast-125 brightness-110 group-hover:scale-105 transition-transform"
               />
             </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-semibold text-base tracking-tight text-white">PEKPPP.ext</span>
-              <span className="text-[11px] font-medium tracking-wider text-white/80">Kutai Barat</span>
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="font-semibold text-sm sm:text-base tracking-tight text-white">PEKPPP.ext</span>
+              <span className="text-[10px] sm:text-[11px] font-medium tracking-wider text-white/80">Kutai Barat</span>
             </div>
           </Link>
 
@@ -278,13 +278,13 @@ export function Navbar() {
               href="/"
               onClick={() => setMobileDrawerOpen(false)}
               className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-surface border border-stroke p-1 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-8 h-8 flex items-center justify-center shrink-0">
                 <Image
                   src="/kubar.png"
                   alt="Logo Kutai Barat"
-                  width={26}
-                  height={26}
-                  className="w-full h-full object-contain"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain grayscale contrast-125"
                 />
               </div>
               <div className="flex flex-col leading-tight">
@@ -472,7 +472,8 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
 
   return (
     <div
-      className={`${className || 'hidden lg:flex'} items-center px-3.5 py-1.5 border rounded-full transition-all duration-300 ${
+      title={hasUnsaved ? `Belum Disimpan (${unsavedCount} perubahan)` : 'Seluruh perubahan telah tersimpan'}
+      className={`${className || 'hidden lg:flex'} items-center px-2 sm:px-3.5 py-1 sm:py-1.5 border rounded-full transition-all duration-300 ${
         hasUnsaved
           ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60 shadow-2xs'
           : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60 shadow-2xs'
@@ -502,7 +503,8 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
                 }`}
               />
             </span>
-            <span>Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
+            <span className="hidden sm:inline">Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
+            <span className="sm:hidden text-[11px] font-mono">{unsavedCount > 0 ? `${unsavedCount}` : '!'}</span>
           </span>
         ) : (
           <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
@@ -525,7 +527,7 @@ export function EvaluationNavbarStatus({ userRole, className }: { userRole?: str
                 }`}
               />
             </span>
-            <span>Telah Disimpan</span>
+            <span className="hidden sm:inline">Telah Disimpan</span>
           </span>
         )}
       </div>

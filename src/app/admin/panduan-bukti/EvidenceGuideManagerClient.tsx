@@ -12,7 +12,9 @@ import {
   X,
   BookOpen,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Sliders,
+  FolderArchive
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
@@ -143,6 +145,20 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
         icon={<BookOpen className="w-5 h-5 text-brand" />}
         title="Master Panduan & Contoh Bukti Aspek"
         description="Kelola dan unggah contoh dokumen format fisik (PDF / Gambar) per aspek yang akan menjadi acuan panduan resmi bagi OPD."
+        speedDialItems={[
+          {
+            label: 'Aturan Bukti Dukung',
+            icon: <Sliders className="w-4 h-4" />,
+            href: '/admin/pengaturan-bukti',
+            variant: 'brand'
+          },
+          {
+            label: 'Master Bukti Dukung',
+            icon: <FolderArchive className="w-4 h-4" />,
+            href: '/admin/master-bukti',
+            variant: 'secondary'
+          }
+        ]}
       />
 
       {/* Aspect Selector Tabs */}

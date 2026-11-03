@@ -163,6 +163,21 @@ export function AspectRulesSettingsClient({
         icon={<SlidersHorizontal className="w-5 h-5 text-brand" />}
         title="Aturan Unggah Bukti Dukung"
         description="Atur secara spesifik jenis berkas yang diterima (PDF, Foto, atau Hybrid), kuota maksimal file, dan batas ukuran file per slot/indikator bukti dukung."
+        speedDialItems={[
+          {
+            label: isSaving ? 'Menyimpan...' : 'Simpan Seluruh Pengaturan',
+            icon: <Save className="w-4 h-4" />,
+            onClick: handleSaveAll,
+            disabled: isSaving,
+            variant: 'brand'
+          },
+          {
+            label: 'Reset Standar Bawaan',
+            icon: <RotateCcw className="w-4 h-4" />,
+            onClick: () => setIsResetAllConfirmOpen(true),
+            variant: 'secondary'
+          }
+        ]}
         actions={
           <div className="flex items-center gap-2">
             <button
