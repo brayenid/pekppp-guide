@@ -167,6 +167,25 @@ export function MenpanSyncModal({
           <div className="space-y-4 text-xs">
             {conflictData ? (
               <>
+                {/* Banner Peringatan Kredensial API Belum Ditetapkan */}
+                {!conflictData.isConfigured && (
+                  <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-950 flex items-start gap-2.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div className="space-y-1 flex-1">
+                      <div className="font-semibold text-xs text-rose-800">
+                        Kredensial API MenPAN-RB Belum Ditetapkan
+                      </div>
+                      <p className="text-[11px] text-rose-900/80 leading-relaxed">
+                        Base URL dan Bearer Token belum dikonfigurasi di menu{' '}
+                        <a href="/admin/pengaturan-api" className="font-bold underline text-rose-800">
+                          Pengaturan API
+                        </a>
+                        . Harap tetapkan kredensial terlebih dahulu (baik untuk server Sandbox resmi MenPAN-RB maupun Production).
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Status Tautan UUID */}
                 <div className="p-4 rounded-xl border border-stroke/60 bg-surface space-y-3 shadow-2xs">
                   <div className="flex items-center justify-between">
@@ -202,11 +221,21 @@ export function MenpanSyncModal({
                     <button
                       type="button"
                       onClick={handleLinkUuid}
-                      disabled={linking || !selectedRemoteUuid}
+                      disabled={linking || !selectedRemoteUuid || !conflictData.isConfigured}
                       className="px-5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer disabled:opacity-50 shrink-0">
-                      {linking ? 'Menautkan...' : 'Tautkan UUID'}
+                      {linking ? 'Menautkan...' : 'Tautkan UUID & Petakan Soal'}
                     </button>
                   </div>
+
+                  {/* Info Status Pemetaan Pertanyaan MenPAN */}
+                  {conflictData.localEval?.isQuestionsMapped && (
+                    <div className="flex items-center gap-1.5 p-2 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 text-[11px] font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>
+                        Struktur Soal MenPAN-RB: <strong>{conflictData.localEval.questionsCount} Butir Pertanyaan</strong> resmi terpetakan sempurna.
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* SIDE-BY-SIDE COMPARISON (Komparasi Berdampingan) */}
@@ -394,6 +423,19 @@ export function MenpanSyncModal({
                       </span>
                     )}
                   </div>
+
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-surface border border-stroke/40">
+                    <span className="text-ink">Pemetaan ID Soal MenPAN ({conflictData?.localEval?.questionsCount || 31}/31)</span>
+                    {conflictData?.localEval?.isQuestionsMapped ? (
+                      <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Terpetakan
+                      </span>
+                    ) : (
+                      <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Auto-Fetch saat Kirim
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -447,7 +489,7 @@ export function MenpanSyncModal({
             <button
               type="button"
               onClick={handlePush}
-              disabled={!validation?.isEligible || pushing}
+              disabled={!validation?.isEligible || pushing || !conflictData?.isConfigured}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-xs transition-colors shadow-hz-button cursor-pointer disabled:opacity-50">
               {pushing ? (
                 <>

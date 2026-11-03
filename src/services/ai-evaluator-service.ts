@@ -1079,6 +1079,7 @@ Harap lakukan pre-evaluasi secara objektif, ketat, dan profesional sesuai standa
     const { getAiEvaluatorConfig } = await import('./system-setting-service')
     const config = await getAiEvaluatorConfig()
     const apiKey = process.env.GEMINI_API_KEY?.trim()
+    const evaluationYear = evaluation.year || new Date().getFullYear()
 
     let complianceResult: {
       overallReadinessScore: number
@@ -1093,27 +1094,42 @@ Harap lakukan pre-evaluasi secara objektif, ketat, dan profesional sesuai standa
           isRelevant: boolean
           hasCompleteAttachments: boolean
         }
+        metadata?: {
+          detectedYear?: number | null
+          documentNumber?: string | null
+          documentDate?: string | null
+          documentTitle?: string | null
+          confidence?: number
+        }
       }>
     }
 
     if (apiKey && config.executionMode !== 'HEURISTIC_ONLY') {
       try {
+        const { PdfOptimizerService } = await import('./pdf-optimizer-service')
+        const { parts: docParts } = await PdfOptimizerService.prepareOptimizedDocumentParts(
+          slotAuditList,
+          { maxPages: 4, maxTotalPayloadBytes: 12 * 1024 * 1024 }
+        )
+
         complianceResult = await this.evaluateComplianceWithGemini(
           evaluation.unit.name,
           aspectCode,
           slotAuditList,
           apiKey,
-          config.model
+          config.model,
+          evaluationYear,
+          docParts
         )
       } catch (err: any) {
         console.warn('Gemini compliance check failed, falling back to rule-based checker:', err.message)
-        complianceResult = this.evaluateComplianceRuleBased(aspectCode, slotAuditList)
+        complianceResult = this.evaluateComplianceRuleBased(aspectCode, slotAuditList, evaluationYear)
       }
     } else {
-      complianceResult = this.evaluateComplianceRuleBased(aspectCode, slotAuditList)
+      complianceResult = this.evaluateComplianceRuleBased(aspectCode, slotAuditList, evaluationYear)
     }
 
-    // Simpan hasil ke database pada masing-masing submission
+    // Simpan hasil ke database pada masing-masing submission & sinkronkan metadata ke Master Bukti Dukung
     for (const item of complianceResult.slots) {
       const existingSub = submissions.find((s) => s.slotKey === item.slotKey)
       if (existingSub) {
@@ -1126,10 +1142,25 @@ Harap lakukan pre-evaluasi secara objektif, ketat, dan profesional sesuai standa
               summary: item.summary,
               feedback: item.feedback,
               checkpoints: item.checkpoints,
+              metadata: item.metadata || null,
               checkedAt: new Date().toISOString()
             }
           }
         })
+      }
+
+      // Propagasi metadata tahun ke Master Bukti Dukung jika terdeteksi
+      if (item.metadata?.detectedYear) {
+        await db.unitEvidenceMaster.updateMany({
+          where: {
+            unitId: evaluation.unitId,
+            aspectCode,
+            slotKey: item.slotKey
+          },
+          data: {
+            lastSourceYear: item.metadata.detectedYear
+          }
+        }).catch(() => {})
       }
     }
 
@@ -1144,29 +1175,35 @@ Harap lakukan pre-evaluasi secara objektif, ketat, dan profesional sesuai standa
   /**
    * Panggilan ke model multimodal Gemini untuk memeriksa kelayakan administratif dokumen bukti dukung lokus.
    * Diberikan batasan ketat 'Zero Score Leakage' untuk memastikan model hanya memberikan panduan perbaikan berkas.
+   * Dilengkapi ekstraksi metadata (tahun, nomor SK, tanggal) via AI Vision.
    * @param unitName Nama unit kerja / lokus.
    * @param aspectCode Kode aspek instrumen.
    * @param slots Data slot bukti dukung beserta tautan berkasnya.
    * @param apiKey Kunci akses API Gemini.
    * @param model Nama varian model Gemini yang digunakan.
-   * @returns Objek telaah kepatuhan administratif per slot.
+   * @param evaluationYear Tahun evaluasi aktif (untuk validasi temporal).
+   * @param docParts Lampiran multimodal berkas (halaman PDF / gambar hasil kompresi).
+   * @returns Objek telaah kepatuhan administratif per slot beserta metadata.
    */
   private static async evaluateComplianceWithGemini(
     unitName: string,
     aspectCode: string,
     slots: any[],
     apiKey: string,
-    model?: string
+    model?: string,
+    evaluationYear?: number,
+    docParts: Array<{ inlineData: { mimeType: string; data: string } }> = []
   ) {
+    const activeEvalYear = evaluationYear || new Date().getFullYear()
     const systemPrompt = `Anda adalah Asisten Verifikator Kelayakan Berkas PEKPPP (Pemantauan dan Evaluasi Kinerja Penyelenggaraan Pelayanan Publik) KemenPAN-RB.
-Tugas Anda adalah memeriksa KELAYAKAN ADMINISTRATIF & KELENGKAPAN berkas bukti dukung yang diunggah oleh OPD: "${unitName}" untuk Aspek ${aspectCode}.
+Tugas Anda adalah memeriksa KELAYAKAN ADMINISTRATIF, KELENGKAPAN, dan EKSTRAKSI METADATA berkas bukti dukung yang diunggah oleh OPD: "${unitName}" untuk Aspek ${aspectCode} pada Periode Penilaian Tahun ${activeEvalYear}.
 
 PENTING - ATURAN KETAT:
 1. DILARANG MEMBERIKAN SKOR NILAI ANGKA MAUPUN PREDIKSI NILAI SKALA (0-5) KEPADA PENGGUNA.
 2. Tugas Anda murni membantu OPD memastikan berkas yang diunggah sudah benar, sah, dan lengkap sebelum dievaluasi.
 3. Kategori Status:
    - "LAYAK": Dokumen sudah benar, sah (ada ttd/stempel/nomor), dan komponen pokok terpenuhi.
-   - "PERLU_DILENGKAPI": Dokumen sesuai, tetapi masih ada kekurangan lampiran (misal: belum ada daftar hadir FKP, belum ada notulensi, atau belum ada kompensasi maklumat).
+   - "PERLU_DILENGKAPI": Dokumen sesuai, tetapi masih ada kekurangan lampiran (misal: belum ada daftar hadir FKP, belum ada notulensi, belum ada kompensasi maklumat, atau dokumen tahunan sudah kedaluwarsa).
    - "TIDAK_SESUAI": Salah unggah berkas (misal diminta SK Standar Pelayanan tetapi mengunggah SOP atau SK mutasi).
    - "BELUM_UNGGAH": Belum ada berkas terunggah.
 4. PERIKSAAN KHUSUS SLOT BERSIFAT DUA UNSUR / HYBRID:
@@ -1174,6 +1211,13 @@ PENTING - ATURAN KETAT:
      * Jika berkas yang diunggah HANYA berupa dokumen PDF laporan tanpa adanya lampiran foto/screenshot publikasi, nyatakan statusnya sebagai "PERLU_DILENGKAPI".
      * Berikan feedback: "Laporan pelaksanaan SKM telah terunggah. Namun bukti publikasi ke masyarakat (foto banner/display ruang layanan atau tangkapan layar website/media sosial) belum dilampirkan pada slot ini. Harap tambahkan berkas foto/screenshot publikasi agar Pertanyaan #7 (Publikasi Hasil SKM) tidak mendapat nilai 0."
    - Slot "ba_fkp" (Berita Acara FKP): Wajib memuat Berita Acara FKP dan disarankan melampirkan foto dokumentasi kegiatan bersama masyarakat.
+5. EKSTRAKSI METADATA DOKUMEN & VALIDASI TEMPORAL:
+   - Pindai lembar berkas scan/foto/PDF untuk menemukan:
+     * "detectedYear": Tahun penetapan dokumen atau tahun pelaksanaan (angka integer, misal: 2024). Cari pada bagian penutup dekat tanda tangan/cap basah "Ditetapkan pada tanggal ...", pada kop surat, atau pada judul laporan.
+     * "documentNumber": Nomor SK / Surat resmi yang tertera (string, misal: "188.4/12/2024" atau null jika tidak ada).
+     * "documentDate": Tanggal lengkap penetapan (format ISO "YYYY-MM-DD" atau null).
+     * "confidence": Keyakinan pembacaan tahun (angka 0.0 sampai 1.0).
+   - Jika berkas yang berjenis TAHUNAN (seperti Laporan SKM, Tindak Lanjut SKM, Evaluasi Kinerja) memiliki detectedYear < ${activeEvalYear}, tambahkan catatan peringatan bahwa dokumen telah kedaluwarsa dan perlu diperbarui untuk evaluasi tahun ${activeEvalYear}.
 
 Format JSON yang WAJIB dihasilkan:
 {
@@ -1189,6 +1233,12 @@ Format JSON yang WAJIB dihasilkan:
         "hasSignatureOrSeal": true,
         "isRelevant": true,
         "hasCompleteAttachments": true
+      },
+      "metadata": {
+        "detectedYear": 2024,
+        "documentNumber": "188.4/45/2024",
+        "documentDate": "2024-03-15",
+        "confidence": 0.95
       }
     }
   ]
@@ -1197,20 +1247,22 @@ Format JSON yang WAJIB dihasilkan:
     const userPrompt = `Daftar Berkas Bukti Dukung Aspek ${aspectCode} yang Diunggah oleh OPD "${unitName}":
 ${JSON.stringify(slots, null, 2)}
 
-Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perbaikan yang jelas.`
+Harap periksa kelayakan setiap dokumen secara objektif dan ekstrak metadatanya secara akurat.`
 
-    let activeModel = model || 'gemini-3.6-flash'
-    if (activeModel.includes('2.0') || activeModel.includes('2.5') || activeModel.includes('1.5')) {
-      activeModel = 'gemini-3.6-flash'
+    let activeModel = model || 'gemini-2.5-flash'
+    if (activeModel.includes('2.0') || activeModel.includes('1.5')) {
+      activeModel = 'gemini-2.5-flash'
     }
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`
+
+    const requestParts: Array<any> = [...docParts, { text: `${systemPrompt}\n\n${userPrompt}` }]
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }],
+        contents: [{ role: 'user', parts: requestParts }],
         generationConfig: {
           responseMimeType: 'application/json',
           temperature: 0.2
@@ -1257,11 +1309,27 @@ Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perba
    * Menganalisis kelayakan berkas secara deterministik saat offline atau tanpa koneksi ke Gemini API.
    * @param aspectCode Kode aspek instrumen.
    * @param slots Daftar slot bukti dukung beserta status berkasnya.
+   * @param evaluationYear Tahun evaluasi aktif.
    * @returns Hasil kepatuhan per slot (`slots`), skor kesiapan (`overallReadinessScore`), dan ringkasan (`overallSummary`).
    */
-  private static evaluateComplianceRuleBased(aspectCode: string, slots: any[]) {
+  private static evaluateComplianceRuleBased(aspectCode: string, slots: any[], evaluationYear?: number) {
     let layakCount = 0
+    const activeYear = evaluationYear || new Date().getFullYear()
+
     const checkedSlots = slots.map((slot) => {
+      const yearMatch = (slot.fileName || '').match(/\b(20[1-3][0-9])\b/)
+      const detectedYear = yearMatch ? parseInt(yearMatch[1], 10) : null
+      const numMatch = (slot.fileName || '').match(/(?:No\.?|Nomor)\s*[:.]?\s*([0-9A-Za-z./_-]+)/i)
+      const documentNumber = numMatch ? numMatch[1].trim() : null
+
+      const metadata = {
+        detectedYear,
+        documentNumber,
+        documentDate: null,
+        documentTitle: slot.title,
+        confidence: detectedYear ? 0.6 : 0.2
+      }
+
       if (!slot.hasFile) {
         return {
           slotKey: slot.slotKey,
@@ -1274,7 +1342,8 @@ Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perba
             hasSignatureOrSeal: false,
             isRelevant: false,
             hasCompleteAttachments: false
-          }
+          },
+          metadata
         }
       }
 
@@ -1291,7 +1360,8 @@ Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perba
             hasSignatureOrSeal: false,
             isRelevant: true,
             hasCompleteAttachments: false
-          }
+          },
+          metadata
         }
       }
 
@@ -1312,7 +1382,8 @@ Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perba
               hasSignatureOrSeal: true,
               isRelevant: true,
               hasCompleteAttachments: false
-            }
+            },
+            metadata
           }
         }
       }
@@ -1334,7 +1405,8 @@ Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perba
               hasSignatureOrSeal: true,
               isRelevant: true,
               hasCompleteAttachments: false
-            }
+            },
+            metadata
           }
         }
       }
@@ -1344,12 +1416,15 @@ Harap periksa kelayakan setiap dokumen secara objektif dan berikan panduan perba
         slotKey: slot.slotKey,
         status: 'LAYAK' as const,
         summary: `Berkas "${slot.fileName || slot.title}" terdeteksi dan memenuhi standar kelayakan berkas.`,
-        feedback: 'Pastikan seluruh halaman lampiran dan tanda tangan pejabat berwenang terbaca dengan jelas.',
+        feedback: detectedYear && detectedYear < activeYear && slot.slotKey.includes('skm')
+          ? `Perhatian: Dokumen terdeteksi bertahun ${detectedYear}, yang lebih lama dari tahun evaluasi ${activeYear}. Pastikan Anda melampirkan laporan terbaru.`
+          : 'Pastikan seluruh halaman lampiran dan tanda tangan pejabat berwenang terbaca dengan jelas.',
         checkpoints: {
           hasSignatureOrSeal: true,
           isRelevant: true,
           hasCompleteAttachments: true
-        }
+        },
+        metadata
       }
     })
 

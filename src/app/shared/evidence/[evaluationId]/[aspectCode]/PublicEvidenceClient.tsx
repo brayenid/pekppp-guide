@@ -13,6 +13,8 @@ import {
   X
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FormModal } from '../../../../../components/ui/FormModal'
+import { Button } from '../../../../../components/ui/Button'
 import { EvidenceSlotItem, EvidenceAttachmentItem } from '../../../../../actions/evidence-slot-actions'
 
 interface PublicEvidenceClientProps {
@@ -35,6 +37,8 @@ export function PublicEvidenceClient({
   slots
 }: PublicEvidenceClientProps) {
   const [copied, setCopied] = useState(false)
+  const [copiedSlotKey, setCopiedSlotKey] = useState<string | null>(null)
+  const [copiedFileId, setCopiedFileId] = useState<string | null>(null)
   const [previewDoc, setPreviewDoc] = useState<{ title: string; url: string } | null>(null)
 
   const handleCopyLink = () => {
@@ -43,6 +47,28 @@ export function PublicEvidenceClient({
       setCopied(true)
       toast.success('Tautan berkas bukti berhasil disalin!')
       setTimeout(() => setCopied(false), 2500)
+    }
+  }
+
+  const handleCopySlotLink = (slotKey: string, slotTitle: string) => {
+    if (typeof window !== 'undefined') {
+      const url = `${window.location.origin}${window.location.pathname}#slot-${slotKey}`
+      navigator.clipboard.writeText(url)
+      setCopiedSlotKey(slotKey)
+      toast.success(`Tautan butir "${slotTitle}" berhasil disalin!`)
+      setTimeout(() => setCopiedSlotKey(null), 2000)
+    }
+  }
+
+  const handleCopyFileLink = (fileUrl: string, fileName: string, fileId?: string) => {
+    if (typeof window !== 'undefined') {
+      const fullUrl = fileUrl.startsWith('http')
+        ? fileUrl
+        : `${window.location.origin}${fileUrl.startsWith('/') ? '' : '/'}${fileUrl}`
+      navigator.clipboard.writeText(fullUrl)
+      setCopiedFileId(fileId || fileUrl)
+      toast.success(`Tautan berkas "${fileName}" berhasil disalin!`)
+      setTimeout(() => setCopiedFileId(null), 2000)
     }
   }
 
@@ -199,7 +225,8 @@ export function PublicEvidenceClient({
                 return (
                   <div
                     key={slot.slotKey || idx}
-                    className="bg-surface rounded-2xl border border-stroke/60 p-5 shadow-2xs space-y-3.5 transition-all">
+                    id={`slot-${slot.slotKey}`}
+                    className="bg-surface rounded-2xl border border-stroke/60 p-5 shadow-2xs space-y-3.5 transition-all scroll-mt-20">
                     {/* Header Slot */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
@@ -228,14 +255,39 @@ export function PublicEvidenceClient({
                         )}
                       </div>
 
-                      <span
-                        className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full shrink-0 ${
-                          isFilled
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                            : 'bg-amber-50 text-amber-800 border border-amber-200'
-                        }`}>
-                        {isFilled ? 'Tersedia' : 'Belum Ada'}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Tombol Salin Tautan Butir */}
+                        <button
+                          type="button"
+                          onClick={() => handleCopySlotLink(slot.slotKey, slot.title)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                            copiedSlotKey === slot.slotKey
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                              : 'bg-surface-subtle hover:bg-surface-hover text-ink-secondary border-stroke/60'
+                          }`}
+                          title={`Salin tautan resmi butir ini`}>
+                          {copiedSlotKey === slot.slotKey ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600 animate-in zoom-in-75 duration-150" />
+                              <span className="text-[11px] font-semibold text-emerald-700">Tersalin</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3 text-ink-muted" />
+                              <span className="hidden sm:inline text-[11px]">Salin Tautan</span>
+                            </>
+                          )}
+                        </button>
+
+                        <span
+                          className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
+                            isFilled
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
+                          }`}>
+                          {isFilled ? 'Tersedia' : 'Belum Ada'}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Lampiran File */}
@@ -253,6 +305,23 @@ export function PublicEvidenceClient({
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                              <button
+                                type="button"
+                                onClick={() => handleCopyFileLink(att.fileUrl, att.fileName, att.id)}
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border font-medium text-[11px] transition-colors cursor-pointer ${
+                                  copiedFileId === (att.id || att.fileUrl)
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                                    : 'bg-surface hover:bg-surface-hover text-ink-muted hover:text-ink border-stroke/60'
+                                }`}
+                                title={`Salin tautan berkas "${att.fileName}"`}>
+                                {copiedFileId === (att.id || att.fileUrl) ? (
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                                <span>Salin</span>
+                              </button>
+
                               <button
                                 type="button"
                                 onClick={() => setPreviewDoc({ title: att.fileName, url: att.fileUrl })}
@@ -297,54 +366,52 @@ export function PublicEvidenceClient({
       </div>
 
       {/* Modal Pratinjau Dokumen Sederhana */}
-      {previewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-surface rounded-2xl border border-stroke/60 shadow-xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-stroke/40 bg-surface-subtle/50">
-              <div className="flex items-center gap-2 min-w-0">
-                <FileText className="w-4 h-4 text-brand shrink-0" />
-                <span className="font-semibold text-xs text-ink truncate">
-                  {previewDoc.title}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href={previewDoc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] text-brand hover:underline font-medium mr-2">
-                  <ExternalLink className="w-3 h-3" />
-                  <span>Buka di Tab Baru</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setPreviewDoc(null)}
-                  className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-hover transition-colors cursor-pointer">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 bg-surface-subtle p-2 flex items-center justify-center overflow-hidden">
-              {previewDoc.url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) ? (
-                <img
-                  src={previewDoc.url}
-                  alt={previewDoc.title}
-                  className="max-h-full max-w-full object-contain rounded-lg border border-stroke/40 shadow-sm"
-                />
-              ) : (
-                <iframe
-                  src={previewDoc.url}
-                  title={previewDoc.title}
-                  className="w-full h-full rounded-lg border border-stroke/40 bg-white"
-                />
-              )}
-            </div>
+      <FormModal
+        isOpen={Boolean(previewDoc)}
+        onClose={() => setPreviewDoc(null)}
+        title={previewDoc?.title || 'Pratinjau Dokumen'}
+        icon={<FileText className="w-4 h-4" />}
+        maxWidth="4xl"
+        noBodyPadding
+        bodyClassName="bg-surface-subtle p-2 flex items-center justify-center h-[70vh]"
+        headerActions={
+          previewDoc ? (
+            <a
+              href={previewDoc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-brand hover:underline font-medium mr-1">
+              <ExternalLink className="w-3 h-3" />
+              <span>Buka di Tab Baru</span>
+            </a>
+          ) : null
+        }
+        footer={
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={() => setPreviewDoc(null)}>
+              Tutup Pratinjau
+            </Button>
           </div>
-        </div>
-      )}
+        }>
+        {previewDoc &&
+          (previewDoc.url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) ? (
+            <img
+              src={previewDoc.url}
+              alt={previewDoc.title}
+              className="max-h-full max-w-full object-contain rounded-lg border border-line shadow-sm"
+            />
+          ) : (
+            <iframe
+              src={previewDoc.url}
+              title={previewDoc.title}
+              className="w-full h-full rounded-lg border border-line bg-white"
+            />
+          ))}
+      </FormModal>
     </div>
   )
 }

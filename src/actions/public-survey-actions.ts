@@ -3,6 +3,7 @@
 import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
 import f03Schema from '../../data/f03.json'
+import { calculateEffectiveF03AndIpp } from '../core/domain/pekppp-calculator'
 
 export interface PublicSurveySubmitPayload {
   token: string
@@ -204,8 +205,15 @@ export async function submitPublicSurveyAction(payload: PublicSurveySubmitPayloa
     const avgF03Percentage = (avgF03Score / 70) * 100
 
     const f02Percentage = evaluation.percentage || 0
-    const finalIppPercentage = 0.75 * f02Percentage + 0.25 * avgF03Percentage
-    const finalIppScore = (finalIppPercentage / 100) * 5
+    const method = period?.f03CalculationMethod || 'PROPORTIONAL'
+
+    const { finalIppScore } = calculateEffectiveF03AndIpp({
+      f02Percentage,
+      f03RawPercentage: avgF03Percentage,
+      f03Count,
+      targetQuota,
+      method
+    })
 
     await db.evaluation.update({
       where: { id: evaluation.id },

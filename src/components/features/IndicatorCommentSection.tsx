@@ -36,9 +36,9 @@ export function IndicatorCommentSection({
   const [replyMessage, setReplyMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!message.trim()) return
+  const handleAddComment = async (e?: React.SyntheticEvent) => {
+    if (e) e.preventDefault()
+    if (loading || !message.trim()) return
 
     setLoading(true)
     try {
@@ -90,26 +90,26 @@ export function IndicatorCommentSection({
   }
 
   return (
-    <div>
+    <>
       {!hasComments && !isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="w-full text-left p-3.5 sm:p-4 rounded-xl border border-stroke bg-surface hover:border-brand/40 hover:bg-surface-subtle/40 transition-all flex items-center justify-between gap-3 group cursor-pointer shadow-2xs">
+          className="w-full text-left p-4 sm:p-5 rounded-bento border border-stroke bg-surface shadow-soft-card hover:border-brand/40 hover:bg-surface-subtle/30 transition-all flex items-center justify-between gap-3 group cursor-pointer">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-brand-light text-brand flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
               <MessageSquare className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-xs text-ink group-hover:text-brand transition-colors">
+                <span className="font-semibold text-xs sm:text-sm text-ink group-hover:text-brand transition-colors">
                   Diskusi &amp; Catatan Klarifikasi Soal
                 </span>
                 <span className="text-[10px] font-medium text-brand bg-brand-light px-2 py-0.5 rounded border border-brand/20">
                   Komentar
                 </span>
               </div>
-              <p className="text-[11px] text-ink-muted">
+              <p className="text-[11px] sm:text-xs text-ink-muted">
                 Punya pertanyaan atau butuh klarifikasi bukti dukung indikator ini dengan Evaluator/OPD?
               </p>
             </div>
@@ -124,12 +124,12 @@ export function IndicatorCommentSection({
 
       {/* CASE 2: Has comments OR User clicked CTA -> Show full discussion directly */}
       {(hasComments || isOpen) && (
-        <div className="rounded-xl border border-stroke bg-surface-subtle/30 p-4 space-y-3">
+        <div className="rounded-bento border border-stroke bg-surface shadow-soft-card p-5 sm:p-6 space-y-4">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 border-b border-stroke/60">
+          <div className="flex items-center justify-between pb-3 border-b border-stroke/60">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-brand" />
-              <span className="font-semibold text-xs text-ink">
+              <span className="font-semibold text-xs sm:text-sm text-ink">
                 Diskusi &amp; Catatan Klarifikasi Soal
               </span>
               {hasComments && (
@@ -162,9 +162,9 @@ export function IndicatorCommentSection({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                if ((e.key === 'Enter' || e.keyCode === 13) && (e.ctrlKey || e.metaKey)) {
                   e.preventDefault()
-                  handleAddComment(e as unknown as React.FormEvent)
+                  handleAddComment(e)
                 }
               }}
               placeholder="Tulis catatan atau klarifikasi bukti dukung..."
@@ -186,7 +186,7 @@ export function IndicatorCommentSection({
                 )}
                 <button
                   type="button"
-                  onClick={(e) => handleAddComment(e as unknown as React.FormEvent)}
+                  onClick={() => handleAddComment()}
                   disabled={loading || !message.trim()}
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
                   {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
@@ -310,6 +310,6 @@ export function IndicatorCommentSection({
           )}
         </div>
       )}
-    </div>
+    </>
   )
 }

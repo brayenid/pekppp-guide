@@ -39,7 +39,7 @@ export function Drawer({
     <div className="fixed inset-0 z-[200] overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/40 backdrop-blur-xs transition-opacity animate-fade-in-content"
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity animate-fade-in-content"
         onClick={onClose}
       />
 

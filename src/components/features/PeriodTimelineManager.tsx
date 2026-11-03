@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { VisualDateRangePicker } from '../ui/VisualDateRangePicker'
 import { FormModal } from '../ui/FormModal'
 import { ConfirmationModal } from '../ui/ConfirmationModal'
+import { Card } from '../ui/Card'
 import {
   upsertPeriodWindowAction,
   toggleWindowOverrideAction,
@@ -257,10 +258,10 @@ export function PeriodTimelineManager({
     <div className="space-y-6">
       {/* Visual Rentang Tanggal Lengkap (Simple & Read Only) */}
       {overallTimelineSummary && (
-        <div className="rounded-2xl border border-stroke/70 bg-surface p-4 sm:p-5 shadow-2xs space-y-3.5">
+        <Card className="space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-brand-light text-brand flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-brand-light text-brand flex items-center justify-center shrink-0">
                 <CalendarDays className="w-4 h-4" />
               </div>
               <div>
@@ -349,14 +350,14 @@ export function PeriodTimelineManager({
               ))}
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Overview Banner: Tahapan Aktif Saat Ini */}
-      <div className="rounded-2xl border border-stroke/70 bg-surface p-5 shadow-soft-card">
+      <Card>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-3.5">
-            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border ${
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
               activeWindow
                 ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
                 : 'bg-surface-subtle text-ink-muted border-stroke/60'
@@ -448,7 +449,7 @@ export function PeriodTimelineManager({
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* List / Roadmap Tahapan */}
       <div className="space-y-3">
@@ -492,13 +493,11 @@ export function PeriodTimelineManager({
               const isWindowActive = w.id === activeWindow?.id
 
               return (
-                <div
+                <Card
                   key={w.id}
-                  className={`rounded-2xl border p-4 sm:p-5 transition-all bg-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs ${
-                    isWindowActive
-                      ? 'border-brand ring-1 ring-brand/20 shadow-soft-card'
-                      : 'border-stroke/60 hover:border-stroke hover:shadow-soft-card'
-                  }`}>
+                  variant={isWindowActive ? 'active' : 'default'}
+                  hoverable
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   {/* Left info */}
                   <div className="space-y-2 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -615,7 +614,7 @@ export function PeriodTimelineManager({
                       <span className="text-xs font-bold leading-none">✕</span>
                     </button>
                   </div>
-                </div>
+                </Card>
               )
             })}
           </div>

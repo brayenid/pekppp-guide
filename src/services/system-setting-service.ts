@@ -71,76 +71,6 @@ export async function saveMenpanApiConfig(config: Partial<MenpanApiConfig>) {
 }
 
 // =========================================================================
-// KONFIGURASI WHATSAPP GATEWAY (FONNTE)
-// =========================================================================
-export interface FonnteWaConfig {
-  enabled: boolean
-  apiToken: string
-  adminPhone: string
-  countryCode: string
-}
-
-/**
- * Mengambil konfigurasi WhatsApp Gateway Fonnte dari database SystemSetting
- * dengan fallback ke Environment Variables.
- */
-export async function getFonnteWaConfig(): Promise<FonnteWaConfig> {
-  try {
-    if (db && 'systemSetting' in db && (db as any).systemSetting) {
-      const settings = await (db as any).systemSetting.findMany({
-        where: {
-          key: {
-            in: ['FONNTE_ENABLED', 'FONNTE_API_TOKEN', 'FONNTE_ADMIN_PHONE', 'FONNTE_COUNTRY_CODE']
-          }
-        }
-      })
-
-      const map = new Map<string, string>(settings.map((s: any) => [s.key, s.value]))
-
-      return {
-        enabled: (map.get('FONNTE_ENABLED') ?? process.env.FONNTE_ENABLED ?? 'false') === 'true',
-        apiToken: map.get('FONNTE_API_TOKEN') || process.env.FONNTE_API_TOKEN || '',
-        adminPhone: map.get('FONNTE_ADMIN_PHONE') || process.env.FONNTE_ADMIN_PHONE || '',
-        countryCode: map.get('FONNTE_COUNTRY_CODE') || process.env.FONNTE_COUNTRY_CODE || '62'
-      }
-    }
-  } catch (err) {
-    console.error('Error fetching Fonnte settings:', err)
-  }
-
-  return {
-    enabled: (process.env.FONNTE_ENABLED || 'false') === 'true',
-    apiToken: process.env.FONNTE_API_TOKEN || '',
-    adminPhone: process.env.FONNTE_ADMIN_PHONE || '',
-    countryCode: process.env.FONNTE_COUNTRY_CODE || '62'
-  }
-}
-
-/**
- * Menyimpan konfigurasi WhatsApp Gateway Fonnte ke database SystemSetting.
- */
-export async function saveFonnteWaConfig(config: Partial<FonnteWaConfig>) {
-  const entries: { key: string; value: string }[] = []
-
-  if (config.enabled !== undefined) entries.push({ key: 'FONNTE_ENABLED', value: config.enabled ? 'true' : 'false' })
-  if (config.apiToken !== undefined) entries.push({ key: 'FONNTE_API_TOKEN', value: config.apiToken.trim() })
-  if (config.adminPhone !== undefined) entries.push({ key: 'FONNTE_ADMIN_PHONE', value: config.adminPhone.trim() })
-  if (config.countryCode !== undefined) entries.push({ key: 'FONNTE_COUNTRY_CODE', value: config.countryCode.trim() })
-
-  if (db && 'systemSetting' in db && (db as any).systemSetting) {
-    for (const entry of entries) {
-      await (db as any).systemSetting.upsert({
-        where: { key: entry.key },
-        update: { value: entry.value },
-        create: { key: entry.key, value: entry.value }
-      })
-    }
-  }
-
-  return { success: true }
-}
-
-// =========================================================================
 // KONFIGURASI AI PRE-EVALUATOR & KONTEKS STANDAR EMAS (6 ASPEK + 1)
 // =========================================================================
 
@@ -579,4 +509,263 @@ export async function deleteDynamicAspectSlotExample(
     return false
   }
 }
+
+// =========================================================================
+// ATURAN UNGGAH BUKTI DUKUNG DINAMIS PER ASPEK & INDIKATOR
+// =========================================================================
+
+export {
+  type AllowedDocumentType,
+  type AspectUploadRule,
+  type AspectRulesConfig,
+  DEFAULT_GLOBAL_UPLOAD_RULE,
+  DEFAULT_ASPECT_UPLOAD_RULES
+} from '../core/domain/evidence-slots-preset'
+
+import {
+  AspectRulesConfig,
+  AspectUploadRule,
+  DEFAULT_GLOBAL_UPLOAD_RULE,
+  DEFAULT_ASPECT_UPLOAD_RULES
+} from '../core/domain/evidence-slots-preset'
+
+/**
+ * Mengambil konfigurasi aturan berkas bukti dukung untuk seluruh aspek dari database SystemSetting
+ * dengan fallback ke nilai standar PEKPPP.
+ */
+export async function getAspectRulesConfig(): Promise<AspectRulesConfig> {
+  try {
+    if (db && 'systemSetting' in db && (db as any).systemSetting) {
+      const setting = await (db as any).systemSetting.findUnique({
+        where: { key: 'ASPECT_EVIDENCE_RULES_CONFIG' }
+      })
+      if (setting?.value) {
+        const parsed = JSON.parse(setting.value)
+        return {
+          defaultRule: { ...DEFAULT_GLOBAL_UPLOAD_RULE, ...(parsed.defaultRule || {}) },
+          aspects: {
+            ...DEFAULT_ASPECT_UPLOAD_RULES,
+            ...(parsed.aspects || {})
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching aspect rules config:', err)
+  }
+
+  return {
+    defaultRule: DEFAULT_GLOBAL_UPLOAD_RULE,
+    aspects: DEFAULT_ASPECT_UPLOAD_RULES
+  }
+}
+
+/**
+ * Mengambil aturan unggah berkas khusus untuk satu kode aspek tertentu.
+ */
+export async function getRuleForAspect(aspectCode: string): Promise<AspectUploadRule> {
+  const config = await getAspectRulesConfig()
+  const norm = aspectCode.toUpperCase().trim()
+  return config.aspects[norm] || config.defaultRule
+}
+
+/**
+ * Menyimpan pembaruan konfigurasi aturan berkas per aspek ke database SystemSetting.
+ */
+export async function saveAspectRulesConfig(
+  config: Partial<AspectRulesConfig>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const current = await getAspectRulesConfig()
+    const updated: AspectRulesConfig = {
+      defaultRule: { ...current.defaultRule, ...(config.defaultRule || {}) },
+      aspects: {
+        ...current.aspects,
+        ...(config.aspects || {})
+      }
+    }
+
+    if (db && 'systemSetting' in db && (db as any).systemSetting) {
+      await (db as any).systemSetting.upsert({
+        where: { key: 'ASPECT_EVIDENCE_RULES_CONFIG' },
+        update: { value: JSON.stringify(updated) },
+        create: { key: 'ASPECT_EVIDENCE_RULES_CONFIG', value: JSON.stringify(updated) }
+      })
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error saving aspect rules config:', err)
+    return { success: false, error: err.message || 'Gagal menyimpan aturan bukti dukung.' }
+  }
+}
+
+/**
+ * Mengembalikan konfigurasi aspek tertentu (atau semua aspek) ke standar bawaan sistem.
+ */
+export async function resetAspectRuleToDefault(aspectCode?: string): Promise<{ success: boolean }> {
+  try {
+    if (!aspectCode || aspectCode === 'ALL') {
+      if (db && 'systemSetting' in db && (db as any).systemSetting) {
+        await (db as any).systemSetting.delete({
+          where: { key: 'ASPECT_EVIDENCE_RULES_CONFIG' }
+        }).catch(() => {})
+      }
+      return { success: true }
+    }
+
+    const current = await getAspectRulesConfig()
+    const norm = aspectCode.toUpperCase().trim()
+    if (DEFAULT_ASPECT_UPLOAD_RULES[norm]) {
+      current.aspects[norm] = DEFAULT_ASPECT_UPLOAD_RULES[norm]
+      await saveAspectRulesConfig(current)
+    }
+    return { success: true }
+  } catch (err) {
+    console.error('Error resetting aspect rule:', err)
+    return { success: false }
+  }
+}
+
+// =========================================================================
+// ATURAN UNGGAH BUKTI DUKUNG SPESIFIK PER SLOT / ITEM INDIKATOR
+// =========================================================================
+
+export {
+  type SlotUploadRule,
+  DEFAULT_SLOT_UPLOAD_RULES,
+  getDefaultRuleForSlot
+} from '../core/domain/evidence-slots-preset'
+
+import {
+  SlotUploadRule,
+  DEFAULT_SLOT_UPLOAD_RULES,
+  getDefaultRuleForSlot
+} from '../core/domain/evidence-slots-preset'
+
+/**
+ * Mengambil konfigurasi aturan berkas untuk seluruh slot/indikator spesifik
+ */
+export async function getEvidenceSlotsRulesConfig(): Promise<Record<string, SlotUploadRule>> {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      if (db && 'systemSetting' in db && (db as any).systemSetting) {
+        const setting = await (db as any).systemSetting.findUnique({
+          where: { key: 'EVIDENCE_SLOTS_RULES_CONFIG' }
+        })
+        if (setting?.value) {
+          const parsed = JSON.parse(setting.value)
+          const merged: Record<string, SlotUploadRule> = {}
+          for (const [key, defaultRule] of Object.entries(DEFAULT_SLOT_UPLOAD_RULES)) {
+            const userRule = parsed[key]
+            if (userRule) {
+              const pdfMb = userRule.maxPdfSizeMb ?? (userRule.allowedDocumentType !== 'IMAGE_ONLY' ? userRule.maxFileSizeMb : undefined) ?? defaultRule.maxPdfSizeMb
+              const imgMb = userRule.maxImageSizeMb ?? (userRule.allowedDocumentType === 'IMAGE_ONLY' ? userRule.maxFileSizeMb : undefined) ?? defaultRule.maxImageSizeMb
+              merged[key] = {
+                ...defaultRule,
+                ...userRule,
+                maxPdfSizeMb: pdfMb,
+                maxImageSizeMb: imgMb,
+                maxFileSizeMb: userRule.allowedDocumentType === 'IMAGE_ONLY' ? imgMb : pdfMb
+              }
+            } else {
+              merged[key] = { ...defaultRule }
+            }
+          }
+          return merged
+        }
+        return { ...DEFAULT_SLOT_UPLOAD_RULES }
+      }
+    } catch (err: any) {
+      if (attempt === 1) {
+        // Beri jeda sejenak untuk memulihkan koneksi pooler Supabase yang sempat idle/terputus
+        await new Promise((resolve) => setTimeout(resolve, 300))
+        continue
+      }
+      console.warn('Gagal memuat aturan bukti dukung dari basis data, menggunakan preset bawaan:', err?.message || err)
+    }
+  }
+
+  return { ...DEFAULT_SLOT_UPLOAD_RULES }
+}
+
+/**
+ * Mengambil aturan unggah berkas khusus untuk satu slot/indikator tertentu.
+ */
+export async function getRuleForSlot(slotKey: string, documentType?: string): Promise<SlotUploadRule> {
+  const allRules = await getEvidenceSlotsRulesConfig()
+  if (allRules[slotKey]) {
+    return allRules[slotKey]
+  }
+  return getDefaultRuleForSlot(slotKey, documentType)
+}
+
+/**
+ * Menyimpan konfigurasi aturan berkas untuk seluruh slot bukti dukung
+ */
+export async function saveEvidenceSlotsRulesConfig(
+  rules: Record<string, SlotUploadRule>
+): Promise<{ success: boolean; error?: string }> {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const current = await getEvidenceSlotsRulesConfig()
+      const updated = {
+        ...current,
+        ...rules
+      }
+
+      if (db && 'systemSetting' in db && (db as any).systemSetting) {
+        await (db as any).systemSetting.upsert({
+          where: { key: 'EVIDENCE_SLOTS_RULES_CONFIG' },
+          update: { value: JSON.stringify(updated) },
+          create: { key: 'EVIDENCE_SLOTS_RULES_CONFIG', value: JSON.stringify(updated) }
+        })
+      }
+
+      return { success: true }
+    } catch (err: any) {
+      if (attempt === 1) {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+        continue
+      }
+      console.error('Error saving evidence slots rules config:', err)
+      return { success: false, error: err.message || 'Gagal menyimpan aturan slot bukti dukung.' }
+    }
+  }
+  return { success: false, error: 'Koneksi basis data terputus. Silakan coba kembali.' }
+}
+
+/**
+ * Mengembalikan aturan slot tertentu (atau semua slot) ke standar bawaan PermenPAN-RB.
+ */
+export async function resetEvidenceSlotRule(slotKey?: string): Promise<{ success: boolean }> {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      if (!slotKey || slotKey === 'ALL') {
+        if (db && 'systemSetting' in db && (db as any).systemSetting) {
+          await (db as any).systemSetting.delete({
+            where: { key: 'EVIDENCE_SLOTS_RULES_CONFIG' }
+          }).catch(() => {})
+        }
+        return { success: true }
+      }
+
+      const current = await getEvidenceSlotsRulesConfig()
+      if (DEFAULT_SLOT_UPLOAD_RULES[slotKey]) {
+        current[slotKey] = { ...DEFAULT_SLOT_UPLOAD_RULES[slotKey] }
+        await saveEvidenceSlotsRulesConfig(current)
+      }
+      return { success: true }
+    } catch (err: any) {
+      if (attempt === 1) {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+        continue
+      }
+      console.error('Error resetting slot rule:', err)
+      return { success: false }
+    }
+  }
+  return { success: false }
+}
+
 

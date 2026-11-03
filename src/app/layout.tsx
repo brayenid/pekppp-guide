@@ -2,13 +2,12 @@ import './globals.css'
 import { AppLayoutWrapper } from '../components/layout/AppLayoutWrapper'
 import { Toaster } from 'sonner'
 import NextTopLoader from 'nextjs-toploader'
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import localFont from 'next/font/local'
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+const googleSans = localFont({
+  src: '../../public/Google_Sans_Flex/GoogleSansFlex-VariableFont_ROND,opsz,slnt,wdth,wght.ttf',
+  variable: '--font-google-sans',
   display: 'swap',
-  variable: '--font-plus-jakarta',
 })
 
 export const metadata = {
@@ -18,7 +17,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={plusJakarta.variable} suppressHydrationWarning>
+    <html lang="id" className={`${googleSans.variable} font-sans`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -37,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${plusJakarta.className} min-h-screen bg-canvas text-ink flex flex-col antialiased selection:bg-[#C9DCFB] selection:text-[#0E2D60]`}>
-        <NextTopLoader color="#1D5BB9" showSpinner={false} height={3} />
+      <body className={`${googleSans.className} min-h-screen bg-canvas text-ink flex flex-col antialiased selection:bg-[#C9DCFB] selection:text-[#0E2D60]`}>
+        <NextTopLoader color="#ffffff" showSpinner={false} height={3} />
         <AppLayoutWrapper>
           {children}
         </AppLayoutWrapper>

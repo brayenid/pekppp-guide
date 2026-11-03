@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { saveMenpanApiConfigAction, testMenpanConnectionAction } from '../../../actions/menpan-actions'
 import { MenpanApiConfig } from '../../../services/system-setting-service'
-import { ShieldCheck, Server, Key, Lock, Globe, Save, RefreshCw, AlertTriangle, CheckCircle2, Info, ArrowLeft } from 'lucide-react'
+import { ShieldCheck, Server, Key, Lock, Globe, Save, RefreshCw, AlertTriangle, CheckCircle2, Info } from 'lucide-react'
 import { toast } from 'sonner'
-import Link from 'next/link'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
-import { Card } from '../../../components/ui/Card'
+import { Card, CardHeader } from '../../../components/ui/Card'
+import { NoticeBanner } from '../../../components/ui/NoticeBanner'
 
 export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiConfig }) {
   const [baseUrl, setBaseUrl] = useState(initialConfig.baseUrl)
@@ -114,21 +114,20 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
       />
 
       {/* Sandbox Notice Info Box */}
-      <div className="p-3.5 rounded-xl bg-surface-subtle border border-stroke/40 flex items-start gap-2.5 text-xs text-ink-secondary">
-        <Info className="w-4 h-4 text-ink-muted shrink-0 mt-0.5" />
-        <p className="leading-relaxed">
-          <strong className="text-ink font-medium">Catatan Keamanan &amp; Sandbox:</strong> Jika kredensial dibiarkan kosong, pengiriman evaluasi berjalan dalam <span className="font-semibold text-ink">Mode Simulasi (Sandbox)</span>. Seluruh data lokal tetap aman.
-        </p>
-      </div>
+      <NoticeBanner variant="neutral" compact>
+        <strong className="text-ink font-medium">Catatan Keamanan &amp; Sandbox:</strong> Jika kredensial dibiarkan kosong, pengiriman evaluasi berjalan dalam <span className="font-semibold text-ink">Mode Simulasi (Sandbox)</span>. Seluruh data lokal tetap aman.
+      </NoticeBanner>
 
       {/* API Credentials Form */}
-      <form id="api-settings-form" onSubmit={handleSave} className="rounded-bento border border-stroke/50 bg-surface p-5 space-y-4 shadow-2xs">
-        <h2 className="text-xs font-semibold text-ink uppercase tracking-wider border-b border-stroke/40 pb-3 flex items-center gap-2">
-          <Server className="w-4 h-4 text-ink-muted" />
-          Parameter Endpoint API
-        </h2>
+      <form id="api-settings-form" onSubmit={handleSave}>
+        <Card className="space-y-4">
+          <CardHeader
+            icon={<Server className="w-4 h-4 text-ink-muted" />}
+            title="Parameter Endpoint API"
+            uppercase
+          />
 
-        <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4">
           {/* Base URL */}
           <div className="space-y-1">
             <label className="block text-xs font-medium text-ink-secondary">
@@ -140,7 +139,7 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
               onChange={(e) => setBaseUrl(e.target.value)}
               placeholder="https://evaluasi.menpan.go.id/api/v1"
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
             />
             <p className="text-[11px] text-ink-muted">
               Default OpenAPI MenPAN: <code className="bg-surface-subtle px-1.5 py-0.5 rounded border border-stroke/40 text-ink font-mono">https://evaluasi.menpan.go.id/api/v1</code>
@@ -157,7 +156,7 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Masukkan Personal Access Token (Sanctum) yang diterbitkan oleh Admin PEKPPP"
-              className="w-full px-3 py-2 text-xs rounded-xl border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
             />
             <p className="text-[11px] text-ink-muted leading-relaxed">
               Token ini langsung diotentikasi ke endpoint <code className="font-mono text-ink bg-surface-subtle px-1 py-0.5 rounded border border-stroke/40">GET /user</code> untuk mendapatkan identitas akun dan <code className="font-mono text-ink">government_instance_id</code> instansi Anda.
@@ -179,7 +178,7 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
                   placeholder="Misal: Pemkab Kutai Barat"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
                 />
               </div>
 
@@ -192,38 +191,31 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
                   value={clientSecret}
                   onChange={(e) => setClientSecret(e.target.value)}
                   placeholder="••••••••••••••••"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-stroke/60 bg-surface text-ink font-mono focus:outline-none focus:border-brand shadow-2xs"
                 />
               </div>
             </div>
           </div>
-        </div>
-
+          </div>
+        </Card>
       </form>
 
       {/* Connection Test Result Card */}
       {testResult && (
-        <div
-          className={`p-4 rounded-2xl border space-y-2.5 text-xs transition-all ${
+        <NoticeBanner
+          variant={
             testResult.success
-              ? 'bg-pastel-green/40 border-pastel-green-border text-ink'
+              ? 'success'
               : testResult.isConfigured
-                ? 'bg-pastel-rose/40 border-pastel-rose-border text-pastel-rose-text'
-                : 'bg-pastel-amber/40 border-pastel-amber-border text-pastel-amber-text'
-          }`}>
-          <div className="flex items-center gap-2 font-semibold text-xs text-ink">
-            {testResult.success ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
-            )}
-            <span>Hasil Uji Koneksi API MenPAN-RB</span>
-          </div>
-          <p className="leading-relaxed pl-6 text-ink-secondary">{testResult.message}</p>
-
+                ? 'danger'
+                : 'warning'
+          }
+          title="Hasil Uji Koneksi API MenPAN-RB"
+          description={testResult.message}
+        >
           {/* Profil Akun MenPAN jika sukses */}
           {testResult.success && testResult.user && (
-            <div className="ml-6 p-3 rounded-xl bg-surface border border-stroke/40 space-y-1.5 shadow-2xs">
+            <Card padding="sm" className="mt-2.5 space-y-1.5">
               <span className="text-[10px] uppercase tracking-wider font-semibold text-ink-muted block">
                 Detail Akun Pemilik Token:
               </span>
@@ -249,19 +241,10 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
                   </span>
                 </div>
               </div>
-            </div>
+            </Card>
           )}
-        </div>
+        </NoticeBanner>
       )}
-
-      {/* Back Button */}
-      <div className="pt-1">
-        <Link
-          href="/admin/lokus"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted hover:text-ink transition-colors">
-          <ArrowLeft className="w-3.5 h-3.5 text-ink-muted" /> Kembali ke Manajemen Lokus
-        </Link>
-      </div>
     </div>
   )
 }

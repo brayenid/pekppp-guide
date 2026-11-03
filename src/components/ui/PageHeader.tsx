@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useHeaderContext } from '../layout/HeaderContext'
 
 export interface PageHeaderProps {
   tag?: string
@@ -23,9 +24,28 @@ export function PageHeader({
   actions,
   className = '',
 }: PageHeaderProps) {
+  const { setHeaderConfig, clearHeader } = useHeaderContext()
+
+  useEffect(() => {
+    setHeaderConfig({
+      title,
+      icon,
+      badge: tag ? (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-semibold border border-white/20">
+          {tag}
+        </span>
+      ) : badge,
+      actions
+    })
+
+    return () => {
+      clearHeader()
+    }
+  }, [title, icon, tag, badge, actions, setHeaderConfig, clearHeader])
+
   return (
     <div
-      className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stroke ${className}`}
+      className={`lg:hidden flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stroke ${className}`}
     >
       <div className="space-y-2 max-w-3xl">
         {tag && (
@@ -38,6 +58,7 @@ export function PageHeader({
         )}
 
         <div className="flex items-center gap-3">
+          {icon && <div className="shrink-0">{icon}</div>}
           <h1 className={titleClassName || "text-2xl sm:text-3xl font-semibold text-ink tracking-tight"}>
             {title}
           </h1>

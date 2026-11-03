@@ -111,3 +111,45 @@ export function calculatePekpppScore(inputs: IndicatorScoreInput[]): PekpppCalcu
     predicate
   }
 }
+
+/**
+ * Menghitung kontribusi efektif persentase F-03 dan Skor Akhir IPP
+ * berdasarkan metode kuota yang dipilih:
+ * - 'PROPORTIONAL': Responden di bawah target tetap dihitung bertahap (rasio capaian n/target).
+ * - 'STRICT': Wajib memenuhi target kuota penuh baru aktif (jika belum, bernilai 0).
+ */
+export function calculateEffectiveF03AndIpp(params: {
+  f02Percentage: number
+  f03RawPercentage: number
+  f03Count: number
+  targetQuota: number
+  method?: string | null
+}) {
+  const { f02Percentage, f03RawPercentage, f03Count, targetQuota, method = 'PROPORTIONAL' } = params
+  const isStrict = method === 'STRICT'
+
+  let effectiveF03Percentage = 0
+  let isF03Qualified = false
+
+  if (f03Count > 0 && targetQuota > 0) {
+    if (isStrict) {
+      isF03Qualified = f03Count >= targetQuota
+      effectiveF03Percentage = isF03Qualified ? f03RawPercentage : 0
+    } else {
+      // PROPORTIONAL: Dihitung bertahap sesuai capaian responden terhadap target
+      isF03Qualified = f03Count >= targetQuota
+      const quotaRatio = Math.min(1, f03Count / targetQuota)
+      effectiveF03Percentage = f03RawPercentage * quotaRatio
+    }
+  }
+
+  const finalIppPercentage = 0.75 * f02Percentage + 0.25 * effectiveF03Percentage
+  const finalIppScore = (finalIppPercentage / 100) * 5
+
+  return {
+    effectiveF03Percentage,
+    finalIppPercentage,
+    finalIppScore,
+    isF03Qualified
+  }
+}

@@ -92,7 +92,15 @@ export function DocumentRedactionModal({
   rawFile,
   onSaveRedacted
 }: DocumentRedactionModalProps) {
-  const isPdf = fileType === 'PDF' || fileName.toLowerCase().endsWith('.pdf')
+  const isImageByExt =
+    /\.(jpe?g|png|webp|gif|bmp)$/i.test(fileName) ||
+    Boolean(rawFile?.type && rawFile.type.startsWith('image/'))
+  const isPdf =
+    !isImageByExt &&
+    (fileName.toLowerCase().endsWith('.pdf') ||
+      rawFile?.type === 'application/pdf' ||
+      fileType === 'PDF')
+
   const [boxes, setBoxes] = useState<RedactBox[]>([])
   const [redoBoxes, setRedoBoxes] = useState<RedactBox[]>([])
   const [isDrawing, setIsDrawing] = useState(false)
@@ -102,6 +110,12 @@ export function DocumentRedactionModal({
   const [isSaving, setIsSaving] = useState(false)
   const [drawPage, setDrawPage] = useState(1)
   const activeRectRef = useRef<DOMRect | null>(null)
+
+  // State khusus gambar (!isPdf)
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  const [resolvedImageSrc, setResolvedImageSrc] = useState<string>('')
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false)
+  const [imageError, setImageError] = useState<string | null>(null)
 
   // PDF dirender sebagai canvas lewat pdfjs-dist (bukan iframe viewer bawaan browser)
   const [pdfDoc, setPdfDoc] = useState<any>(null)
@@ -121,7 +135,49 @@ export function DocumentRedactionModal({
       setIsConfirmOpen(false)
       setIsResetConfirmOpen(false)
     }
-  }, [isOpen, fileUrl])
+  }, [isOpen, fileUrl, rawFile])
+
+  // Siapkan URL gambar yang aman (Bebas masalah blob: rusak & bebas masalah CORS R2 CDN)
+  useEffect(() => {
+    if (!isOpen || isPdf) {
+      setResolvedImageSrc('')
+      setImageLoaded(false)
+      setImageError(null)
+      return
+    }
+
+    setImageLoaded(false)
+    setImageError(null)
+
+    // 1. Prioritas utama: Jika ada rawFile (Pre-Upload di memori browser), buat Object URL lokal sendiri
+    if (rawFile) {
+      const localObjUrl = URL.createObjectURL(rawFile)
+      setResolvedImageSrc(localObjUrl)
+      return () => {
+        URL.revokeObjectURL(localObjUrl)
+      }
+    }
+
+    // 2. Jika fileUrl sudah berupa blob: atau data: atau path relatif same-origin (/uploads/...)
+    const normalized = formatFileUrl(fileUrl)
+    if (
+      normalized.startsWith('blob:') ||
+      normalized.startsWith('data:') ||
+      normalized.startsWith('/')
+    ) {
+      setResolvedImageSrc(normalized)
+      return
+    }
+
+    // 3. Jika fileUrl berupa URL eksternal (misal Cloudflare R2 CDN https://pekpppcdn.orgkubar.web.id/...),
+    // gunakan proxy same-origin agar HTML5 Canvas tidak terkena blokir CORS / Tainted Canvas saat ekspor.
+    if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
+      setResolvedImageSrc(`/api/evidence/proxy?url=${encodeURIComponent(normalized)}`)
+      return
+    }
+
+    setResolvedImageSrc(normalized)
+  }, [isOpen, isPdf, rawFile, fileUrl])
 
   useEffect(() => {
     if (!isOpen || !isPdf) return
@@ -147,9 +203,16 @@ export function DocumentRedactionModal({
           const ab = await res.arrayBuffer()
           doc = await pdfjs.getDocument({ data: ab }).promise
         } else if (fileUrl) {
-          // Jika URL berupa remote server/CDN URL
+          // Jika URL berupa remote server/CDN URL, muat via same-origin proxy jika eksternal
           const resolvedUrl = formatFileUrl(fileUrl)
-          doc = await pdfjs.getDocument({ url: resolvedUrl }).promise
+          const fetchUrl =
+            resolvedUrl.startsWith('http://') || resolvedUrl.startsWith('https://')
+              ? `/api/evidence/proxy?url=${encodeURIComponent(resolvedUrl)}`
+              : resolvedUrl
+          const res = await fetch(fetchUrl)
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          const ab = await res.arrayBuffer()
+          doc = await pdfjs.getDocument({ data: ab }).promise
         } else {
           throw new Error('URL atau berkas PDF tidak tersedia.')
         }
@@ -359,27 +422,41 @@ export function DocumentRedactionModal({
         return
       }
 
-      const normalizedUrl = formatFileUrl(fileUrl)
-
       if (!isPdf) {
         // --- 1. PROSES GAMBAR DI HTML5 CANVAS (100% Client-Side) ---
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
-        img.src = normalizedUrl
+        let sourceImg: HTMLImageElement
 
-        await new Promise((resolve, reject) => {
-          img.onload = resolve
-          img.onerror = () => reject(new Error('Gagal memuat gambar untuk disensor.'))
-        })
+        if (
+          imgRef.current &&
+          imgRef.current.complete &&
+          imgRef.current.naturalWidth > 0 &&
+          imgRef.current.naturalHeight > 0
+        ) {
+          sourceImg = imgRef.current
+        } else {
+          const targetSrc = resolvedImageSrc || formatFileUrl(fileUrl)
+          if (!targetSrc) throw new Error('Sumber gambar tidak ditemukan.')
+          const loadedImg = new Image()
+          if (!targetSrc.startsWith('blob:') && !targetSrc.startsWith('data:')) {
+            loadedImg.crossOrigin = 'anonymous'
+          }
+          loadedImg.src = targetSrc
+
+          await new Promise((resolve, reject) => {
+            loadedImg.onload = resolve
+            loadedImg.onerror = () => reject(new Error('Gagal memuat gambar untuk disensor.'))
+          })
+          sourceImg = loadedImg
+        }
 
         const canvas = document.createElement('canvas')
-        canvas.width = img.naturalWidth
-        canvas.height = img.naturalHeight
+        canvas.width = sourceImg.naturalWidth
+        canvas.height = sourceImg.naturalHeight
         const ctx = canvas.getContext('2d')
         if (!ctx) throw new Error('Canvas 2D context tidak tersedia.')
 
         // Gambar asli
-        ctx.drawImage(img, 0, 0)
+        ctx.drawImage(sourceImg, 0, 0)
 
         // Timpa seluruh kotak sensor dengan balok hitam pekat (Blackout)
         ctx.fillStyle = '#000000'
@@ -459,8 +536,6 @@ export function DocumentRedactionModal({
   }
 
   if (!isOpen) return null
-
-  const normalizedUrl = formatFileUrl(fileUrl)
 
   // Hitung jumlah sensor per halaman untuk dokumen PDF
   const pageStats = React.useMemo(() => {
@@ -564,7 +639,7 @@ export function DocumentRedactionModal({
 
           <button
             type="button"
-            disabled={isSaving}
+            disabled={isSaving || (!isPdf && !imageLoaded)}
             onClick={() => setIsConfirmOpen(true)}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-50 transition-all cursor-pointer">
             {isSaving ? (
@@ -579,27 +654,63 @@ export function DocumentRedactionModal({
         </div>
       </header>
 
-      {/* Main Studio Body: Workspace + Optional Sidebar */}
+      {/* Main Studio Body: Workspace + Sidebar */}
       <div className="flex-1 flex overflow-hidden bg-slate-950">
         {/* Document Canvas Workspace */}
         <main className="flex-1 overflow-auto p-4 sm:p-8 flex flex-col items-center select-none cursor-crosshair">
           <div className="flex flex-col items-center gap-6" style={{ width: `${BASE_WIDTH * zoom}px` }}>
             {!isPdf ? (
-              <div
-                onMouseDown={(e) => handleMouseDown(e, 1)}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-                className="relative w-full shadow-2xl bg-white rounded border border-slate-700 overflow-hidden select-none">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={normalizedUrl}
-                  alt={fileName}
-                  draggable={false}
-                  className="w-full h-auto pointer-events-none select-none block"
-                />
-                {renderBoxes(1)}
-              </div>
+              imageError ? (
+                <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-5 py-4 max-w-md text-center">
+                  {imageError}
+                </div>
+              ) : !resolvedImageSrc ? (
+                <div className="flex flex-col items-center justify-center gap-3 text-xs text-slate-400 py-24">
+                  <Loader2 className="w-6 h-6 animate-spin text-brand" />
+                  <span>Memuat pratinjau gambar...</span>
+                </div>
+              ) : (
+                <div className="w-full flex flex-col items-center">
+                  <div className="w-full flex items-center justify-between pb-1.5 text-[11px] text-slate-400 font-medium">
+                    <span>Kanvas Gambar ({fileName})</span>
+                    {boxes.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
+                        {boxes.length} area disensor
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    onMouseDown={(e) => handleMouseDown(e, 1)}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    className="relative w-full shadow-2xl bg-slate-900 rounded border border-slate-700 overflow-hidden select-none min-h-[200px] flex items-center justify-center">
+                    {!imageLoaded && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-xs text-slate-400 bg-slate-900 z-10">
+                        <Loader2 className="w-5 h-5 animate-spin text-brand" />
+                        <span>Menyiapkan gambar...</span>
+                      </div>
+                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      ref={imgRef}
+                      src={resolvedImageSrc}
+                      alt={fileName}
+                      draggable={false}
+                      onLoad={() => {
+                        setImageLoaded(true)
+                        setImageError(null)
+                      }}
+                      onError={() => {
+                        setImageLoaded(false)
+                        setImageError('Gagal memuat pratinjau gambar. Pastikan format gambar didukung (JPG, PNG, WEBP).')
+                      }}
+                      className="w-full h-auto pointer-events-none select-none block"
+                    />
+                    {imageLoaded && renderBoxes(1)}
+                  </div>
+                </div>
+              )
             ) : pdfError ? (
               <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-5 py-4 max-w-md text-center">
                 {pdfError}
@@ -638,26 +749,28 @@ export function DocumentRedactionModal({
           </div>
         </main>
 
-        {/* Sidebar Khusus PDF (Informasi Halaman Mana yang Disensor) */}
-        {isPdf && (
-          <aside className="w-64 sm:w-72 border-l border-stroke/70 bg-surface flex flex-col shrink-0 text-ink select-none z-10">
-            {/* Sidebar Header */}
-            <div className="p-3.5 border-b border-stroke/50 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-brand" />
-                <h2 className="text-xs font-semibold text-ink">Navigasi & Sensor Halaman</h2>
-              </div>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-subtle text-ink-muted border border-stroke/50">
-                {boxes.length} Total
-              </span>
+        {/* Sidebar Informasi & Daftar Kotak Sensor (Untuk PDF maupun Gambar) */}
+        <aside className="w-64 sm:w-72 border-l border-stroke/70 bg-surface flex flex-col shrink-0 text-ink select-none z-10">
+          {/* Sidebar Header */}
+          <div className="p-3.5 border-b border-stroke/50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-brand" />
+              <h2 className="text-xs font-semibold text-ink">
+                {isPdf ? 'Navigasi & Sensor Halaman' : 'Panel Sensor Gambar'}
+              </h2>
             </div>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-subtle text-ink-muted border border-stroke/50">
+              {boxes.length} Total
+            </span>
+          </div>
 
-            {/* Petunjuk Singkat */}
-            <div className="p-3 bg-amber-500/10 border-b border-amber-500/20 text-[11px] text-amber-900 dark:text-amber-200 leading-snug">
-              Tarik kursor untuk menambah sensor. Klik kotak sensor langsung di atas dokumen untuk menghapusnya.
-            </div>
+          {/* Petunjuk Singkat */}
+          <div className="p-3 bg-amber-500/10 border-b border-amber-500/20 text-[11px] text-amber-900 dark:text-amber-200 leading-snug">
+            Tarik kursor pada {isPdf ? 'dokumen' : 'gambar'} untuk menutup area sensitif (plat nomor, wajah, NIK/NIP, tanda tangan). Klik kotak hitam untuk menghapusnya.
+          </div>
 
-            {/* List Halaman Dokumen */}
+          {/* List Halaman Dokumen (Khusus PDF) atau Ringkasan Area Sensor (Khusus Gambar) */}
+          {isPdf ? (
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {!pdfDoc ? (
                 <div className="p-4 text-center text-xs text-ink-muted italic">Memuat daftar halaman...</div>
@@ -695,33 +808,63 @@ export function DocumentRedactionModal({
                 ))
               )}
             </div>
-
-            {/* Rincian Kotak Terpasang */}
-            {boxes.length > 0 && (
-              <div className="p-3 border-t border-stroke/50 max-h-40 overflow-y-auto space-y-1 bg-surface-subtle/30">
-                <div className="text-[10px] font-semibold text-ink-muted uppercase tracking-wider mb-1">
-                  Daftar Kotak Sensor:
-                </div>
-                {boxes.map((b, idx) => (
-                  <div
-                    key={b.id}
-                    className="flex items-center justify-between text-[11px] p-1.5 rounded-lg bg-surface border border-stroke/50">
-                    <span className="text-ink truncate">
-                      Kotak #{idx + 1} (Hal. {b.page || 1})
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveBox(b.id)}
-                      className="p-1 rounded text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                      title="Hapus kotak ini">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+          ) : (
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              <div className="text-[10px] font-semibold text-ink-muted uppercase tracking-wider">
+                Daftar Kotak Sensor ({boxes.length}):
               </div>
-            )}
-          </aside>
-        )}
+              {boxes.length === 0 ? (
+                <div className="p-4 rounded-xl border border-dashed border-stroke/60 bg-surface-subtle/40 text-center text-[11px] text-ink-muted leading-relaxed">
+                  Belum ada area yang disensor. Tarik kursor di atas foto untuk menambahkan balok sensor hitam.
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {boxes.map((b, idx) => (
+                    <div
+                      key={b.id}
+                      className="flex items-center justify-between text-[11px] p-2 rounded-lg bg-surface-subtle/60 border border-stroke/60">
+                      <span className="text-ink font-medium truncate">
+                        Area Sensor #{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBox(b.id)}
+                        className="p-1 rounded text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                        title="Hapus kotak ini">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Rincian Kotak Terpasang (Khusus PDF karena Gambar sudah tampil di panel utama) */}
+          {isPdf && boxes.length > 0 && (
+            <div className="p-3 border-t border-stroke/50 max-h-40 overflow-y-auto space-y-1 bg-surface-subtle/30">
+              <div className="text-[10px] font-semibold text-ink-muted uppercase tracking-wider mb-1">
+                Daftar Kotak Sensor:
+              </div>
+              {boxes.map((b, idx) => (
+                <div
+                  key={b.id}
+                  className="flex items-center justify-between text-[11px] p-1.5 rounded-lg bg-surface border border-stroke/50">
+                  <span className="text-ink truncate">
+                    Kotak #{idx + 1} (Hal. {b.page || 1})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveBox(b.id)}
+                    className="p-1 rounded text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                    title="Hapus kotak ini">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </aside>
       </div>
 
       {/* Modal Konfirmasi Simpan (Bila Tanpa Sensor vs Ada Sensor) */}

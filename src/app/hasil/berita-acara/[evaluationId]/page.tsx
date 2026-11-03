@@ -2,8 +2,9 @@ import { db } from '../../../../services/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Printer, ShieldAlert, Award, FileText, ClipboardList } from 'lucide-react'
-import { calculatePekpppScore } from '../../../../core/domain/pekppp-calculator'
+import { calculatePekpppScore, calculateEffectiveF03AndIpp } from '../../../../core/domain/pekppp-calculator'
 import { PrintButton } from '../../../../components/ui/PrintButton'
+import { Breadcrumb } from '../../../../components/ui/Breadcrumb'
 
 export const revalidate = 0
 
@@ -62,10 +63,23 @@ export default async function BeritaAcaraPage({
   })
 
   const f02Pct = calculation.totalPercentage
-  const f03Pct = evaluation.f03Percentage || 0
+  const period = await db.evaluationPeriod.findUnique({
+    where: { year: evaluation.year },
+    select: { targetF03Quota: true, f03CalculationMethod: true }
+  })
+  const targetQuota = period?.targetF03Quota || 30
+  const f03Method = period?.f03CalculationMethod || 'PROPORTIONAL'
   const hasF03 = (evaluation.f03Count || 0) > 0
-  const finalPct = hasF03 ? 0.75 * f02Pct + 0.25 * f03Pct : f02Pct
-  const finalScale5 = (finalPct / 100) * 5
+  const f03AvgPct = hasF03 ? (evaluation.f03Percentage || 0) : 0
+
+  const { effectiveF03Percentage: f03Pct, finalIppPercentage: finalPct, finalIppScore: finalScale5, isF03Qualified } =
+    calculateEffectiveF03AndIpp({
+      f02Percentage: f02Pct,
+      f03RawPercentage: f03AvgPct,
+      f03Count: evaluation.f03Count || 0,
+      targetQuota,
+      method: f03Method
+    })
 
   const grade = finalPct >= 90 ? 'A' : finalPct >= 75 ? 'B' : finalPct >= 60 ? 'C' : finalPct >= 45 ? 'D' : 'E'
   const predicate = grade === 'A' ? 'Sangat Baik' : grade === 'B' ? 'Baik' : grade === 'C' ? 'Cukup' : grade === 'D' ? 'Kurang' : 'Sangat Kurang'
@@ -116,13 +130,15 @@ export default async function BeritaAcaraPage({
       `}} />
 
       {/* Navigation Bar (Hidden on print) */}
-      <div className="flex items-center justify-between border-b border-[#e8e8e8] pb-4 print:hidden">
-        <Link
-          href="/hasil"
-          className="inline-flex items-center gap-1.5 text-xs text-[#646464] hover:text-[#202020] transition-colors">
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Kembali ke Hasil Evaluasi
-        </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stroke/60 pb-3 mb-6 print:hidden">
+        <Breadcrumb
+          className="!mb-0"
+          showBackOnFirst
+          items={[
+            { label: 'Hasil Evaluasi', href: '/hasil' },
+            { label: `Berita Acara (${evaluation.unit.name})` }
+          ]}
+        />
         <PrintButton />
       </div>
 
@@ -173,7 +189,7 @@ export default async function BeritaAcaraPage({
             <tr className="border-b border-[#e8e8e8]">
               <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Rincian Instrumen PEKPPP</td>
               <td className="px-4 py-2.5 text-[#202020]">
-                F-02 Evaluator (75%): <strong>{f02Pct.toFixed(2)}%</strong> | F-03 Survei Responden (25%): <strong>{hasF03 ? `${f03Pct.toFixed(2)}% (${evaluation.f03Count} resp)` : 'Belum Terisi'}</strong>
+                F-02 Evaluator (75%): <strong>{f02Pct.toFixed(2)}%</strong> | F-03 Survei Responden (25%): <strong>{hasF03 ? `${f03AvgPct.toFixed(2)}% (${evaluation.f03Count}/${targetQuota} resp${isF03Qualified ? '' : ' - Kuota Belum Cukup'})` : 'Belum Terisi'}</strong>
               </td>
             </tr>
             <tr className="border-b border-[#e8e8e8]">

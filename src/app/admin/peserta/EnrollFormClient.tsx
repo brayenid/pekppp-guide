@@ -9,9 +9,11 @@ import {
   deleteEvaluationsBulkAction
 } from '../../../actions/evaluation-actions'
 import { toast } from 'sonner'
+import { FormModal } from '../../../components/ui/FormModal'
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
+import { AdminTabs } from '../../../components/ui/AdminTabs'
 
 interface UnitItem {
   id: string
@@ -191,166 +193,143 @@ export default function EnrollFormClient({
       </form>
 
       {/* Bulk Insert & Delete Modal */}
-      {isBulkOpen &&
-        typeof window !== 'undefined' &&
-        createPortal(
-          <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs z-[250] flex items-center justify-center p-4 animate-fade-in-content">
-            <div className="bg-card rounded-2xl shadow-subtle max-w-xl w-full overflow-hidden flex flex-col max-h-[85vh] border border-line">
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-                <div className="flex items-center gap-2.5">
-                  <Users className="w-5 h-5 text-ink" />
-                  <h3 className="text-base font-bold text-ink tracking-tight">Kelola Peserta Massal ({year})</h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsBulkOpen(false)}
-                  className="p-1.5 rounded-lg hover:bg-surface-muted text-ink-muted hover:text-ink transition-colors cursor-pointer">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+      <FormModal
+        isOpen={isBulkOpen}
+        onClose={() => setIsBulkOpen(false)}
+        maxWidth="xl"
+        zIndex="z-[250]"
+        noBodyPadding
+        icon={<Users className="w-4.5 h-4.5" />}
+        title={`Kelola Peserta Massal (${year})`}
+        description="Daftarkan atau keluarkan banyak unit lokus peserta evaluasi sekaligus."
+        subHeader={
+          <AdminTabs
+            items={[
+              { id: 'enroll', label: 'Daftarkan Massal', count: availableUnits.length },
+              { id: 'delete', label: 'Hapus / Keluarkan Peserta Massal', count: enrolledEvaluations.length }
+            ]}
+            activeId={activeTab}
+            onChange={(tab) => handleTabChange(tab as 'enroll' | 'delete')}
+            className="px-6 pt-3 bg-surface-subtle"
+            bordered={true}
+          />
+        }
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsBulkOpen(false)}
+              disabled={bulkLoading}>
+              Batal
+            </Button>
 
-              {/* Tab Selector */}
-              <div className="flex border-b border-line px-6 bg-surface-subtle">
-                <button
-                  type="button"
-                  onClick={() => handleTabChange('enroll')}
-                  className={`py-3 text-xs font-semibold border-b-2 mr-6 transition-all cursor-pointer ${
-                    activeTab === 'enroll'
-                      ? 'border-ink text-ink font-bold'
-                      : 'border-transparent text-ink-muted hover:text-ink'
-                  }`}>
-                  + Daftarkan Massal ({availableUnits.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange('delete')}
-                  className={`py-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
-                    activeTab === 'delete'
-                      ? 'border-pastel-rose-text text-pastel-rose-text font-bold'
-                      : 'border-transparent text-ink-muted hover:text-ink'
-                  }`}>
-                  Hapus / Keluarkan Peserta Massal ({enrolledEvaluations.length})
-                </button>
-              </div>
-
-              {/* Search & Actions Bar */}
-              <div className="p-4 border-b border-line space-y-3 bg-card">
-                <div className="relative">
-                  <Search className="w-4 h-4 text-ink-faint absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder={
-                      activeTab === 'enroll'
-                        ? 'Cari lokus yang belum terdaftar...'
-                        : 'Cari lokus terdaftar yang ingin dikeluarkan...'
-                    }
-                    className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-line bg-card placeholder:text-ink-faint text-ink focus:outline-none focus:border-ink shadow-2xs"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-xs">
-                  <button
-                    type="button"
-                    onClick={handleToggleSelectAll}
-                    className="text-ink-secondary hover:text-ink font-semibold flex items-center gap-1.5 cursor-pointer">
-                    <span
-                      className={`w-4 h-4 rounded border flex items-center justify-center ${
-                        selectedBulkIds.length > 0 && selectedBulkIds.length === filteredDataset.length
-                          ? 'bg-ink border-ink text-white'
-                          : 'border-line bg-card'
-                      }`}>
-                      {selectedBulkIds.length > 0 && selectedBulkIds.length === filteredDataset.length && (
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      )}
-                    </span>
-                    <span>Pilih Semua ({filteredDataset.length})</span>
-                  </button>
-
-                  <span className="text-ink-muted text-[11px]">
-                    <strong className="text-ink font-mono">{selectedBulkIds.length}</strong> dipilih
-                  </span>
-                </div>
-              </div>
-
-              {/* Checklist Items Container */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-2 divide-y divide-line max-h-72">
-                {filteredDataset.length === 0 ? (
-                  <div className="text-center py-8 text-xs text-ink-muted italic">
-                    {searchTerm ? 'Tidak ada lokus yang cocok dengan pencarian.' : 'Tidak ada lokus yang tersedia.'}
-                  </div>
-                ) : (
-                  filteredDataset.map((item) => {
-                    const isChecked = selectedBulkIds.includes(item.id)
-                    return (
-                      <label
-                        key={item.id}
-                        onClick={() => handleToggleItem(item.id)}
-                        className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
-                          isChecked
-                            ? activeTab === 'enroll'
-                              ? 'bg-surface-muted border-ink font-semibold'
-                              : 'bg-pastel-rose border-pastel-rose-border font-semibold'
-                            : 'bg-card border-line hover:bg-surface-subtle text-ink-secondary'
-                        }`}>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {}}
-                            className={`rounded w-4 h-4 ${activeTab === 'enroll' ? 'accent-ink' : 'accent-rose-600'}`}
-                          />
-                          <span className="text-xs text-ink leading-snug">{item.name}</span>
-                        </div>
-                        <Badge variant="neutral" size="sm">
-                          {item.category?.name || 'OPD'}
-                        </Badge>
-                      </label>
-                    )
-                  })
-                )}
-              </div>
-
-              {/* Footer Modal Actions */}
-              <div className="px-6 py-4 border-t border-line bg-surface-subtle flex items-center justify-between">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsBulkOpen(false)}
-                  disabled={bulkLoading}>
-                  Batal
-                </Button>
-
-                {activeTab === 'enroll' ? (
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    onClick={handleBulkEnroll}
-                    disabled={selectedBulkIds.length === 0 || bulkLoading}
-                    isLoading={bulkLoading}
-                    leftIcon={<Plus className="w-3.5 h-3.5" />}>
-                    Daftarkan ({selectedBulkIds.length}) Lokus
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setIsDeleteConfirmOpen(true)}
-                    disabled={selectedBulkIds.length === 0 || bulkLoading}
-                    isLoading={bulkLoading}>
-                    Keluarkan ({selectedBulkIds.length}) Peserta
-                  </Button>
-                )}
-              </div>
+            {activeTab === 'enroll' ? (
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={handleBulkEnroll}
+                disabled={selectedBulkIds.length === 0 || bulkLoading}
+                isLoading={bulkLoading}
+                leftIcon={<Plus className="w-3.5 h-3.5" />}>
+                Daftarkan ({selectedBulkIds.length}) Lokus
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                disabled={selectedBulkIds.length === 0 || bulkLoading}
+                isLoading={bulkLoading}>
+                Keluarkan ({selectedBulkIds.length}) Peserta
+              </Button>
+            )}
+          </>
+        }>
+        <div>
+          {/* Search & Actions Bar */}
+          <div className="p-4 border-b border-line space-y-3 bg-card">
+            <div className="relative">
+              <Search className="w-4 h-4 text-ink-faint absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={
+                  activeTab === 'enroll'
+                    ? 'Cari lokus yang belum terdaftar...'
+                    : 'Cari lokus terdaftar yang ingin dikeluarkan...'
+                }
+                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-line bg-card placeholder:text-ink-faint text-ink focus:outline-none focus:border-brand shadow-2xs"
+              />
             </div>
-          </div>,
-          document.body
-        )}
+
+            <div className="flex items-center justify-between text-xs">
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                className="text-ink-secondary hover:text-ink font-semibold flex items-center gap-1.5 cursor-pointer">
+                <span
+                  className={`w-4 h-4 rounded border flex items-center justify-center ${
+                    selectedBulkIds.length > 0 && selectedBulkIds.length === filteredDataset.length
+                      ? 'bg-brand border-brand text-white'
+                      : 'border-line bg-card'
+                  }`}>
+                  {selectedBulkIds.length > 0 && selectedBulkIds.length === filteredDataset.length && (
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  )}
+                </span>
+                <span>Pilih Semua ({filteredDataset.length})</span>
+              </button>
+
+              <span className="text-ink-muted text-[11px]">
+                <strong className="text-brand font-mono">{selectedBulkIds.length}</strong> dipilih
+              </span>
+            </div>
+          </div>
+
+          {/* Checklist Items Container */}
+          <div className="p-4 space-y-2 max-h-72 overflow-y-auto">
+            {filteredDataset.length === 0 ? (
+              <div className="text-center py-8 text-xs text-ink-muted italic">
+                {searchTerm ? 'Tidak ada lokus yang cocok dengan pencarian.' : 'Tidak ada lokus yang tersedia.'}
+              </div>
+            ) : (
+              filteredDataset.map((item) => {
+                const isChecked = selectedBulkIds.includes(item.id)
+                return (
+                  <label
+                    key={item.id}
+                    onClick={() => handleToggleItem(item.id)}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      isChecked
+                        ? activeTab === 'enroll'
+                          ? 'bg-brand/5 border-brand/40 font-semibold'
+                          : 'bg-pastel-rose border-pastel-rose-border font-semibold'
+                        : 'bg-card border-line hover:bg-surface-subtle text-ink-secondary'
+                    }`}>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {}}
+                        className={`rounded w-4 h-4 ${activeTab === 'enroll' ? 'accent-brand' : 'accent-rose-600'}`}
+                      />
+                      <span className="text-xs text-ink leading-snug">{item.name}</span>
+                    </div>
+                    <Badge variant="neutral" size="sm">
+                      {item.category?.name || 'OPD'}
+                    </Badge>
+                  </label>
+                )
+              })
+            )}
+          </div>
+        </div>
+      </FormModal>
 
       {/* Confirmation Modal for Bulk Delete */}
       <ConfirmationModal

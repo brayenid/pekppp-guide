@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { getCurrentUserAction, logoutAction, UserSession } from '../../actions/auth-actions'
 import { useState, useEffect, useRef } from 'react'
@@ -40,9 +41,12 @@ export function Navbar() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [themeMode, setThemeMode] = useState<'system' | 'dark' | 'light'>('system')
 
+  const isLoginPage = pathname === '/login'
   useEffect(() => {
-    getCurrentUserAction().then(setUser)
-  }, [pathname])
+    if (!isLoginPage) {
+      getCurrentUserAction().then(setUser)
+    }
+  }, [isLoginPage])
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -111,12 +115,22 @@ export function Navbar() {
   const currentTranslateY = useRef(0)
   const NAVBAR_HEIGHT = 64
 
+  // Helper untuk sinkronisasi CSS variable secara synchronous saat scroll
+  const updateCssVars = (transY: number) => {
+    if (typeof document !== 'undefined') {
+      const visibleHeight = Math.max(0, NAVBAR_HEIGHT + transY)
+      document.documentElement.style.setProperty('--nav-visible-height', `${visibleHeight}px`)
+      document.documentElement.style.setProperty('--navbar-translate-y', `${transY}px`)
+    }
+  }
+
   // Proportional delta scroll (auto-hide & auto-reveal)
   useEffect(() => {
     // Reset saat drawer terbuka atau rute berubah
     if (mobileDrawerOpen) {
       currentTranslateY.current = 0
       setTranslateY(0)
+      updateCssVars(0)
       return
     }
 
@@ -124,10 +138,16 @@ export function Navbar() {
       const scrollY = window.scrollY
       const deltaY = scrollY - prevScrollY.current
 
+      // Abaikan pergeseran mikro/jitter di bawah 4px
+      if (Math.abs(deltaY) < 4) {
+        return
+      }
+
       // Jika di paling atas halaman, kunci terlihat penuh
       if (scrollY <= 0) {
         currentTranslateY.current = 0
         setTranslateY(0)
+        updateCssVars(0)
         prevScrollY.current = scrollY
         return
       }
@@ -141,56 +161,51 @@ export function Navbar() {
 
       currentTranslateY.current = nextTranslate
       setTranslateY(nextTranslate)
+      updateCssVars(nextTranslate)
       prevScrollY.current = scrollY
     }
 
-    prevScrollY.current = window.scrollY
+    // Inisialisasi saat pertama kali mount atau route change
+    if (typeof window !== 'undefined') {
+      const initialTranslate = window.scrollY <= 0 ? 0 : Math.max(-NAVBAR_HEIGHT, -window.scrollY)
+      currentTranslateY.current = initialTranslate
+      setTranslateY(initialTranslate)
+      updateCssVars(initialTranslate)
+      prevScrollY.current = window.scrollY
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [mobileDrawerOpen, pathname])
 
   return (
     <>
       <nav
         style={{ transform: `translate3d(0, ${translateY}px, 0)` }}
-        className="sticky top-0 z-50 w-full bg-canvas/95 backdrop-blur-md border-b border-stroke shadow-2xs will-change-transform">
-        <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        className="sticky top-0 z-30 w-full bg-brand text-white border-b border-brand-hover shadow-md will-change-transform">
+        <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-3 group py-0.5">
-            <div className="w-9 h-9 rounded-xl bg-brand flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform shadow-hz-button">
-              P
+            <div className="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm ring-1 ring-white/20 shrink-0">
+              <Image
+                src="/kubar.png"
+                alt="Logo Kutai Barat"
+                width={30}
+                height={30}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-semibold text-base tracking-tight text-ink">PEKPPP.ext</span>
-              <span className="text-[11px] font-medium tracking-wider text-ink-muted">Kutai Barat</span>
+              <span className="font-semibold text-base tracking-tight text-white">PEKPPP.ext</span>
+              <span className="text-[11px] font-medium tracking-wider text-white/80">Kutai Barat</span>
             </div>
           </Link>
 
-          {/* Center Section: Admin / OPD / Evaluation Context Capsule or Public Nav Pills (Desktop only) */}
-          {isAdmin ? (
-            <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-brand" />
-              <span className="text-xs font-medium text-ink">Portal Super Admin</span>
-              <span className="text-stroke">|</span>
-              <Link
-                href="/"
-                className="px-4 py-1.5 rounded-full bg-surface-elevated text-ink-secondary text-xs font-medium hover:text-brand transition-colors shadow-pill">
-                Lihat Situs Publik →
-              </Link>
-            </div>
-          ) : isOpd ? (
-            <div className="hidden lg:flex items-center gap-3 p-1.5 pl-4 pr-2 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-brand" />
-              <span className="text-xs font-medium text-ink">Portal Unit Pelayanan (OPD)</span>
-              <span className="text-stroke">|</span>
-              <Link
-                href="/"
-                className="px-4 py-1.5 rounded-full bg-surface-elevated text-ink-secondary text-xs font-medium hover:text-brand transition-colors shadow-pill">
-                Lihat Situs Publik →
-              </Link>
-            </div>
-          ) : isEvaluation ? null : (
-            <div className="hidden lg:flex items-center gap-1 p-1.5 bg-surface-subtle border border-stroke/60 rounded-full shadow-2xs">
+          {/* Center Section: Public Nav Pills */}
+          {!isEvaluation && (
+            <div className="hidden lg:flex items-center gap-1 p-1 bg-black/15 backdrop-blur-sm border border-white/15 rounded-full shadow-inner">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -199,8 +214,8 @@ export function Navbar() {
                     href={item.href}
                     className={`px-4 py-1.5 rounded-full text-xs transition-all whitespace-nowrap ${
                       isActive
-                        ? 'bg-surface-elevated text-ink font-medium shadow-pill'
-                        : 'text-ink-secondary hover:text-ink font-normal'
+                        ? 'bg-white text-brand font-semibold shadow-sm'
+                        : 'text-white/85 hover:text-white hover:bg-white/10 font-normal'
                     }`}>
                     {item.label}
                   </Link>
@@ -211,6 +226,7 @@ export function Navbar() {
 
           {/* Right Section: Notification Bell + Profile (Desktop) + Hamburger (Mobile) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {isEvaluation && <EvaluationNavbarStatus className="flex text-white" />}
             {user && <NotificationBell />}
 
             {/* Desktop User Dropdown */}
@@ -220,7 +236,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all shadow-hz-button cursor-pointer">
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white hover:bg-white/90 text-brand text-xs font-semibold transition-all shadow-sm cursor-pointer">
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Masuk</span>
                 </Link>
@@ -232,7 +248,7 @@ export function Navbar() {
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
               aria-label="Buka menu navigasi"
-              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-surface-elevated hover:bg-surface-subtle border border-stroke/70 text-ink flex items-center justify-center transition-all cursor-pointer shadow-2xs">
+              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-sm">
               <Menu className="w-5 h-5" />
             </button>
           </div>
@@ -262,8 +278,14 @@ export function Navbar() {
               href="/"
               onClick={() => setMobileDrawerOpen(false)}
               className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xs shadow-hz-button">
-                P
+              <div className="w-8 h-8 rounded-lg bg-surface border border-stroke p-1 flex items-center justify-center shrink-0 shadow-xs">
+                <Image
+                  src="/kubar.png"
+                  alt="Logo Kutai Barat"
+                  width={26}
+                  height={26}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex flex-col leading-tight">
                 <span className="font-semibold text-sm tracking-tight text-ink">PEKPPP.ext</span>

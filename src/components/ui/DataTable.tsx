@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { Card } from './Card'
 
 export interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
   headerTitle?: string
@@ -25,15 +26,12 @@ export function DataTable({
   ...props
 }: DataTableProps) {
   return (
-    <div
-      className={`bg-card border border-line rounded-2xl overflow-hidden shadow-2xs ${className}`}
-      {...props}
-    >
+    <Card padding="none" className={className} {...props}>
       {(headerTitle || headerMeta || headerActions) && (
         <div className="px-6 py-3.5 bg-surface-subtle/30 border-b border-stroke/40 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2.5">
             {headerTitle && (
-              <span className="text-xs font-medium text-ink">
+              <span className="text-xs font-semibold text-ink uppercase tracking-wider">
                 {headerTitle}
               </span>
             )}
@@ -50,7 +48,7 @@ export function DataTable({
           {Array.from({ length: 5 }).map((_, r) => (
             <div key={r} className="px-6 py-4 flex items-center justify-between gap-4 animate-pulse">
               <div className="flex items-center gap-3 flex-1">
-                <div className="w-8 h-8 rounded-xl bg-surface-subtle border border-stroke/20 shrink-0" />
+                <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-stroke/20 shrink-0" />
                 <div className="space-y-1.5 flex-1 max-w-sm">
                   <div className="w-3/4 h-3.5 rounded-md bg-surface-subtle border border-stroke/20" />
                   <div className="w-1/2 h-2.5 rounded-md bg-surface-subtle border border-stroke/20" />
@@ -66,7 +64,7 @@ export function DataTable({
       ) : isEmpty ? (
         <div className="py-14 px-6 text-center space-y-2">
           {emptyIcon && (
-            <div className="w-10 h-10 rounded-xl bg-surface-muted flex items-center justify-center text-ink-muted mx-auto mb-3">
+            <div className="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-ink-muted mx-auto mb-3">
               {emptyIcon}
             </div>
           )}
@@ -75,6 +73,6 @@ export function DataTable({
       ) : (
         children
       )}
-    </div>
+    </Card>
   )
 }

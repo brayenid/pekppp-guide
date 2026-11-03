@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { createProfileAction, bindUnitToProfileAction, unbindUnitFromProfileAction, updateProfileAction, deleteProfileAction, importProfilesAction } from '../../../actions/account-actions'
-import { UserCog, Plus, Building2, X, Pencil, Trash2, FileSpreadsheet, Search, ChevronLeft, ChevronRight, Users } from 'lucide-react'
+import { UserCog, Plus, Building2, X, Pencil, Trash2, FileSpreadsheet, Search, ChevronLeft, ChevronRight, Users, ShieldCheck, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { FormModal } from '../../../components/ui/FormModal'
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
@@ -10,7 +10,7 @@ import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
 import { Card } from '../../../components/ui/Card'
-import { DataTable } from '../../../components/ui/DataTable'
+import { AdminTabs, type AdminTabItem } from '../../../components/ui/AdminTabs'
 import * as XLSX from 'xlsx'
 
 export interface ProfileItem {
@@ -47,7 +47,9 @@ export default function AkunClient({
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [roleFilter, setRoleFilter] = useState<'ALL' | 'SUPER_ADMIN' | 'OPD'>('ALL')
+  type AccountTabFilter = 'ALL' | 'OPD' | 'SUPER_ADMIN' | 'UNBOUND'
+  const [activeAccountTab, setActiveAccountTab] = useState<AccountTabFilter>('ALL')
+  const [unitFilter, setUnitFilter] = useState('ALL')
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -313,22 +315,86 @@ export default function AkunClient({
     setImportedItems(prev => prev.map((item, i) => i === index ? { ...item, conflictResolution: val } : item))
   }
 
-  const filteredProfiles = initialProfiles.filter((p) => {
-    const matchesSearch =
-      p.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.email.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesRole = roleFilter === 'ALL' || p.role === roleFilter
-    return matchesSearch && matchesRole
-  })
+  // Counts for Radar-Style Tabs
+  const opdCount = useMemo(
+    () => initialProfiles.filter((p) => p.role === 'OPD').length,
+    [initialProfiles]
+  )
+  const adminCount = useMemo(
+    () => initialProfiles.filter((p) => p.role === 'SUPER_ADMIN').length,
+    [initialProfiles]
+  )
+  const unboundOpdCount = useMemo(
+    () => initialProfiles.filter((p) => p.role === 'OPD' && p.userUnits.length === 0).length,
+    [initialProfiles]
+  )
+
+  const accountTabItems: AdminTabItem<AccountTabFilter>[] = useMemo(
+    () => [
+      {
+        id: 'ALL',
+        badge: <Users className="w-3.5 h-3.5" />,
+        label: 'Semua Akun',
+        count: initialProfiles.length
+      },
+      {
+        id: 'OPD',
+        badge: <Building2 className="w-3.5 h-3.5 text-teal-600" />,
+        label: 'Perangkat Daerah',
+        count: opdCount
+      },
+      {
+        id: 'SUPER_ADMIN',
+        badge: <ShieldCheck className="w-3.5 h-3.5 text-brand" />,
+        label: 'Super Admin',
+        count: adminCount
+      },
+      {
+        id: 'UNBOUND',
+        badge: <AlertCircle className="w-3.5 h-3.5 text-amber-500" />,
+        label: 'Belum Ada Lokus',
+        count: unboundOpdCount
+      }
+    ],
+    [initialProfiles.length, opdCount, adminCount, unboundOpdCount]
+  )
+
+  const filteredProfiles = useMemo(() => {
+    return initialProfiles.filter((p) => {
+      const q = searchQuery.toLowerCase().trim()
+      const matchesSearch =
+        !q ||
+        p.fullName.toLowerCase().includes(q) ||
+        p.email.toLowerCase().includes(q) ||
+        (p.phone && p.phone.includes(q)) ||
+        p.userUnits.some((uu) => uu.unit.name.toLowerCase().includes(q))
+
+      let matchesTab = true
+      if (activeAccountTab === 'OPD') matchesTab = p.role === 'OPD'
+      else if (activeAccountTab === 'SUPER_ADMIN') matchesTab = p.role === 'SUPER_ADMIN'
+      else if (activeAccountTab === 'UNBOUND') matchesTab = p.role === 'OPD' && p.userUnits.length === 0
+
+      const matchesUnit =
+        unitFilter === 'ALL' ||
+        (unitFilter === 'NONE' && p.userUnits.length === 0) ||
+        p.userUnits.some((uu) => uu.unitId === unitFilter)
+
+      return matchesSearch && matchesTab && matchesUnit
+    })
+  }, [initialProfiles, searchQuery, activeAccountTab, unitFilter])
 
   const totalPages = Math.ceil(filteredProfiles.length / itemsPerPage)
-  const paginatedProfiles = filteredProfiles.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+  const paginatedProfiles = useMemo(
+    () =>
+      filteredProfiles.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      ),
+    [filteredProfiles, currentPage, itemsPerPage]
   )
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6 w-full pb-12">
       {/* Header */}
       <PageHeader
         icon={<UserCog className="w-5 h-5 text-brand" />}
@@ -339,208 +405,240 @@ export default function AkunClient({
             <Button
               type="button"
               variant="brand"
-              size="sm"
               onClick={() => setIsFormOpen(true)}
-              leftIcon={<Plus className="w-3.5 h-3.5" />}>
+              leftIcon={<Plus className="w-4 h-4" />}>
               Tambah Akun Baru
             </Button>
             <Button
               type="button"
               variant="secondary"
-              size="sm"
               onClick={() => setIsImportOpen(true)}
-              leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-ink-muted" />}>
+              leftIcon={<FileSpreadsheet className="w-4 h-4 text-ink-muted" />}>
               Import Excel
             </Button>
           </div>
         }
       />
 
-      {/* Full Width Account List via DataTable */}
-      <DataTable
-        headerTitle="AKUN PENGGUNA TERDAFTAR"
-        headerMeta={
-          <Badge variant="neutral" size="sm">
-            {searchQuery || roleFilter !== 'ALL'
-              ? `${filteredProfiles.length} dari ${initialProfiles.length} akun`
-              : `${initialProfiles.length} akun`}
-          </Badge>
-        }
-        headerActions={
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      {/* Full Width Account List via Card + Radar-Style Integrated Toolbar */}
+      <Card padding="sm" className="space-y-3">
+        {/* Toolbar Terpadu: AdminTabs (size=default) + Unit Lokus + Pencarian */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <AdminTabs
+            items={accountTabItems}
+            activeId={activeAccountTab}
+            onChange={(val) => {
+              setActiveAccountTab(val)
+              setCurrentPage(1)
+            }}
+            bordered={false}
+            size="default"
+          />
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <select
+              value={unitFilter}
+              onChange={(e) => {
+                setUnitFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer max-w-[200px] truncate">
+              <option value="ALL">Semua Unit Lokus</option>
+              <option value="NONE">Tanpa Lokus (Belum Bind)</option>
+              {allUnits.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+
+            <div className="relative min-w-[220px] sm:min-w-[260px]">
+              <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Cari nama atau email akun..."
+                placeholder="Cari nama, email, atau lokus..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="w-48 sm:w-64 pl-9 pr-3.5 py-1.5 text-xs rounded-full bg-surface-elevated border border-stroke/60 text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand transition-all shadow-2xs"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
               />
             </div>
-
-            <select
-              value={roleFilter}
-              onChange={(e) => {
-                setRoleFilter(e.target.value as any)
-                setCurrentPage(1)
-              }}
-              className="px-3.5 py-1.5 text-xs rounded-full border border-stroke/60 bg-surface-elevated text-ink font-normal cursor-pointer focus:outline-none focus:border-brand shadow-2xs">
-              <option value="ALL">Semua Peran</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
-              <option value="OPD">Perangkat Daerah (OPD)</option>
-            </select>
           </div>
-        }
-        isEmpty={filteredProfiles.length === 0}
-        emptyMessage={
-          initialProfiles.length === 0
-            ? 'Belum ada akun. Klik tombol Tambah Akun di atas.'
-            : 'Tidak ada akun yang cocok dengan pencarian atau filter peran.'
-        }>
-        <div className="divide-y divide-line">
-          {paginatedProfiles.map((profile) => (
-            <div
-              key={profile.id}
-              className="px-5 py-3.5 flex items-center justify-between hover:bg-surface-subtle transition-colors">
-              {/* User Info */}
-              <div className="min-w-0 flex-1 pr-4">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-xs text-ink truncate">{profile.fullName}</span>
-                  {profile.role === 'SUPER_ADMIN' ? (
-                    <span className="inline-flex items-center rounded-full text-[10px] font-semibold px-2 py-0.5 bg-brand-light text-brand border border-brand/30">
-                      Super Admin
-                    </span>
-                  ) : (
-                    <Badge variant="neutral" size="sm">
-                      Perangkat Daerah
-                    </Badge>
-                  )}
-                </div>
+        </div>
 
-                <div className="flex items-center gap-3 mt-1 text-[11px] text-ink-muted">
-                  <span>{profile.email}</span>
-                  {profile.phone && (
-                    <>
+        {/* Sub-Header Context Bar (Menyatu di dalam kartu) */}
+        <div className="p-3 rounded-xl bg-surface-subtle/40 border border-stroke/40 text-xs text-ink-muted flex items-center justify-between flex-wrap gap-2">
+          <span>
+            {activeAccountTab === 'SUPER_ADMIN'
+              ? 'Menampilkan akun administrator sistem dengan hak akses global ke seluruh lokus pelayanan.'
+              : activeAccountTab === 'OPD'
+                ? 'Menampilkan akun penanggung jawab OPD / unit kerja pengisi lembar evaluasi mandiri.'
+                : activeAccountTab === 'UNBOUND'
+                  ? 'Menampilkan akun OPD yang belum memiliki tautan unit lokus pelayanan.'
+                  : 'Daftar seluruh akun pengguna yang terdaftar pada sistem PEKPPP Kutai Barat.'}
+          </span>
+          <span className="font-semibold text-ink shrink-0 ml-auto">
+            Total {filteredProfiles.length} Akun Terfilter
+          </span>
+        </div>
+
+        {/* Content Table / List */}
+        {filteredProfiles.length === 0 ? (
+          <div className="py-14 px-6 text-center space-y-2 rounded-xl border border-line bg-surface">
+            <p className="text-xs text-ink-muted">
+              {initialProfiles.length === 0
+                ? 'Belum ada akun. Klik tombol Tambah Akun Baru di atas.'
+                : 'Tidak ada akun yang cocok dengan pencarian atau filter aktif.'}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-line bg-surface">
+            <div className="divide-y divide-line">
+              {paginatedProfiles.map((profile) => (
+                <div
+                  key={profile.id}
+                  className="px-5 py-3.5 flex items-center justify-between hover:bg-surface-subtle transition-colors">
+                  {/* User Info */}
+                  <div className="min-w-0 flex-1 pr-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-xs text-ink truncate">{profile.fullName}</span>
+                      {profile.role === 'SUPER_ADMIN' ? (
+                        <span className="inline-flex items-center rounded-full text-[10px] font-semibold px-2 py-0.5 bg-brand-light text-brand border border-brand/30">
+                          Super Admin
+                        </span>
+                      ) : (
+                        <Badge variant="neutral" size="sm">
+                          Perangkat Daerah
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-1 text-[11px] text-ink-muted">
+                      <span>{profile.email}</span>
+                      {profile.phone && (
+                        <>
+                          <span className="text-ink-muted/40">•</span>
+                          <span className="font-mono text-emerald-700 font-medium">WA: {profile.phone}</span>
+                        </>
+                      )}
                       <span className="text-ink-muted/40">•</span>
-                      <span className="font-mono text-emerald-700 font-medium">WA: {profile.phone}</span>
-                    </>
-                  )}
-                  <span className="text-ink-muted/40">•</span>
-                  {profile.role === 'SUPER_ADMIN' ? (
-                    <span className="italic">Akses global semua lokus</span>
-                  ) : (
+                      {profile.role === 'SUPER_ADMIN' ? (
+                        <span className="italic">Akses global semua lokus</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleEditClick(profile)}
+                          className="inline-flex items-center gap-1 text-pastel-blue-text hover:underline cursor-pointer">
+                          <Building2 className="w-3 h-3" />
+                          <span>{profile.userUnits.length} Lokus Ditautkan</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons styled like Master Lokus */}
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleEditClick(profile)}
-                      className="inline-flex items-center gap-1 text-pastel-blue-text hover:underline cursor-pointer">
-                      <Building2 className="w-3 h-3" />
-                      <span>{profile.userUnits.length} Lokus Ditautkan</span>
+                      className="w-8 h-8 rounded-full border border-stroke/60 bg-white flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer"
+                      title="Edit Akun">
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
-                  )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteClick(profile)}
+                      className="w-8 h-8 rounded-full border border-stroke/60 bg-white flex items-center justify-center text-ink-muted hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-2xs cursor-pointer"
+                      title="Hapus Akun">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Paginasi Footer */}
+            {filteredProfiles.length > 0 && (
+              <div className="px-5 py-3 bg-surface-subtle/30 border-t border-stroke/40 flex items-center justify-between flex-wrap gap-3 text-xs">
+                <div className="flex items-center gap-3 text-ink-muted">
+                  <span>
+                    Menampilkan <strong className="text-ink font-semibold">{(currentPage - 1) * itemsPerPage + 1}</strong> -{' '}
+                    <strong className="text-ink font-semibold">
+                      {Math.min(currentPage * itemsPerPage, filteredProfiles.length)}
+                    </strong>{' '}
+                    dari <strong className="text-ink font-semibold">{filteredProfiles.length}</strong> akun
+                    {filteredProfiles.length < initialProfiles.length ? ` (total ${initialProfiles.length} akun)` : ''}
+                  </span>
+
+                  <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-stroke/40">
+                    <span>Per halaman:</span>
+                    <select
+                      value={itemsPerPage}
+                      onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value))
+                        setCurrentPage(1)
+                      }}
+                      className="px-2 py-0.5 text-xs rounded-md bg-surface border border-stroke/60 text-ink focus:outline-none focus:border-brand cursor-pointer">
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}>
+                    Sebelumnya
+                  </Button>
+
+                  <div className="flex items-center gap-1 px-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                          currentPage === page
+                            ? 'bg-brand text-white shadow-2xs font-semibold'
+                            : 'text-ink-muted hover:text-ink hover:bg-surface-subtle'
+                        }`}>
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    rightIcon={<ChevronRight className="w-3.5 h-3.5" />}>
+                    Selanjutnya
+                  </Button>
                 </div>
               </div>
-
-              {/* Action Buttons styled like Master Lokus */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => handleEditClick(profile)}
-                  className="w-8 h-8 rounded-full border border-stroke/60 bg-white flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer"
-                  title="Edit Akun">
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleDeleteClick(profile)}
-                  className="w-8 h-8 rounded-full border border-stroke/60 bg-white flex items-center justify-center text-ink-muted hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-2xs cursor-pointer"
-                  title="Hapus Akun">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Paginasi Footer */}
-        {filteredProfiles.length > 0 && (
-          <div className="px-5 py-3 bg-surface-subtle/30 border-t border-stroke/40 flex items-center justify-between flex-wrap gap-3 text-xs">
-            <div className="flex items-center gap-3 text-ink-muted">
-              <span>
-                Menampilkan <strong className="text-ink">{(currentPage - 1) * itemsPerPage + 1}</strong> -{' '}
-                <strong className="text-ink">
-                  {Math.min(currentPage * itemsPerPage, filteredProfiles.length)}
-                </strong>{' '}
-                dari <strong className="text-ink">{filteredProfiles.length}</strong> akun
-              </span>
-
-              <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-stroke/40">
-                <span>Per halaman:</span>
-                <select
-                  value={itemsPerPage}
-                  onChange={(e) => {
-                    setItemsPerPage(Number(e.target.value))
-                    setCurrentPage(1)
-                  }}
-                  className="px-2 py-0.5 text-xs rounded-md bg-surface-elevated border border-stroke/60 text-ink focus:outline-none focus:border-brand cursor-pointer">
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}>
-                Sebelumnya
-              </Button>
-
-              <div className="flex items-center gap-1 px-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                      currentPage === page
-                        ? 'bg-brand text-white shadow-2xs font-semibold'
-                        : 'text-ink-muted hover:text-ink hover:bg-surface-subtle'
-                    }`}>
-                    {page}
-                  </button>
-                ))}
-              </div>
-
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                rightIcon={<ChevronRight className="w-3.5 h-3.5" />}>
-                Selanjutnya
-              </Button>
-            </div>
+            )}
           </div>
         )}
-      </DataTable>
+      </Card>
 
       {/* Form Modal for Account Creation */}
       <FormModal
         isOpen={isFormOpen}
         title="Tambah Akun Baru"
         description="Masukkan kredensial pengguna baru (Super Admin atau OPD)."
+        icon={<Plus className="w-4 h-4" />}
         onClose={() => setIsFormOpen(false)}>
         <form onSubmit={handleCreateSubmit} className="space-y-4 pt-2">
           <div className="space-y-1.5">
@@ -661,6 +759,7 @@ export default function AkunClient({
         isOpen={isEditOpen}
         title={`Edit Akun "${editingProfile?.fullName}"`}
         description="Perbarui informasi nama, email, password, atau hak akses."
+        icon={<Pencil className="w-4 h-4" />}
         onClose={() => {
           setIsEditOpen(false)
           setEditingProfile(null)
@@ -843,6 +942,7 @@ export default function AkunClient({
         isOpen={isImportOpen}
         title="Impor Akun dari Excel"
         description="Unduh template, lengkapi datanya, lalu unggah berkas Excel Anda."
+        icon={<FileSpreadsheet className="w-4 h-4" />}
         onClose={() => {
           setIsImportOpen(false)
           setImportedItems([])

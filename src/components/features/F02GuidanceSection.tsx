@@ -330,11 +330,6 @@ export function F02GuidanceSection({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stroke/40 pb-3">
         <div className="flex items-center gap-2.5">
           <h4 className="font-medium text-xs text-ink">Formulir Penilaian Evaluator (F02)</h4>
-          {isDirty && (
-            <span className="px-3 py-1 rounded-full bg-pastel-rose text-pastel-rose-text text-xs font-medium border border-rose-200 flex items-center gap-1 shadow-2xs">
-              <AlertCircle className="w-3.5 h-3.5" /> Belum Disimpan
-            </span>
-          )}
         </div>
       </div>
 
@@ -372,20 +367,20 @@ export function F02GuidanceSection({
                     </div>
                     <span>Petunjuk Penilaian:</span>
                   </div>
-                  <p className="text-xs text-ink-secondary font-normal leading-relaxed pl-7">{guidance.explanation}</p>
+                  <p className="text-sm text-ink-secondary font-normal leading-relaxed pl-7">{guidance.explanation}</p>
                 </div>
               )}
 
               {/* Data Sources */}
               {guidance.data_sources && guidance.data_sources.length > 0 && (
                 <div className="space-y-1.5 pt-3 border-t border-stroke/30">
-                  <div className="font-medium text-xs text-ink flex items-center gap-2">
+                  <div className="font-semibold text-xs sm:text-sm text-ink flex items-center gap-2">
                     <div className="w-5 h-5 rounded-md bg-pastel-amber border border-pastel-amber-border text-pastel-amber-text flex items-center justify-center shrink-0">
-                      <FileSearch className="w-3 h-3 text-amber-600" />
+                      <FileSearch className="w-3.5 h-3.5 text-amber-600" />
                     </div>
                     <span>Dokumen / Data Acuan Pembuktian:</span>
                   </div>
-                  <ul className="list-disc list-inside text-xs text-ink-secondary font-normal space-y-1 pl-7 leading-relaxed">
+                  <ul className="list-disc list-inside text-sm text-ink-secondary font-normal space-y-1.5 pl-7 leading-relaxed">
                     {guidance.data_sources.map((ds: string, i: number) => (
                       <li key={i}>{ds}</li>
                     ))}
@@ -647,13 +642,13 @@ export function F02GuidanceSection({
                 <div
                   key={opt.value}
                   onClick={() => handleScoreSelect(String(opt.value))}
-                  className={`p-3.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all flex items-start gap-3.5 ${
+                  className={`p-3.5 sm:p-4 rounded-xl border text-sm cursor-pointer transition-all flex items-start gap-3.5 ${
                     isSelected
                       ? 'bg-brand-light/30 border-brand text-ink shadow-soft-card font-medium'
                       : 'bg-surface-elevated border-stroke/60 hover:border-stroke hover:bg-surface-subtle text-ink-secondary'
                   }`}>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-normal shrink-0 transition-all ${
+                    className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all ${
                       isSelected
                         ? 'bg-brand text-white shadow-hz-button'
                         : 'bg-surface-subtle text-ink-muted border border-stroke/50'
@@ -661,11 +656,17 @@ export function F02GuidanceSection({
                     Skala {opt.value}
                   </span>
                   <div className="flex-1 pt-0.5">
-                    <p className={`leading-relaxed ${isSelected ? 'text-ink font-medium' : 'text-ink-secondary'}`}>
+                    <p className={`leading-relaxed text-sm ${isSelected ? 'text-ink font-semibold' : 'text-ink-secondary'}`}>
                       {opt.label}
                     </p>
                   </div>
-                  {isSelected && <CheckCircle2 className="w-4 h-4 text-brand shrink-0 self-center" />}
+                  <div className="w-4 h-4 shrink-0 self-center flex items-center justify-center">
+                    <CheckCircle2
+                      className={`w-4 h-4 text-brand transition-all duration-200 ${
+                        isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'
+                      }`}
+                    />
+                  </div>
                 </div>
               )
             })}
@@ -676,11 +677,11 @@ export function F02GuidanceSection({
       {/* CATATAN INDIKATOR / ASPEK RESMI MENPAN-RB (1 CATATAN PER ASPEK) */}
       <div className="space-y-2.5 pt-4 border-t border-stroke/40">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-ink">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <span>
-              Catatan Rekomendasi Aspek {aspectCode} ({aspectName})
+              Catatan Rekomendasi Aspek {aspectName}
             </span>
-            <span className="text-[10px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded-full border border-stroke/50">
+            <span className="text-xs text-ink-muted bg-surface-subtle px-2.5 py-0.5 rounded-full border border-stroke/50">
               Portal MenPAN-RB
             </span>
           </div>
@@ -691,7 +692,7 @@ export function F02GuidanceSection({
                 type="button"
                 disabled={isSavingAspect}
                 onClick={handleSaveAspectNote}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all cursor-pointer shadow-hz-button">
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-hz-button">
                 {isSavingAspect ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" /> Menyimpan...
@@ -703,8 +704,8 @@ export function F02GuidanceSection({
                 )}
               </button>
             ) : baseAspectNote ? (
-              <span className="text-[11px] font-medium text-pastel-green-text bg-pastel-green px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Tersimpan untuk MenPAN
+              <span className="text-xs font-semibold text-pastel-green-text bg-pastel-green px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Tersimpan untuk MenPAN
               </span>
             ) : null}
           </div>
@@ -714,8 +715,8 @@ export function F02GuidanceSection({
           rows={3}
           value={aspectNote}
           onChange={(e) => handleAspectNoteChange(e.target.value)}
-          placeholder={`Tuliskan narasi catatan hasil pengamatan / rekomendasi untuk Aspek ${aspectCode} (${aspectName}) yang disinkronkan ke web MenPAN-RB...`}
-          className="w-full px-3.5 py-2.5 text-xs font-normal rounded-xl border border-stroke/60 bg-surface-elevated text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand resize-y min-h-[72px] shadow-2xs leading-relaxed"
+          placeholder={`Tuliskan narasi catatan hasil pengamatan / rekomendasi untuk Aspek ${aspectName} yang disinkronkan ke web MenPAN-RB...`}
+          className="w-full px-4 py-3 text-sm font-normal rounded-xl border border-stroke/60 bg-surface-elevated text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand resize-y min-h-[80px] shadow-2xs leading-relaxed"
         />
 
         <div className="flex items-center justify-between text-[11px] text-ink-muted">
@@ -723,33 +724,6 @@ export function F02GuidanceSection({
           {isAspectDirty && <span className="text-pastel-rose-text font-normal">• Ada perubahan belum disimpan</span>}
         </div>
       </div>
-
-      {/* Bottom Action Bar: Simpan Pertanyaan Ini */}
-      {evaluationId && isDirty && (
-        <div className="pt-2 flex items-center justify-between border-t border-stroke/40">
-          <div className="flex items-center gap-1.5 text-xs text-pastel-rose-text">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-            <span>Pertanyaan #{indicatorNumber} memiliki perubahan yang belum disimpan.</span>
-          </div>
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={handleSaveSingleF02}
-            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all shadow-hz-button disabled:opacity-50 cursor-pointer">
-            {isSaving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Menyimpan...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-3.5 h-3.5" />
-                <span>Simpan Pertanyaan #{indicatorNumber}</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
     </div>
   )
 }

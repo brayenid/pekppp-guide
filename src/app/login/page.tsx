@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { loginAction } from '../../actions/auth-actions'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, ArrowRight, Check, UserCheck } from 'lucide-react'
@@ -49,8 +50,14 @@ export default function LoginPage() {
         {/* Brand Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-white font-bold text-base shadow-hz-button">
-              P
+            <div className="w-10 h-10 rounded-xl bg-surface border border-stroke p-1.5 flex items-center justify-center shadow-xs shrink-0">
+              <Image
+                src="/kubar.png"
+                alt="Logo Kutai Barat"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="flex flex-col leading-tight">
               <span className="font-semibold text-base tracking-tight text-ink">PEKPPP.ext</span>

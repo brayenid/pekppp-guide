@@ -37,7 +37,7 @@ import { F01GlobalSaveButton } from './F01GlobalSaveButton'
 import { F02GlobalSaveButton } from './F02GlobalSaveButton'
 import { ZoomableImageContainer } from './ZoomableImageContainer'
 import { formatScore } from '../../lib/utils'
-import { normalizeAspectCode } from '../../core/domain/evidence-slots-preset'
+import { normalizeAspectCode, SlotUploadRule } from '../../core/domain/evidence-slots-preset'
 import { NoticeBanner } from '../ui/NoticeBanner'
 import {
   getIndicatorEvidenceAction,
@@ -124,7 +124,6 @@ interface EvaluationWorkspaceLayoutProps {
   evaluationId: string
   unitId: string
   unitName: string
-  driveFolderUrl?: string | null
   calculation: any
   userRole: string
   userId: string
@@ -134,6 +133,7 @@ interface EvaluationWorkspaceLayoutProps {
   onActiveMainModeChange?: (mode: 'QUESTIONS' | 'EVIDENCE') => void
   isF01Editable?: boolean
   isEvidenceEditable?: boolean
+  slotRules?: Record<string, SlotUploadRule>
 }
 
 export function EvaluationWorkspaceLayout({
@@ -141,7 +141,6 @@ export function EvaluationWorkspaceLayout({
   evaluationId,
   unitId,
   unitName,
-  driveFolderUrl,
   calculation,
   userRole,
   userId,
@@ -150,7 +149,8 @@ export function EvaluationWorkspaceLayout({
   activeMainMode: controlledActiveMainMode,
   onActiveMainModeChange,
   isF01Editable = true,
-  isEvidenceEditable = true
+  isEvidenceEditable = true,
+  slotRules
 }: EvaluationWorkspaceLayoutProps) {
   const router = useRouter()
   const [activeNumber, setActiveNumber] = useState<number>(1)
@@ -306,8 +306,10 @@ export function EvaluationWorkspaceLayout({
 
   // Selalu inisialisasi dengan SIDEBAR_DEFAULT agar SSR dan initial client render identik (mencegah hydration mismatch)
   const [sidebarWidthPct, setSidebarWidthPct] = useState<number>(SIDEBAR_DEFAULT)
+  const [isResizing, setIsResizing] = useState(false)
   const splitContainerRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
+  const rafRef = useRef<number | null>(null)
 
   // Baca dari localStorage hanya setelah komponen mounted di browser & sinkronkan jika ada perubahan
   useEffect(() => {
@@ -341,19 +343,32 @@ export function EvaluationWorkspaceLayout({
   const handleResizerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     isDragging.current = true
+    setIsResizing(true)
     document.body.style.cursor = 'col-resize'
     document.body.style.userSelect = 'none'
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!isDragging.current || !splitContainerRef.current) return
-      const rect = splitContainerRef.current.getBoundingClientRect()
-      const rawPct = ((ev.clientX - rect.left) / rect.width) * 100
-      const clamped = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, rawPct))
-      setSidebarWidthPct(clamped)
+      if (rafRef.current !== null) return
+
+      // Throttling mousemove dengan requestAnimationFrame agar sinkron dengan refresh rate layar (60-144fps)
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        if (!isDragging.current || !splitContainerRef.current) return
+        const rect = splitContainerRef.current.getBoundingClientRect()
+        const rawPct = ((ev.clientX - rect.left) / rect.width) * 100
+        const clamped = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, rawPct))
+        setSidebarWidthPct(clamped)
+      })
     }
 
     const onMouseUp = () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
       isDragging.current = false
+      setIsResizing(false)
       document.body.style.cursor = ''
       document.body.style.userSelect = ''
       window.removeEventListener('mousemove', onMouseMove)
@@ -755,6 +770,23 @@ export function EvaluationWorkspaceLayout({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [hasUnsavedChanges])
 
+  // Global Ctrl+S keyboard shortcut to trigger batch save when unsaved changes exist
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        if (!hasUnsavedChanges) return
+        e.preventDefault()
+        if (userRole === 'OPD' && isF01Editable) {
+          window.dispatchEvent(new Event('save-all-f01'))
+        } else if (userRole === 'SUPER_ADMIN') {
+          window.dispatchEvent(new Event('save-all-f02'))
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [hasUnsavedChanges, userRole, isF01Editable])
+
   // Progress metrics
   const totalIndicators = scores.length || 31
   const filledF01Count = scores.filter((s) => {
@@ -815,6 +847,23 @@ export function EvaluationWorkspaceLayout({
       if (hasF01 && hasProof) return { state: 'ready', title: 'F01 Lengkap, siap dinilai' }
       return { state: 'unscored', title: 'Belum dinilai' }
     }
+  }
+
+  // Score red-to-green spectrum helper for question map pills
+  const getScoreSpectrum = (score: number, isActive: boolean) => {
+    if (isActive) {
+      if (score <= 1) return { dot: 'bg-rose-300 ring-1 ring-rose-200/50', text: 'text-rose-200 font-bold' }
+      if (score === 2) return { dot: 'bg-orange-300 ring-1 ring-orange-200/50', text: 'text-orange-200 font-bold' }
+      if (score === 3) return { dot: 'bg-amber-300 ring-1 ring-amber-200/50', text: 'text-amber-200 font-bold' }
+      if (score === 4) return { dot: 'bg-lime-300 ring-1 ring-lime-200/50', text: 'text-lime-200 font-bold' }
+      return { dot: 'bg-emerald-300 ring-1 ring-emerald-200/50', text: 'text-emerald-200 font-bold' }
+    }
+
+    if (score <= 1) return { dot: 'bg-rose-500 ring-1 ring-rose-400/40', text: 'text-rose-600 dark:text-rose-400 font-bold' }
+    if (score === 2) return { dot: 'bg-orange-500 ring-1 ring-orange-400/40', text: 'text-orange-600 dark:text-orange-400 font-bold' }
+    if (score === 3) return { dot: 'bg-amber-500 ring-1 ring-amber-400/40', text: 'text-amber-600 dark:text-amber-400 font-bold' }
+    if (score === 4) return { dot: 'bg-lime-500 ring-1 ring-lime-400/40', text: 'text-lime-700 dark:text-lime-400 font-bold' }
+    return { dot: 'bg-emerald-600 ring-1 ring-emerald-500/40', text: 'text-emerald-700 dark:text-emerald-400 font-bold' }
   }
 
   // Navigation handlers
@@ -914,57 +963,6 @@ export function EvaluationWorkspaceLayout({
         </div>
       )}
 
-      {/* Minimalist Action Ribbon (Khusus Mode Formulir Pertanyaan F01 / F02) */}
-      {activeMainMode !== 'EVIDENCE' && (
-        <div className="bg-surface rounded-2xl border border-stroke px-4 sm:px-5 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-soft-card mb-5">
-          {/* Left: Indicator Breadcrumb + Save Status Text */}
-          <div className="flex items-center gap-2 text-xs flex-wrap min-w-0">
-            <span className="font-semibold text-ink bg-surface-subtle px-3 py-1 rounded-full border border-stroke text-xs shrink-0">
-              #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
-            </span>
-            <span className="text-stroke font-bold hidden sm:inline">•</span>
-            <span className="text-ink-secondary font-medium truncate max-w-[280px] sm:max-w-md">
-              {activeScoreItem.indicator.aspect.name}
-            </span>
-            <span className="text-stroke font-bold hidden sm:inline">•</span>
-            {hasUnsavedChanges ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span>Belum Disimpan {unsavedCount > 0 ? `(${unsavedCount})` : ''}</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 shrink-0">
-                <Check className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Telah Disimpan</span>
-              </span>
-            )}
-          </div>
-
-          {/* Right: Progress & Action */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t border-stroke/40 sm:border-t-0">
-            <div className="flex items-center gap-2.5 text-xs">
-              <span className="text-ink-secondary font-medium">
-                {userRole === 'OPD'
-                  ? `Kelengkapan: ${completedF01WithProofCount}/31`
-                  : `Penilaian: ${filledF02Count}/31`}
-              </span>
-              <div className="w-20 bg-surface-subtle h-2 rounded-full overflow-hidden hidden sm:block border border-stroke">
-                <div
-                  className="bg-brand h-full transition-all duration-300 rounded-full"
-                  style={{ width: `${overallProgress}%` }}
-                />
-              </div>
-              <span className="text-xs font-bold text-ink">
-                {overallProgress}%
-              </span>
-            </div>
-
-            {userRole === 'OPD' && isF01Editable && <F01GlobalSaveButton />}
-            {userRole === 'SUPER_ADMIN' && <F02GlobalSaveButton />}
-          </div>
-        </div>
-      )}
-
       {activeMainMode === 'EVIDENCE' ? (
         /* ------------------------------------------------------------- */
         /* MODE: MATRIKS BUKTI DUKUNG (6 ASPEK)                           */
@@ -1058,6 +1056,7 @@ export function EvaluationWorkspaceLayout({
                     : handleGoToEvidenceHub
                 })()}
                 targetSlotKey={targetSlotKey}
+                slotRules={slotRules}
               />
             </div>
           )}
@@ -1071,9 +1070,20 @@ export function EvaluationWorkspaceLayout({
         <div className="lg:hidden rounded-bento border border-stroke/50 bg-surface p-3 sm:p-4 space-y-2.5 shadow-soft-card">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-ink">Peta Indikator Soal (1–31)</span>
-            <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
-              Soal #{activeNumber}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-brand font-mono">
+                {userRole === 'OPD' ? `${completedF01WithProofCount}/31` : `${filledF02Count}/31`} ({overallProgress}%)
+              </span>
+              <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
+                Soal #{activeNumber}
+              </span>
+            </div>
+          </div>
+          <div className="w-full bg-surface-subtle h-1.5 rounded-full overflow-hidden border border-stroke/40">
+            <div
+              className="bg-brand h-full transition-all duration-300 rounded-full"
+              style={{ width: `${overallProgress}%` }}
+            />
           </div>
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
             {internalScores.map((sc) => {
@@ -1110,7 +1120,11 @@ export function EvaluationWorkspaceLayout({
           {/* ------------------------------------------------------------- */}
           <div
             style={{ width: `${sidebarWidthPct}%`, minWidth: `${SIDEBAR_MIN}%`, maxWidth: `${SIDEBAR_MAX}%` }}
-            className="hidden lg:block rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-24 shrink-0"
+            className={`hidden lg:block rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-4 shrink-0 will-change-[width] ${
+              isResizing
+                ? 'transition-none select-none [&_iframe]:pointer-events-none'
+                : 'transition-[width] duration-200'
+            }`}
           >
             <div className="space-y-3.5">
               <div className="flex items-center justify-between pb-3 text-xs border-b border-stroke">
@@ -1131,6 +1145,24 @@ export function EvaluationWorkspaceLayout({
                 <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
                   Soal #{activeNumber}
                 </span>
+              </div>
+
+              {/* Progress Evaluasi Terintegrasi di Peta Navigasi */}
+              <div className="bg-surface-subtle/50 rounded-xl p-2.5 border border-stroke/50 space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-ink-secondary font-medium">
+                    {userRole === 'OPD' ? 'Kelengkapan F01' : 'Kemajuan Penilaian'}
+                  </span>
+                  <span className="font-semibold text-ink font-mono">
+                    {userRole === 'OPD' ? `${completedF01WithProofCount}/31` : `${filledF02Count}/31`} ({overallProgress}%)
+                  </span>
+                </div>
+                <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden border border-stroke/60">
+                  <div
+                    className="bg-brand h-full transition-all duration-300 rounded-full"
+                    style={{ width: `${overallProgress}%` }}
+                  />
+                </div>
               </div>
 
               {/* Left Panel Segmented Tab: HANYA DITAMPILKAN UNTUK EVALUATOR JIKA TIDAK SEDANG PREVIEW */}
@@ -1163,7 +1195,7 @@ export function EvaluationWorkspaceLayout({
                         : 'text-ink-secondary hover:text-ink font-normal'
                     }`}>
                     <FolderOpen className="w-3.5 h-3.5 text-ink-muted" />
-                    <span>Bukti ({activeScoreItem.indicator.aspect.code})</span>
+                    <span>Bukti Aspek</span>
                   </button>
                 </div>
               )}
@@ -1315,25 +1347,25 @@ export function EvaluationWorkspaceLayout({
               </div>
             ) : leftTab === 'questions' ? (
               /* TAB 1: Minimalist 5-column Question Numbers Matrix */
-              <div className="space-y-6 max-h-[calc(100vh-340px)] overflow-y-auto pr-1">
+              <div className="space-y-6 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
                 {groupedAspects.map(({ aspect, items }) => {
                   const isCurrentAspect = aspect.code === activeScoreItem.indicator.aspect.code
 
                   return (
                     <div key={aspect.code} className="space-y-2.5">
                       {/* Aspect Header */}
-                      <div className="flex items-center justify-between text-[11px] pb-0.5">
-                        <span className={`truncate text-xs ${isCurrentAspect ? 'text-brand font-bold' : 'text-ink-secondary font-medium'}`}>
-                          {aspect.code}. {aspect.name}
+                      <div className="flex items-center justify-between text-xs pb-0.5">
+                        <span className={`truncate ${isCurrentAspect ? 'text-brand font-bold text-xs sm:text-sm' : 'text-ink-secondary font-medium text-xs sm:text-sm'}`}>
+                          Aspek {aspect.name}
                         </span>
-                        <span className="text-[10px] text-ink-muted font-medium shrink-0">
+                        <span className="text-xs text-ink-muted font-medium shrink-0">
                           {items.length} soal
                         </span>
                       </div>
 
                       {/* Number Grid (Refined, minimal, warm rounded-xl pills) */}
                       <div 
-                        className="grid grid-cols-5 text-xs"
+                        className="grid grid-cols-5 text-xs sm:text-sm"
                         style={{ rowGap: '12px', columnGap: '6px' }}
                       >
                         {items.map((item) => {
@@ -1346,39 +1378,82 @@ export function EvaluationWorkspaceLayout({
                             (acc, c) => acc + 1 + (c.replies?.length || 0),
                             0
                           )
+                          const f02Draft = draftF02[indNum]
+                          const effectiveScore = f02Draft !== undefined ? f02Draft.score : item.score
+                          const hasScore = effectiveScore !== null && effectiveScore !== undefined
+                          const spectrum = hasScore ? getScoreSpectrum(effectiveScore, isActive) : null
 
                           return (
                             <button
                               key={item.id}
                               type="button"
-                              title={`#${indNum}: ${item.indicator.question} (${title})${commentCount > 0 ? ` • ${commentCount} komentar` : ''}`}
+                              title={`#${indNum}: ${item.indicator.question} (${title})${hasScore ? ` • Skor: ${effectiveScore}` : ''}${commentCount > 0 ? ` • ${commentCount} komentar` : ''}`}
                               onClick={() => handleGoToNumber(indNum)}
-                              className={`relative h-10 rounded-xl text-xs flex flex-col items-center justify-center transition-all border cursor-pointer ${
+                              className={`relative h-11 rounded-xl text-xs sm:text-sm flex flex-col items-center justify-center transition-all border cursor-pointer ${
                                 isActive
                                   ? 'bg-brand text-white border-brand shadow-hz-button font-bold scale-[1.02]'
                                   : isDirty
                                     ? 'bg-pastel-rose text-pastel-rose-text border-rose-300 dark:border-rose-500/50 font-bold'
                                     : 'bg-surface-elevated text-ink font-semibold border-stroke hover:border-brand/60 hover:bg-surface-subtle shadow-2xs'
                               }`}>
-                              <span className="leading-none text-xs font-semibold">{indNum}</span>
+                              <span className="leading-none text-xs sm:text-sm font-semibold">{indNum}</span>
 
-                              {/* Subtle status indicator dots */}
-                              {!isActive && (
-                                <span className="flex items-center gap-0.5 mt-1">
-                                  {isDirty ? (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 ring-1 ring-rose-400/40" />
-                                  ) : state === 'complete' || state === 'scored' ? (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1 ring-emerald-300/40" />
-                                  ) : state === 'no_proof' || state === 'ready' ? (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ring-1 ring-amber-300/40" />
-                                  ) : (
-                                    <span className="w-1 h-1 rounded-full bg-stroke-soft" />
-                                  )}
-                                  {commentCount > 0 && (
-                                    <span className="w-1 h-1 rounded-full bg-brand" />
-                                  )}
-                                </span>
-                              )}
+                              {/* Status indicator: dot + skor spektrum warna + ikon komentar */}
+                              <span className="flex items-center gap-1 mt-0.5 leading-none">
+                                {isDirty ? (
+                                  <>
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                        isActive ? 'bg-rose-300' : 'bg-rose-500 ring-1 ring-rose-400/40'
+                                      }`}
+                                    />
+                                    {hasScore && spectrum && (
+                                      <span
+                                        className={`text-[11px] font-mono font-medium leading-none ${
+                                          isActive ? 'text-white' : spectrum.text
+                                        }`}
+                                      >
+                                        {effectiveScore}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : hasScore && spectrum ? (
+                                  <>
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${spectrum.dot}`}
+                                    />
+                                    <span
+                                      className={`text-[11px] font-mono font-medium leading-none ${spectrum.text}`}
+                                    >
+                                      {effectiveScore}
+                                    </span>
+                                  </>
+                                ) : !isActive ? (
+                                  <>
+                                    {state === 'complete' ? (
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1 ring-emerald-300/40 shrink-0" />
+                                    ) : state === 'no_proof' || state === 'ready' ? (
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ring-1 ring-amber-300/40 shrink-0" />
+                                    ) : (
+                                      <span className="w-1 h-1 rounded-full bg-stroke-soft shrink-0" />
+                                    )}
+                                  </>
+                                ) : null}
+
+                                {commentCount > 0 && (
+                                  <span
+                                    className={`inline-flex items-center gap-0.5 shrink-0 ${
+                                      isActive ? 'text-white' : 'text-brand dark:text-brand-light'
+                                    }`}
+                                    title={`${commentCount} komentar`}
+                                  >
+                                    <MessageSquare className="w-2.5 h-2.5 fill-current/20" />
+                                    {commentCount > 1 && (
+                                      <span className="text-[9px] font-bold font-mono leading-none">{commentCount}</span>
+                                    )}
+                                  </span>
+                                )}
+                              </span>
                             </button>
                           )
                         })}
@@ -1389,7 +1464,7 @@ export function EvaluationWorkspaceLayout({
               </div>
             ) : (
               /* TAB 2: Bukti Dukung Khusus Aspek dari Pertanyaan yang Sedang Aktif */
-              <div className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto pr-1">
                 {/* Active Aspect Banner */}
                 <div className="p-3.5 rounded-2xl bg-surface-subtle border border-stroke/40 space-y-1">
                   <div className="font-semibold text-xs text-ink">
@@ -1531,22 +1606,26 @@ export function EvaluationWorkspaceLayout({
 
             {/* Clean Status Legend */}
             {leftTab === 'questions' && (
-              <div className="border-t border-slate-100 pt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+              <div className="border-t border-stroke/50 pt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-ink-muted">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Lengkap
+                  <span className="flex items-center -space-x-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  </span>
+                  <span>{userRole === 'OPD' ? 'Lengkap' : 'Skor (0–5)'}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  Belum Bukti
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  {userRole === 'OPD' ? 'Belum Bukti' : 'Siap Dinilai'}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                  Kosong
+                  <MessageSquare className="w-3 h-3 text-brand" />
+                  Komentar
                 </span>
                 <span className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                  Belum Simpan
+                  Draft
                 </span>
               </div>
             )}
@@ -1557,19 +1636,25 @@ export function EvaluationWorkspaceLayout({
           <div
             onMouseDown={handleResizerMouseDown}
             onDoubleClick={handleResetSidebarWidth}
-            className="hidden lg:flex w-3 items-center justify-center self-stretch shrink-0 cursor-col-resize group z-10 mx-0.5"
+            className={`hidden lg:flex w-3 items-center justify-center self-stretch shrink-0 cursor-col-resize group z-20 mx-0.5 select-none rounded-sm transition-colors ${
+              isResizing ? 'bg-brand/15' : ''
+            }`}
             title="Seret untuk mengubah ukuran, klik ganda untuk kembali ke default"
           >
-            <div className="h-12 w-0.5 rounded-full bg-stroke/50 group-hover:bg-brand/50 group-active:bg-brand transition-colors duration-150" />
-            <GripVertical className="w-3 h-3 text-stroke/60 group-hover:text-brand/60 absolute transition-colors duration-150" />
+            <div className={`h-12 rounded-full transition-all duration-150 ${
+              isResizing ? 'w-1 bg-brand' : 'w-0.5 bg-stroke/50 group-hover:bg-brand/50 group-active:bg-brand'
+            }`} />
+            <GripVertical className={`w-3 h-3 absolute transition-colors duration-150 ${
+              isResizing ? 'text-brand' : 'text-stroke/60 group-hover:text-brand/60'
+            }`} />
           </div>
 
           {/* ------------------------------------------------------------- */}
           {/* RIGHT PANEL: SPACIOUS WORKSPACE (~67% width)                 */}
           {/* ------------------------------------------------------------- */}
-          <div id="active-workspace-card" className="w-full lg:flex-1 min-w-0 space-y-4">
+          <div id="active-workspace-card" className={`w-full lg:flex-1 min-w-0 space-y-4 ${isResizing ? 'select-none [&_iframe]:pointer-events-none' : ''}`}>
           {/* Standard Question Form View */}
-          <div className={`rounded-bento border bg-surface shadow-soft-card overflow-hidden transition-all duration-500 ${
+          <div className={`rounded-bento border bg-surface shadow-soft-card overflow-hidden transition-[border-color,box-shadow] duration-500 ${
             highlightTarget
               ? 'border-brand ring-4 ring-brand/20 shadow-soft-float'
               : 'border-stroke'
@@ -1577,28 +1662,32 @@ export function EvaluationWorkspaceLayout({
             <div key={activeNumber} className="animate-fade-in-content">
                 {/* Clean Indicator Header (Warm Minimalist) */}
                 <div className="p-5 sm:p-6 border-b border-stroke bg-surface-subtle/30 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-xs text-ink bg-surface-elevated px-3 py-1 rounded-full border border-stroke shadow-2xs">
+                      <span className="font-semibold text-xs sm:text-sm text-ink bg-surface-elevated px-3 py-1 rounded-full border border-stroke shadow-2xs">
                         #{activeScoreItem.indicator.indicatorNumber} • {activeScoreItem.indicator.code}
                       </span>
                       <span className="text-stroke font-bold">•</span>
-                      <span className="font-medium text-ink-secondary text-xs">
-                        Aspek {activeScoreItem.indicator.aspect.code}: {activeScoreItem.indicator.aspect.name}
+                      <span className="font-medium text-ink-secondary text-xs sm:text-sm">
+                        Aspek {activeScoreItem.indicator.aspect.name}
                       </span>
-                      <span className="text-stroke font-bold">•</span>
-                      <button
-                        type="button"
-                        onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
-                        className="inline-flex items-center gap-1 text-xs text-brand hover:text-brand-hover font-semibold cursor-pointer">
-                        <UploadCloud className="w-3.5 h-3.5 text-brand shrink-0" />
-                        <span>Unggah Bukti Dukung ↗</span>
-                      </button>
+                      {userRole !== 'SUPER_ADMIN' && (
+                        <>
+                          <span className="text-stroke font-bold">•</span>
+                          <button
+                            type="button"
+                            onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
+                            className="inline-flex items-center gap-1 text-xs sm:text-sm text-brand hover:text-brand-hover font-semibold cursor-pointer">
+                            <UploadCloud className="w-3.5 h-3.5 text-brand shrink-0" />
+                            <span>Unggah Bukti Dukung ↗</span>
+                          </button>
+                        </>
+                      )}
                       {activeAspectResult && userRole === 'SUPER_ADMIN' && (
                         <>
                           <span className="text-stroke">•</span>
-                          <span className="text-xs text-ink-muted font-normal">
-                            Nilai: <strong className="text-ink font-medium">{formatScore(activeAspectResult.percentage)}%</strong>
+                          <span className="text-xs sm:text-sm text-ink-muted font-normal">
+                            Nilai: <strong className="text-ink font-semibold">{formatScore(activeAspectResult.percentage)}%</strong>
                           </span>
                         </>
                       )}
@@ -1607,14 +1696,14 @@ export function EvaluationWorkspaceLayout({
 
                   {/* Deep Link Alert Callout */}
                   {highlightTarget && (
-                    <div className="p-2.5 rounded-xl bg-brand-light border border-brand/40 text-brand text-xs flex items-center justify-between gap-3 animate-fade-in-content">
+                    <div className="p-3 rounded-xl bg-brand-light border border-brand/40 text-brand text-xs sm:text-sm flex items-center justify-between gap-3 animate-fade-in-content">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-brand animate-ping shrink-0" />
                         <span className="font-medium">
                           Membuka Indikator #{activeScoreItem.indicator.indicatorNumber} ({activeScoreItem.indicator.code}) dari notifikasi.
                         </span>
                       </div>
-                      <span className="text-[10px] text-brand/80 font-mono bg-white/60 px-2 py-0.5 rounded-full shrink-0">
+                      <span className="text-xs text-brand/80 font-mono bg-white/60 px-2.5 py-0.5 rounded-full shrink-0">
                         Fokus Target
                       </span>
                     </div>
@@ -1623,11 +1712,11 @@ export function EvaluationWorkspaceLayout({
                   {/* Question Title */}
                   <div className="space-y-1.5 pt-0.5">
                     {activeScoreItem.indicator.isSupplementary && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] bg-surface-subtle text-ink-muted border border-stroke/50 mb-1">
+                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-surface-subtle text-ink-muted border border-stroke/50 mb-1">
                         Pertanyaan Tambahan
                       </span>
                     )}
-                    <h2 className="text-base sm:text-lg font-medium text-ink leading-relaxed">
+                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-ink leading-relaxed">
                       {activeScoreItem.indicator.question}
                     </h2>
                   </div>
@@ -1676,7 +1765,6 @@ export function EvaluationWorkspaceLayout({
                         draftProofUrl={draftF01[activeNumber]?.proofUrl}
                         unitId={unitId}
                         isEditable={isF01Editable}
-                        driveFolderUrl={driveFolderUrl}
                         targetItem={targetItem}
                         onF01Change={(f01Data, proofUrl) => {
                           setDraftF01((prev) => ({
@@ -1784,17 +1872,17 @@ export function EvaluationWorkspaceLayout({
                 </div>
 
                 {/* Footer Navigation Bar */}
-                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-2.5 sm:gap-3">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-surface-subtle/30 border-t border-stroke flex items-center justify-between gap-2.5 sm:gap-3 flex-wrap">
                   <button
                     type="button"
                     disabled={!prevScoreItem}
                     onClick={() => prevScoreItem && handleGoToNumber(prevScoreItem.indicator.indicatorNumber)}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs min-h-[44px]">
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full border border-stroke bg-surface-elevated hover:bg-surface-subtle text-ink font-semibold text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-2xs">
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Sebelumnya ({prevScoreItem ? `#${prevScoreItem.indicator.indicatorNumber}` : '-'})</span>
                   </button>
 
-                  <div className="text-xs text-ink-muted hidden md:block">
+                  <div className="text-xs text-ink-muted hidden sm:block">
                     Soal <strong className="text-ink font-medium">#{activeNumber}</strong> dari {totalIndicators}
                   </div>
 
@@ -1802,9 +1890,9 @@ export function EvaluationWorkspaceLayout({
                     <button
                       type="button"
                       onClick={() => handleGoToAspectEvidence(activeScoreItem.indicator.aspect.code)}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button min-h-[44px]">
+                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all cursor-pointer shadow-hz-button">
                       <UploadCloud className="w-3.5 h-3.5" />
-                      <span>Upload Bukti Aspek {activeScoreItem.indicator.aspect.code}</span>
+                      <span>Upload Bukti Aspek {activeScoreItem.indicator.aspect.name}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (
@@ -1812,7 +1900,7 @@ export function EvaluationWorkspaceLayout({
                       type="button"
                       disabled={!nextScoreItem}
                       onClick={() => nextScoreItem && handleGoToNumber(nextScoreItem.indicator.indicatorNumber)}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button min-h-[44px]">
+                      className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-brand hover:bg-brand-hover text-white font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-hz-button">
                       <span>Berikutnya ({nextScoreItem ? `#${nextScoreItem.indicator.indicatorNumber}` : 'Selesai'})</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
@@ -1822,18 +1910,54 @@ export function EvaluationWorkspaceLayout({
             </div>
 
             {/* Separate Card for Discussion & Comments Below Navigation */}
-            <div className="rounded-bento border border-stroke bg-surface shadow-soft-card overflow-hidden p-4 sm:p-5">
-              <IndicatorCommentSection
-                evaluationScoreId={activeScoreItem.id}
-                comments={activeScoreItem.comments || []}
-                unitId={unitId}
-                authorId={userId}
-              />
+            <IndicatorCommentSection
+              evaluationScoreId={activeScoreItem.id}
+              comments={activeScoreItem.comments || []}
+              unitId={unitId}
+              authorId={userId}
+            />
+
+            {/* Floating Sticky Save Bar (Full Width, Compact Height, Never Overlaps Comments) */}
+            <div
+              className={`sticky bottom-4 z-40 w-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                hasUnsavedChanges
+                  ? 'opacity-100 translate-y-0 pointer-events-auto'
+                  : 'opacity-0 translate-y-12 pointer-events-none'
+              }`}
+              aria-hidden={!hasUnsavedChanges}
+            >
+              <div className="p-3 sm:px-5 sm:py-3 rounded-2xl bg-surface-elevated/95 dark:bg-surface/95 backdrop-blur-md border border-amber-300 dark:border-amber-700/80 shadow-soft-float flex items-center justify-between gap-3 sm:gap-4 ring-1 ring-amber-400/20">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <span className="relative flex items-center justify-center w-2.5 h-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  </span>
+                  <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                    <span className="text-xs font-bold text-ink">Ada Perubahan Belum Disimpan</span>
+                    <span className="text-[10px] font-semibold font-mono px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                      {unsavedCount > 0 ? `${unsavedCount} soal` : 'Draft'}
+                    </span>
+                    <span className="text-stroke font-normal hidden sm:inline select-none">|</span>
+                    <span className="text-[11px] text-ink-muted hidden sm:inline">
+                      Gunakan pintasan <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-semibold bg-surface-subtle border border-stroke rounded text-ink">Ctrl+S</kbd>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {userRole === 'OPD' && isF01Editable && (
+                    <F01GlobalSaveButton large />
+                  )}
+                  {userRole === 'SUPER_ADMIN' && (
+                    <F02GlobalSaveButton large />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        </div>
-      )}
+      </div>
+    )}
 
       {/* Lightbox Document Preview Modal (Mounted to body via createPortal, Zero Gap) */}
       {modalPreviewItem && mounted && createPortal(

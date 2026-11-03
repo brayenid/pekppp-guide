@@ -66,25 +66,6 @@ export function F03EvaluatorClient({
 
   return (
     <div className="space-y-5 pb-6">
-      {/* Context Header - Compact */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-0.5">
-        <div className="space-y-0.5">
-          <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-ink-muted">
-            <span>Evaluator View</span>
-            <span>•</span>
-            <span>Formulir F-03</span>
-            <span>•</span>
-            <span className="text-brand font-semibold">Bobot 25% IPP</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
-            Hasil Survei Responden (F-03)
-          </h2>
-          <p className="text-xs text-ink-secondary">
-            Rekapitulasi persepsi publik untuk <strong className="text-ink font-semibold">{unitName}</strong>. Target kuota: <span className="font-semibold text-ink">{targetQuota}</span> responden.
-          </p>
-        </div>
-      </div>
-
       {/* Bento Stat Grid - Compact */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {/* Card 1: Skor Agregat */}

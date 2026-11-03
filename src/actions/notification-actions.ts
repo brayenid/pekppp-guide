@@ -4,9 +4,6 @@ import { db } from '../services/db'
 import { getCurrentUserAction } from './auth-actions'
 import { revalidatePath } from 'next/cache'
 
-import { WhatsAppService } from '../services/whatsapp-service'
-import { getFonnteWaConfig } from '../services/system-setting-service'
-
 export interface NotificationData {
   id: string
   userId: string | null
@@ -42,58 +39,6 @@ export async function createNotificationHelper(data: {
         link: data.link || null
       }
     })
-
-    // 2. Integrasi Otomatis WhatsApp Gateway (Fonnte)
-    // Berjalan di background (asinkron & fail-safe) tanpa memperlambat response web
-    ;(async () => {
-      try {
-        const config = await getFonnteWaConfig()
-        if (!config.enabled || !config.apiToken) return
-
-        let recipientPhone = ''
-
-        if (data.userId) {
-          // Jika notifikasi ditujukan ke pengguna spesifik
-          const targetUser = await db.profile.findUnique({
-            where: { id: data.userId },
-            select: { phone: true }
-          })
-          if (targetUser?.phone) {
-            recipientPhone = targetUser.phone
-          }
-        }
-
-        if (!recipientPhone && data.roleTarget === 'SUPER_ADMIN') {
-          // Kirim ke nomor WhatsApp Admin / Evaluator dari dashboard
-          recipientPhone = config.adminPhone
-        } else if (!recipientPhone && data.unitId) {
-          // Kirim ke seluruh akun OPD yang terikat (bind) pada unit lokus ini
-          const boundUserUnits = await db.userUnit.findMany({
-            where: { unitId: data.unitId },
-            include: { user: { select: { phone: true, role: true } } }
-          })
-
-          const phones = boundUserUnits
-            .map((bu) => bu.user.phone)
-            .filter((p): p is string => Boolean(p && p.trim() !== ''))
-
-          if (phones.length > 0) {
-            recipientPhone = Array.from(new Set(phones)).join(',')
-          }
-        }
-
-        if (recipientPhone) {
-          const waText = `*[PEKPPP Online - Notifikasi]*\n\n📌 *${data.title}*\n${data.message}`
-          await WhatsAppService.sendMessage({
-            target: recipientPhone,
-            message: waText,
-            url: data.link ? `${process.env.NEXTAUTH_URL || ''}${data.link}` : undefined
-          })
-        }
-      } catch (waErr) {
-        console.error('[Notification] Gagal trigger WhatsApp:', waErr)
-      }
-    })()
   } catch (error) {
     console.error('Failed to create notification:', error)
   }

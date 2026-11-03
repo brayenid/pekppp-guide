@@ -17,7 +17,8 @@ import {
 import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Badge } from '../../../components/ui/Badge'
-import { Tabs, TabsList, TabsTrigger } from '../../../components/ui/Tabs'
+import { AdminTabs } from '../../../components/ui/AdminTabs'
+import { Card } from '../../../components/ui/Card'
 import {
   uploadAspectSlotExampleAction,
   deleteAspectSlotExampleAction
@@ -145,35 +146,23 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
       />
 
       {/* Aspect Selector Tabs */}
-      <Tabs value={activeAspect} onValueChange={setActiveAspect}>
-        <TabsList className="w-full justify-start overflow-x-auto p-1.5 hide-scrollbar">
-          {ASPECTS.map((asp) => {
-            const count = slots.filter((s) => s.aspectCode === asp.code).length
-            const filled = slots.filter((s) => s.aspectCode === asp.code && s.exampleImages && s.exampleImages.length > 0).length
-            const isActive = activeAspect === asp.code
-
-            return (
-              <TabsTrigger
-                key={asp.code}
-                value={asp.code}
-                className="gap-2">
-                <span>Aspek {asp.code}</span>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-surface text-ink-muted border border-stroke/40'
-                  }`}>
-                  {filled}/{count}
-                </span>
-              </TabsTrigger>
-            )
-          })}
-        </TabsList>
-      </Tabs>
+      <AdminTabs
+        items={ASPECTS.map((asp) => {
+          const count = slots.filter((s) => s.aspectCode === asp.code).length
+          const filled = slots.filter((s) => s.aspectCode === asp.code && s.exampleImages && s.exampleImages.length > 0).length
+          return {
+            id: asp.code,
+            badge: asp.code,
+            label: asp.name,
+            count: `${filled}/${count} Contoh`
+          }
+        })}
+        activeId={activeAspect}
+        onChange={setActiveAspect}
+      />
 
       {/* Aspect Info Banner */}
-      <div className="p-5 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card flex items-center justify-between gap-4">
+      <Card className="flex items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-medium text-ink-muted uppercase tracking-wider">
             Panduan Aspek Terpilih
@@ -185,7 +174,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
             Terdapat {currentSlots.length} slot dokumen bukti dukung pada aspek ini.
           </p>
         </div>
-      </div>
+      </Card>
 
       {/* Slots List */}
       <div className="space-y-3.5">
@@ -194,9 +183,10 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
           const isProcessing = loadingSlot === slot.slotKey
 
           return (
-            <div
+            <Card
               key={slot.slotKey}
-              className="p-5 bg-surface rounded-2xl border border-stroke/50 shadow-soft-card hover:border-stroke hover:shadow-subtle transition-all space-y-3">
+              hoverable
+              className="space-y-3">
               {/* Header Row */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-stroke/40 pb-3">
                 <div className="space-y-1">
@@ -305,7 +295,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
           )
         })}
       </div>

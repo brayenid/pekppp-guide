@@ -3,6 +3,7 @@
 import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
 import f03Schema from '../../data/f03.json'
+import { calculateEffectiveF03AndIpp } from '../core/domain/pekppp-calculator'
 
 export interface F03RespondentInput {
   respondentNo?: number
@@ -47,10 +48,12 @@ export async function getF03DataAction(evaluationId: string) {
   })
 
   const targetQuota = period?.targetF03Quota || 30
+  const f03CalculationMethod = period?.f03CalculationMethod || 'PROPORTIONAL'
 
   return {
     evaluation,
     targetQuota,
+    f03CalculationMethod,
     schema: f03Schema,
     respondents: evaluation.f03Respondents
   }
@@ -244,16 +247,20 @@ async function recalculateF03AndFinalIpp(evaluationId: string) {
   // F-02 percentage is evaluation.percentage (0-100%)
   const f02Percentage = evaluation.percentage || 0
 
-  // Final IPP = 75% F-02 + 25% F-03
-  let finalIppPercentage = 0
-  if (f03Count > 0) {
-    finalIppPercentage = 0.75 * f02Percentage + 0.25 * avgF03Percentage
-  } else {
-    // If no F-03 filled yet, Final IPP uses F-02 percentage as baseline
-    finalIppPercentage = f02Percentage
-  }
+  const period = await db.evaluationPeriod.findUnique({
+    where: { year: evaluation.year },
+    select: { targetF03Quota: true, f03CalculationMethod: true }
+  })
+  const targetQuota = period?.targetF03Quota || 30
+  const method = period?.f03CalculationMethod || 'PROPORTIONAL'
 
-  const finalIppScore = (finalIppPercentage / 100) * 5
+  const { finalIppScore } = calculateEffectiveF03AndIpp({
+    f02Percentage,
+    f03RawPercentage: avgF03Percentage,
+    f03Count,
+    targetQuota,
+    method
+  })
 
   await db.evaluation.update({
     where: { id: evaluationId },

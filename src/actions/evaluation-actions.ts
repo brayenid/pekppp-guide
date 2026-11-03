@@ -2,6 +2,7 @@
 
 import { db } from '../services/db'
 import { EvaluationService } from '../services/evaluation-service'
+import { EvidenceMasterService } from '../services/evidence-master-service'
 import { revalidatePath } from 'next/cache'
 
 export async function getActivePeriodsAction() {
@@ -13,10 +14,12 @@ export async function getActivePeriodsAction() {
 export async function createPeriodAction({
   year,
   targetF03Quota = 30,
+  f03CalculationMethod = 'PROPORTIONAL',
   unitIds = []
 }: {
   year: number
   targetF03Quota?: number
+  f03CalculationMethod?: string
   unitIds?: string[]
 }) {
   const existing = await db.evaluationPeriod.findUnique({ where: { year } })
@@ -32,6 +35,7 @@ export async function createPeriodAction({
       year,
       title: `Evaluasi PEKPPP Tahun ${year}`,
       targetF03Quota,
+      f03CalculationMethod,
       isOpen: true
     }
   })
@@ -53,11 +57,13 @@ export async function updatePeriodAction({
   id,
   newYear,
   targetF03Quota,
+  f03CalculationMethod,
   title
 }: {
   id: string
   newYear: number
   targetF03Quota?: number
+  f03CalculationMethod?: string
   title?: string
 }) {
   const currentPeriod = await db.evaluationPeriod.findUnique({ where: { id } })
@@ -92,17 +98,19 @@ export async function updatePeriodAction({
         data: {
           year: newYear,
           title: title || `Evaluasi PEKPPP Tahun ${newYear}`,
-          ...(targetF03Quota !== undefined ? { targetF03Quota } : {})
+          ...(targetF03Quota !== undefined ? { targetF03Quota } : {}),
+          ...(f03CalculationMethod !== undefined ? { f03CalculationMethod } : {})
         }
       })
     })
   } else {
-    // Hanya update title atau quota
+    // Hanya update title, quota, atau method
     await db.evaluationPeriod.update({
       where: { id },
       data: {
         title: title || currentPeriod.title,
-        ...(targetF03Quota !== undefined ? { targetF03Quota } : {})
+        ...(targetF03Quota !== undefined ? { targetF03Quota } : {}),
+        ...(f03CalculationMethod !== undefined ? { f03CalculationMethod } : {})
       }
     })
   }
@@ -640,7 +648,11 @@ export async function enrollUnitsBulkAction(year: number, unitIds: string[]) {
       })
     }
 
+    // 8. Wariskan seluruh Bukti Dukung Living Document dari Master Unit ke evaluasi tahun baru ini
+    await EvidenceMasterService.inheritMasterBulkForPeriod(year, unitIds)
+
     revalidatePath('/admin/peserta')
+    revalidatePath(`/admin/periode/${year}`)
     revalidatePath('/hasil')
     return { success: true, count: unitIds.length }
   } catch (error: any) {

@@ -116,16 +116,16 @@ export function UserNavDropdown({ user }: { user: UserSession }) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-surface-elevated hover:bg-surface-subtle border border-stroke/60 p-1 pr-2.5 rounded-full transition-all cursor-pointer shadow-soft-card group">
-        <div className="w-7 h-7 rounded-full bg-brand-light text-brand border border-brand/20 flex items-center justify-center text-xs font-semibold shrink-0 shadow-2xs">
+        className="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/25 h-10 px-1.5 pr-3 rounded-full transition-all cursor-pointer shadow-2xs group">
+        <div className="w-7 h-7 rounded-full bg-white text-brand border border-white/30 flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
           {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
         </div>
 
-        <span className="font-medium text-xs text-ink max-w-[100px] sm:max-w-[130px] truncate hidden sm:inline-block">
+        <span className="font-medium text-xs text-white max-w-[100px] sm:max-w-[130px] truncate hidden sm:inline-block">
           {user.fullName?.split(' ')[0] || user.fullName}
         </span>
 
-        <ChevronDown className={`w-3.5 h-3.5 text-ink-muted group-hover:text-ink transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-white/80 group-hover:text-white transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Refined Dropdown Menu Drawer */}

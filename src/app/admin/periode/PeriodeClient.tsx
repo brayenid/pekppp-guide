@@ -22,7 +22,8 @@ import {
   Award,
   Search,
   Globe,
-  EyeOff
+  EyeOff,
+  ChevronDown
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -31,6 +32,7 @@ import { FormModal } from '../../../components/ui/FormModal'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
+import { PeriodCard } from '../../../components/ui/PeriodCard'
 
 export interface UnitItem {
   id: string
@@ -44,6 +46,7 @@ export interface PeriodItem {
   year: number
   title?: string | null
   targetF03Quota?: number | null
+  f03CalculationMethod?: string | null
   isOpen: boolean
   isPublished?: boolean
   publishedAt?: Date | string | null
@@ -64,6 +67,7 @@ export default function PeriodeClient({
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [year, setYear] = useState<number | ''>('')
   const [targetQuota, setTargetQuota] = useState<number>(30)
+  const [f03Method, setF03Method] = useState<string>('PROPORTIONAL')
   const [selectedUnitIds, setSelectedUnitIds] = useState<Set<string>>(
     new Set(allUnits.map((u) => u.id))
   )
@@ -96,12 +100,14 @@ export default function PeriodeClient({
   const [editingPeriod, setEditingPeriod] = useState<PeriodItem | null>(null)
   const [editYear, setEditYear] = useState<number | ''>('')
   const [editTargetQuota, setEditTargetQuota] = useState<number>(30)
+  const [editF03Method, setEditF03Method] = useState<string>('PROPORTIONAL')
   const [editTitle, setEditTitle] = useState<string>('')
 
   const handleEditClick = (period: PeriodItem) => {
     setEditingPeriod(period)
     setEditYear(period.year)
     setEditTargetQuota(period.targetF03Quota || 30)
+    setEditF03Method(period.f03CalculationMethod || 'PROPORTIONAL')
     setEditTitle(period.title || `Evaluasi PEKPPP Tahun ${period.year}`)
     setIsEditOpen(true)
   }
@@ -120,6 +126,7 @@ export default function PeriodeClient({
         id: editingPeriod.id,
         newYear: Number(editYear),
         targetF03Quota: editTargetQuota,
+        f03CalculationMethod: editF03Method,
         title: editTitle
       })
 
@@ -188,6 +195,7 @@ export default function PeriodeClient({
         const res = await createPeriodAction({
           year: Number(year),
           targetF03Quota: targetQuota,
+          f03CalculationMethod: f03Method,
           unitIds: Array.from(selectedUnitIds)
         })
         if (res.success) {
@@ -273,158 +281,16 @@ export default function PeriodeClient({
             avgIpp: 0
           }
 
-          const completionPercent =
-            stats.lokusCount > 0
-              ? Math.round((stats.finishedCount / stats.lokusCount) * 100)
-              : 0
-
           return (
-            <div
+            <PeriodCard
               key={period.id}
-              className={`rounded-bento p-5 sm:p-7 border bg-surface transition-all duration-200 flex flex-col justify-between hover:shadow-soft-float ${
-                period.isOpen
-                  ? 'border-brand/40 shadow-soft-card ring-1 ring-brand/20'
-                  : 'border-stroke/50 shadow-soft-card opacity-95'
-              }`}>
-              {/* Card Header & Content */}
-              <div className="space-y-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <span className="text-4xl font-normal tracking-tight text-ink">
-                      {period.year}
-                    </span>
-                    <p className="text-xs text-ink-muted">
-                      Evaluasi Terpadu Tahun {period.year}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                    <Badge
-                      variant={period.isOpen ? 'success' : 'neutral'}
-                      dot
-                      pulseDot={period.isOpen}
-                      size="sm">
-                      {period.isOpen ? 'Tahun Aktif' : 'Ditutup'}
-                    </Badge>
-                    <Badge
-                      variant={period.isPublished ? 'info' : 'neutral'}
-                      size="sm">
-                      {period.isPublished ? 'Publik' : 'Internal'}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-3 gap-2.5 pt-1">
-                  <div className="bg-surface-subtle/50 p-3 rounded-2xl border border-stroke/40">
-                    <div className="text-[11px] text-ink-muted font-normal flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-ink-muted shrink-0" />
-                      <span>Lokus</span>
-                    </div>
-                    <div className="text-xl font-normal text-ink mt-1.5">
-                      {stats.lokusCount}
-                    </div>
-                  </div>
-
-                  <div className="bg-surface-subtle/50 p-3 rounded-2xl border border-stroke/40">
-                    <div className="text-[11px] text-ink-muted font-normal flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-pastel-green-text shrink-0" />
-                      <span>Selesai</span>
-                    </div>
-                    <div className="text-xl font-normal text-ink mt-1.5">
-                      {stats.finishedCount}
-                    </div>
-                  </div>
-
-                  <div className="bg-surface-subtle/50 p-3 rounded-2xl border border-stroke/40">
-                    <div className="text-[11px] text-ink-muted font-normal flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-brand shrink-0" />
-                      <span>Rata IPP</span>
-                    </div>
-                    <div className="text-xl font-normal text-ink mt-1.5">
-                      {stats.avgIpp > 0 ? stats.avgIpp.toFixed(2) : '-'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Progress bar info */}
-                {stats.lokusCount > 0 && (
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center justify-between text-[11px] text-ink-muted">
-                      <span>Progres Evaluasi</span>
-                      <span className="font-medium text-ink">{completionPercent}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-surface-subtle rounded-full overflow-hidden border border-stroke/30">
-                      <div
-                        className="h-full bg-brand rounded-full transition-all duration-300"
-                        style={{ width: `${completionPercent}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Card Footer Actions */}
-              <div className="mt-6 pt-4 border-t border-stroke/40 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  {/* Status Toggle (Buka / Tutup Pengisian) */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleClick(period)}
-                    title={period.isOpen ? 'Tutup Pengisian Tahun Ini' : 'Buka & Aktifkan Tahun Ini'}
-                    className="w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors shadow-2xs cursor-pointer">
-                    {period.isOpen ? (
-                      <Unlock className="w-3.5 h-3.5 text-brand" />
-                    ) : (
-                      <Lock className="w-3.5 h-3.5 text-ink-muted" />
-                    )}
-                  </button>
-
-                  {/* Publish Toggle (Publikasikan / Tarik Publikasi) */}
-                  <button
-                    type="button"
-                    onClick={() => handlePublishClick(period)}
-                    title={period.isPublished ? 'Tarik Publikasi (Sembunyikan dari Publik)' : 'Publikasikan Hasil Penilaian ke Publik'}
-                    className={`w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center transition-colors shadow-2xs cursor-pointer ${
-                      period.isPublished
-                        ? 'text-brand hover:text-brand-hover hover:bg-brand-light'
-                        : 'text-ink-muted hover:text-ink hover:bg-surface-subtle'
-                    }`}>
-                    {period.isPublished ? (
-                      <Globe className="w-3.5 h-3.5 text-brand" />
-                    ) : (
-                      <EyeOff className="w-3.5 h-3.5 text-ink-muted" />
-                    )}
-                  </button>
-
-                  {/* Edit Tahun */}
-                  <button
-                    type="button"
-                    onClick={() => handleEditClick(period)}
-                    title="Edit Tahun Penilaian"
-                    className="w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-brand hover:bg-brand-light transition-colors shadow-2xs cursor-pointer">
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-
-                  {/* Delete */}
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteClick(period)}
-                    title="Hapus Tahun Penilaian"
-                    className="w-8.5 h-8.5 rounded-full border border-stroke/60 bg-surface flex items-center justify-center text-ink-muted hover:text-pastel-rose-text hover:bg-pastel-rose/30 transition-colors shadow-2xs cursor-pointer">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Open Year Dashboard Link */}
-                <Link
-                  href={`/admin/periode/${period.year}`}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all shadow-hz-button cursor-pointer w-full sm:w-auto min-h-[38px]">
-                  <span>Buka Evaluasi</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
+              period={period}
+              stats={stats}
+              onToggleOpen={handleToggleClick}
+              onTogglePublish={handlePublishClick}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
+            />
           )
         })}
       </div>
@@ -433,6 +299,7 @@ export default function PeriodeClient({
       <FormModal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
+        icon={<CalendarDays className="w-4.5 h-4.5" />}
         title="Tambah Tahun Penilaian PEKPPP Baru"
         description="Buat tahun evaluasi baru dan tentukan unit kerja lokus yang diikutsertakan.">
         <form onSubmit={handleCreateSubmit} className="space-y-4 pt-1">
@@ -448,7 +315,7 @@ export default function PeriodeClient({
                 value={year}
                 onChange={(e) => setYear(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="Contoh: 2027"
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
                 required
               />
             </div>
@@ -463,9 +330,30 @@ export default function PeriodeClient({
                 max="1000"
                 value={targetQuota}
                 onChange={(e) => setTargetQuota(parseInt(e.target.value) || 30)}
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-ink mb-1">
+              Aturan Perhitungan Kuota F-03
+            </label>
+            <div className="relative">
+              <select
+                value={f03Method}
+                onChange={(e) => setF03Method(e.target.value)}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-brand shadow-2xs cursor-pointer appearance-none pr-9">
+                <option value="PROPORTIONAL">Hitung Bertahap (Sesuai Responden yang Masuk)</option>
+                <option value="STRICT">Target Penuh (Wajib Memenuhi Kuota)</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-ink-muted pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-[10px] text-ink-muted mt-1">
+              {f03Method === 'STRICT'
+                ? 'Nilai F-03 baru diaktifkan ke Skor IPP jika kuota responden sudah terpenuhi lengkap.'
+                : 'Nilai F-03 langsung dihitung bertahap mengikuti persentase responden yang terkumpul.'}
+            </p>
           </div>
 
           {/* Lokus Selection */}
@@ -483,7 +371,7 @@ export default function PeriodeClient({
                     setSelectedUnitIds(new Set(allUnits.map((u) => u.id)))
                   }
                 }}
-                className="text-xs font-semibold text-ink hover:underline cursor-pointer">
+                className="text-xs font-semibold text-brand hover:underline cursor-pointer">
                 {selectedUnitIds.size === allUnits.length
                   ? 'Kosongkan Semua'
                   : 'Pilih Semua Unit'}
@@ -499,14 +387,14 @@ export default function PeriodeClient({
                   value={modalSearch}
                   onChange={(e) => setModalSearch(e.target.value)}
                   placeholder="Cari unit..."
-                  className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-ink shadow-2xs"
+                  className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-brand shadow-2xs"
                 />
               </div>
 
               <select
                 value={modalCategoryFilter}
                 onChange={(e) => setModalCategoryFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-xl border border-line bg-card text-ink font-medium cursor-pointer">
+                className="px-2.5 py-1.5 text-xs rounded-xl border border-line bg-card text-ink font-medium cursor-pointer focus:outline-none focus:border-brand">
                 <option value="ALL">Semua Kategori</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -537,7 +425,7 @@ export default function PeriodeClient({
                             return next
                           })
                         }}
-                        className="rounded accent-ink shrink-0"
+                        className="rounded accent-brand shrink-0"
                       />
                       <span className="font-semibold text-ink truncate text-[11px]">
                         {unit.name}
@@ -575,6 +463,7 @@ export default function PeriodeClient({
       <FormModal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
+        icon={<Pencil className="w-4 h-4" />}
         title={`Edit Evaluasi Tahun ${editingPeriod?.year}`}
         description="Perbarui angka tahun penilaian, judul agenda, atau target kuota responden survei F-03.">
         <form onSubmit={handleEditSubmit} className="space-y-4 pt-1">
@@ -590,7 +479,7 @@ export default function PeriodeClient({
                 value={editYear}
                 onChange={(e) => setEditYear(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="Contoh: 2027"
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
                 required
               />
               <p className="text-[10px] text-ink-muted mt-1">
@@ -608,9 +497,30 @@ export default function PeriodeClient({
                 max="1000"
                 value={editTargetQuota}
                 onChange={(e) => setEditTargetQuota(parseInt(e.target.value) || 30)}
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-ink mb-1">
+              Aturan Perhitungan Kuota F-03
+            </label>
+            <div className="relative">
+              <select
+                value={editF03Method}
+                onChange={(e) => setEditF03Method(e.target.value)}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-brand shadow-2xs cursor-pointer appearance-none pr-9">
+                <option value="PROPORTIONAL">Hitung Bertahap (Sesuai Responden yang Masuk)</option>
+                <option value="STRICT">Target Penuh (Wajib Memenuhi Kuota)</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-ink-muted pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-[10px] text-ink-muted mt-1">
+              {editF03Method === 'STRICT'
+                ? 'Nilai F-03 baru diaktifkan ke Skor IPP jika kuota responden sudah terpenuhi lengkap.'
+                : 'Nilai F-03 langsung dihitung bertahap mengikuti persentase responden yang terkumpul.'}
+            </p>
           </div>
 
           <div>
@@ -622,7 +532,7 @@ export default function PeriodeClient({
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               placeholder="Contoh: Evaluasi Terpadu Tahun 2027"
-              className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-xs focus:outline-none focus:border-ink shadow-2xs"
+              className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-xs focus:outline-none focus:border-brand shadow-2xs"
             />
           </div>
 
@@ -636,7 +546,7 @@ export default function PeriodeClient({
             </Button>
             <Button
               type="submit"
-              variant="brand"
+              variant="primary"
               size="sm"
               isLoading={loading}>
               Simpan Perubahan

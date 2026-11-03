@@ -25,6 +25,7 @@ model EvaluationPeriod {
   year           Int                @unique // e.g. 2026
   title          String?            // e.g. "2026"
   targetF03Quota Int                @default(30) // Kuota target responden F-03 default
+  f03CalculationMethod String         @default("PROPORTIONAL") // "PROPORTIONAL" (hitung bertahap) atau "STRICT" (target penuh)
   isOpen         Boolean            @default(true)
   isPublished    Boolean            @default(false) // Toggle hasil evaluasi dipublikasikan ke publik
   publishedAt    DateTime?
@@ -96,10 +97,10 @@ model Unit {
   name           String            @unique
   categoryId     String?
   category       Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  driveFolderUrl String?
   isActive       Boolean           @default(true)
   userUnits      UserUnit[]
   evaluations    Evaluation[]
+  evidenceMasters UnitEvidenceMaster[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 }
@@ -189,10 +190,12 @@ model Evaluation {
   publishedAt    DateTime?
 
   // MenPAN-RB API Sync Attributes
-  syncStatus         SyncStatus      @default(IDLE)
-  syncedAt           DateTime?
-  menpanEvaluationId String?
-  syncLogs           Json?
+  syncStatus           SyncStatus      @default(IDLE)
+  syncedAt             DateTime?
+  menpanEvaluationId   String?
+  menpanEvaluationName String?
+  menpanFormSheetName  String?
+  syncLogs             Json?
 
   // Evidence Submissions per Indicator (Tahap 1 Targeted Slots + Tahap 3 AI Socket)
   evidenceSubmissions IndicatorEvidenceSubmission[]
@@ -205,6 +208,8 @@ model Evaluation {
   updatedAt      DateTime        @updatedAt
 
   @@unique([year, unitId])
+  @@index([unitId])
+  @@index([year])
 }
 
 enum SyncStatus {
@@ -277,6 +282,10 @@ model Notification {
   link       String?
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([roleTarget, createdAt(sort: Desc)])
+  @@index([unitId, createdAt(sort: Desc)])
 }
 
 // 12. Entri Responden F-03
@@ -344,6 +353,7 @@ model IndicatorEvidenceSubmission {
   updatedAt       DateTime            @updatedAt
 
   @@unique([evaluationId, aspectCode, slotKey])
+  @@index([evaluationId])
 }
 
 enum AiAnalysisStatus {
@@ -352,4 +362,34 @@ enum AiAnalysisStatus {
   COMPLETED
   FAILED
 }
+
+// 15. Repositori Master Bukti Dukung Unit (Living Document Lintas Tahun)
+model UnitEvidenceMaster {
+  id              String   @id @default(uuid())
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  aspectCode      String   // "I", "II", dll
+  slotKey         String   // "sk_sp", "ba_fkp", atau kustom "additional_..."
+  title           String   // Nama dokumen (default atau kustom)
+  fileUrl         String   // Link berkas aktif terbaru
+  storageProvider String   @default("EXTERNAL_LINK") // "R2" | "LOCAL" | "EXTERNAL_LINK"
+  fileType        String?
+  fileSize        Int?
+  fileName        String?
+  uploaderName    String?
+  lastSourceYear  Int?     // Tahun evaluasi terakhir yang memperbarui master ini
+
+  // Daftar Berkas Terlampir Aktif beserta Pohon Versi (version, versions[])
+  attachments     Json?
+
+  // Jejak Aktivitas & Audit Trail Lintas Tahun
+  history         Json?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([unitId, aspectCode, slotKey])
+  @@index([unitId])
+}
+
 

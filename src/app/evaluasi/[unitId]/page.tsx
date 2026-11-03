@@ -1,9 +1,11 @@
 import { getEvaluationDetailsAction } from '../../../actions/evaluation-actions'
 import { getF03DataAction } from '../../../actions/f03-actions'
 import { getAspectEvidenceOverviewAction } from '../../../actions/evidence-slot-actions'
+import { getEvidenceSlotsRulesConfig } from '../../../services/system-setting-service'
 import { canAccessUnitEvaluation } from '../../../services/auth-guard'
 import { db } from '../../../services/db'
 import { EvaluationTabWrapper } from '../../../components/features/EvaluationTabWrapper'
+import { Breadcrumb } from '../../../components/ui/Breadcrumb'
 import { EvaluationWorkspaceLayout } from '../../../components/features/EvaluationWorkspaceLayout'
 import { F03OpdClient } from '../../../components/features/F03OpdClient'
 import { F03EvaluatorClient } from '../../../components/features/F03EvaluatorClient'
@@ -53,9 +55,10 @@ export default async function EvaluasiUnitPage({
   const evaluation = await getEvaluationDetailsAction(unitId, queryYear)
   if (!evaluation) return <div className="p-8 text-center text-[#838383] text-sm">Evaluasi unit tidak ditemukan.</div>
 
-  const [f03Data, evidenceOverviewRes] = await Promise.all([
+  const [f03Data, evidenceOverviewRes, slotRules] = await Promise.all([
     getF03DataAction(evaluation.id),
-    getAspectEvidenceOverviewAction(evaluation.id)
+    getAspectEvidenceOverviewAction(evaluation.id),
+    getEvidenceSlotsRulesConfig()
   ])
   const activePeriod = await db.evaluationPeriod.findFirst({ where: { isOpen: true } })
   const isPeriodOpen = activePeriod?.year === evaluation.year
@@ -93,17 +96,18 @@ export default async function EvaluasiUnitPage({
   })
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1.5 text-xs text-ink-muted font-medium">
-        <Link
-          href={access.user?.role === 'OPD' ? '/opd' : '/admin/peserta'}
-          className="hover:text-ink transition-colors">
-          Dashboard
-        </Link>
-        <span className="text-stroke font-bold">/</span>
-        <span className="text-ink font-bold">{evaluation.unit.name}</span>
-      </nav>
+      <Breadcrumb
+        showBackOnFirst
+        items={[
+          {
+            label: access.user?.role === 'OPD' ? 'Dashboard OPD' : 'Tahun Penilaian',
+            href: access.user?.role === 'OPD' ? '/opd' : '/admin/periode'
+          },
+          { label: evaluation.unit.name }
+        ]}
+      />
 
       {/* Instant Client-Side Tab Switcher Wrapper */}
       <EvaluationTabWrapper
@@ -117,7 +121,6 @@ export default async function EvaluasiUnitPage({
             evaluationId={evaluation.id}
             unitId={unitId}
             unitName={evaluation.unit.name}
-            driveFolderUrl={evaluation.unit.driveFolderUrl}
             calculation={calculation}
             userRole={access.user?.role || 'OPD'}
             userId={access.user!.id}
@@ -125,6 +128,7 @@ export default async function EvaluasiUnitPage({
             aiEvaluatorNotes={isSuperAdmin ? (evaluation.aiEvaluatorNotes as any) : null}
             isF01Editable={isF01Editable}
             isEvidenceEditable={isEvidenceEditable}
+            slotRules={slotRules}
           />
         }
         f03Content={

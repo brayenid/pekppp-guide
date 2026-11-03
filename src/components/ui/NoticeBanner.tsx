@@ -111,7 +111,7 @@ export function NoticeBanner({
   return (
     <div
       role="alert"
-      className={`rounded-2xl border transition-colors shadow-2xs ${config.container} ${
+      className={`rounded-xl border transition-colors shadow-2xs ${config.container} ${
         compact ? 'p-3 sm:p-3.5 text-xs' : 'p-4 sm:p-4.5 text-xs'
       } ${className}`}
       {...props}

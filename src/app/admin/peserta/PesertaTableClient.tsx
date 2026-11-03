@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ClipboardList, ArrowRight, Trash2, Send, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { ClipboardList, ArrowRight, Trash2, Send, CheckCircle2, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react'
 import { deleteEvaluationAction } from '../../../actions/evaluation-actions'
+import { syncAllLokusFromMenpanAction } from '../../../actions/menpan-actions'
 import { toast } from 'sonner'
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
 import { MenpanSyncModal } from '../../../components/features/MenpanSyncModal'
@@ -36,6 +37,24 @@ export default function PesertaTableClient({
   const [syncEv, setSyncEv] = useState<EnrolledEvaluationItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [isBatchSyncing, setIsBatchSyncing] = useState(false)
+
+  const handleBatchSync = async () => {
+    setIsBatchSyncing(true)
+    try {
+      const res = await syncAllLokusFromMenpanAction(targetYear)
+      if (res.success) {
+        toast.success(res.message)
+        window.location.reload()
+      } else {
+        toast.error(res.message)
+      }
+    } catch {
+      toast.error('Gagal menyinkronkan daftar lokus dengan MenPAN-RB.')
+    } finally {
+      setIsBatchSyncing(false)
+    }
+  }
 
   const handleOpenDelete = (ev: EnrolledEvaluationItem) => {
     setDeletingEv(ev)
@@ -70,6 +89,24 @@ export default function PesertaTableClient({
           <Badge variant="neutral" size="sm">
             {enrolledEvaluations.length} lokus
           </Badge>
+        }
+        headerActions={
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={isBatchSyncing || enrolledEvaluations.length === 0}
+            onClick={handleBatchSync}
+            leftIcon={
+              isBatchSyncing ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3.5 h-3.5 text-brand" />
+              )
+            }
+            title="Tarik dan tautkan otomatis seluruh lokus resmi dari portal MenPAN-RB">
+            {isBatchSyncing ? 'Menghubungkan...' : 'Sinkronkan Lokus MenPAN'}
+          </Button>
         }
         isEmpty={enrolledEvaluations.length === 0}
         emptyMessage={`Belum ada lokus yang terdaftar untuk tahun ${targetYear}.`}>

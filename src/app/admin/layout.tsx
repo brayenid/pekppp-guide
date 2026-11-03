@@ -1,6 +1,7 @@
 import { db } from '../../services/db'
 import { requireSuperAdmin } from '../../services/auth-guard'
 import AdminSidebar from '../../components/admin/AdminSidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireSuperAdmin()
@@ -10,11 +11,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   })
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] lg:h-[calc(100vh-80px)] lg:overflow-hidden -mt-6 -mb-6 -mx-4 sm:-mx-6 lg:-mx-8">
+    <div className="flex h-screen w-screen overflow-hidden bg-canvas">
+      {/* Kolom 1: Sidebar Desktop (100vh) & Drawer Mobile */}
       <AdminSidebar periods={periods} />
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-canvas min-w-0">
-        {children}
-      </main>
+
+      {/* Kolom 2: Lane Kerja Terpadu (Header + Konten dalam 1 Kolom Vertikal) */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <DashboardHeader role="admin" />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-canvas min-w-0">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }

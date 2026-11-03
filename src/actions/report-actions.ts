@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '../services/db'
-import { calculatePekpppScore } from '../core/domain/pekppp-calculator'
+import { calculatePekpppScore, calculateEffectiveF03AndIpp } from '../core/domain/pekppp-calculator'
 
 export interface LokusReportRow {
   evaluationId: string
@@ -98,11 +98,16 @@ export async function getComprehensiveAnnualReportAction(year: number): Promise<
     const f03Percentage = ev.f03Percentage || 0
     const f03Scale5 = ev.f03Scale5 || 0
 
-    const finalIppPercentage = f03Count > 0
-      ? (0.75 * f02Percentage) + (0.25 * f03Percentage)
-      : f02Percentage
+    const targetQuota = period.targetF03Quota || 30
+    const f03Method = period.f03CalculationMethod || 'PROPORTIONAL'
 
-    const finalIppScale5 = (finalIppPercentage / 100) * 5
+    const { finalIppPercentage, finalIppScore: finalIppScale5 } = calculateEffectiveF03AndIpp({
+      f02Percentage,
+      f03RawPercentage: f03Percentage,
+      f03Count,
+      targetQuota,
+      method: f03Method
+    })
 
     let grade = 'F'
     let predicate = 'Sangat Kurang'

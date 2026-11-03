@@ -21,12 +21,11 @@ export async function getUnitsAction() {
   })
 }
 
-export async function createUnitAction(data: { name: string; categoryId?: string; driveFolderUrl?: string }) {
+export async function createUnitAction(data: { name: string; categoryId?: string }) {
   const unit = await db.unit.create({
     data: {
       name: data.name,
-      categoryId: data.categoryId || null,
-      driveFolderUrl: data.driveFolderUrl || null
+      categoryId: data.categoryId || null
     }
   })
   revalidatePath('/admin/units')
@@ -34,13 +33,12 @@ export async function createUnitAction(data: { name: string; categoryId?: string
   return unit
 }
 
-export async function updateUnitAction(id: string, data: { name: string; categoryId?: string; driveFolderUrl?: string; isActive?: boolean }) {
+export async function updateUnitAction(id: string, data: { name: string; categoryId?: string; isActive?: boolean }) {
   const unit = await db.unit.update({
     where: { id },
     data: {
       name: data.name,
       categoryId: data.categoryId || null,
-      driveFolderUrl: data.driveFolderUrl || null,
       isActive: data.isActive
     }
   })

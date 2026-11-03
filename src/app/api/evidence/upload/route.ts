@@ -2,22 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '../../../../services/db'
 import { StorageService } from '../../../../services/storage-service'
+import { EvidenceMasterService } from '../../../../services/evidence-master-service'
+import { getRuleForSlot } from '../../../../services/system-setting-service'
 import {
   normalizeAspectCode,
   extractAttachments,
   EvidenceAttachmentItem
 } from '../../../../core/domain/evidence-slots-preset'
-
-// Batasan Wajar Sesuai Arahan Pengguna:
-// 1. Dokumen Resmi (PDF/DOCX): Maks 4 berkas, Maks 20 MB / berkas
-const MAX_PDF_COUNT = 4
-const MAX_PDF_SIZE_MB = 20
-const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024
-
-// 2. Foto / Gambar (JPG/PNG/WEBP): Maks 6 foto, Maks 1 MB / foto
-const MAX_IMAGE_COUNT = 6
-const MAX_IMAGE_SIZE_MB = 1
-const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
 
 export async function POST(req: NextRequest) {
   try {
@@ -68,14 +59,14 @@ export async function POST(req: NextRequest) {
     })
 
     const existingAttachments = extractAttachments(existing)
+    const rule = await getRuleForSlot(slotKey, preset?.documentType)
 
-    // Validasi Kuota Jumlah Berkas
-    const MAX_TOTAL_FILES = isImageOnlySlot ? MAX_IMAGE_COUNT : 6
-    if (existingAttachments.length + files.length > MAX_TOTAL_FILES) {
+    // Validasi Kuota Jumlah Berkas Dinamis
+    if (existingAttachments.length + files.length > rule.maxTotalFiles) {
       return NextResponse.json(
         {
           success: false,
-          error: `Batas kuota terlampaui! Maksimal ${MAX_TOTAL_FILES} berkas per slot. Saat ini sudah ada ${existingAttachments.length} berkas, dan Anda mencoba menambah ${files.length} berkas baru.`
+          error: `Batas kuota terlampaui! Maksimal ${rule.maxTotalFiles} berkas untuk slot "${preset?.title || title}". Saat ini sudah ada ${existingAttachments.length} berkas.`
         },
         { status: 400 }
       )
@@ -92,86 +83,50 @@ export async function POST(req: NextRequest) {
         file.type.includes('word') ||
         file.type.includes('officedocument')
 
-      if (isImageOnlySlot) {
-        if (!isImg) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Berkas "${file.name}" ditolak! Slot "${preset?.title || title}" khusus untuk foto/gambar (JPG, PNG, WEBP). Dokumen teks tidak diizinkan.`
-            },
-            { status: 400 }
-          )
-        }
-        if (file.size > MAX_IMAGE_SIZE_BYTES) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(2)
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Ukuran foto "${file.name}" (${actualMb} MB) melebihi batas maksimal ${MAX_IMAGE_SIZE_MB} MB. Silakan kompresi foto sebelum mengunggah.`
-            },
-            { status: 413 }
-          )
-        }
-      } else if (isDocOnlySlot) {
-        if (isImg) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Format ditolak! Berkas "${file.name}" adalah gambar. Slot "${preset?.title || title}" adalah dokumen resmi wajib PDF atau DOCX (file foto dilarang).`
-            },
-            { status: 400 }
-          )
-        }
-        if (!isDoc) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Format berkas "${file.name}" tidak didukung. Harap unggah berkas PDF atau DOCX resmi.`
-            },
-            { status: 400 }
-          )
-        }
-        if (file.size > MAX_PDF_SIZE_BYTES) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(1)
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Ukuran dokumen "${file.name}" (${actualMb} MB) melebihi batas maksimal ${MAX_PDF_SIZE_MB} MB per dokumen.`
-            },
-            { status: 413 }
-          )
-        }
-      } else {
-        // Slot HYBRID: Menerima PDF / DOCX maupun FOTO / GAMBAR
-        if (!isImg && !isDoc) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Format berkas "${file.name}" tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`
-            },
-            { status: 400 }
-          )
-        }
-        if (isImg && file.size > MAX_IMAGE_SIZE_BYTES) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(2)
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Ukuran foto "${file.name}" (${actualMb} MB) melebihi batas maksimal ${MAX_IMAGE_SIZE_MB} MB per foto.`
-            },
-            { status: 413 }
-          )
-        }
-        if (isDoc && file.size > MAX_PDF_SIZE_BYTES) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(1)
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Ukuran dokumen "${file.name}" (${actualMb} MB) melebihi batas maksimal ${MAX_PDF_SIZE_MB} MB per dokumen.`
-            },
-            { status: 413 }
-          )
-        }
+      if (rule.allowedDocumentType === 'PDF_ONLY' && isImg) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Slot "${preset?.title || title}" hanya menerima dokumen resmi PDF/Word. Berkas foto "${file.name}" ditolak.`
+          },
+          { status: 400 }
+        )
+      }
+
+      if (rule.allowedDocumentType === 'IMAGE_ONLY' && !isImg) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Slot "${preset?.title || title}" khusus untuk dokumentasi foto/gambar. Berkas dokumen "${file.name}" ditolak.`
+          },
+          { status: 400 }
+        )
+      }
+
+      if (!isImg && !isDoc) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Format berkas "${file.name}" tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`
+          },
+          { status: 400 }
+        )
+      }
+
+      const allowedLimitMb = isImg
+        ? (rule.maxImageSizeMb ?? rule.maxFileSizeMb ?? 3)
+        : (rule.maxPdfSizeMb ?? rule.maxFileSizeMb ?? 20)
+      const maxSizeBytes = allowedLimitMb * 1024 * 1024
+
+      if (file.size > maxSizeBytes) {
+        const actualMb = (file.size / (1024 * 1024)).toFixed(1)
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Ukuran berkas ${isImg ? 'foto' : 'dokumen'} "${file.name}" (${actualMb} MB) melebihi batas maksimal ${allowedLimitMb} MB untuk slot ini.`
+          },
+          { status: 413 }
+        )
       }
     }
 
@@ -207,7 +162,10 @@ export async function POST(req: NextRequest) {
         fileSize: uploadResult.fileSize,
         fileType: uploadResult.fileType,
         storageProvider: uploadResult.provider,
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
+        uploaderName,
+        version: 1,
+        versions: []
       })
 
       newActivities.push({
@@ -262,6 +220,9 @@ export async function POST(req: NextRequest) {
         isInherited: false
       }
     })
+
+    // Dual-Sync: Sinkronkan state terbaru slot ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(evaluationId, aspectCode, slotKey)
 
     // SOKET AI PRE-EVALUATOR: Hanya dipicu otomatis jika mode diatur INSTANT oleh Admin.
     try {

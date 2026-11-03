@@ -22,7 +22,10 @@ import {
   ChevronDown,
   Star,
   Pencil,
-  MoreVertical
+  MoreVertical,
+  RefreshCw,
+  Loader2,
+  FileSpreadsheet
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -30,17 +33,20 @@ import { toast } from 'sonner'
 import { FormModal } from '../../../../components/ui/FormModal'
 import { ConfirmationModal } from '../../../../components/ui/ConfirmationModal'
 import { PageHeader } from '../../../../components/ui/PageHeader'
+import { Breadcrumb } from '../../../../components/ui/Breadcrumb'
 import { Button } from '../../../../components/ui/Button'
 import { Badge } from '../../../../components/ui/Badge'
 import { Card } from '../../../../components/ui/Card'
 import { StatCard } from '../../../../components/ui/StatCard'
-import { Tabs, TabsList, TabsTrigger } from '../../../../components/ui/Tabs'
+import { AdminTabs } from '../../../../components/ui/AdminTabs'
 import { MenpanSyncModal } from '../../../../components/features/MenpanSyncModal'
+import { MenpanReconciliationSheet } from '../../../../components/features/MenpanReconciliationSheet'
 import { ComprehensiveReportModal } from '../../../../components/features/ComprehensiveReportModal'
 import {
   getComprehensiveAnnualReportAction,
   ComprehensiveAnnualReport
 } from '../../../../actions/report-actions'
+import { syncAllLokusFromMenpanAction } from '../../../../actions/menpan-actions'
 import {
   enrollUnitsBulkAction,
   deleteEvaluationAction,
@@ -70,6 +76,8 @@ export interface EvaluationRow {
   isPriority?: boolean
   syncStatus?: string | null
   menpanEvaluationId?: string | null
+  menpanEvaluationName?: string | null
+  menpanFormSheetName?: string | null
   scores: Array<{
     id: string
     score: number | null
@@ -96,7 +104,7 @@ export default function PeriodDetailClient({
   allUnits = [],
   timelineResult
 }: {
-  period: { id: string; year: number; isOpen: boolean; isPublished?: boolean; targetF03Quota?: number | null; title?: string | null }
+  period: { id: string; year: number; isOpen: boolean; isPublished?: boolean; targetF03Quota?: number | null; f03CalculationMethod?: string | null; title?: string | null }
   evaluations: EvaluationRow[]
   allUnits: UnitItem[]
   timelineResult?: PeriodTimelineResult
@@ -117,6 +125,7 @@ export default function PeriodDetailClient({
   const [isEditPeriodOpen, setIsEditPeriodOpen] = useState(false)
   const [editYear, setEditYear] = useState<number | ''>(period.year)
   const [editTargetQuota, setEditTargetQuota] = useState<number>(period.targetF03Quota || 30)
+  const [editF03Method, setEditF03Method] = useState<string>(period.f03CalculationMethod || 'PROPORTIONAL')
   const [editTitle, setEditTitle] = useState<string>(period.title || `Evaluasi PEKPPP Tahun ${period.year}`)
 
   // Target F-03 Quota
@@ -137,6 +146,9 @@ export default function PeriodDetailClient({
     unitName: ''
   })
 
+  // MenPAN Reconciliation Sheet State
+  const [isReconciliationOpen, setIsReconciliationOpen] = useState(false)
+
   // Comprehensive Report Modal
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [reportData, setReportData] = useState<ComprehensiveAnnualReport | null>(null)
@@ -149,6 +161,26 @@ export default function PeriodDetailClient({
   // Row Action Menu (Drawer/Dropdown Menu per baris)
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null)
   const rowMenuRef = useRef<HTMLDivElement>(null)
+
+  // Batch Sync MenPAN State
+  const [isBatchSyncing, setIsBatchSyncing] = useState(false)
+
+  const handleBatchSyncMenpan = async () => {
+    setIsBatchSyncing(true)
+    try {
+      const res = await syncAllLokusFromMenpanAction(period.year)
+      if (res.success) {
+        toast.success(res.message)
+        router.refresh()
+      } else {
+        toast.error(res.message)
+      }
+    } catch {
+      toast.error('Gagal menghubungkan daftar lokus ke server MenPAN-RB.')
+    } finally {
+      setIsBatchSyncing(false)
+    }
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -287,6 +319,7 @@ export default function PeriodDetailClient({
         id: period.id,
         newYear: Number(editYear),
         targetF03Quota: editTargetQuota,
+        f03CalculationMethod: editF03Method,
         title: editTitle
       })
 
@@ -417,13 +450,13 @@ export default function PeriodDetailClient({
   return (
     <div className="space-y-6 w-full pb-12">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
-        <Link href="/admin/periode" className="hover:text-ink transition-colors flex items-center gap-1">
-          <ArrowLeft className="w-3.5 h-3.5" /> Tahun Penilaian
-        </Link>
-        <span className="text-line">/</span>
-        <span className="text-ink font-bold">PEKPPP {period.year}</span>
-      </div>
+      <Breadcrumb
+        showBackOnFirst
+        items={[
+          { label: 'Tahun Penilaian', href: '/admin/periode' },
+          { label: `PEKPPP ${period.year}` }
+        ]}
+      />
 
       {/* Header */}
       <PageHeader
@@ -432,20 +465,6 @@ export default function PeriodDetailClient({
         description={`Pusat kendali evaluasi pelayanan publik Tahun ${period.year}. Pantau audit F-01 & F-02 (31 indikator), survei kepuasan F-03, dan skor IPP akhir seluruh lokus.`}
         actions={
           <div className="flex items-center gap-2.5">
-            <Badge
-              variant={period.isOpen ? 'success' : 'neutral'}
-              dot
-              pulseDot={period.isOpen}
-              size="sm">
-              {period.isOpen ? 'Aktif' : 'Ditutup'}
-            </Badge>
-
-            <Badge
-              variant={period.isPublished ? 'info' : 'neutral'}
-              size="sm">
-              {period.isPublished ? 'Publik' : 'Internal'}
-            </Badge>
-
             {/* Dropdown Menu Aksi Sederhana */}
             <div className="relative" ref={actionDropdownRef}>
               <button
@@ -486,6 +505,22 @@ export default function PeriodDetailClient({
                       </div>
                     </button>
 
+                    {/* Rekonsiliasi Lokus MenPAN-RB */}
+                    <button
+                      onClick={() => {
+                        setIsActionDropdownOpen(false)
+                        setIsReconciliationOpen(true)
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
+                      <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <FileSpreadsheet className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-ink">Rekonsiliasi MenPAN-RB</div>
+                        <div className="text-[10px] text-ink-muted truncate">Spreadsheet binding lokus tahun ini</div>
+                      </div>
+                    </button>
+
                     {/* Laporan Komprehensif Eksekutif */}
                     <button
                       onClick={() => {
@@ -508,6 +543,7 @@ export default function PeriodDetailClient({
                         setIsActionDropdownOpen(false)
                         setEditYear(period.year)
                         setEditTargetQuota(period.targetF03Quota || 30)
+                        setEditF03Method(period.f03CalculationMethod || 'PROPORTIONAL')
                         setEditTitle(period.title || `Evaluasi PEKPPP Tahun ${period.year}`)
                         setIsEditPeriodOpen(true)
                       }}
@@ -580,22 +616,93 @@ export default function PeriodDetailClient({
         />
       </div>
 
-      {/* Tab Switcher: Lokus Evaluasi vs Jadwal & Tahapan Penilaian */}
-      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'lokus' | 'jadwal')}>
-        <TabsList>
-          <TabsTrigger value="lokus">
-            <Building2 className="w-4 h-4" />
-            <span>Daftar Lokus Peserta ({totalUnits})</span>
-          </TabsTrigger>
-          <TabsTrigger value="jadwal">
-            <CalendarDays className="w-4 h-4" />
-            <span>Jadwal &amp; Jendela Waktu Penilaian</span>
-            {timelineResult?.activeWindow && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
-            )}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {/* Top Bar: Tab Switcher (Kiri) Between Filter & Aksi (Kanan) */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+        <AdminTabs
+          items={[
+            {
+              id: 'lokus',
+              badge: <Building2 className="w-3.5 h-3.5" />,
+              label: 'Daftar Lokus Peserta',
+              count: totalUnits
+            },
+            {
+              id: 'jadwal',
+              badge: <CalendarDays className="w-3.5 h-3.5" />,
+              label: 'Jadwal & Tahapan',
+              count: timelineResult?.activeWindow ? 'Aktif' : undefined
+            }
+          ]}
+          activeId={activeTab}
+          onChange={(val) => setActiveTab(val as 'lokus' | 'jadwal')}
+          bordered={false}
+          size="sm"
+        />
+
+        {activeTab === 'lokus' && (
+          <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar py-0.5 shrink-0">
+            {/* Search Input - Ringkas & Fleksibel */}
+            <div className="relative shrink-0 flex items-center">
+              <Search className="w-3 h-3 text-ink-muted absolute left-2.5 pointer-events-none" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Cari lokus..."
+                className="h-8 w-28 sm:w-36 focus:w-44 transition-all pl-7 pr-2.5 text-xs rounded-full bg-surface-elevated border border-stroke/60 text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs leading-none"
+              />
+            </div>
+
+            {/* Kapsul Filter Terpadu (3-in-1 Segmented Pill) */}
+            <div className="inline-flex items-center h-8 rounded-full border border-stroke/60 bg-surface-elevated shadow-2xs shrink-0 overflow-hidden">
+              {/* Filter Prioritas (Ujung Kiri Melengkung) */}
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value as any)}
+                className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-3 pr-2 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-l-full">
+                <option value="ALL" className="bg-surface-elevated text-ink">Semua Lokus</option>
+                <option value="PRIORITY" className="bg-surface-elevated text-ink">⭐ Prioritas ({priorityCount})</option>
+                <option value="REGULAR" className="bg-surface-elevated text-ink">Non-Prioritas</option>
+              </select>
+
+              {/* Filter Aktivitas (Segmen Tengah) */}
+              <select
+                value={updateFilter}
+                onChange={(e) => setUpdateFilter(e.target.value as any)}
+                className="h-full bg-transparent hover:bg-surface-subtle transition-colors px-2.5 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-none">
+                <option value="ALL" className="bg-surface-elevated text-ink">Semua Aktivitas</option>
+                <option value="UPDATED" className="bg-surface-elevated text-ink">⚡ Ada Update</option>
+                <option value="REVISION" className="bg-surface-elevated text-ink">⚠️ Revisi</option>
+              </select>
+
+              {/* Filter Kategori (Ujung Kanan Melengkung) */}
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-2.5 pr-3 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-0 max-w-[130px] truncate rounded-r-full">
+                <option value="ALL" className="bg-surface-elevated text-ink">Semua Kategori</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id} className="bg-surface-elevated text-ink">
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tombol Rekonsiliasi MenPAN */}
+            <Button
+              type="button"
+              variant="brand"
+              size="sm"
+              onClick={() => setIsReconciliationOpen(true)}
+              leftIcon={<FileSpreadsheet className="w-3.5 h-3.5" />}
+              className="h-8 text-xs shrink-0 rounded-full shadow-2xs whitespace-nowrap px-3.5 font-medium"
+              title="Buka Spreadsheet Rekonsiliasi & Binding Lokus dengan Portal MenPAN-RB">
+              Rekonsiliasi MenPAN
+            </Button>
+          </div>
+        )}
+      </div>
 
       {activeTab === 'jadwal' && timelineResult && (
         <PeriodTimelineManager
@@ -608,79 +715,47 @@ export default function PeriodDetailClient({
       )}
 
       {activeTab === 'lokus' && (
-      /* Unified Bento Table Card with Integrated Header Toolbar */
-      <div className="bg-surface rounded-bento border border-stroke/50 shadow-soft-card overflow-hidden">
-        {/* Integrated Header Toolbar */}
-        <div className="px-6 py-4 border-b border-stroke/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-surface">
-          <div>
-            <h2 className="text-base font-medium text-ink tracking-tight">Daftar Lokus Evaluasi</h2>
-            <p className="text-xs text-ink-muted">
-              {totalUnits} Unit kerja terdaftar ({priorityCount} prioritas)
-            </p>
-          </div>
-
-          {/* Integrated Search & Filter Controls */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Cari nama unit..."
-                className="w-44 sm:w-56 pl-9 pr-3.5 py-1.5 text-xs rounded-full bg-surface-elevated border border-stroke/60 text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand transition-all shadow-2xs"
-              />
-            </div>
-
-            <select
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value as any)}
-              className="px-3.5 py-1.5 text-xs rounded-full border border-stroke/60 bg-surface-elevated text-ink font-normal cursor-pointer focus:outline-none focus:border-brand shadow-2xs">
-              <option value="ALL">Semua Lokus</option>
-              <option value="PRIORITY">⭐ Hanya Prioritas ({priorityCount})</option>
-              <option value="REGULAR">Non-Prioritas ({totalUnits - priorityCount})</option>
-            </select>
-
-            <select
-              value={updateFilter}
-              onChange={(e) => setUpdateFilter(e.target.value as any)}
-              className="px-3.5 py-1.5 text-xs rounded-full border border-stroke/60 bg-surface-elevated text-ink font-normal cursor-pointer focus:outline-none focus:border-brand shadow-2xs">
-              <option value="ALL">Semua Aktivitas</option>
-              <option value="UPDATED">⚡ Ada Pembaruan F01/Bukti</option>
-              <option value="REVISION">⚠️ Revisi Pasca Penilaian</option>
-            </select>
-
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3.5 py-1.5 text-xs rounded-full border border-stroke/60 bg-surface-elevated text-ink font-normal cursor-pointer focus:outline-none focus:border-brand shadow-2xs">
-              <option value="ALL">Semua Kategori</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
+      /* Unified Table Card */
+      <Card padding="none">
         {/* Table Content */}
         {filteredEvaluations.length === 0 ? (
           <div className="p-10 text-center space-y-3">
             <Building2 className="w-9 h-9 text-ink-muted mx-auto" />
-            <h3 className="font-medium text-ink text-sm">Belum Ada Lokus Terdaftar</h3>
+            <h3 className="font-medium text-ink text-sm">
+              {evaluations.length === 0
+                ? 'Belum Ada Lokus Terdaftar'
+                : 'Tidak Ada Lokus yang Cocok'}
+            </h3>
             <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed">
-              Belum ada lokus unit kerja yang didaftarkan pada Evaluasi PEKPPP Tahun {period.year}.
+              {evaluations.length === 0
+                ? `Belum ada lokus unit kerja yang didaftarkan pada Evaluasi PEKPPP Tahun ${period.year}.`
+                : 'Tidak ada lokus peserta yang sesuai dengan kata kunci pencarian atau filter yang dipilih.'}
             </p>
-            <div className="pt-1">
-              <Button
-                variant="brand"
-                size="sm"
-                onClick={() => setIsEnrollModalOpen(true)}
-                leftIcon={<Plus className="w-3.5 h-3.5" />}>
-                Daftarkan Lokus Sekarang
-              </Button>
-            </div>
+            {evaluations.length === 0 ? (
+              <div className="pt-1">
+                <Button
+                  variant="brand"
+                  size="sm"
+                  onClick={() => setIsEnrollModalOpen(true)}
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}>
+                  Daftarkan Lokus Sekarang
+                </Button>
+              </div>
+            ) : (
+              <div className="pt-1">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('')
+                    setPriorityFilter('ALL')
+                    setUpdateFilter('ALL')
+                    setCategoryFilter('ALL')
+                  }}>
+                  Reset Filter
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto min-h-[260px] pb-20">
@@ -740,6 +815,23 @@ export default function PeriodDetailClient({
                             {/* Subtitle: Kategori & Status Update Ringkas */}
                             <div className="flex items-center gap-1.5 text-[10px] text-ink-muted font-normal mt-0.5 flex-wrap">
                               <span>{ev.unit.category?.name || 'Perangkat Daerah'}</span>
+
+                              <span className="text-ink-muted/40">•</span>
+                              {ev.menpanEvaluationId ? (
+                                <span
+                                  className="inline-flex items-center gap-1 font-medium text-[9px] text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200"
+                                  title={`Terikat MenPAN: ${ev.menpanEvaluationName || ev.menpanEvaluationId}`}>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                  <span className="truncate max-w-[110px]">{ev.menpanEvaluationName || 'Terikat MenPAN'}</span>
+                                </span>
+                              ) : (
+                                <span
+                                  className="inline-flex items-center gap-1 text-[9px] text-ink-muted bg-surface-subtle px-1.5 py-0.2 rounded border border-stroke/40"
+                                  title="Lokus ini belum ditautkan dengan portal MenPAN-RB">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                  <span>Belum Bind</span>
+                                </span>
+                              )}
 
                               {ev.recentUpdate && (
                                 <>
@@ -823,7 +915,7 @@ export default function PeriodDetailClient({
                           </span>
                           {ev.finalIppScore > 0 && (
                             <span className="block text-[9px] text-ink-muted">
-                              {predicate.label}
+                              {ev.isFinished ? predicate.label : `${predicate.label} (Sementara)`}
                             </span>
                           )}
                         </div>
@@ -908,13 +1000,14 @@ export default function PeriodDetailClient({
             </table>
           </div>
         )}
-      </div>
+      </Card>
       )}
 
       {/* Modal Kelola Lokus Peserta */}
       <FormModal
         isOpen={isEnrollModalOpen}
         onClose={() => setIsEnrollModalOpen(false)}
+        icon={<Building2 className="w-4.5 h-4.5" />}
         title={`Kelola Lokus Peserta PEKPPP ${period.year}`}
         description="Pilih unit kerja yang diikutsertakan dalam evaluasi PEKPPP tahun ini.">
         <div className="space-y-4 pt-1">
@@ -927,14 +1020,14 @@ export default function PeriodDetailClient({
                 value={modalSearch}
                 onChange={(e) => setModalSearch(e.target.value)}
                 placeholder="Cari unit kerja..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-brand shadow-2xs"
               />
             </div>
 
             <select
               value={modalCategoryFilter}
               onChange={(e) => setModalCategoryFilter(e.target.value)}
-              className="px-3 py-1.5 text-xs rounded-xl border border-line bg-card text-ink font-medium cursor-pointer">
+              className="px-3 py-1.5 text-xs rounded-xl border border-line bg-card text-ink font-medium cursor-pointer focus:outline-none focus:border-brand">
               <option value="ALL">Semua Kategori</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -992,7 +1085,7 @@ export default function PeriodDetailClient({
                           return next
                         })
                       }}
-                      className="rounded accent-ink shrink-0"
+                      className="rounded accent-brand shrink-0"
                     />
                     <span className="font-semibold text-ink truncate text-[11px]">{unit.name}</span>
                   </div>
@@ -1078,6 +1171,16 @@ export default function PeriodDetailClient({
         year={period.year}
       />
 
+      {/* MenPAN-RB Excel-Style Bulk Reconciliation Sheet */}
+      <MenpanReconciliationSheet
+        year={period.year}
+        isOpen={isReconciliationOpen}
+        onClose={() => setIsReconciliationOpen(false)}
+        onSuccess={() => {
+          router.refresh()
+        }}
+      />
+
       {/* Comprehensive Annual Report Modal */}
       <ComprehensiveReportModal
         isOpen={isReportModalOpen}
@@ -1091,7 +1194,8 @@ export default function PeriodDetailClient({
         isOpen={isEditPeriodOpen}
         onClose={() => setIsEditPeriodOpen(false)}
         title={`Edit Periode & Tahun Evaluasi`}
-        description="Perbarui angka tahun, target kuota F-03, atau judul evaluasi.">
+        description="Perbarui angka tahun, target kuota F-03, atau judul evaluasi."
+        icon={<Pencil className="w-4 h-4" />}>
         <form onSubmit={handleEditPeriodSubmit} className="space-y-4 pt-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -1105,7 +1209,7 @@ export default function PeriodDetailClient({
                 value={editYear}
                 onChange={(e) => setEditYear(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="Contoh: 2027"
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
                 required
               />
               <p className="text-[10px] text-ink-muted mt-1">
@@ -1123,12 +1227,33 @@ export default function PeriodDetailClient({
                 max="1000"
                 value={editTargetQuota}
                 onChange={(e) => setEditTargetQuota(parseInt(e.target.value) || 30)}
-                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-ink shadow-2xs"
+                className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-sm font-mono font-bold focus:outline-none focus:border-brand shadow-2xs"
               />
               <p className="text-[10px] text-ink-muted mt-1">
                 Target minimal responden per lokus unit kerja.
               </p>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-ink mb-1">
+              Aturan Perhitungan Kuota F-03
+            </label>
+            <div className="relative">
+              <select
+                value={editF03Method}
+                onChange={(e) => setEditF03Method(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-line bg-card text-ink focus:outline-none focus:border-brand shadow-2xs cursor-pointer appearance-none pr-9">
+                <option value="PROPORTIONAL">Hitung Bertahap (Sesuai Responden yang Masuk)</option>
+                <option value="STRICT">Target Penuh (Wajib Memenuhi Kuota)</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-ink-muted pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-[10px] text-ink-muted mt-1">
+              {editF03Method === 'STRICT'
+                ? 'Nilai F-03 baru diaktifkan ke Skor IPP jika kuota responden sudah terpenuhi lengkap.'
+                : 'Nilai F-03 langsung dihitung bertahap mengikuti persentase responden yang terkumpul.'}
+            </p>
           </div>
 
           <div>
@@ -1140,7 +1265,7 @@ export default function PeriodDetailClient({
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               placeholder="Contoh: Evaluasi Terpadu Tahun 2027"
-              className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-xs focus:outline-none focus:border-ink shadow-2xs"
+              className="w-full px-3.5 py-2 rounded-xl border border-line bg-card text-ink text-xs focus:outline-none focus:border-brand shadow-2xs"
             />
           </div>
 
@@ -1154,7 +1279,7 @@ export default function PeriodDetailClient({
             </Button>
             <Button
               type="submit"
-              variant="brand"
+              variant="primary"
               size="sm"
               isLoading={loading}>
               Simpan Perubahan

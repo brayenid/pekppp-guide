@@ -18,8 +18,6 @@ export function Footer() {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-ink">PEKPPP.ext · Kutai Barat</span>
             <span className="text-stroke">•</span>
-            <span className="text-[11px]">PermenPAN-RB 29/2022</span>
-            <span className="text-stroke hidden sm:inline">•</span>
             <span className="text-ink-secondary">Bagian Organisasi Setdakab Kutai Barat</span>
           </div>
           <div className="text-[11px] text-ink-muted">

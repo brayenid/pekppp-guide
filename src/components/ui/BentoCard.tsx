@@ -23,7 +23,7 @@ export function BentoCard({
 
   return (
     <div
-      className={`rounded-bento p-6 sm:p-7 transition-all duration-200 ${variantStyles[variant]} ${
+      className={`rounded-xl p-5 sm:p-6 transition-all duration-200 ${variantStyles[variant]} ${
         hoverLift ? 'hover:-translate-y-0.5 hover:shadow-soft-float hover:border-stroke' : ''
       } ${className}`}
       {...props}

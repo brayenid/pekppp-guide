@@ -141,17 +141,17 @@ export function EvaluationTabWrapper({
           <Tabs value={activeTab} onValueChange={(val) => handleTabClick(val as 'f02' | 'evidence' | 'f03')}>
             <TabsList>
               {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
-              <TabsTrigger value="f02" size="sm">
-                <ClipboardList className="w-3.5 h-3.5" />
+              <TabsTrigger value="f02" size="default">
+                <ClipboardList className="w-4 h-4" />
                 <span>{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
               </TabsTrigger>
 
               {/* 2. Formulir Uji Petik: F03 */}
-              <TabsTrigger value="f03" size="sm">
-                <FolderHeart className="w-3.5 h-3.5" />
+              <TabsTrigger value="f03" size="default">
+                <FolderHeart className="w-4 h-4" />
                 <span>Survei F03</span>
                 <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors ${
+                  className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors ${
                     activeTab === 'f03'
                       ? 'bg-white/20 text-white'
                       : 'bg-surface text-ink-secondary border border-stroke/50'
@@ -161,11 +161,11 @@ export function EvaluationTabWrapper({
               </TabsTrigger>
 
               {/* 3. Bukti Dukung */}
-              <TabsTrigger value="evidence" size="sm">
-                <UploadCloud className="w-3.5 h-3.5" />
+              <TabsTrigger value="evidence" size="default">
+                <UploadCloud className="w-4 h-4" />
                 <span>Unggah Bukti Dukung</span>
                 <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors ${
+                  className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors ${
                     activeTab === 'evidence'
                       ? 'bg-white/20 text-white'
                       : incompleteCount === 0
@@ -198,19 +198,19 @@ export function EvaluationTabWrapper({
         <button
           type="button"
           onClick={() => setIsFocusMode(!isFocusMode)}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border cursor-pointer select-none ${
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border cursor-pointer select-none ${
             isFocusMode
               ? 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-soft-card'
               : 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs'
           }`}>
           {isFocusMode ? (
             <>
-              <Minimize2 className="w-3.5 h-3.5 text-brand" />
+              <Minimize2 className="w-4 h-4 text-brand" />
               <span>Keluar Mode Fokus</span>
             </>
           ) : (
             <>
-              <Maximize2 className="w-3.5 h-3.5 text-ink-muted" />
+              <Maximize2 className="w-4 h-4 text-ink-muted" />
               <span>Mode Fokus</span>
             </>
           )}

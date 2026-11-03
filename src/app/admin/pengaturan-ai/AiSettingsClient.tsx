@@ -25,7 +25,11 @@ import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
+import { Card, CardHeader } from '../../../components/ui/Card'
+import { StatCard } from '../../../components/ui/StatCard'
+import { NoticeBanner } from '../../../components/ui/NoticeBanner'
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
+import { AdminTabs } from '../../../components/ui/AdminTabs'
 import {
   AiEvaluatorConfig,
   DEFAULT_ASPECT_CONTEXTS
@@ -143,63 +147,50 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
 
       {/* 2. Kartu Tracker Biaya & Pemakaian Token (Compact Bento Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <div className="rounded-bento border border-stroke/50 bg-surface p-4 space-y-1 shadow-soft-card">
-          <div className="flex items-center justify-between text-xs font-medium text-ink-muted">
-            <span>Panggilan AI</span>
-            <div className="w-6 h-6 rounded-full bg-surface-subtle flex items-center justify-center text-ink-muted">
-              <Cpu className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div className="text-2xl font-normal text-ink tracking-tight">
-            {initialConfig.usageStats.totalCalls.toLocaleString('id-ID')} <span className="text-xs text-ink-muted font-normal">kali</span>
-          </div>
-          <p className="text-[11px] text-ink-muted">Akumulasi audit dokumen</p>
-        </div>
+        <StatCard
+          compact
+          label="Panggilan AI"
+          icon={<Cpu className="w-3.5 h-3.5 text-ink-muted" />}
+          value={initialConfig.usageStats.totalCalls.toLocaleString('id-ID')}
+          suffix="kali"
+          sublabel="Akumulasi audit dokumen"
+        />
 
-        <div className="rounded-bento border border-stroke/50 bg-surface p-4 space-y-1 shadow-soft-card">
-          <div className="flex items-center justify-between text-xs font-medium text-ink-muted">
-            <span>Token Terpakai (Riil)</span>
-            <div className="w-6 h-6 rounded-full bg-surface-subtle flex items-center justify-center text-ink-muted">
-              <Layers className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div className="text-2xl font-normal text-ink tracking-tight">
-            {initialConfig.usageStats.totalTokens.toLocaleString('id-ID')} <span className="text-xs text-ink-muted font-normal">token</span>
-          </div>
-          <p className="text-[11px] text-ink-muted">
-            {initialConfig.usageStats.promptTokens ? (
-              <span>Input: {initialConfig.usageStats.promptTokens.toLocaleString('id-ID')} | Output: {(initialConfig.usageStats.candidatesTokens || 0).toLocaleString('id-ID')}</span>
-            ) : (
-              'Google AI Studio usageMetadata'
-            )}
-          </p>
-        </div>
+        <StatCard
+          compact
+          label="Token Terpakai (Riil)"
+          icon={<Layers className="w-3.5 h-3.5 text-ink-muted" />}
+          value={initialConfig.usageStats.totalTokens.toLocaleString('id-ID')}
+          suffix="token"
+          sublabel={
+            initialConfig.usageStats.promptTokens
+              ? `Input: ${initialConfig.usageStats.promptTokens.toLocaleString('id-ID')} | Output: ${(initialConfig.usageStats.candidatesTokens || 0).toLocaleString('id-ID')}`
+              : 'Google AI Studio usageMetadata'
+          }
+        />
 
-        <div className="rounded-bento border border-stroke/50 bg-surface p-4 space-y-1 shadow-soft-card">
-          <div className="flex items-center justify-between text-xs font-medium text-ink-muted">
-            <span>Estimasi Biaya</span>
-            <div className="w-6 h-6 rounded-full bg-surface-subtle flex items-center justify-center text-ink-muted">
-              <Coins className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div className="text-2xl font-normal text-ink tracking-tight">
-            Rp {initialConfig.usageStats.estimatedCostIdr.toLocaleString('id-ID')}
-          </div>
-          <p className="text-[11px] text-pastel-green-text font-medium">Berdasarkan tarif Google Cloud</p>
-        </div>
+        <StatCard
+          compact
+          label="Estimasi Biaya"
+          icon={<Coins className="w-3.5 h-3.5 text-ink-muted" />}
+          value={`Rp ${initialConfig.usageStats.estimatedCostIdr.toLocaleString('id-ID')}`}
+          sublabel="Berdasarkan tarif Google Cloud"
+          sublabelClassName="text-pastel-green-text font-medium"
+        />
       </div>
 
       {/* 3. Panel Parameter Model & Mode Efisiensi Biaya (Compact) */}
-      <div className="rounded-bento border border-stroke/50 bg-surface p-5 space-y-4 shadow-soft-card">
-        <div className="flex items-center justify-between border-b border-stroke/40 pb-2.5">
-          <h2 className="text-xs font-medium text-ink flex items-center gap-2">
-            <Sliders className="w-3.5 h-3.5 text-ink-muted" />
-            Parameter Biaya &amp; Model AI
-          </h2>
-          <span className="text-[11px] text-ink-muted hidden sm:inline">
-            Atur keseimbangan kecepatan, kuota token, dan ketelitian
-          </span>
-        </div>
+      <Card className="space-y-4">
+        <CardHeader
+          icon={<Sliders className="w-3.5 h-3.5 text-ink-muted" />}
+          title="Parameter Biaya & Model AI"
+          uppercase
+          action={
+            <span className="text-[11px] text-ink-muted hidden sm:inline">
+              Atur keseimbangan kecepatan, kuota token, dan ketelitian
+            </span>
+          }
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Mode Eksekusi */}
@@ -210,7 +201,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
             <select
               value={executionMode}
               onChange={(e) => setExecutionMode(e.target.value as any)}
-              className="w-full px-3 py-1.5 text-xs rounded-xl border border-stroke/60 bg-surface text-ink font-normal focus:outline-none focus:border-brand shadow-2xs cursor-pointer">
+              className="w-full px-3 py-1.5 text-xs rounded-lg border border-stroke/60 bg-surface text-ink font-normal focus:outline-none focus:border-brand shadow-2xs cursor-pointer">
               <option value="BATCH">Mode Hemat / Batch (Disarankan)</option>
               <option value="INSTANT">Mode Instan</option>
               <option value="HEURISTIC_ONLY">Mode Heuristik (Rp 0)</option>
@@ -232,7 +223,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
             <select
               value={model}
               onChange={(e) => setModel(e.target.value as any)}
-              className="w-full px-3 py-1.5 text-xs rounded-xl border border-stroke/60 bg-surface text-ink font-normal focus:outline-none focus:border-brand shadow-2xs cursor-pointer">
+              className="w-full px-3 py-1.5 text-xs rounded-lg border border-stroke/60 bg-surface text-ink font-normal focus:outline-none focus:border-brand shadow-2xs cursor-pointer">
               <option value="gemini-3.6-flash">Gemini 3.6 Flash (Cepat &amp; Akurat)</option>
               <option value="gemini-flash-latest">Gemini Flash Latest (Stabil)</option>
               <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Paling Ringan)</option>
@@ -253,7 +244,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
               max={50}
               value={maxPdfPages}
               onChange={(e) => setMaxPdfPages(Number(e.target.value))}
-              className="w-full px-3 py-1.5 text-xs rounded-xl border border-stroke/60 bg-surface text-ink focus:outline-none focus:border-brand shadow-2xs"
+              className="w-full px-3 py-1.5 text-xs rounded-lg border border-stroke/60 bg-surface text-ink focus:outline-none focus:border-brand shadow-2xs"
             />
             <p className="text-[11px] text-ink-muted leading-snug">
               Maks. {maxPdfPages} hal awal dokumen agar hemat kuota token.
@@ -271,69 +262,57 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
               max={100}
               value={maxUploadSizeMb}
               onChange={(e) => setMaxUploadSizeMb(Number(e.target.value))}
-              className="w-full px-3 py-1.5 text-xs rounded-xl border border-stroke/60 bg-surface text-ink focus:outline-none focus:border-brand shadow-2xs"
+              className="w-full px-3 py-1.5 text-xs rounded-lg border border-stroke/60 bg-surface text-ink focus:outline-none focus:border-brand shadow-2xs"
             />
             <p className="text-[11px] text-ink-muted leading-snug">
               Batas {maxUploadSizeMb} MB untuk mencegah error timeout jaringan.
             </p>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* 4. Tab Pengaturan Konteks Standar Emas per Aspek (6 Aspek Utama) */}
-      <div className="rounded-bento border border-stroke/50 bg-surface overflow-hidden shadow-2xs">
-        <div className="p-4 sm:p-5 border-b border-stroke/50 bg-surface-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xs font-semibold text-ink uppercase tracking-wider flex items-center gap-2">
-              <FileSearch className="w-4 h-4 text-ink-muted" />
-              Konteks Standar Emas per Aspek
-            </h2>
-            <p className="text-[11px] text-ink-muted mt-0.5">
-              Instruksi pedoman khusus verifikasi bukti dukung Aspek I s/d VI oleh AI.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={resetting}
-              onClick={handleResetCurrentAspect}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill border border-stroke/60 bg-surface hover:bg-surface-subtle text-xs font-medium text-ink-secondary transition-all cursor-pointer shadow-2xs">
-              <RotateCcw className="w-3.5 h-3.5 text-ink-muted" />
-              <span>Reset Aspek Ini</span>
-            </button>
-            <button
-              type="button"
-              disabled={resetting}
-              onClick={() => setIsResetAllConfirmOpen(true)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill border border-stroke/60 bg-surface hover:bg-surface-subtle text-xs font-medium text-rose-600 transition-all cursor-pointer shadow-2xs">
-              <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
-              <span>Reset Semua (6 Aspek)</span>
-            </button>
-          </div>
-        </div>
+      <Card padding="none">
+        <CardHeader
+          filled
+          icon={<FileSearch className="w-4 h-4 text-ink-muted" />}
+          title="Konteks Standar Emas per Aspek"
+          subtitle="Instruksi pedoman khusus verifikasi bukti dukung Aspek I s/d VI oleh AI."
+          uppercase
+          action={
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={resetting}
+                onClick={handleResetCurrentAspect}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stroke/60 bg-surface hover:bg-surface-subtle text-xs font-medium text-ink-secondary transition-all cursor-pointer shadow-2xs">
+                <RotateCcw className="w-3.5 h-3.5 text-ink-muted" />
+                <span>Reset Aspek Ini</span>
+              </button>
+              <button
+                type="button"
+                disabled={resetting}
+                onClick={() => setIsResetAllConfirmOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stroke/60 bg-surface hover:bg-surface-subtle text-xs font-medium text-rose-600 transition-all cursor-pointer shadow-2xs">
+                <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
+                <span>Reset Semua (6 Aspek)</span>
+              </button>
+            </div>
+          }
+        />
 
         {/* Aspect Tab Switcher */}
-        <div className="flex items-center gap-1.5 p-2.5 bg-surface-subtle/50 border-b border-stroke/50 overflow-x-auto">
-          {aspectKeys.map((key) => {
-            const label = `Aspek ${key}`
-            const isActive = activeTab === key
-
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setActiveTab(key)}
-                className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? 'bg-brand text-white shadow-hz-button font-semibold'
-                    : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle'
-                }`}>
-                {label}
-              </button>
-            )
-          })}
-        </div>
+        <AdminTabs
+          items={aspectKeys.map((key) => ({
+            id: key,
+            badge: key,
+            label: DEFAULT_ASPECT_CONTEXTS[key]?.title || `Aspek ${key}`,
+            count: `${DEFAULT_ASPECT_CONTEXTS[key]?.benchmarkKeywords?.length || 0} Kriteria`
+          }))}
+          activeId={activeTab}
+          onChange={setActiveTab}
+          className="p-2.5 bg-surface-subtle/50"
+        />
 
         {/* Tab Body Content */}
         <div className="p-4 sm:p-5 space-y-3.5">
@@ -370,22 +349,19 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
               value={aspectContexts[activeTab] || ''}
               onChange={(e) => handleContextChange(activeTab, e.target.value)}
               placeholder={`Tuliskan instruksi kriteria standar emas untuk ${DEFAULT_ASPECT_CONTEXTS[activeTab]?.title}...`}
-              className="w-full p-3 text-xs rounded-xl border border-stroke/60 bg-surface text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-brand shadow-2xs resize-y font-mono leading-relaxed"
+              className="w-full p-3 text-xs rounded-lg border border-stroke/60 bg-surface text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-brand shadow-2xs resize-y font-mono leading-relaxed"
             />
           </div>
 
           {/* Info Box */}
-          <div className="p-3 rounded-xl bg-surface-subtle border border-stroke/40 flex items-start gap-2.5 text-xs text-ink-secondary">
-            <Info className="w-4 h-4 text-ink-muted shrink-0 mt-0.5" />
-            <p className="leading-snug">
-              <strong className="text-ink font-medium">Tips Konteks Daerah:</strong> Anda dapat menambahkan aturan spesifik instansi. Contoh: seragam batik hari Kamis atau penamaan surat dinas khas daerah agar AI memverifikasinya sebagai berkas yang sah.
-            </p>
-          </div>
+          <NoticeBanner variant="neutral" compact>
+            <strong className="text-ink font-medium">Tips Konteks Daerah:</strong> Anda dapat menambahkan aturan spesifik instansi. Contoh: seragam batik hari Kamis atau penamaan surat dinas khas daerah agar AI memverifikasinya sebagai berkas yang sah.
+          </NoticeBanner>
         </div>
-      </div>
+      </Card>
 
       {/* 5. Sticky Bottom Action Bar */}
-      <div className="p-3 sm:p-4 rounded-bento border border-stroke/50 bg-surface flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+      <Card padding="sm" className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-xs text-ink-muted flex items-center gap-1.5">
           <HelpCircle className="w-3.5 h-3.5 text-ink-muted" />
           <span>Pengaturan tersimpan langsung ke database secara instan.</span>
@@ -399,7 +375,7 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
           leftIcon={<Save className="w-3.5 h-3.5" />}>
           Simpan Semua Pengaturan
         </Button>
-      </div>
+      </Card>
 
       {/* Modal Konfirmasi Reset Semua Konteks AI */}
       <ConfirmationModal

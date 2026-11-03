@@ -30,12 +30,17 @@ export async function validateEvaluationForSync(evaluationId: string): Promise<S
   const evaluation = await db.evaluation.findUnique({
     where: { id: evaluationId },
     include: {
-      unit: true,
+      unit: {
+        include: {
+          evidenceMasters: true
+        }
+      },
       scores: {
         include: {
           indicator: true
         }
       },
+      evidenceSubmissions: true,
       f03Respondents: true
     }
   })
@@ -73,10 +78,26 @@ export async function validateEvaluationForSync(evaluationId: string): Promise<S
     errors.push(`F-01 Mandiri OPD belum lengkap (${f01FilledCount}/31 indikator terisi).`)
   }
 
-  // Check aspect proof URLs
-  const missingProofAspects = evaluation.scores.filter((s) => !s.proofUrl)
-  if (missingProofAspects.length > 0) {
-    warnings.push(`Beberapa indikator belum memiliki tautan bukti dukung Google Drive.`)
+  // Check 6 Aspect Evidence Submissions / Living Document Master Evidence
+  const requiredAspects = ['I', 'II', 'III', 'IV', 'V', 'VI']
+  const missingAspects = requiredAspects.filter((aspectCode) => {
+    const hasSub = evaluation.evidenceSubmissions.some(
+      (sub) =>
+        sub.aspectCode === aspectCode &&
+        (Boolean(sub.fileUrl?.trim()) || (Array.isArray(sub.attachments) && (sub.attachments as any[]).length > 0))
+    )
+    const hasMaster = evaluation.unit.evidenceMasters.some(
+      (m) =>
+        m.aspectCode === aspectCode &&
+        (Boolean(m.fileUrl?.trim()) || (Array.isArray(m.attachments) && (m.attachments as any[]).length > 0))
+    )
+    return !hasSub && !hasMaster
+  })
+
+  if (missingAspects.length > 0) {
+    warnings.push(
+      `Terdapat aspek yang belum memiliki berkas bukti dukung terunggah (Aspek ${missingAspects.join(', ')}).`
+    )
   }
 
   // 2. Validate F-02 (Evaluasi Evaluator)

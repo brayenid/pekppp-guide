@@ -13,8 +13,13 @@ export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const lastFetchedAtRef = useRef<number>(0)
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (force = false) => {
+    const now = Date.now()
+    if (!force && now - lastFetchedAtRef.current < 15000) return
+    lastFetchedAtRef.current = now
+
     try {
       const res = await getNotificationsAction()
       setNotifications(res.notifications)
@@ -25,8 +30,8 @@ export function NotificationBell() {
   }
 
   useEffect(() => {
-    fetchNotifications()
-  }, [pathname])
+    fetchNotifications(true)
+  }, [])
 
   // Smart Polling: fetch rutin setiap 25 detik & saat window kembali aktif/fokus
   useEffect(() => {
@@ -34,7 +39,7 @@ export function NotificationBell() {
     const interval = setInterval(() => {
       // Hanya fetch jika halaman sedang dibuka / aktif (hemat resource)
       if (typeof document !== 'undefined' && !document.hidden) {
-        fetchNotifications()
+        fetchNotifications(true)
       }
     }, 25000)
 
@@ -112,13 +117,13 @@ export function NotificationBell() {
         onClick={() => {
           const next = !isOpen
           setIsOpen(next)
-          if (next) fetchNotifications()
+          if (next) fetchNotifications(true)
         }}
-        className="relative w-10 h-10 rounded-full bg-surface-elevated hover:bg-surface-subtle border border-stroke/70 text-ink flex items-center justify-center transition-all cursor-pointer shadow-soft-card group shrink-0"
+        className="relative w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-sm group shrink-0"
         title="Notifikasi">
-        <Bell className="w-5 h-5 text-ink-secondary group-hover:text-brand transition-colors" />
+        <Bell className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-brand text-white text-[10px] font-mono font-bold flex items-center justify-center border-2 border-surface-elevated shadow-xs">
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold flex items-center justify-center border-2 border-brand shadow-xs">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

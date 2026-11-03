@@ -127,7 +127,11 @@ export class MenpanApiService {
   }> {
     const config = await getMenpanApiConfig()
     if (!config.baseUrl || !config.apiKey) {
-      return { success: false, message: 'Kredensial API MenPAN belum lengkap.' }
+      return {
+        success: false,
+        message:
+          'Kredensial API MenPAN-RB (Base URL & Bearer Token) belum dikonfigurasi di menu Pengaturan API. Silakan tetapkan kredensial terlebih dahulu (baik server Sandbox resmi MenPAN maupun Production).'
+      }
     }
 
     try {
@@ -172,7 +176,10 @@ export class MenpanApiService {
   }> {
     const config = await getMenpanApiConfig()
     if (!config.baseUrl || !config.apiKey) {
-      return { success: false, message: 'Kredensial API MenPAN belum lengkap.' }
+      return {
+        success: false,
+        message: 'Kredensial API MenPAN-RB belum dikonfigurasi di menu Pengaturan API.'
+      }
     }
 
     try {
@@ -218,7 +225,10 @@ export class MenpanApiService {
   }> {
     const config = await getMenpanApiConfig()
     if (!config.baseUrl || !config.apiKey) {
-      return { success: false, message: 'Kredensial API MenPAN belum lengkap.' }
+      return {
+        success: false,
+        message: 'Kredensial API MenPAN-RB belum dikonfigurasi di menu Pengaturan API.'
+      }
     }
 
     try {
@@ -257,7 +267,10 @@ export class MenpanApiService {
   }> {
     const config = await getMenpanApiConfig()
     if (!config.baseUrl || !config.apiKey) {
-      return { success: false, message: 'Kredensial API MenPAN belum lengkap.' }
+      return {
+        success: false,
+        message: 'Kredensial API MenPAN-RB belum dikonfigurasi di menu Pengaturan API.'
+      }
     }
 
     try {
@@ -342,18 +355,20 @@ export class MenpanApiService {
   }
 
   /**
-   * Mengirimkan data evaluasi lengkap (Formulir F-01, F-02, dan F-03) ke API MenPAN-RB.
-   * - Menghimpun data lokus, isian mandiri OPD (F-01), nilai evaluator (F-02), dan data responden survei (F-03).
-   * - Menjalankan mode simulasi (Mock Sandbox) jika kredensial belum dikonfigurasi.
-   * - Mengirim HTTP POST ke endpoint MenPAN `/evaluasi/submit` dengan timeout 15 detik jika kredensial terisi.
-   * - Memperbarui status sinkronisasi (`SYNCED` atau `FAILED`) dan log audit ke database.
+   * Mengirimkan data evaluasi lengkap (Formulir F-01/F-02) ke API Resmi MenPAN-RB sesuai OpenAPI 3.0.3 (spec.json).
+   * - Memastikan lokus memiliki `menpanEvaluationId` (UUID evaluasi MenPAN).
+   * - Menarik / membaca cache struktur pertanyaan MenPAN (GET /evaluations/{uuid}/form/questions).
+   * - Melakukan Auto-Mapping: mencocokkan nomor indikator (index 1..31) ke question_id MenPAN.
+   * - Mengonversi skor/jawaban lokal ke format resmi bobot opsi MenPAN.
+   * - Mengirim HTTP POST ke endpoint resmi /evaluations/{uuid}/answers.
+   * - Memperbarui status sinkronisasi (`SYNCED` atau `FAILED`) dan audit log ke database.
    * @param evaluationId ID evaluasi lokus yang akan disinkronkan.
    * @returns Respons sinkronisasi `{ success: boolean, message: string, menpanRefId?: string, rawResponse?: any }`.
    */
   static async pushEvaluation(evaluationId: string): Promise<MenpanSyncResponse> {
     const config = await getMenpanApiConfig()
 
-    // 1. Fetch full evaluation record
+    // 1. Ambil data evaluasi lokal beserta nilai per indikator
     const evaluation = await db.evaluation.findUnique({
       where: { id: evaluationId },
       include: {
@@ -365,6 +380,11 @@ export class MenpanApiService {
                 aspect: true
               }
             }
+          },
+          orderBy: {
+            indicator: {
+              indicatorNumber: 'asc'
+            }
           }
         },
         f03Respondents: true
@@ -372,148 +392,167 @@ export class MenpanApiService {
     })
 
     if (!evaluation) {
-      return { success: false, message: 'Evaluasi tidak ditemukan' }
+      return { success: false, message: 'Evaluasi tidak ditemukan di database lokal.' }
     }
 
-    // Ambil app URL origin atau fallback ke path relatif resmi
-    const appOrigin = process.env.NEXT_PUBLIC_APP_URL || ''
-
-    // Prepare JSON payload matching OpenAPI Spec
-    const payload = {
-      lokus_code: evaluation.unit.code,
-      lokus_name: evaluation.unit.name,
-      year: evaluation.year,
-      f01_responses: evaluation.scores.map((s) => {
-        const aspCode = s.indicator?.aspect?.code || 'I'
-        // Gunakan URL dossier aspek terpadu resmi sebagai bukti dukung tunggal ke MenPAN-RB
-        const aspectDossierUrl = `${appOrigin}/shared/evidence/${evaluation.id}/${aspCode}`
-        return {
-          indicator_code: s.indicator?.code || (s as any).question?.code || `IND_${s.id.slice(-4)}`,
-          aspect_code: aspCode,
-          f01_data: s.f01Data,
-          proof_url: aspectDossierUrl,
-          legacy_proof_url: s.proofUrl
-        }
-      }),
-      f02_evaluations: evaluation.scores.map((s) => ({
-        indicator_code: s.indicator?.code || (s as any).question?.code || `IND_${s.id.slice(-4)}`,
-        score: s.score,
-        notes: s.notes
-      })),
-      aspect_evidence_dossiers: {
-        aspek_1: `${appOrigin}/shared/evidence/${evaluation.id}/I`,
-        aspek_2: `${appOrigin}/shared/evidence/${evaluation.id}/II`,
-        aspek_3: `${appOrigin}/shared/evidence/${evaluation.id}/III`,
-        aspek_4: `${appOrigin}/shared/evidence/${evaluation.id}/IV`,
-        aspek_5: `${appOrigin}/shared/evidence/${evaluation.id}/V`,
-        aspek_6: `${appOrigin}/shared/evidence/${evaluation.id}/VI`,
-        aspek_tambahan: `${appOrigin}/shared/evidence/${evaluation.id}/TAMBAHAN`
-      },
-      aspect_notes: evaluation.aspectNotes,
-      f03_respondents: evaluation.f03Respondents.map((r) => ({
-        respondent_name: r.name,
-        answers: r.answers,
-        total_score: r.totalScore
-      })),
-      f03_proof_url: evaluation.f03ProofUrl,
-      final_scores: {
-        f02_score: evaluation.totalScore,
-        f02_percentage: evaluation.percentage,
-        f03_percentage: evaluation.f03Percentage,
-        final_ipp: evaluation.finalIppScore
+    // 2. Validasi Kredensial API
+    if (!config.baseUrl || !config.apiKey) {
+      return {
+        success: false,
+        message:
+          'Kredensial API MenPAN-RB (Base URL & Bearer Token) belum dikonfigurasi di menu Pengaturan API. Silakan lengkapi pengaturan API terlebih dahulu sebelum mengirim nilai.'
       }
     }
 
-    // 2. If API credentials are missing, run in Sandbox Mode (Simulation)
-    if (!config.baseUrl || !config.apiKey) {
-      const mockRefId = `MENPAN-MOCK-${Date.now()}`
-      
+    // 3. Validasi UUID Lokus MenPAN
+    const menpanUuid = evaluation.menpanEvaluationId
+    if (!menpanUuid) {
+      return {
+        success: false,
+        message: 'Lokus ini belum ditautkan dengan UUID evaluasi di portal MenPAN-RB. Silakan tautkan lokus di tab PULL terlebih dahulu.'
+      }
+    }
+
+    // 4. Tarik atau baca cache pertanyaan MenPAN
+    let questionsList: Array<{
+      id: number
+      name: string
+      index: number
+      bobot: number
+      is_required: boolean
+      option_type: string
+      options: Array<{ id: number; text: string; bobot: number; index: number }>
+    }> = []
+
+    const cachedLog = evaluation.syncLogs as any
+    if (cachedLog && Array.isArray(cachedLog.questionMap) && cachedLog.questionMap.length > 0) {
+      questionsList = cachedLog.questionMap
+    } else {
+      const qRes = await this.getRemoteQuestions(menpanUuid)
+      if (!qRes.success || !qRes.data || qRes.data.length === 0) {
+        return {
+          success: false,
+          message: `Gagal mengambil struktur pertanyaan form dari server MenPAN-RB: ${qRes.message || 'Data pertanyaan kosong'}`
+        }
+      }
+      questionsList = qRes.data
+    }
+
+    // 5. FUNGSI MAPPER: Memetakan 31 Indikator Lokal & Link Bukti Gabungan per Aspek ke Format Payload MenPAN { answers: { [question_id]: value } }
+    const answersPayload: Record<string, string | string[]> = {}
+    const appBaseUrl = (
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXTAUTH_URL ||
+      'https://pekppp.kutaibaratkab.go.id'
+    ).replace(/\/+$/, '')
+
+    const aspectOrder = ['I', 'II', 'III', 'IV', 'V', 'VI']
+    let textQuestionCount = 0
+
+    const resolveAspectFromQuestion = (qName: string, textSeqIndex: number): string => {
+      const upper = (qName || '').toUpperCase()
+      if (upper.includes('INOVASI') || upper.includes('ASPEK VI') || upper.includes('ASPEK 6')) return 'VI'
+      if (upper.includes('PENGADUAN') || upper.includes('KONSULTASI') || upper.includes('ASPEK V') || upper.includes('ASPEK 5')) return 'V'
+      if (upper.includes('SISTEM INFORMASI') || upper.includes('SIPP') || upper.includes('ASPEK IV') || upper.includes('ASPEK 4')) return 'IV'
+      if (upper.includes('SARANA') || upper.includes('PRASARANA') || upper.includes('ASPEK III') || upper.includes('ASPEK 3')) return 'III'
+      if (upper.includes('PROFESIONALISME') || upper.includes('SDM') || upper.includes('ASPEK II') || upper.includes('ASPEK 2')) return 'II'
+      if (upper.includes('KEBIJAKAN') || upper.includes('STANDAR PELAYANAN') || upper.includes('ASPEK I') || upper.includes('ASPEK 1')) return 'I'
+      // Fallback berdasarkan urutan kemunculan pertanyaan teks ke-1 s.d. ke-6 (Aspek I..VI)
+      return aspectOrder[textSeqIndex] || 'I'
+    }
+
+    for (const remoteQ of questionsList) {
+      const optType = (remoteQ.option_type || '').toLowerCase()
+      const isTextOrUrlQuestion =
+        ['text', 'url', 'textarea', 'link'].includes(optType) ||
+        !remoteQ.options ||
+        remoteQ.options.length === 0
+
+      // Cocokkan nomor urut soal MenPAN (index: 1..31) dengan indicatorNumber lokal
+      const localScore = evaluation.scores.find(
+        (s) => s.indicator.indicatorNumber === remoteQ.index
+      )
+
+      if (isTextOrUrlQuestion) {
+        // Jika pertanyaan MenPAN bertipe teks/tautan (misal meminta Link Bukti Dukung per Aspek/Indikator),
+        // arahkan otomatis ke Link Khusus Gabungan Bukti Dukung per Aspek (/shared/evidence/{evaluationId}/{aspectCode})
+        const aspectCode = resolveAspectFromQuestion(remoteQ.name, textQuestionCount)
+        textQuestionCount++
+        answersPayload[String(remoteQ.id)] = `${appBaseUrl}/shared/evidence/${evaluation.id}/${aspectCode}`
+      } else if (localScore) {
+        // Ambil nilai skala (prioritaskan nilai F-02 evaluator, fallback ke skor mandiri)
+        const scoreVal =
+          localScore.score !== null && localScore.score !== undefined
+            ? localScore.score
+            : 0
+
+        const roundedScore = Math.round(scoreVal)
+
+        // Cocokkan dengan opsi jawaban MenPAN yang bobotnya sesuai
+        const matchedOption = remoteQ.options?.find(
+          (opt) => Math.round(opt.bobot) === roundedScore
+        )
+
+        const optionValue = matchedOption
+          ? String(matchedOption.bobot)
+          : String(roundedScore)
+
+        // Tangani tipe checkbox jika multi-select
+        if (optType.includes('checkbox')) {
+          answersPayload[String(remoteQ.id)] = [optionValue]
+        } else {
+          answersPayload[String(remoteQ.id)] = optionValue
+        }
+      } else {
+        // Default jawaban aman jika tidak ditemukan (skor 0)
+        answersPayload[String(remoteQ.id)] = '0'
+      }
+    }
+
+    // 6. Eksekusi pengiriman ke endpoint resmi POST /evaluations/{uuid}/answers
+    const pushResult = await this.pushRemoteAnswers(menpanUuid, answersPayload)
+
+    if (pushResult.success) {
       await db.evaluation.update({
         where: { id: evaluationId },
         data: {
           syncStatus: 'SYNCED',
           syncedAt: new Date(),
-          menpanEvaluationId: mockRefId,
           syncLogs: {
-            mode: 'SANDBOX_SIMULATION',
-            timestamp: new Date().toISOString(),
-            info: 'Kredensial belum diisi, berhasil diuji dalam mode simulasi sandbox.'
+            mode: 'PRODUCTION_API',
+            status: 202,
+            message: pushResult.message,
+            menpanStatus: pushResult.status || 'queued',
+            answersCount: Object.keys(answersPayload).length,
+            syncedAt: new Date().toISOString(),
+            lastPayloadSummary: {
+              keysCount: Object.keys(answersPayload).length,
+              sample: Object.entries(answersPayload).slice(0, 3)
+            }
           }
         }
       })
 
       return {
         success: true,
-        message: 'Pengiriman berhasil disimulasikan (Mode Sandbox / Mock Server)!',
-        menpanRefId: mockRefId
+        message: 'Jawaban berhasil dikirim dan diterima oleh server MenPAN-RB (HTTP 202 Accepted - Antrean Queued)!',
+        menpanRefId: menpanUuid,
+        rawResponse: pushResult
       }
-    }
+    } else {
+      const errorMsg =
+        pushResult.validationErrors && pushResult.validationErrors.length > 0
+          ? `${pushResult.message}: ${pushResult.validationErrors.join(', ')}`
+          : pushResult.message
 
-    // 3. Real HTTP Request to MenPAN API endpoint
-    try {
-      const response = await fetch(`${config.baseUrl}/evaluasi/submit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
-          'X-Client-ID': config.clientId,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(15000)
-      })
-
-      const resJson = await response.json().catch(() => ({}))
-
-      if (response.ok) {
-        const refId = resJson.reference_id || `MENPAN-${Date.now()}`
-        await db.evaluation.update({
-          where: { id: evaluationId },
-          data: {
-            syncStatus: 'SYNCED',
-            syncedAt: new Date(),
-            menpanEvaluationId: refId,
-            syncLogs: {
-              status: response.status,
-              response: resJson,
-              syncedAt: new Date().toISOString()
-            }
-          }
-        })
-
-        return {
-          success: true,
-          message: 'Data evaluasi berhasil terkirim dan tersinkronisasi dengan Portal MenPAN-RB!',
-          menpanRefId: refId,
-          rawResponse: resJson
-        }
-      } else {
-        const errorMsg = resJson.message || `HTTP ${response.status}: ${response.statusText}`
-        await db.evaluation.update({
-          where: { id: evaluationId },
-          data: {
-            syncStatus: 'FAILED',
-            syncLogs: {
-              status: response.status,
-              error: errorMsg,
-              failedAt: new Date().toISOString()
-            }
-          }
-        })
-
-        return {
-          success: false,
-          message: `API MenPAN Menolak Data: ${errorMsg}`,
-          rawResponse: resJson
-        }
-      }
-    } catch (err: any) {
-      const networkError = err.message || 'Gagal terhubung ke API MenPAN'
       await db.evaluation.update({
         where: { id: evaluationId },
         data: {
           syncStatus: 'FAILED',
           syncLogs: {
-            error: networkError,
+            mode: 'PRODUCTION_API',
+            error: errorMsg,
+            validationErrors: pushResult.validationErrors || [],
             failedAt: new Date().toISOString()
           }
         }
@@ -521,7 +560,8 @@ export class MenpanApiService {
 
       return {
         success: false,
-        message: `Gangguan Jaringan: ${networkError}`
+        message: errorMsg,
+        rawResponse: pushResult
       }
     }
   }

@@ -19,8 +19,8 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const sizeStyles = {
-    sm: 'text-[10px] px-2 py-0.5 gap-1 font-semibold',
-    md: 'text-xs px-2.5 py-1 gap-1.5 font-medium',
+    sm: 'text-xs px-2.5 py-0.5 gap-1.5 font-medium',
+    md: 'text-xs sm:text-sm px-3 py-1 gap-1.5 font-medium',
   }
 
   const variantStyles = {

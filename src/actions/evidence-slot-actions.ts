@@ -14,10 +14,12 @@ import {
   FileVersionItem
 } from '../core/domain/evidence-slots-preset'
 import { StorageService } from '../services/storage-service'
+import { EvidenceMasterService } from '../services/evidence-master-service'
 import {
   getDynamicAspectEvidenceGuides,
   saveDynamicAspectSlotExample,
-  deleteDynamicAspectSlotExample
+  deleteDynamicAspectSlotExample,
+  getRuleForSlot
 } from '../services/system-setting-service'
 import { createNotificationHelper } from './notification-actions'
 
@@ -62,6 +64,9 @@ export interface EvidenceSlotItem {
  */
 export async function getIndicatorEvidenceAction(evaluationId: string, aspectCode: string) {
   try {
+    // Pastikan evaluasi tahun baru otomatis mewarisi Master Bukti Dukung jika belum memiliki submisi
+    await EvidenceMasterService.ensureEvaluationInherited(evaluationId)
+
     const norm = normalizeAspectCode(aspectCode)
     const presets = getEvidenceSlotsByAspect(aspectCode)
     
@@ -245,6 +250,9 @@ export async function saveIndicatorEvidenceSlotAction(params: {
       }
     })
 
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(evaluationId, existing?.aspectCode || norm, slotKey)
+
     // SOKET AI PRE-EVALUATOR: Pemicu Otomatis Saat Tautan Berkas Disimpan
     try {
       const { AiEvaluatorService } = await import('../services/ai-evaluator-service')
@@ -333,6 +341,19 @@ export async function addCustomAdditionalEvidenceSlotAction(params: {
       note: note || `Menambah dokumen pendukung tambahan: ${cleanTitle}`
     }
 
+    const initialAttachment: EvidenceAttachmentItem = {
+      id: `att_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      fileUrl: cleanUrl,
+      fileName: fileName || cleanTitle,
+      fileSize: 0,
+      fileType: 'LINK',
+      storageProvider: storageProvider || 'EXTERNAL_LINK',
+      uploadedAt: new Date().toISOString(),
+      uploaderName: uploaderName || 'Admin OPD',
+      version: 1,
+      versions: []
+    }
+
     const submission = await db.indicatorEvidenceSubmission.create({
       data: {
         evaluationId,
@@ -343,10 +364,14 @@ export async function addCustomAdditionalEvidenceSlotAction(params: {
         fileName: fileName || cleanTitle,
         storageProvider: storageProvider || 'EXTERNAL_LINK',
         uploaderName,
+        attachments: [initialAttachment] as any,
         history: [activity] as any,
         isInherited: false
       }
     })
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(evaluationId, norm, slotKey)
 
     // SOKET AI PRE-EVALUATOR: Pemicu Otomatis Saat Dokumen Tambahan Dibuat
     try {
@@ -432,19 +457,19 @@ export async function deleteEvidenceAttachmentAction(params: {
       return { success: false, error: 'Berkas lampiran tidak ditemukan.' }
     }
 
-    // 1. Hapus berkas fisik aktif dari storage
+    // 1. Hapus berkas fisik aktif dari storage secara aman (jangan hapus jika masih direferensikan snapshot tahun lain)
     try {
-      await StorageService.deleteFile(target.fileUrl)
+      await EvidenceMasterService.safeDeletePhysicalFile(target.fileUrl, sub.evaluationId)
     } catch (e) {
       console.warn('Gagal menghapus berkas fisik:', target.fileUrl, e)
     }
 
-    // 1b. Hapus seluruh berkas fisik dari versi-versi lampau berkas ini
+    // 1b. Hapus seluruh berkas fisik dari versi-versi lampau berkas ini secara aman
     if (target.versions && target.versions.length > 0) {
       for (const ver of target.versions) {
         if (ver.fileUrl) {
           try {
-            await StorageService.deleteFile(ver.fileUrl)
+            await EvidenceMasterService.safeDeletePhysicalFile(ver.fileUrl, sub.evaluationId)
           } catch (verErr) {
             console.warn('Gagal menghapus berkas versi fisik:', ver.fileUrl, verErr)
           }
@@ -476,7 +501,8 @@ export async function deleteEvidenceAttachmentAction(params: {
           fileSize: null,
           fileType: null,
           attachments: [] as any,
-          history: historyList as any
+          history: historyList as any,
+          isInherited: false
         }
       })
 
@@ -498,10 +524,14 @@ export async function deleteEvidenceAttachmentAction(params: {
           fileType: latest.fileType,
           storageProvider: latest.storageProvider,
           attachments: remaining as any,
-          history: historyList as any
+          history: historyList as any,
+          isInherited: false
         }
       })
     }
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(sub.evaluationId, sub.aspectCode, sub.slotKey)
 
     if (path) revalidatePath(path)
     return { success: true, remainingCount: remaining.length }
@@ -544,21 +574,30 @@ export async function deleteIndicatorEvidenceSlotAction(params: {
       return { success: true, message: 'Berkas sudah kosong atau tidak ditemukan.' }
     }
 
-    // 2. Hapus SEMUA berkas fisik lampiran dari Cloudflare R2 atau Local Disk
+    // 2. Hapus SEMUA berkas fisik lampiran secara aman (proteksi snapshot tahun lain)
     const allAttachments = extractAttachments(sub)
     for (const att of allAttachments) {
       if (att.fileUrl) {
         try {
-          await StorageService.deleteFile(att.fileUrl)
+          await EvidenceMasterService.safeDeletePhysicalFile(att.fileUrl, sub.evaluationId)
         } catch (storageErr) {
           console.warn('Gagal menghapus berkas fisik:', att.fileUrl, storageErr)
+        }
+      }
+      if (att.versions && att.versions.length > 0) {
+        for (const ver of att.versions) {
+          if (ver.fileUrl) {
+            try {
+              await EvidenceMasterService.safeDeletePhysicalFile(ver.fileUrl, sub.evaluationId)
+            } catch {}
+          }
         }
       }
     }
 
     if (sub.fileUrl && !allAttachments.some((a) => a.fileUrl === sub.fileUrl)) {
       try {
-        await StorageService.deleteFile(sub.fileUrl)
+        await EvidenceMasterService.safeDeletePhysicalFile(sub.fileUrl, sub.evaluationId)
       } catch {}
     }
 
@@ -566,6 +605,9 @@ export async function deleteIndicatorEvidenceSlotAction(params: {
     await db.indicatorEvidenceSubmission.delete({
       where: { id: sub.id }
     })
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(sub.evaluationId, sub.aspectCode, sub.slotKey)
 
     // Unlink dari butir pertanyaan instrumen
     await db.evaluationScore.updateMany({
@@ -621,10 +663,10 @@ export async function deleteHistoryItemAction(params: {
       })
     }
 
-    // Jika yang dihapus adalah berkas riwayat lama
+    // Jika yang dihapus adalah berkas riwayat lama, hapus fisik secara aman
     if (targetItem.fileUrl) {
       try {
-        await StorageService.deleteFile(targetItem.fileUrl)
+        await EvidenceMasterService.safeDeletePhysicalFile(targetItem.fileUrl, sub.evaluationId)
       } catch (storageErr) {
         console.warn('Gagal menghapus berkas fisik riwayat:', targetItem.fileUrl, storageErr)
       }
@@ -638,6 +680,9 @@ export async function deleteHistoryItemAction(params: {
         history: updatedHistory as any
       }
     })
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(sub.evaluationId, sub.aspectCode, sub.slotKey)
 
     if (path) revalidatePath(path)
     return { success: true }
@@ -688,6 +733,52 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
 
     const targetAtt = attachments[targetIdx]
 
+    // Validasi aturan dinamis berkas (Tipe & Ukuran Maksimal)
+    const rule = await getRuleForSlot(slotKey)
+
+    const isImg = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(file.name)
+    const isDoc =
+      file.name.toLowerCase().endsWith('.pdf') ||
+      file.name.toLowerCase().endsWith('.doc') ||
+      file.name.toLowerCase().endsWith('.docx') ||
+      file.type === 'application/pdf' ||
+      file.type.includes('word') ||
+      file.type.includes('officedocument')
+
+    if (rule.allowedDocumentType === 'PDF_ONLY' && isImg) {
+      return {
+        success: false,
+        error: `Slot "${sub.title || slotKey}" hanya menerima dokumen resmi PDF/Word. Berkas foto "${file.name}" ditolak.`
+      }
+    }
+
+    if (rule.allowedDocumentType === 'IMAGE_ONLY' && !isImg) {
+      return {
+        success: false,
+        error: `Slot "${sub.title || slotKey}" khusus untuk dokumentasi foto/gambar. Berkas dokumen "${file.name}" ditolak.`
+      }
+    }
+
+    if (!isImg && !isDoc) {
+      return {
+        success: false,
+        error: `Format berkas "${file.name}" tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`
+      }
+    }
+
+    const allowedLimitMb = isImg
+      ? (rule.maxImageSizeMb ?? rule.maxFileSizeMb ?? 3)
+      : (rule.maxPdfSizeMb ?? rule.maxFileSizeMb ?? 20)
+    const maxSizeBytes = allowedLimitMb * 1024 * 1024
+
+    if (file.size > maxSizeBytes) {
+      const actualMb = (file.size / (1024 * 1024)).toFixed(1)
+      return {
+        success: false,
+        error: `Ukuran berkas ${isImg ? 'foto' : 'dokumen'} "${file.name}" (${actualMb} MB) melebihi batas maksimal ${allowedLimitMb} MB untuk slot ini.`
+      }
+    }
+
     // Unggah berkas baru ke storage
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
@@ -709,10 +800,10 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
     const isOverwrite = saveMode === 'overwrite'
 
     if (isOverwrite) {
-      // MODE TIMPA: Hapus berkas fisik lama yang sedang aktif jika ada
+      // MODE TIMPA: Hapus berkas fisik lama secara aman (jangan hapus jika masih direferensikan snapshot tahun lain)
       if (targetAtt.fileUrl && targetAtt.fileUrl !== uploadResult.fileUrl) {
         try {
-          await StorageService.deleteFile(targetAtt.fileUrl)
+          await EvidenceMasterService.safeDeletePhysicalFile(targetAtt.fileUrl, evaluationId)
         } catch (err) {
           console.warn('Gagal menghapus berkas fisik lama saat overwrite:', targetAtt.fileUrl, err)
         }
@@ -726,7 +817,8 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
         fileSize: uploadResult.fileSize,
         fileType: uploadResult.fileType,
         storageProvider: uploadResult.provider,
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
+        uploaderName
       }
     } else {
       // MODE VERSI BARU: Arsipkan versi lama ke versions array milik berkas ini
@@ -738,7 +830,7 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
         fileSize: targetAtt.fileSize,
         fileType: targetAtt.fileType,
         uploadedAt: targetAtt.uploadedAt,
-        uploaderName: uploaderName,
+        uploaderName: targetAtt.uploaderName || uploaderName,
         note: note || undefined
       }
 
@@ -752,6 +844,7 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
         fileType: uploadResult.fileType,
         storageProvider: uploadResult.provider,
         uploadedAt: new Date().toISOString(),
+        uploaderName,
         version: nextVersionNum,
         versions: [archivedVersion, ...previousVersions]
       }
@@ -774,16 +867,26 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
         : `Memperbarui versi v${finalVersionNum} untuk berkas: ${uploadResult.fileName}`
     })
 
+    const latestAtt = attachments[attachments.length - 1]
+
     // Update database
     await db.indicatorEvidenceSubmission.update({
       where: { id: sub.id },
       data: {
-        fileUrl: attachments[attachments.length - 1].fileUrl,
-        fileName: attachments[attachments.length - 1].fileName,
+        fileUrl: latestAtt.fileUrl,
+        fileName: latestAtt.fileName,
+        fileSize: latestAtt.fileSize,
+        fileType: latestAtt.fileType,
+        storageProvider: latestAtt.storageProvider,
+        uploaderName,
         attachments: attachments as any,
-        history: historyList as any
+        history: historyList as any,
+        isInherited: false
       }
     })
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(evaluationId, sub.aspectCode, sub.slotKey)
 
     // SOKET AI PRE-EVALUATOR trigger
     try {
@@ -891,9 +994,13 @@ export async function restoreAttachmentVersionAction(params: {
         fileUrl: attachments[attachments.length - 1].fileUrl,
         fileName: attachments[attachments.length - 1].fileName,
         attachments: attachments as any,
-        history: historyList as any
+        history: historyList as any,
+        isInherited: false
       }
     })
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(evaluationId, sub.aspectCode, sub.slotKey)
 
     if (path) revalidatePath(path)
     return { success: true, restoredVersion: selectedVer.version }
@@ -945,10 +1052,10 @@ export async function deleteAttachmentVersionAction(params: {
       return { success: false, error: 'Versi yang ingin dihapus tidak ditemukan.' }
     }
 
-    // Hapus berkas fisik dari storage jika ada URL
+    // Hapus berkas fisik dari storage secara aman (jangan hapus jika masih direferensikan snapshot tahun lain)
     if (selectedVer.fileUrl) {
       try {
-        await StorageService.deleteFile(selectedVer.fileUrl)
+        await EvidenceMasterService.safeDeletePhysicalFile(selectedVer.fileUrl, evaluationId)
       } catch (storageErr) {
         console.warn('Gagal menghapus berkas fisik versi lampiran:', selectedVer.fileUrl, storageErr)
       }
@@ -976,9 +1083,13 @@ export async function deleteAttachmentVersionAction(params: {
       where: { id: sub.id },
       data: {
         attachments: attachments as any,
-        history: historyList as any
+        history: historyList as any,
+        isInherited: false
       }
     })
+
+    // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
+    await EvidenceMasterService.syncSubmissionToMaster(evaluationId, sub.aspectCode, sub.slotKey)
 
     if (path) revalidatePath(path)
     return { success: true }
@@ -1125,6 +1236,9 @@ export interface AspectOverviewItem {
  */
 export async function getAspectEvidenceOverviewAction(evaluationId: string) {
   try {
+    // Pastikan evaluasi tahun baru otomatis mewarisi Master Bukti Dukung jika belum memiliki submisi
+    await EvidenceMasterService.ensureEvaluationInherited(evaluationId)
+
     const { getEvidenceSlotsByAspect } = await import('../core/domain/evidence-slots-preset')
 
     const submissions = await db.indicatorEvidenceSubmission.findMany({
@@ -1196,6 +1310,41 @@ export async function getAspectEvidenceOverviewAction(evaluationId: string) {
       totalUploadedAll: 0,
       totalRequiredAll: 0,
       totalPercentageAll: 0
+    }
+  }
+}
+
+/**
+ * Sinkronisasi & Bootstrap seluruh Master Bukti Dukung untuk semua Unit
+ * dan pastikan periode tahun aktif mewarisi dokumen master terbaru
+ */
+export async function syncAllUnitsEvidenceMasterAction() {
+  try {
+    const units = await db.unit.findMany({
+      select: { id: true }
+    })
+
+    for (const u of units) {
+      await EvidenceMasterService.bootstrapUnitMasterFromExisting(u.id)
+    }
+
+    const periods = await db.evaluationPeriod.findMany({
+      orderBy: { year: 'asc' },
+      select: { year: true }
+    })
+
+    for (const p of periods) {
+      await EvidenceMasterService.inheritMasterBulkForPeriod(p.year)
+    }
+
+    revalidatePath('/admin/master-bukti')
+    revalidatePath('/admin/periode')
+    return { success: true, syncedUnitsCount: units.length }
+  } catch (error: any) {
+    console.error('Error syncing all units evidence master:', error)
+    return {
+      success: false,
+      error: error.message || 'Gagal menyinkronkan Master Bukti Dukung.'
     }
   }
 }

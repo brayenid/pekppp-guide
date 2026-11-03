@@ -82,8 +82,8 @@ export default {
         }
       },
       borderRadius: {
-        'bento': '28px',
-        'bento-sm': '18px',
+        'bento': '12px',
+        'bento-sm': '8px',
         'pill': '9999px',
       },
       boxShadow: {
@@ -98,8 +98,11 @@ export default {
         'hz-button': '0px 4px 12px rgba(29, 91, 185, 0.22)',
       },
       fontFamily: {
-        sans: ['var(--font-plus-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-google-sans)', 'var(--font-plus-jakarta)', 'Google Sans Flex', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'JetBrains Mono', 'SF Mono', 'monospace'],
+      },
+      backdropBlur: {
+        xs: '2px',
       }
     },
   },

@@ -1,7 +1,8 @@
 // src/services/evaluation-service.ts
 // Service Layer for Evaluation Operations & Living Document Auto-Inheritance
 import { db } from './db'
-import { calculatePekpppScore, IndicatorScoreInput } from '../core/domain/pekppp-calculator'
+import { calculatePekpppScore, calculateEffectiveF03AndIpp, IndicatorScoreInput } from '../core/domain/pekppp-calculator'
+import { EvidenceMasterService } from './evidence-master-service'
 
 export class EvaluationService {
   /**
@@ -84,6 +85,9 @@ export class EvaluationService {
 
     await db.$transaction(operations)
 
+    // 5. Wariskan seluruh Bukti Dukung Living Document dari Master Unit ke Evaluasi tahun baru ini
+    await EvidenceMasterService.inheritMasterToEvaluation(evaluation.id, unitId, year)
+
     return evaluation
   }
 
@@ -155,15 +159,22 @@ export class EvaluationService {
       where: { id: evaluationId }
     })
 
-    const f02Percentage = result.totalPercentage
-    const f03Percentage = currentEval?.f03Percentage || 0
-    const f03Count = currentEval?.f03Count || 0
+    const period = currentEval?.year
+      ? await db.evaluationPeriod.findUnique({
+          where: { year: currentEval.year },
+          select: { targetF03Quota: true, f03CalculationMethod: true }
+        })
+      : null
+    const targetQuota = period?.targetF03Quota || 30
+    const method = period?.f03CalculationMethod || 'PROPORTIONAL'
 
-    let finalIppPercentage = f02Percentage
-    if (f03Count > 0) {
-      finalIppPercentage = 0.75 * f02Percentage + 0.25 * f03Percentage
-    }
-    const finalIppScore = (finalIppPercentage / 100) * 5
+    const { finalIppScore } = calculateEffectiveF03AndIpp({
+      f02Percentage: result.totalPercentage,
+      f03RawPercentage: currentEval?.f03Percentage || 0,
+      f03Count: currentEval?.f03Count || 0,
+      targetQuota,
+      method
+    })
 
     const updatedHeader = await db.evaluation.update({
       where: { id: evaluationId },

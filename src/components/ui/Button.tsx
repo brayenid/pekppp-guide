@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       brand:
         'bg-brand text-white hover:bg-brand-hover border border-transparent shadow-hz-button',
       primary:
-        'bg-ink text-white hover:bg-ink-secondary border border-transparent shadow-2xs',
+        'bg-brand text-white hover:bg-brand-hover border border-transparent shadow-hz-button',
       secondary:
         'bg-surface-elevated text-ink hover:bg-surface-subtle border border-stroke/60 shadow-2xs',
       outline:

@@ -32,10 +32,12 @@ import {
   List,
   RotateCcw,
   MoreVertical,
-  ShieldAlert
+  ShieldAlert,
+  Calendar
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '../ui/Button'
+import { FormModal } from '../ui/FormModal'
 import { ConfirmationModal } from '../ui/ConfirmationModal'
 import { DocumentRedactionModal } from './DocumentRedactionModal'
 import {
@@ -56,6 +58,7 @@ import {
   FileVersionItem
 } from '../../actions/evidence-slot-actions'
 import { formatFileUrl } from '../../lib/utils'
+import { getDefaultRuleForSlot, SlotUploadRule } from '../../core/domain/evidence-slots-preset'
 
 export function AspectEvidenceWorkspace({
   evaluationId,
@@ -71,7 +74,8 @@ export function AspectEvidenceWorkspace({
   onNext,
   prevLabel,
   nextLabel,
-  targetSlotKey
+  targetSlotKey,
+  slotRules
 }: {
   evaluationId: string
   aspectCode: string
@@ -93,7 +97,15 @@ export function AspectEvidenceWorkspace({
   prevLabel?: string
   nextLabel?: string
   targetSlotKey?: string | null
+  slotRules?: Record<string, SlotUploadRule>
 }) {
+  const getRule = (slotKey: string, docType?: string): SlotUploadRule => {
+    if (slotRules && slotRules[slotKey]) {
+      return slotRules[slotKey]
+    }
+    return getDefaultRuleForSlot(slotKey, docType)
+  }
+
   const [slots, setSlots] = useState<EvidenceSlotItem[]>([])
   const [loading, setLoading] = useState(true)
   const [isAnalyzingAi, setIsAnalyzingAi] = useState(false)
@@ -197,9 +209,10 @@ export function AspectEvidenceWorkspace({
     attachment: EvidenceAttachmentItem
   } | null>(null)
 
-  // Modal Tambah Berkas (File Picker & Dropzone)
+  // Modal Tambah Berkas (Multi-File Picker & Dropzone)
   const [uploadModalSlot, setUploadModalSlot] = useState<EvidenceSlotItem | null>(null)
-  const [pickedFileForUpload, setPickedFileForUpload] = useState<File | null>(null)
+  const [pickedFilesForUpload, setPickedFilesForUpload] = useState<File[]>([])
+  const [redactedQueueIndices, setRedactedQueueIndices] = useState<number[]>([])
   const [isDragOverUpload, setIsDragOverUpload] = useState(false)
   const modalFileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -208,6 +221,7 @@ export function AspectEvidenceWorkspace({
     slot: EvidenceSlotItem
     file: File
     previewUrl: string
+    queueIndex?: number
   } | null>(null)
 
   // Version Management Modal Target
@@ -219,78 +233,156 @@ export function AspectEvidenceWorkspace({
   const [isRestoringVersion, setIsRestoringVersion] = useState(false)
   const versionFileInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Handler simpan berkas baru dari Pre-Upload Studio langsung ke Server API
+  // Handler simpan berkas baru dari Pre-Upload Studio
   const handleSavePreUploadFile = async (redactedOrOriginalFile: File) => {
     if (!preUploadRedactTarget) return
-    const { slot } = preUploadRedactTarget
-    await handleDirectFileUpload(slot, [redactedOrOriginalFile])
-    // Revoke object url untuk membersihkan memory
-    if (preUploadRedactTarget.previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(preUploadRedactTarget.previewUrl)
+    const { slot, queueIndex, previewUrl } = preUploadRedactTarget
+    if (previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl)
     }
+
+    if (typeof queueIndex === 'number' && uploadModalSlot) {
+      setPickedFilesForUpload((prev) =>
+        prev.map((f, idx) => (idx === queueIndex ? redactedOrOriginalFile : f))
+      )
+      setRedactedQueueIndices((prev) =>
+        prev.includes(queueIndex) ? prev : [...prev, queueIndex]
+      )
+      setPreUploadRedactTarget(null)
+      toast.success(`Berkas "${redactedOrOriginalFile.name}" telah disensor dan siap diunggah.`)
+      return
+    }
+
     setPreUploadRedactTarget(null)
+    await handleDirectFileUpload(slot, [redactedOrOriginalFile])
   }
 
   // Buka Modal Tambah Berkas saat user klik Tambah Berkas
   const handleOpenUploadModal = (slot: EvidenceSlotItem) => {
     setUploadModalSlot(slot)
-    setPickedFileForUpload(null)
+    setPickedFilesForUpload([])
+    setRedactedQueueIndices([])
   }
 
-  // Validasi format file ketika file dipilih/didrop di modal
-  const handleSelectFileInModal = (file: File) => {
+  // Validasi format, ukuran, dan kuota berkas ketika file dipilih/didrop di modal (mendukung banyak file sekaligus)
+  const handleSelectFilesInModal = (incoming: FileList | File[]) => {
     if (!uploadModalSlot) return
-    const isImageOnlySlot = uploadModalSlot.documentType === 'IMAGE'
-    const isDocOnlySlot = uploadModalSlot.documentType === 'PDF' && uploadModalSlot.slotKey === 'sk_sp'
-    const isImageFile = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(file.name)
-    const isDocFile =
-      file.name.toLowerCase().endsWith('.pdf') ||
-      file.name.toLowerCase().endsWith('.doc') ||
-      file.name.toLowerCase().endsWith('.docx') ||
-      file.type === 'application/pdf' ||
-      file.type.includes('word') ||
-      file.type.includes('officedocument')
+    const incomingList = Array.from(incoming)
+    if (incomingList.length === 0) return
 
-    if (isImageOnlySlot) {
-      if (!isImageFile) {
-        toast.error(`Berkas "${file.name}" ditolak! Slot ini khusus untuk foto/gambar (JPG, PNG, WEBP).`)
-        return
-      }
-      if (file.size > 1 * 1024 * 1024) {
-        toast.error(`Ukuran foto melebihi batas maksimal 1 MB.`)
-        return
-      }
-    } else if (isDocOnlySlot) {
-      if (!isDocFile) {
-        toast.error(`Format berkas tidak didukung. Harap pilih berkas PDF atau DOCX resmi.`)
-        return
-      }
-      if (file.size > 20 * 1024 * 1024) {
-        toast.error(`Ukuran dokumen melebihi batas maksimal 20 MB.`)
-        return
-      }
-    } else {
-      if (!isImageFile && !isDocFile) {
-        toast.error(`Format tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`)
-        return
-      }
-      if (isImageFile && file.size > 1 * 1024 * 1024) {
-        toast.error(`Ukuran foto melebihi batas maksimal 1 MB.`)
-        return
-      }
-      if (isDocFile && file.size > 20 * 1024 * 1024) {
-        toast.error(`Ukuran dokumen melebihi batas maksimal 20 MB.`)
-        return
-      }
+    const currentAttachmentsCount = uploadModalSlot.attachments?.length || 0
+    const rule = getRule(uploadModalSlot.slotKey, uploadModalSlot.documentType)
+    const maxTotal = rule.maxTotalFiles
+    const remainingSlots = Math.max(
+      0,
+      maxTotal - currentAttachmentsCount - pickedFilesForUpload.length
+    )
+
+    if (remainingSlots <= 0) {
+      toast.error(
+        `Kuota penuh! Maksimal ${maxTotal} berkas untuk slot "${uploadModalSlot.title}".`
+      )
+      return
     }
 
-    setPickedFileForUpload(file)
+    const isImageOnly = rule.allowedDocumentType === 'IMAGE_ONLY'
+    const isDocOnly = rule.allowedDocumentType === 'PDF_ONLY'
+    const validNewFiles: File[] = []
+    let skippedByQuota = 0
+
+    for (const file of incomingList) {
+      const isDuplicate =
+        pickedFilesForUpload.some((f) => f.name === file.name && f.size === file.size) ||
+        validNewFiles.some((f) => f.name === file.name && f.size === file.size)
+      if (isDuplicate) continue
+
+      const isImageFile = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(file.name)
+      const isDocFile =
+        file.name.toLowerCase().endsWith('.pdf') ||
+        file.name.toLowerCase().endsWith('.doc') ||
+        file.name.toLowerCase().endsWith('.docx') ||
+        file.type === 'application/pdf' ||
+        file.type.includes('word') ||
+        file.type.includes('officedocument')
+
+      const allowedLimitMb = isImageFile
+        ? (rule.maxImageSizeMb ?? rule.maxFileSizeMb ?? 3)
+        : (rule.maxPdfSizeMb ?? rule.maxFileSizeMb ?? 20)
+      const maxSizeBytes = allowedLimitMb * 1024 * 1024
+
+      if (isImageOnly && !isImageFile) {
+        toast.error(`Berkas "${file.name}" ditolak! Slot "${uploadModalSlot.title}" khusus untuk foto/gambar (JPG, PNG, WEBP).`)
+        continue
+      }
+      if (isDocOnly && !isDocFile) {
+        toast.error(`Berkas "${file.name}" ditolak! Slot "${uploadModalSlot.title}" hanya menerima dokumen resmi PDF atau DOCX.`)
+        continue
+      }
+      if (!isImageFile && !isDocFile) {
+        toast.error(`Berkas "${file.name}" tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`)
+        continue
+      }
+      if (file.size > maxSizeBytes) {
+        toast.error(`Ukuran berkas ${isImageFile ? 'foto' : 'dokumen'} "${file.name}" melebihi batas maksimal ${allowedLimitMb} MB untuk slot ini.`)
+        continue
+      }
+      if (validNewFiles.length >= remainingSlots) {
+        skippedByQuota++
+        continue
+      }
+      validNewFiles.push(file)
+    }
+
+    if (skippedByQuota > 0) {
+      toast.warning(
+        `${skippedByQuota} berkas tidak dimasukkan karena melebihi kuota maksimal ${maxTotal} berkas pada slot ini.`
+      )
+    }
+
+    if (validNewFiles.length > 0) {
+      setPickedFilesForUpload((prev) => [...prev, ...validNewFiles])
+    }
   }
 
-  // Tombol "Unggah" di Modal Tambah Berkas diklik -> Tahan di client dan bawa ke Studio Sensor jika PDF/Gambar
+  const handleRemovePickedFile = (indexToRemove: number) => {
+    setPickedFilesForUpload((prev) => prev.filter((_, idx) => idx !== indexToRemove))
+    setRedactedQueueIndices((prev) =>
+      prev
+        .filter((i) => i !== indexToRemove)
+        .map((i) => (i > indexToRemove ? i - 1 : i))
+    )
+  }
+
+  const handleRedactFileInQueue = (index: number) => {
+    if (!uploadModalSlot) return
+    const file = pickedFilesForUpload[index]
+    if (!file) return
+    const blobUrl = URL.createObjectURL(file)
+    setPreUploadRedactTarget({
+      slot: uploadModalSlot,
+      file,
+      previewUrl: blobUrl,
+      queueIndex: index
+    })
+  }
+
+  const handleUploadAllPickedFiles = async () => {
+    if (!uploadModalSlot || pickedFilesForUpload.length === 0) return
+    const targetSlot = uploadModalSlot
+    const filesToUpload = [...pickedFilesForUpload]
+    setUploadModalSlot(null)
+    setPickedFilesForUpload([])
+    setRedactedQueueIndices([])
+    await handleDirectFileUpload(targetSlot, filesToUpload)
+  }
+
   const handleProceedToRedactionOrUpload = () => {
-    if (!uploadModalSlot || !pickedFileForUpload) return
-    const file = pickedFileForUpload
+    if (!uploadModalSlot || pickedFilesForUpload.length === 0) return
+    if (pickedFilesForUpload.length > 1) {
+      handleUploadAllPickedFiles()
+      return
+    }
+    const file = pickedFilesForUpload[0]
     const isImageOrPdf =
       file.type === 'application/pdf' ||
       file.name.toLowerCase().endsWith('.pdf') ||
@@ -299,10 +391,10 @@ export function AspectEvidenceWorkspace({
 
     const targetSlot = uploadModalSlot
     setUploadModalSlot(null)
-    setPickedFileForUpload(null)
+    setPickedFilesForUpload([])
+    setRedactedQueueIndices([])
 
     if (isImageOrPdf) {
-      // TAHAN DI CLIENT: Buat blob URL lokal, belum dikirim ke server sama sekali
       const blobUrl = URL.createObjectURL(file)
       setPreUploadRedactTarget({
         slot: targetSlot,
@@ -310,7 +402,6 @@ export function AspectEvidenceWorkspace({
         previewUrl: blobUrl
       })
     } else {
-      // Jika dokumen docx biasa tanpa canvas viewer, langsung upload ke server
       handleDirectFileUpload(targetSlot, [file])
     }
   }
@@ -375,8 +466,44 @@ export function AspectEvidenceWorkspace({
 
   const handleUploadNewVersion = async (file: File) => {
     if (!versionModalTarget) return
-    setIsUploadingVersion(true)
     const { slot, attachment } = versionModalTarget
+
+    const rule = getRule(slot.slotKey, slot.documentType)
+    const isImageOnly = rule.allowedDocumentType === 'IMAGE_ONLY'
+    const isDocOnly = rule.allowedDocumentType === 'PDF_ONLY'
+    const isImageFile = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(file.name)
+    const isDocFile =
+      file.name.toLowerCase().endsWith('.pdf') ||
+      file.name.toLowerCase().endsWith('.doc') ||
+      file.name.toLowerCase().endsWith('.docx') ||
+      file.type === 'application/pdf' ||
+      file.type.includes('word') ||
+      file.type.includes('officedocument')
+
+    if (isImageOnly && !isImageFile) {
+      toast.error(`Berkas "${file.name}" ditolak! Slot "${slot.title}" khusus untuk foto/gambar (JPG, PNG, WEBP).`)
+      return
+    }
+    if (isDocOnly && !isDocFile) {
+      toast.error(`Format berkas tidak didukung. Slot "${slot.title}" hanya menerima dokumen resmi PDF atau DOCX.`)
+      return
+    }
+    if (!isImageFile && !isDocFile) {
+      toast.error(`Format tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`)
+      return
+    }
+
+    const allowedLimitMb = isImageFile
+      ? (rule.maxImageSizeMb ?? rule.maxFileSizeMb ?? 3)
+      : (rule.maxPdfSizeMb ?? rule.maxFileSizeMb ?? 20)
+    const maxSizeBytes = allowedLimitMb * 1024 * 1024
+    if (file.size > maxSizeBytes) {
+      const actualMb = (file.size / (1024 * 1024)).toFixed(1)
+      toast.error(`Ukuran berkas ${isImageFile ? 'foto' : 'dokumen'} "${file.name}" (${actualMb} MB) melebihi batas maksimal ${allowedLimitMb} MB untuk slot ini.`)
+      return
+    }
+
+    setIsUploadingVersion(true)
     const formData = new FormData()
     formData.append('file', file)
     formData.append('evaluationId', evaluationId)
@@ -597,15 +724,16 @@ export function AspectEvidenceWorkspace({
     const fileArray = Array.from(files)
     if (fileArray.length === 0) return
 
-    const isImageOnlySlot = slot.documentType === 'IMAGE'
-    const isDocOnlySlot = slot.documentType === 'PDF' && slot.slotKey === 'sk_sp'
-    const maxCount = 6
+    const rule = getRule(slot.slotKey, slot.documentType)
+    const isImageOnlySlot = rule.allowedDocumentType === 'IMAGE_ONLY' || slot.documentType === 'IMAGE'
+    const isDocOnlySlot = rule.allowedDocumentType === 'PDF_ONLY' || (slot.documentType === 'PDF' && slot.slotKey === 'sk_sp')
+    const maxCount = rule.maxTotalFiles
     const currentAttachments = slot.attachments || []
 
     // 1. Validasi Kuota Jumlah Berkas
     if (currentAttachments.length + fileArray.length > maxCount) {
       toast.error(
-        `Batas kuota terlampaui! Maksimal ${maxCount} berkas per slot. Saat ini sudah ada ${currentAttachments.length} berkas, dan Anda memilih ${fileArray.length} berkas baru.`,
+        `Batas kuota terlampaui! Maksimal ${maxCount} berkas untuk slot "${slot.title}". Saat ini sudah ada ${currentAttachments.length} berkas, dan Anda memilih ${fileArray.length} berkas baru.`,
         { duration: 6000 }
       )
       return
@@ -627,11 +755,6 @@ export function AspectEvidenceWorkspace({
           toast.error(`Berkas "${file.name}" ditolak! Slot "${slot.title}" khusus untuk berkas foto/gambar (JPG, PNG, WEBP).`, { duration: 6000 })
           return
         }
-        if (file.size > 1 * 1024 * 1024) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(2)
-          toast.error(`Ukuran foto "${file.name}" (${actualMb} MB) melebihi batas maksimal 1 MB per foto.`, { duration: 6000 })
-          return
-        }
       } else if (isDocOnlySlot) {
         if (isImageFile) {
           toast.error(`Format ditolak! Berkas "${file.name}" adalah gambar. Slot "${slot.title}" adalah dokumen resmi (wajib PDF atau DOCX).`, { duration: 6000 })
@@ -641,27 +764,22 @@ export function AspectEvidenceWorkspace({
           toast.error(`Format berkas "${file.name}" tidak didukung. Harap unggah berkas PDF atau DOCX resmi.`, { duration: 5000 })
           return
         }
-        if (file.size > 20 * 1024 * 1024) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(1)
-          toast.error(`Ukuran dokumen "${file.name}" (${actualMb} MB) melebihi batas maksimal 20 MB per berkas.`, { duration: 6000 })
-          return
-        }
       } else {
-        // HYBRID: Menerima PDF/DOCX dan Foto (misalnya Laporan SKM + Foto Publikasi)
         if (!isImageFile && !isDocFile) {
           toast.error(`Format berkas "${file.name}" tidak didukung. Format yang diizinkan: PDF, DOCX, JPG, PNG, WEBP.`, { duration: 5000 })
           return
         }
-        if (isImageFile && file.size > 1 * 1024 * 1024) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(2)
-          toast.error(`Ukuran foto "${file.name}" (${actualMb} MB) melebihi batas maksimal 1 MB per foto.`, { duration: 6000 })
-          return
-        }
-        if (isDocFile && file.size > 20 * 1024 * 1024) {
-          const actualMb = (file.size / (1024 * 1024)).toFixed(1)
-          toast.error(`Ukuran dokumen "${file.name}" (${actualMb} MB) melebihi batas maksimal 20 MB per berkas.`, { duration: 6000 })
-          return
-        }
+      }
+
+      const allowedLimitMb = isImageFile
+        ? (rule.maxImageSizeMb ?? rule.maxFileSizeMb ?? 3)
+        : (rule.maxPdfSizeMb ?? rule.maxFileSizeMb ?? 20)
+      const maxSizeBytes = allowedLimitMb * 1024 * 1024
+
+      if (file.size > maxSizeBytes) {
+        const actualMb = (file.size / (1024 * 1024)).toFixed(1)
+        toast.error(`Ukuran berkas ${isImageFile ? 'foto' : 'dokumen'} "${file.name}" (${actualMb} MB) melebihi batas maksimal ${allowedLimitMb} MB untuk slot ini.`, { duration: 6000 })
+        return
       }
     }
 
@@ -1229,8 +1347,8 @@ export function AspectEvidenceWorkspace({
         <div className="rounded-2xl border border-stroke/50 bg-surface-subtle p-5 space-y-3 shadow-soft-card border-l-4 border-l-brand">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stroke/40 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-xs text-ink">
-                Laporan Audit AI Pre-Evaluator: Aspek {aspectCode}
+              <span className="font-medium text-xs sm:text-sm text-ink">
+                Laporan Audit AI Pre-Evaluator: Aspek {resolvedAspectName}
               </span>
               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-surface text-ink-secondary border border-stroke/50">
                 Khusus Evaluator
@@ -1248,16 +1366,16 @@ export function AspectEvidenceWorkspace({
             </span>
           </div>
 
-          <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
             {evaluatorAiNote.summary}
           </p>
 
           {evaluatorAiNote.aspectGaps && evaluatorAiNote.aspectGaps.length > 0 && (
             <div className="space-y-1 pt-1">
-              <div className="text-xs font-semibold text-slate-800">
+              <div className="text-sm font-semibold text-slate-800">
                 Catatan Celah &amp; Kekurangan Bukti:
               </div>
-              <ul className="list-disc list-inside text-xs text-slate-600 space-y-0.5 pl-2">
+              <ul className="list-disc list-inside text-sm text-slate-600 space-y-1 pl-2">
                 {evaluatorAiNote.aspectGaps.map((gap: string, idx: number) => (
                   <li key={idx}>{gap}</li>
                 ))}
@@ -1279,10 +1397,10 @@ export function AspectEvidenceWorkspace({
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-1 gap-2">
               <div>
-                <h2 className="font-semibold text-sm text-slate-900">
+                <h2 className="font-semibold text-base sm:text-lg text-slate-900">
                   Dokumen Bukti Wajib PermenPAN-RB
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs sm:text-sm text-slate-500">
                   Format didukung: PDF/DOCX (Maks. 4 berkas @20MB) • Foto/Gambar (Maks. 6 foto @1MB)
                 </p>
               </div>
@@ -1328,10 +1446,11 @@ export function AspectEvidenceWorkspace({
               {mandatorySlots.map((slot, sIdx) => {
                 const attachments = slot.attachments || []
                 const hasUploaded = attachments.length > 0 || Boolean(slot.fileUrl && slot.fileUrl.trim() !== '')
-                const isImageOnlySlot = slot.documentType === 'IMAGE'
-                const isDocOnlySlot = slot.documentType === 'PDF' && slot.slotKey === 'sk_sp'
+                const rule = getRule(slot.slotKey, slot.documentType)
+                const isImageOnlySlot = rule.allowedDocumentType === 'IMAGE_ONLY' || slot.documentType === 'IMAGE'
+                const isDocOnlySlot = rule.allowedDocumentType === 'PDF_ONLY' || (slot.documentType === 'PDF' && slot.slotKey === 'sk_sp')
                 const isHybridSlot = !isImageOnlySlot && !isDocOnlySlot
-                const maxCount = 6
+                const maxCount = rule.maxTotalFiles
                 const canAddMore = attachments.length < maxCount
                 const isShowingLink = openLinkInputKey === slot.slotKey
                 const isAccordionOpen = openAccordionKey === slot.slotKey
@@ -1361,6 +1480,13 @@ export function AspectEvidenceWorkspace({
                         <h3 className="font-medium text-sm text-ink leading-snug">
                           {slot.title}
                         </h3>
+                        {slot.isInherited && hasUploaded && (
+                          <span
+                            title="Diwariskan otomatis dari Master Bukti Dukung periode sebelumnya (Living Document). Unggah versi baru jika ada pembaruan pada periode ini."
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800/60 shrink-0">
+                            Warisan Master
+                          </span>
+                        )}
                       </div>
 
                       {/* Action Buttons: Solid, bold, high-contrast */}
@@ -1389,28 +1515,8 @@ export function AspectEvidenceWorkspace({
                               }
                               className="hidden"
                             />
-
-                            {!hasUploaded && (
-                              <button
-                                type="button"
-                                disabled={isUploading}
-                                onClick={() => handleOpenUploadModal(slot)}
-                                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shadow-hz-button bg-brand hover:bg-brand-hover text-white">
-                                {isUploading ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <UploadCloud className="w-3.5 h-3.5" />
-                                )}
-                                <span>Unggah</span>
-                              </button>
-                            )}
                           </>
-                        ) : (
-                          /* Evaluator */
-                          !hasUploaded && (
-                            <span className="text-xs text-ink-muted font-normal italic">Belum diunggah</span>
-                          )
-                        )}
+                        ) : null}
 
                         {/* Accordion Toggle for History */}
                         <button
@@ -1434,6 +1540,52 @@ export function AspectEvidenceWorkspace({
                     <div className="pt-0.5 text-xs text-ink-secondary">
                       <p className="leading-relaxed">{slot.description}</p>
                     </div>
+
+                    {/* Tombol Unggah Menonjol & Ramah Pengguna Saat Slot Masih Kosong */}
+                    {!hasUploaded && isEditable && (
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          disabled={isUploading}
+                          onClick={() => handleOpenUploadModal(slot)}
+                          className="w-full flex items-center justify-between p-3 rounded-xl border border-dashed border-brand/40 hover:border-brand bg-brand-light/20 hover:bg-brand-light/40 dark:bg-brand/5 dark:hover:bg-brand/10 transition-all cursor-pointer group shadow-2xs text-left">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-xl bg-brand text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                              {isUploading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <UploadCloud className="w-4 h-4" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-semibold text-xs text-ink group-hover:text-brand transition-colors">
+                                {isUploading ? 'Sedang membuka pengunggahan...' : 'Unggah Bukti Dukung'}
+                              </div>
+                              <p className="text-[11px] text-ink-muted truncate">
+                                {rule.allowedDocumentType === 'IMAGE_ONLY'
+                                  ? `Pilih foto bukti dukung (Maks. ${maxCount} foto @${rule.maxImageSizeMb ?? rule.maxFileSizeMb ?? 3}MB)`
+                                  : rule.allowedDocumentType === 'PDF_ONLY'
+                                    ? `Pilih dokumen PDF resmi (Maks. ${maxCount} berkas @${rule.maxPdfSizeMb ?? rule.maxFileSizeMb ?? 20}MB)`
+                                    : `Pilih dokumen PDF atau foto (Maks. ${maxCount} berkas)`}
+                              </p>
+                            </div>
+                          </div>
+
+                          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-semibold shadow-2xs group-hover:bg-brand-hover transition-colors shrink-0">
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Pilih Berkas</span>
+                          </span>
+                        </button>
+                      </div>
+                    )}
+
+                    {!hasUploaded && !isEditable && (
+                      <div className="pt-1.5">
+                        <div className="p-3 rounded-xl border border-dashed border-stroke/70 bg-surface-subtle/40 text-center text-xs text-ink-muted italic">
+                          Belum ada bukti dukung yang diunggah oleh unit lokus.
+                        </div>
+                      </div>
+                    )}
 
                     {/* Attached Files List (Multiple Attachments) */}
                     {attachments.length > 0 && (
@@ -1692,14 +1844,35 @@ export function AspectEvidenceWorkspace({
                           </span>
                         )}
 
+                        {slot.aiInsights?.metadata?.detectedYear && (
+                          <>
+                            <span className="text-stroke">•</span>
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200"
+                              title={
+                                slot.aiInsights.metadata.documentNumber
+                                  ? `Nomor SK: ${slot.aiInsights.metadata.documentNumber}`
+                                  : undefined
+                              }>
+                              <Calendar className="w-2.5 h-2.5 text-amber-700" />
+                              <span>Tahun {slot.aiInsights.metadata.detectedYear}</span>
+                              {slot.aiInsights.metadata.documentNumber && (
+                                <span className="font-normal text-amber-800 max-w-[120px] truncate">
+                                  • {slot.aiInsights.metadata.documentNumber}
+                                </span>
+                              )}
+                            </span>
+                          </>
+                        )}
+
                         <span className="text-stroke">•</span>
 
                         <span className="font-normal text-ink-muted">
                           {isImageOnlySlot
-                            ? 'Maks. 6 foto (maks. 1 MB/foto)'
+                            ? `Maks. ${maxCount} foto (maks. ${rule.maxImageSizeMb ?? 3} MB/foto)`
                             : isDocOnlySlot
-                              ? 'Maks. 4 PDF (maks. 20 MB/file)'
-                              : 'Maks. 4 PDF (@20MB) & 6 Foto (@1MB)'}
+                              ? `Maks. ${maxCount} PDF (maks. ${rule.maxPdfSizeMb ?? 20} MB/file)`
+                              : `Maks. ${maxCount} berkas (PDF @${rule.maxPdfSizeMb ?? 20}MB • Foto @${rule.maxImageSizeMb ?? 3}MB)`}
                         </span>
                       </div>
 
@@ -2209,353 +2382,475 @@ export function AspectEvidenceWorkspace({
       />
 
       {/* Version Management Modal (Google Drive Style) */}
-      {versionModalTarget && typeof document !== 'undefined' && createPortal(
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl bg-surface rounded-2xl border border-stroke shadow-xl p-6 space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between gap-3 pb-3 border-b border-stroke/50">
-              <div className="space-y-1">
+      <FormModal
+        isOpen={Boolean(versionModalTarget)}
+        onClose={() => setVersionModalTarget(null)}
+        title="Kelola Versi Berkas"
+        description="Perbarui berkas dengan versi lebih baru, atau pulihkan versi lampau seperti Google Drive."
+        icon={<RotateCcw className="w-4 h-4" />}
+        maxWidth="xl"
+        footer={
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={() => setVersionModalTarget(null)}>
+              Tutup
+            </Button>
+          </div>
+        }>
+        {versionModalTarget && (
+          <div className="space-y-4">
+            {/* Berkas Aktif Saat Ini */}
+            <div className="p-3.5 rounded-xl border border-brand/30 bg-brand/5 space-y-2.5">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-brand/10 text-brand">
-                    <RotateCcw className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-semibold text-ink text-base">Kelola Versi Berkas</h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand text-white">
+                    Versi Aktif (v{versionModalTarget.attachment.version || 1})
+                  </span>
+                  <span className="text-[11px] text-ink-muted">Digunakan dalam evaluasi</span>
                 </div>
-                <p className="text-xs text-ink-muted">
-                  Perbarui berkas dengan versi lebih baru, atau pulihkan versi lampau seperti Google Drive.
-                </p>
+                <a
+                  href={versionModalTarget.attachment.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline">
+                  <span>Buka Berkas</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
-              <button
-                type="button"
-                onClick={() => setVersionModalTarget(null)}
-                className="p-1.5 rounded-full text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
+
+              <div className="text-xs font-medium text-ink truncate" title={versionModalTarget.attachment.fileName}>
+                {versionModalTarget.attachment.fileName}
+              </div>
+
+              <div className="flex items-center gap-3 text-[11px] text-ink-muted">
+                <span>
+                  Diunggah: {new Date(versionModalTarget.attachment.uploadedAt).toLocaleString('id-ID')}
+                </span>
+                {versionModalTarget.attachment.uploaderName && (
+                  <span>• Oleh: {versionModalTarget.attachment.uploaderName}</span>
+                )}
+                {versionModalTarget.attachment.fileSize && (
+                  <span>
+                    •{' '}
+                    {versionModalTarget.attachment.fileSize > 1024 * 1024
+                      ? `${(versionModalTarget.attachment.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                      : `${Math.round(versionModalTarget.attachment.fileSize / 1024)} KB`}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-              {/* Berkas Aktif Saat Ini */}
-              <div className="p-3.5 rounded-xl border border-brand/30 bg-brand/5 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand text-white">
-                      Versi Aktif (v{versionModalTarget.attachment.version || 1})
-                    </span>
-                    <span className="text-[11px] text-ink-muted">Digunakan dalam evaluasi</span>
-                  </div>
-                  <a
-                    href={versionModalTarget.attachment.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline">
-                    <span>Buka Berkas</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+            {/* Unggah Versi Baru Action */}
+            {isEditable && (
+              <div className="p-3 rounded-xl border border-dashed border-line bg-surface-subtle/40 flex items-center justify-between gap-3">
+                <div className="min-w-0 pr-1">
+                  <p className="text-xs font-semibold text-ink">Punya revisi dokumen ini?</p>
+                  <p className="text-[11px] text-ink-muted leading-tight">
+                    Unggah versi terbaru (v{(versionModalTarget.attachment.version || 1) + 1}). Versi aktif saat ini akan tersimpan ke riwayat.
+                  </p>
                 </div>
-
-                <div className="text-xs font-medium text-ink truncate" title={versionModalTarget.attachment.fileName}>
-                  {versionModalTarget.attachment.fileName}
-                </div>
-
-                <div className="flex items-center gap-3 text-[11px] text-ink-muted">
-                  <span>
-                    Diunggah: {new Date(versionModalTarget.attachment.uploadedAt).toLocaleString('id-ID')}
-                  </span>
-                  {versionModalTarget.attachment.uploaderName && (
-                    <span>• Oleh: {versionModalTarget.attachment.uploaderName}</span>
-                  )}
-                  {versionModalTarget.attachment.fileSize && (
-                    <span>
-                      •{' '}
-                      {versionModalTarget.attachment.fileSize > 1024 * 1024
-                        ? `${(versionModalTarget.attachment.fileSize / (1024 * 1024)).toFixed(1)} MB`
-                        : `${Math.round(versionModalTarget.attachment.fileSize / 1024)} KB`}
-                    </span>
-                  )}
+                <div className="shrink-0">
+                  <input
+                    ref={versionFileInputRef}
+                    type="file"
+                    accept={(() => {
+                      if (!versionModalTarget) return '.pdf,.png,.jpg,.jpeg,.webp,.docx'
+                      const r = getRule(versionModalTarget.slot.slotKey, versionModalTarget.slot.documentType)
+                      if (r.allowedDocumentType === 'IMAGE_ONLY') return '.png,.jpg,.jpeg,.webp,image/*'
+                      if (r.allowedDocumentType === 'PDF_ONLY') return '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                      return '.pdf,.doc,.docx,application/pdf,image/*,.png,.jpg,.jpeg,.webp'
+                    })()}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        handleUploadNewVersion(file)
+                        e.target.value = ''
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={isUploadingVersion || isRestoringVersion}
+                    onClick={() => versionFileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors shadow-hz-button cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap">
+                    {isUploadingVersion ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Mengunggah...</span>
+                      </>
+                    ) : (
+                      <>
+                        <UploadCloud className="w-3.5 h-3.5" />
+                        <span>Unggah Versi Baru</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
+            )}
 
-              {/* Unggah Versi Baru Action */}
-              {isEditable && (
-                <div className="p-3 rounded-xl border border-dashed border-stroke/70 bg-surface-subtle/40 flex items-center justify-between gap-3">
-                  <div className="min-w-0 pr-1">
-                    <p className="text-xs font-semibold text-ink">Punya revisi dokumen ini?</p>
-                    <p className="text-[11px] text-ink-muted leading-tight">
-                      Unggah versi terbaru (v{(versionModalTarget.attachment.version || 1) + 1}). Versi aktif saat ini akan tersimpan ke riwayat.
-                    </p>
-                  </div>
-                  <div className="shrink-0">
-                    <input
-                      ref={versionFileInputRef}
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg,.webp,.docx"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) {
-                          handleUploadNewVersion(file)
-                          e.target.value = ''
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      disabled={isUploadingVersion || isRestoringVersion}
-                      onClick={() => versionFileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors shadow-hz-button cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap">
-                      {isUploadingVersion ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Mengunggah...</span>
-                        </>
-                      ) : (
-                        <>
-                          <UploadCloud className="w-3.5 h-3.5" />
-                          <span>Unggah Versi Baru</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+            {/* Daftar Riwayat Versi Lampau */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-ink flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-ink-muted" />
+                <span>Riwayat Versi Sebelumnya ({versionModalTarget.attachment.versions?.length || 0})</span>
+              </h4>
+
+              {(!versionModalTarget.attachment.versions || versionModalTarget.attachment.versions.length === 0) ? (
+                <div className="p-4 text-center rounded-xl border border-line bg-surface-subtle/30 text-[11px] text-ink-muted italic">
+                  Belum ada versi sebelumnya untuk berkas ini. Setiap kali Anda mengunggah versi baru, versi lama akan dicatat di sini.
                 </div>
-              )}
-
-              {/* Daftar Riwayat Versi Lampau */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-ink flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-ink-muted" />
-                  <span>Riwayat Versi Sebelumnya ({versionModalTarget.attachment.versions?.length || 0})</span>
-                </h4>
-
-                {(!versionModalTarget.attachment.versions || versionModalTarget.attachment.versions.length === 0) ? (
-                  <div className="p-4 text-center rounded-xl border border-stroke/40 bg-surface-subtle/30 text-[11px] text-ink-muted italic">
-                    Belum ada versi sebelumnya untuk berkas ini. Setiap kali Anda mengunggah versi baru, versi lama akan dicatat di sini.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-stroke/30 bg-surface rounded-xl border border-stroke/50 overflow-hidden shadow-2xs">
-                    {versionModalTarget.attachment.versions.map((ver) => (
-                      <div
-                        key={ver.id}
-                        className="px-3 py-2.5 flex items-center justify-between gap-3 text-xs hover:bg-surface-subtle/40 transition-colors">
-                        <div className="min-w-0 flex-1 space-y-0.5">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-subtle text-ink-secondary border border-stroke/50 shrink-0">
-                              v{ver.version}
-                            </span>
-                            <span className="font-medium text-ink truncate text-xs" title={ver.fileName}>
-                              {ver.fileName}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[10px] text-ink-muted flex-wrap">
-                            <span>{new Date(ver.uploadedAt).toLocaleString('id-ID')}</span>
-                            {ver.uploaderName && <span className="truncate max-w-[150px]">• {ver.uploaderName}</span>}
-                            {ver.fileSize && (
-                              <span>
-                                •{' '}
-                                {ver.fileSize > 1024 * 1024
-                                  ? `${(ver.fileSize / (1024 * 1024)).toFixed(1)} MB`
-                                  : `${Math.round(ver.fileSize / 1024)} KB`}
-                              </span>
-                            )}
-                            {ver.note && (
-                              <span className="italic text-ink-secondary truncate max-w-[180px]" title={ver.note}>
-                                • {ver.note}
-                              </span>
-                            )}
-                          </div>
+              ) : (
+                <div className="divide-y divide-line/60 bg-surface rounded-xl border border-line overflow-hidden shadow-2xs">
+                  {versionModalTarget.attachment.versions.map((ver) => (
+                    <div
+                      key={ver.id}
+                      className="px-3 py-2.5 flex items-center justify-between gap-3 text-xs hover:bg-surface-subtle/40 transition-colors">
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-subtle text-ink-secondary border border-line shrink-0">
+                            v{ver.version}
+                          </span>
+                          <span className="font-medium text-ink truncate text-xs" title={ver.fileName}>
+                            {ver.fileName}
+                          </span>
                         </div>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                          <a
-                            href={ver.fileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-ink-secondary hover:text-ink bg-surface hover:bg-surface-subtle rounded-lg border border-stroke/60 transition-colors shadow-2xs"
-                            title="Buka berkas versi ini">
-                            <span>Lihat</span>
-                            <ExternalLink className="w-3 h-3 text-ink-muted" />
-                          </a>
-
-                          {isEditable && (
-                            <>
-                              <button
-                                type="button"
-                                disabled={isUploadingVersion || isRestoringVersion || isDeletingVersion}
-                                onClick={() => setRestoreVersionTarget({ targetVersionId: ver.id, verNum: ver.version })}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-brand hover:text-white hover:bg-brand bg-brand/10 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                                title="Jadikan versi ini sebagai berkas aktif">
-                                {isRestoringVersion ? (
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                ) : (
-                                  <RotateCcw className="w-3 h-3" />
-                                )}
-                                <span>Pakai Kembali</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                disabled={isUploadingVersion || isRestoringVersion || isDeletingVersion}
-                                onClick={() => setDeleteVersionTarget({ targetVersionId: ver.id, verNum: ver.version, fileName: ver.fileName })}
-                                className="p-1 rounded-lg text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/30 transition-colors cursor-pointer disabled:opacity-50"
-                                title="Hapus permanen arsip versi ini">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </>
+                        <div className="flex items-center gap-1.5 text-[10px] text-ink-muted flex-wrap">
+                          <span>{new Date(ver.uploadedAt).toLocaleString('id-ID')}</span>
+                          {ver.uploaderName && <span className="truncate max-w-[150px]">• {ver.uploaderName}</span>}
+                          {ver.fileSize && (
+                            <span>
+                              •{' '}
+                              {ver.fileSize > 1024 * 1024
+                                ? `${(ver.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                                : `${Math.round(ver.fileSize / 1024)} KB`}
+                            </span>
+                          )}
+                          {ver.note && (
+                            <span className="italic text-ink-secondary truncate max-w-[180px]" title={ver.note}>
+                              • {ver.note}
+                            </span>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
 
-            {/* Modal Footer */}
-            <div className="pt-3 border-t border-stroke/50 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setVersionModalTarget(null)}
-                className="px-4 py-2 rounded-xl border border-stroke/60 text-xs font-medium text-ink-secondary hover:bg-surface-subtle transition-colors cursor-pointer">
-                Tutup
-              </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <a
+                          href={ver.fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-ink-secondary hover:text-ink bg-surface hover:bg-surface-subtle rounded-lg border border-line transition-colors shadow-2xs"
+                          title="Buka berkas versi ini">
+                          <span>Lihat</span>
+                          <ExternalLink className="w-3 h-3 text-ink-muted" />
+                        </a>
+
+                        {isEditable && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={isUploadingVersion || isRestoringVersion || isDeletingVersion}
+                              onClick={() => setRestoreVersionTarget({ targetVersionId: ver.id, verNum: ver.version })}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-brand hover:text-white hover:bg-brand bg-brand/10 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                              title="Jadikan versi ini sebagai berkas aktif">
+                              {isRestoringVersion ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <RotateCcw className="w-3 h-3" />
+                              )}
+                              <span>Pakai Kembali</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={isUploadingVersion || isRestoringVersion || isDeletingVersion}
+                              onClick={() => setDeleteVersionTarget({ targetVersionId: ver.id, verNum: ver.version, fileName: ver.fileName })}
+                              className="p-1 rounded-lg text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/30 transition-colors cursor-pointer disabled:opacity-50"
+                              title="Hapus permanen arsip versi ini">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>,
-        document.body
-      )}
+        )}
+      </FormModal>
 
-      {/* Modal Tambah Berkas (Dropzone / File Picker) */}
-      {uploadModalSlot && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
-          <div className="bg-surface rounded-2xl border border-stroke/70 shadow-2xl flex flex-col w-full max-w-lg overflow-hidden text-ink animate-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="px-5 py-4 border-b border-stroke/50 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-brand/10 border border-brand/20 text-brand flex items-center justify-center shrink-0">
-                  <UploadCloud className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-sm text-ink truncate">Tambah Berkas Bukti Dukung</h3>
-                  <p className="text-[11px] text-ink-muted truncate">{uploadModalSlot.title}</p>
+      {/* Modal Tambah Berkas (Multi-File Dropzone / File Picker) */}
+      {(() => {
+        const modalRule = uploadModalSlot
+          ? getRule(uploadModalSlot.slotKey, uploadModalSlot.documentType)
+          : null
+        const existingCount = uploadModalSlot?.attachments?.length || 0
+        const maxTotal = modalRule?.maxTotalFiles || 10
+        const remainingQuota = Math.max(
+          0,
+          maxTotal - existingCount - pickedFilesForUpload.length
+        )
+        const formatLabel = !modalRule
+          ? ''
+          : modalRule.allowedDocumentType === 'IMAGE_ONLY'
+            ? `Khusus Foto (JPG, PNG, WEBP • Maks. ${modalRule.maxImageSizeMb ?? modalRule.maxFileSizeMb ?? 3} MB/berkas)`
+            : modalRule.allowedDocumentType === 'PDF_ONLY'
+              ? `Khusus Dokumen (PDF, DOCX • Maks. ${modalRule.maxPdfSizeMb ?? modalRule.maxFileSizeMb ?? 20} MB/berkas)`
+              : `Hybrid (PDF @${modalRule.maxPdfSizeMb ?? 20}MB • Foto @${modalRule.maxImageSizeMb ?? 3}MB)`
+
+        return (
+          <FormModal
+            isOpen={Boolean(uploadModalSlot)}
+            onClose={() => {
+              setUploadModalSlot(null)
+              setPickedFilesForUpload([])
+              setRedactedQueueIndices([])
+            }}
+            title="Tambah Berkas Bukti Dukung"
+            description={uploadModalSlot?.title}
+            icon={<UploadCloud className="w-4 h-4" />}
+            maxWidth="xl"
+            zIndex="z-[9999]"
+            footer={
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setUploadModalSlot(null)
+                    setPickedFilesForUpload([])
+                    setRedactedQueueIndices([])
+                  }}>
+                  Batal
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  {pickedFilesForUpload.length === 1 && (
+                    <button
+                      type="button"
+                      onClick={handleProceedToRedactionOrUpload}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 text-xs font-semibold transition-all cursor-pointer">
+                      <ShieldAlert className="w-3.5 h-3.5" />
+                      <span>Buka Studio Sensor</span>
+                    </button>
+                  )}
+
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    disabled={pickedFilesForUpload.length === 0}
+                    onClick={handleUploadAllPickedFiles}
+                    className="gap-1.5">
+                    <UploadCloud className="w-3.5 h-3.5" />
+                    <span>
+                      {pickedFilesForUpload.length > 1
+                        ? `Unggah Semua (${pickedFilesForUpload.length} Berkas)`
+                        : 'Unggah Berkas'}
+                    </span>
+                  </Button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setUploadModalSlot(null)
-                  setPickedFileForUpload(null)
-                }}
-                className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-5 space-y-4">
-              {/* Dropzone & File Picker */}
-              <input
-                ref={modalFileInputRef}
-                type="file"
-                className="hidden"
-                accept={
-                  uploadModalSlot.documentType === 'IMAGE'
-                    ? '.png,.jpg,.jpeg,.webp,image/*'
-                    : uploadModalSlot.documentType === 'PDF' && uploadModalSlot.slotKey === 'sk_sp'
-                      ? '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                      : '.pdf,.doc,.docx,application/pdf,image/*,.png,.jpg,.jpeg,.webp'
-                }
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f) handleSelectFileInModal(f)
-                }}
-              />
-
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault()
-                  setIsDragOverUpload(true)
-                }}
-                onDragLeave={() => setIsDragOverUpload(false)}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  setIsDragOverUpload(false)
-                  const f = e.dataTransfer.files?.[0]
-                  if (f) handleSelectFileInModal(f)
-                }}
-                onClick={() => modalFileInputRef.current?.click()}
-                className={`p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer ${
-                  isDragOverUpload
-                    ? 'border-brand bg-brand/10 scale-[1.01]'
-                    : pickedFileForUpload
-                      ? 'border-brand/60 bg-brand/5'
-                      : 'border-stroke/80 bg-surface-subtle/30 hover:bg-surface-subtle/60 hover:border-brand/40'
-                }`}>
-                <div className="w-12 h-12 rounded-2xl bg-surface border border-stroke/60 shadow-xs flex items-center justify-center mb-3 text-brand">
-                  <UploadCloud className="w-6 h-6" />
+            }>
+            {uploadModalSlot && modalRule && (
+              <div className="space-y-3.5">
+                {/* Baris Info Kriteria Format & Sisa Kuota Slot */}
+                <div className="flex items-center justify-between gap-2 flex-wrap px-3 py-2 rounded-xl bg-surface-subtle/70 border border-line text-[11px]">
+                  <span className="text-ink-secondary font-medium">{formatLabel}</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border ${
+                      remainingQuota === 0
+                        ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700'
+                        : 'bg-brand/10 text-brand border-brand/20'
+                    }`}>
+                    Kuota: {existingCount + pickedFilesForUpload.length}/{maxTotal} Berkas
+                    {remainingQuota > 0 ? ` (Sisa ${remainingQuota})` : ' (Penuh)'}
+                  </span>
                 </div>
 
-                {pickedFileForUpload ? (
-                  <div className="space-y-1">
-                    <p className="text-xs font-semibold text-ink break-all max-w-sm">
-                      {pickedFileForUpload.name}
-                    </p>
-                    <p className="text-[11px] text-ink-muted">
-                      {(pickedFileForUpload.size / (1024 * 1024)).toFixed(2)} MB • Klik untuk ganti berkas
-                    </p>
+                {/* Dropzone & Multi-File Picker */}
+                <input
+                  ref={modalFileInputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  accept={(() => {
+                    if (modalRule.allowedDocumentType === 'IMAGE_ONLY')
+                      return '.png,.jpg,.jpeg,.webp,image/*'
+                    if (modalRule.allowedDocumentType === 'PDF_ONLY')
+                      return '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    return '.pdf,.doc,.docx,application/pdf,image/*,.png,.jpg,.jpeg,.webp'
+                  })()}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleSelectFilesInModal(e.target.files)
+                      e.target.value = ''
+                    }
+                  }}
+                />
+
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setIsDragOverUpload(true)
+                  }}
+                  onDragLeave={() => setIsDragOverUpload(false)}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    setIsDragOverUpload(false)
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                      handleSelectFilesInModal(e.dataTransfer.files)
+                    }
+                  }}
+                  onClick={() => {
+                    if (remainingQuota <= 0) {
+                      toast.warning(
+                        `Batas maksimal ${maxTotal} berkas untuk slot ini telah tercapai.`
+                      )
+                      return
+                    }
+                    modalFileInputRef.current?.click()
+                  }}
+                  className={`p-4 rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer ${
+                    isDragOverUpload
+                      ? 'border-brand bg-brand/10 scale-[1.01]'
+                      : pickedFilesForUpload.length > 0
+                        ? 'border-brand/60 bg-brand/5'
+                        : 'border-line bg-surface-subtle/30 hover:bg-surface-subtle/60 hover:border-brand/40'
+                  }`}>
+                  <div className="w-10 h-10 rounded-xl bg-surface border border-line shadow-xs flex items-center justify-center mb-2 text-brand">
+                    <UploadCloud className="w-5 h-5" />
                   </div>
-                ) : (
-                  <div className="space-y-1">
+
+                  <div className="space-y-0.5">
                     <p className="text-xs font-semibold text-ink">
-                      Pilih atau Tarik Berkas ke Sini
+                      {pickedFilesForUpload.length > 0
+                        ? remainingQuota > 0
+                          ? `Tambah Berkas Lagi (Bisa pilih hingga ${remainingQuota} berkas lagi)`
+                          : 'Kuota Maksimal Berkas Tercapai'
+                        : 'Pilih Banyak Berkas Sekaligus atau Tarik ke Sini'}
                     </p>
                     <p className="text-[11px] text-ink-muted">
-                      Klik untuk memilih berkas dari komputer Anda, atau seret langsung ke area ini
+                      Anda dapat memblok beberapa berkas dari komputer atau menyeretnya sekaligus ke area ini
                     </p>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Catatan Privasi / Sensor Data */}
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-amber-900 dark:text-amber-200 text-xs">
-                <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="space-y-0.5 leading-relaxed text-[11px]">
-                  <p className="font-semibold text-amber-800 dark:text-amber-300">
-                    Perlindungan Data Pribadi
-                  </p>
-                  <p>
-                    Guna menghindari kebocoran data rahasia atau informasi sensitif, Anda diperkenankan menutupi (menyensor) NIP, NIK, tanda tangan, atau data identitas lainnya di Studio Sensor sebelum berkas resmi disimpan ke sistem.
-                  </p>
+                {/* Daftar Antrean Berkas yang Dipilih */}
+                {pickedFilesForUpload.length > 0 && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-semibold text-ink">
+                        Berkas Siap Diunggah ({pickedFilesForUpload.length} Berkas)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPickedFilesForUpload([])
+                          setRedactedQueueIndices([])
+                        }}
+                        className="text-rose-600 hover:underline font-medium cursor-pointer text-[11px]">
+                        Kosongkan Pilihan
+                      </button>
+                    </div>
+
+                    <div className="divide-y divide-line/60 rounded-xl border border-line bg-surface-subtle/40 max-h-44 overflow-y-auto">
+                      {pickedFilesForUpload.map((file, idx) => {
+                        const isPdf =
+                          file.type === 'application/pdf' ||
+                          file.name.toLowerCase().endsWith('.pdf')
+                        const isImg =
+                          file.type.startsWith('image/') ||
+                          /\.(jpe?g|png|webp|gif|bmp)$/i.test(file.name)
+                        const canRedact = isPdf || isImg
+                        const isRedacted = redactedQueueIndices.includes(idx)
+                        const sizeStr =
+                          file.size > 1024 * 1024
+                            ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+                            : `${Math.round(file.size / 1024)} KB`
+
+                        return (
+                          <div
+                            key={`${file.name}_${idx}`}
+                            className="px-3 py-2 flex items-center justify-between gap-2 text-xs hover:bg-surface-subtle transition-colors">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span
+                                className={`px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 border ${
+                                  isPdf
+                                    ? 'bg-rose-100 text-rose-800 border-rose-200'
+                                    : isImg
+                                      ? 'bg-sky-100 text-sky-800 border-sky-200'
+                                      : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                }`}>
+                                {isPdf ? 'PDF' : isImg ? 'FOTO' : 'DOK'}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p
+                                  className="font-medium text-ink truncate text-xs"
+                                  title={file.name}>
+                                  {file.name}
+                                </p>
+                                <div className="flex items-center gap-1.5 text-[10px] text-ink-muted">
+                                  <span>{sizeStr}</span>
+                                  {isRedacted && (
+                                    <span className="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-semibold">
+                                      ✓ Sudah Disensor
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              {canRedact && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRedactFileInQueue(idx)}
+                                  title="Buka Studio Sensor untuk menyensor data sensitif pada berkas ini"
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10.5px] font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/25 transition-colors cursor-pointer">
+                                  <ShieldAlert className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                  <span>Sensor</span>
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePickedFile(idx)}
+                                title="Hapus dari daftar unggah"
+                                className="p-1 rounded-lg text-ink-muted hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer">
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Catatan Privasi / Sensor Data */}
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-amber-900 dark:text-amber-200 text-xs">
+                  <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5 leading-relaxed text-[11px]">
+                    <p className="font-semibold text-amber-800 dark:text-amber-300">
+                      Perlindungan Data Pribadi
+                    </p>
+                    <p>
+                      Klik tombol <strong>Sensor</strong> pada berkas di atas jika ingin menutupi NIP, NIK, tanda tangan, atau informasi sensitif sebelum disimpan, atau langsung unggah sekaligus.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-5 py-3.5 border-t border-stroke/50 flex items-center justify-end gap-2 bg-surface">
-              <button
-                type="button"
-                onClick={() => {
-                  setUploadModalSlot(null)
-                  setPickedFileForUpload(null)
-                }}
-                className="px-4 py-2 rounded-xl border border-stroke/60 text-xs font-medium text-ink-secondary hover:bg-surface-subtle transition-colors cursor-pointer">
-                Batal
-              </button>
-              <button
-                type="button"
-                disabled={!pickedFileForUpload}
-                onClick={handleProceedToRedactionOrUpload}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-hz-button disabled:opacity-40 transition-all cursor-pointer">
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Unggah & Buka Studio Sensor</span>
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+            )}
+          </FormModal>
+        )
+      })()}
 
       {/* Redaction Studio Modal (Pre-Upload: Berkas Baru Ditahan di Client Sebelum Masuk Server) */}
       {preUploadRedactTarget && (

@@ -14,7 +14,13 @@ export function formatScore(num: number | null | undefined, decimals = 1): strin
 export function formatFileUrl(url: string | null | undefined): string {
   if (!url) return ''
   const trimmed = url.trim()
-  if (trimmed.startsWith('/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+  if (
+    trimmed.startsWith('/') ||
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('data:')
+  ) {
     return trimmed
   }
   // Jika tersimpan tanpa protokol (misal pekpppcdn.orgkubar.web.id/...)
