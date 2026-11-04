@@ -96,7 +96,7 @@ export default async function EvaluasiUnitPage({
   })
 
   return (
-    <div className="space-y-4 min-w-0 max-w-full overflow-hidden">
+    <div className="space-y-4 min-w-0 max-w-full overflow-x-clip">
       {/* Breadcrumbs */}
       <Breadcrumb
         showBackOnFirst

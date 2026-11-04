@@ -6,6 +6,8 @@
 import { db } from '../services/db'
 import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import nodePath from 'path'
+import { requireSuperAdmin } from '../services/auth-guard'
 import {
   getEvidenceSlotsByAspect,
   normalizeAspectCode,
@@ -1107,7 +1109,7 @@ export async function uploadAspectSlotExampleAction(formData: FormData) {
     const file = formData.get('file') as File | null
     const aspectCode = formData.get('aspectCode') as string
     const slotKey = formData.get('slotKey') as string
-    const path = formData.get('path') as string | null
+    const targetPath = formData.get('path') as string | null
 
     if (!file || !aspectCode || !slotKey) {
       return { success: false, error: 'Berkas, aspectCode, dan slotKey wajib disertakan.' }
@@ -1155,7 +1157,49 @@ export async function uploadAspectSlotExampleAction(formData: FormData) {
       return { success: false, error: 'Gagal menyimpan contoh panduan ke konfigurasi sistem.' }
     }
 
-    if (path) revalidatePath(path)
+    // Sinkronisasi otomatis ke MediaAsset agar berkas tercatat di katalog pusat Media Manager
+    try {
+      const existing = await db.mediaAsset.findUnique({
+        where: { fileUrl: uploadResult.fileUrl }
+      })
+      if (!existing) {
+        const cleanTitle = nodePath
+          .basename(file.name, nodePath.extname(file.name))
+          .replace(/^\d+[\s_-]*/, '')
+          .replace(/[_-]+/g, ' ')
+          .trim() || file.name
+
+        const fileExt = nodePath.extname(file.name).toLowerCase()
+        let detectedType = 'DOCUMENT'
+        if (mimeType.includes('pdf') || fileExt === '.pdf') detectedType = 'PDF'
+        else if (mimeType.startsWith('image/')) detectedType = 'IMAGE'
+        else if (['.xls', '.xlsx'].includes(fileExt)) detectedType = 'SPREADSHEET'
+
+        await db.mediaAsset.create({
+          data: {
+            title: cleanTitle,
+            description: `Contoh format bukti dukung resmi untuk Aspek ${norm} (${slotKey}).`,
+            category: 'Contoh Eviden',
+            fileName: file.name,
+            fileUrl: uploadResult.fileUrl,
+            fileType: detectedType,
+            mimeType,
+            fileSize: buffer.length,
+            storageProvider: 'LOCAL',
+            metadata: {
+              relatedAspects: [norm],
+              slotKey,
+              source: 'Admin Evaluator PEKPPP'
+            },
+            isPublic: true
+          }
+        })
+      }
+    } catch (mediaErr) {
+      console.warn('Auto catalog to MediaAsset skipped:', mediaErr)
+    }
+
+    if (targetPath) revalidatePath(targetPath)
     return { success: true, fileUrl: uploadResult.fileUrl, fileName: uploadResult.fileName }
   } catch (error: any) {
     console.error('Error uploading aspect slot example:', error)
@@ -1164,7 +1208,73 @@ export async function uploadAspectSlotExampleAction(formData: FormData) {
 }
 
 /**
+ * Menautkan aset dari Media Manager ke panduan slot aspek tertentu
+ */
+export async function attachMediaAssetToSlotGuideAction(params: {
+  aspectCode: string
+  slotKey: string
+  mediaAssetId: string
+  path?: string
+}) {
+  try {
+    await requireSuperAdmin()
+    const { aspectCode, slotKey, mediaAssetId, path } = params
+    const norm = normalizeAspectCode(aspectCode)
+
+    const asset = await db.mediaAsset.findUnique({
+      where: { id: mediaAssetId }
+    })
+
+    if (!asset) {
+      return { success: false, error: 'Aset berkas tidak ditemukan di Pustaka Media.' }
+    }
+
+    // Simpan tautan URL ke daftar panduan aspek
+    const saved = await saveDynamicAspectSlotExample(norm, slotKey, asset.fileUrl)
+    if (!saved) {
+      return { success: false, error: 'Gagal menautkan berkas ke panduan slot aspek.' }
+    }
+
+    // Perbarui metadata media asset untuk mencatat keterkaitan aspek
+    try {
+      const currentMeta = (asset.metadata as any) || {}
+      const curAspects: string[] = Array.isArray(currentMeta.relatedAspects)
+        ? [...currentMeta.relatedAspects]
+        : []
+
+      if (!curAspects.includes(norm)) {
+        curAspects.push(norm)
+        await db.mediaAsset.update({
+          where: { id: asset.id },
+          data: {
+            metadata: {
+              ...currentMeta,
+              relatedAspects: curAspects
+            }
+          }
+        })
+      }
+    } catch (metaErr) {
+      console.warn('Gagal memperbarui metadata keterkaitan aspek:', metaErr)
+    }
+
+    if (path) revalidatePath(path)
+
+    return {
+      success: true,
+      fileUrl: asset.fileUrl,
+      fileName: asset.fileName,
+      title: asset.title
+    }
+  } catch (error: any) {
+    console.error('Error attaching media asset to slot guide:', error)
+    return { success: false, error: error.message || 'Gagal menautkan berkas dari pustaka.' }
+  }
+}
+
+/**
  * Hapus berkas contoh format/panduan bukti dukung oleh Admin/Evaluator
+ * Aman: Hanya menghapus fisik jika berkas bukan merupakan aset bersama di MediaAsset
  */
 export async function deleteAspectSlotExampleAction(params: {
   aspectCode: string
@@ -1176,12 +1286,21 @@ export async function deleteAspectSlotExampleAction(params: {
     const { aspectCode, slotKey, exampleImageUrl, path } = params
     const norm = normalizeAspectCode(aspectCode)
 
-    try {
-      await StorageService.deleteFile(exampleImageUrl)
-    } catch (storageErr) {
-      console.warn('Gagal menghapus berkas fisik contoh:', exampleImageUrl, storageErr)
+    // Periksa apakah berkas ini merupakan MediaAsset bersama
+    const isSharedAsset = await db.mediaAsset.findFirst({
+      where: { fileUrl: exampleImageUrl }
+    })
+
+    // Hanya hapus file fisik dari disk/storage jika TIDAK terdaftar di katalog MediaAsset bersama
+    if (!isSharedAsset) {
+      try {
+        await StorageService.deleteFile(exampleImageUrl)
+      } catch (storageErr) {
+        console.warn('Gagal menghapus berkas fisik contoh:', exampleImageUrl, storageErr)
+      }
     }
 
+    // Selalu lepaskan tautan URL dari slot panduan aspek
     await deleteDynamicAspectSlotExample(norm, slotKey, exampleImageUrl)
 
     if (path) revalidatePath(path)

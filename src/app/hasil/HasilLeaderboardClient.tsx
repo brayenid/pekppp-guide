@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
-import { CheckCircle2, ClipboardList, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export interface LeaderboardEvaluationItem {
   id: string
@@ -128,34 +128,34 @@ export function HasilLeaderboardClient({
   }, [hasMore, isLoadingMore, loadMore])
 
   return (
-    <div className="rounded-bento border border-stroke/50 bg-surface overflow-hidden shadow-soft-card">
-      {/* Desktop Table Header */}
-      <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3.5 bg-surface-subtle border-b border-stroke/50 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
-        <div className="col-span-1">#</div>
-        <div className="col-span-4">Unit / Lokus</div>
+    <div className="rounded-2xl border border-line bg-surface overflow-hidden shadow-2xs">
+      {/* ── Desktop Table Header ── */}
+      <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-3.5 bg-surface-subtle border-b border-line text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+        <div className="col-span-1">Peringkat</div>
+        <div className="col-span-5">Unit Lokus Layanan</div>
         <div className="col-span-2">Kategori</div>
         <div className="col-span-2 text-right">Skor IPP Final</div>
-        <div className="col-span-3 text-right">Grade &amp; Rincian</div>
+        <div className="col-span-2 text-right">Predikat &amp; Aksi</div>
       </div>
 
-      {/* Table Rows & Mobile Cards */}
-      <div className="divide-y divide-stroke/40">
+      {/* ── Table Rows & Mobile Cards ── */}
+      <div className="divide-y divide-line">
         {items.map((ev, idx) => {
+          const rank = idx + 1
           const grade = getGrade(ev.finalPct)
           const cfg = GRADE_CONFIG[grade]
-          const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null
 
           return (
-            <div key={ev.id} className="hover:bg-surface-subtle/50 transition-colors animate-fade-in-content">
+            <div key={ev.id} className="hover:bg-surface-subtle/40 transition-colors">
               {/* 1. Mobile Card Layout (< sm) */}
               <div className="sm:hidden p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-surface-subtle border border-stroke/70 text-xs font-bold flex items-center justify-center shrink-0 tabular-nums">
-                      {medal ?? idx + 1}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-md bg-surface-subtle border border-line text-xs font-bold font-mono text-ink flex items-center justify-center shrink-0">
+                      {rank}
                     </span>
                     <div>
-                      <h4 className="font-semibold text-xs text-ink">{ev.unit.name}</h4>
+                      <h4 className="font-semibold text-xs text-ink leading-snug">{ev.unit.name}</h4>
                       <div className="flex items-center gap-2 text-[10px] text-ink-muted mt-0.5">
                         <span>{ev.unit.category?.name || 'OPD'}</span>
                         <span>•</span>
@@ -164,17 +164,17 @@ export function HasilLeaderboardClient({
                     </div>
                   </div>
                   <Badge variant={cfg.badgeVariant} size="sm">
-                    {grade} - {cfg.label}
+                    {grade} · {cfg.label}
                   </Badge>
                 </div>
 
-                <div className="p-3 bg-surface-subtle/40 rounded-xl border border-stroke/40 flex items-center justify-between">
+                <div className="p-3 bg-surface-subtle/50 rounded-xl border border-line flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-ink-muted block">Skor IPP Final</span>
-                    <span className="font-bold text-sm text-ink tabular-nums">
+                    <span className="text-[10px] uppercase tracking-wider text-ink-muted block font-medium">Skor Akhir</span>
+                    <span className="font-bold text-sm text-ink font-mono">
                       {ev.finalPct.toFixed(1)}%
                     </span>
-                    <span className="text-[10px] text-ink-muted ml-1.5 tabular-nums">
+                    <span className="text-[10px] text-ink-muted ml-1.5 font-mono">
                       (Skala 5: {ev.finalScale5.toFixed(2)})
                     </span>
                   </div>
@@ -182,67 +182,72 @@ export function HasilLeaderboardClient({
                     <Button
                       type="button"
                       variant="brand"
-                      size="sm"
-                      leftIcon={<ClipboardList className="w-3.5 h-3.5" />}>
-                      Detail Rapor
+                      size="sm">
+                      Rapor Lengkap
                     </Button>
                   </Link>
                 </div>
               </div>
 
               {/* 2. Desktop Grid Layout (≥ sm) */}
-              <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-4 items-center">
-                <div className="col-span-1 text-sm font-semibold text-ink-muted tabular-nums">
-                  {medal ?? <span>{idx + 1}</span>}
+              <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 items-center">
+                {/* Col 1: Rank */}
+                <div className="col-span-1">
+                  {rank <= 3 ? (
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-brand/10 text-brand font-bold text-xs font-mono">
+                      {rank}
+                    </span>
+                  ) : (
+                    <span className="text-xs font-mono text-ink-muted pl-1.5">
+                      {rank}
+                    </span>
+                  )}
                 </div>
 
-                <div className="col-span-4">
-                  <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Col 2: Unit */}
+                <div className="col-span-5 pr-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-xs text-ink">{ev.unit.name}</span>
-                    {ev.isFinished ? (
-                      <Badge variant="success" size="sm">
-                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> Selesai
-                      </Badge>
-                    ) : (
-                      <Badge variant="neutral" size="sm">
-                        Progres
-                      </Badge>
-                    )}
+                    <Badge variant={ev.isFinished ? 'success' : 'neutral'} size="sm">
+                      {ev.isFinished ? 'Selesai' : 'Progres'}
+                    </Badge>
                   </div>
-                  <div className="text-[10px] text-ink-muted mt-0.5 tabular-nums">Tahun {ev.year}</div>
+                  <div className="text-[10px] text-ink-muted mt-0.5">Tahun Penilaian {ev.year}</div>
                 </div>
 
+                {/* Col 3: Kategori */}
                 <div className="col-span-2">
-                  <Badge variant="neutral" size="sm">
-                    {ev.unit.category?.name || '-'}
-                  </Badge>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] text-ink-muted bg-surface-subtle border border-line">
+                    {ev.unit.category?.name || 'Unit Layanan'}
+                  </span>
                 </div>
 
+                {/* Col 4: Skor IPP Final */}
                 <div className="col-span-2 text-right">
-                  <span className="font-semibold text-sm text-ink tracking-tight tabular-nums">
+                  <span className="font-bold text-sm text-ink tracking-tight font-mono">
                     {ev.finalPct.toFixed(1)}%
                   </span>
-                  <div className="text-[10px] text-ink-muted tabular-nums">
+                  <div className="text-[10px] text-ink-muted font-mono">
                     Skala 5: {ev.finalScale5.toFixed(2)}
                   </div>
                   {ev.hasF03 && (
-                    <div className="text-[10px] text-pastel-blue-text font-semibold tabular-nums">
+                    <div className="text-[10px] text-brand font-medium font-mono mt-0.5">
                       F02: {ev.f02Pct.toFixed(0)}% · F03: {ev.f03Pct.toFixed(0)}%
                     </div>
                   )}
                 </div>
 
-                <div className="col-span-3 text-right flex items-center justify-end gap-2">
+                {/* Col 5: Grade & Action */}
+                <div className="col-span-2 text-right flex items-center justify-end gap-2.5">
                   <Badge variant={cfg.badgeVariant} size="sm">
-                    {grade} - {cfg.label}
+                    {grade} · {cfg.label}
                   </Badge>
                   <Link href={`/hasil/${ev.id}`}>
                     <Button
                       type="button"
                       variant="secondary"
-                      size="sm"
-                      leftIcon={<ClipboardList className="w-3.5 h-3.5" />}>
-                      Detail
+                      size="sm">
+                      Rapor
                     </Button>
                   </Link>
                 </div>
@@ -252,16 +257,16 @@ export function HasilLeaderboardClient({
         })}
       </div>
 
-      {/* Sentinel & Auto Loadmore State Footer (Refetching from Server) */}
+      {/* ── Auto Loadmore State Footer ── */}
       {hasMore && (
         <div
           ref={sentinelRef}
-          className="p-4 border-t border-stroke/40 bg-surface-subtle/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-muted">
+          className="p-4 border-t border-line bg-surface-subtle/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-muted">
           <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-brand" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />
             <span>
               {isLoadingMore
-                ? 'Memuat data berikutnya dari server...'
+                ? 'Memuat data lokus berikutnya...'
                 : `Menampilkan ${items.length} dari ${totalCount} lokus`}
             </span>
           </div>
@@ -270,16 +275,16 @@ export function HasilLeaderboardClient({
             type="button"
             disabled={isLoadingMore}
             onClick={() => loadMore()}
-            className="text-xs font-semibold text-brand hover:text-brand-hover hover:underline cursor-pointer disabled:opacity-50">
+            className="text-xs font-semibold text-brand hover:underline cursor-pointer disabled:opacity-50">
             {isLoadingMore ? 'Memuat...' : `Muat lebih banyak (${Math.min(PAGE_SIZE, totalCount - items.length)} tersisa)`}
           </button>
         </div>
       )}
 
-      {/* Footer saat semua data sudah dimuat */}
+      {/* ── Footer when fully loaded ── */}
       {!hasMore && totalCount > PAGE_SIZE && (
-        <div className="py-3 px-5 border-t border-stroke/40 bg-surface-subtle/20 text-center text-sm text-ink-muted font-normal">
-          Menampilkan seluruh {totalCount} lokus evaluasi
+        <div className="py-3 px-5 border-t border-line bg-surface-subtle/30 text-center text-xs text-ink-muted">
+          Seluruh {totalCount} lokus evaluasi telah dimuat
         </div>
       )}
     </div>

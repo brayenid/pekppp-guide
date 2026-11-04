@@ -12,7 +12,11 @@ import {
   ChevronDown,
   Loader2
 } from 'lucide-react'
-import { BuildingDuotoneIcon, ArchiveDuotoneIcon } from '../ui/icons/SidebarIcons'
+import {
+  BuildingDuotoneIcon,
+  ArchiveDuotoneIcon,
+  FolderNotchDuotoneIcon
+} from '../ui/icons/SidebarIcons'
 import { OpdYearSelect } from '../features/OpdYearSelect'
 
 export interface OpdSidebarProps {
@@ -179,6 +183,14 @@ export function OpdSidebar({
             {activeStats.filledMandatory}/{activeStats.totalMandatory || 29}
           </span>
         ) : null
+    },
+    {
+      id: 'contoh-berkas',
+      href: '/contoh-berkas',
+      label: 'Format & Contoh Berkas',
+      icon: FolderNotchDuotoneIcon,
+      isActive: pathname === '/contoh-berkas',
+      badge: () => null
     }
   ]
 

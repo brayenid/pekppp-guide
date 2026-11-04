@@ -95,20 +95,27 @@ export function IndicatorCommentSection({
 
   return (
     <>
-      {/* CASE 1: No comments yet and closed -> Slim, low-profile trigger */}
+      {/* CASE 1: No comments yet and closed -> Noticeable yet clean, solid trigger */}
       {!hasComments && !isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="w-full text-left px-3.5 py-2.5 rounded-xl border border-stroke/70 bg-surface hover:bg-surface-subtle/50 transition-all flex items-center justify-between gap-3 group cursor-pointer">
-          <div className="flex items-center gap-2 min-w-0">
-            <MessageSquare className="w-3.5 h-3.5 text-brand shrink-0" />
-            <span className="text-xs font-medium text-ink group-hover:text-brand transition-colors truncate">
-              Diskusi &amp; Catatan Klarifikasi Soal
-            </span>
+          className="w-full text-left px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-line bg-surface hover:bg-surface-subtle/70 hover:border-brand/40 shadow-2xs hover:shadow-subtle transition-all flex items-center justify-between gap-3 group cursor-pointer">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-brand/10 dark:bg-brand/15 text-brand flex items-center justify-center shrink-0 border border-brand/20 group-hover:scale-105 transition-transform">
+              <MessageSquare className="w-3.5 h-3.5" />
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <span className="text-xs sm:text-sm font-semibold text-ink group-hover:text-brand transition-colors truncate block">
+                Diskusi &amp; Catatan Klarifikasi Soal
+              </span>
+              <span className="text-[11px] text-ink-muted hidden sm:block">
+                Ruang komunikasi tanya-jawab dan catatan telaah antara Tim Evaluator dan OPD
+              </span>
+            </div>
           </div>
 
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-brand group-hover:underline shrink-0">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-light dark:bg-brand/15 text-brand text-xs font-semibold border border-brand/20 group-hover:bg-brand group-hover:text-white transition-all shrink-0">
             <Plus className="w-3.5 h-3.5" />
             <span>Tulis Catatan</span>
           </span>
@@ -117,32 +124,34 @@ export function IndicatorCommentSection({
 
       {/* CASE 2: Has comments OR User clicked CTA -> Compact modern thread */}
       {(hasComments || isOpen) && (
-        <div className="rounded-xl border border-stroke/70 bg-surface shadow-xs p-3 sm:p-4 space-y-3">
+        <div className="rounded-2xl border border-line bg-surface shadow-2xs p-4 sm:p-5 space-y-3.5">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 border-b border-stroke/50 gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <MessageSquare className="w-3.5 h-3.5 text-brand shrink-0" />
-              <span className="font-semibold text-xs text-ink truncate">
+          <div className="flex items-center justify-between pb-2.5 border-b border-line gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-brand/10 dark:bg-brand/15 text-brand flex items-center justify-center shrink-0 border border-brand/20">
+                <MessageSquare className="w-3.5 h-3.5" />
+              </div>
+              <span className="font-semibold text-xs sm:text-sm text-ink truncate">
                 Diskusi &amp; Catatan Klarifikasi
               </span>
               {hasComments && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-medium bg-brand/10 text-brand border border-brand/20">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-brand/10 text-brand border border-brand/20">
                   {comments.length}
                 </span>
               )}
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[10px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded-full border border-stroke/50">
+              <span className="text-[11px] font-medium text-ink-muted bg-surface-subtle px-2.5 py-0.5 rounded-full border border-line">
                 Evaluator &amp; OPD
               </span>
               {!hasComments && (
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
                   title="Tutup">
-                  <ChevronUp className="w-3.5 h-3.5" />
+                  <ChevronUp className="w-4 h-4" />
                 </button>
               )}
             </div>

@@ -308,6 +308,26 @@ export function EvaluationWorkspaceLayout({
   const [sidebarWidthPct, setSidebarWidthPct] = useState<number>(SIDEBAR_DEFAULT)
   const [isResizing, setIsResizing] = useState(false)
   const splitContainerRef = useRef<HTMLDivElement>(null)
+  // Posisi horizontal bar simpan mengikuti panel kanan agar tidak menimpa sidebar
+  const [saveBarRect, setSaveBarRect] = useState<{ left: number; width: number } | null>(null)
+  useEffect(() => {
+    const update = () => {
+      const el = document.getElementById('active-workspace-card')
+      if (!el || window.innerWidth < 1024) return setSaveBarRect(null)
+      const r = el.getBoundingClientRect()
+      setSaveBarRect({ left: r.left, width: r.width })
+    }
+    update()
+    window.addEventListener('resize', update)
+    const ro = new ResizeObserver(update)
+    const target = document.getElementById('active-workspace-card')
+    if (target) ro.observe(target)
+    if (splitContainerRef.current) ro.observe(splitContainerRef.current)
+    return () => {
+      window.removeEventListener('resize', update)
+      ro.disconnect()
+    }
+  }, [])
   const isDragging = useRef(false)
   const rafRef = useRef<number | null>(null)
   const mobileCarouselRef = useRef<HTMLDivElement>(null)
@@ -786,6 +806,39 @@ export function EvaluationWorkspaceLayout({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [hasUnsavedChanges])
 
+  // Cegah navigasi internal (Link Next.js, logo, menu) & tombol Back saat ada perubahan belum disimpan
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+    const message = 'Terdapat isian atau penilaian yang belum disimpan. Yakin ingin meninggalkan halaman?'
+
+    const handleClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const anchor = (e.target as HTMLElement | null)?.closest?.('a[href]') as HTMLAnchorElement | null
+      if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return
+      const url = new URL(anchor.href, window.location.href)
+      if (url.origin !== window.location.origin) return
+      // Perubahan query (?soal=, ?mode=) pada halaman yang sama bukan meninggalkan halaman
+      if (url.pathname === window.location.pathname) return
+      if (!window.confirm(message)) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+
+    const handlePopState = () => {
+      if (!window.confirm(message)) {
+        window.history.go(1)
+      }
+    }
+
+    document.addEventListener('click', handleClick, true)
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      document.removeEventListener('click', handleClick, true)
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [hasUnsavedChanges])
+
   // Global Ctrl+S keyboard shortcut to trigger batch save when unsaved changes exist
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -955,7 +1008,7 @@ export function EvaluationWorkspaceLayout({
   }, [internalScores])
 
   return (
-    <div className="space-y-4 sm:space-y-5 min-w-0 max-w-full overflow-hidden">
+    <div className="space-y-4 sm:space-y-5 min-w-0 max-w-full overflow-x-clip">
       {/* Contextual Status Banner */}
       {userRole === 'OPD' && !isF01Editable && (
         <NoticeBanner
@@ -1140,48 +1193,47 @@ export function EvaluationWorkspaceLayout({
           {/* ------------------------------------------------------------- */}
           <div
             style={{ width: `${sidebarWidthPct}%`, minWidth: `${SIDEBAR_MIN}%`, maxWidth: `${SIDEBAR_MAX}%` }}
-            className={`hidden lg:block rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-4 shrink-0 will-change-[width] ${
+            className={`hidden lg:block rounded-bento border border-stroke bg-surface p-5 space-y-4 shadow-soft-card sticky top-20 self-start shrink-0 will-change-[width] ${
               isResizing
                 ? 'transition-none select-none [&_iframe]:pointer-events-none'
                 : 'transition-[width] duration-200'
             }`}
           >
             <div className="space-y-3.5">
-              <div className="flex items-center justify-between pb-3 text-xs border-b border-stroke">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-ink text-xs">Peta Navigasi</span>
-                  {Math.abs(sidebarWidthPct - SIDEBAR_DEFAULT) > 0.5 && (
-                    <button
-                      type="button"
-                      onClick={handleResetSidebarWidth}
-                      title="Kembalikan ukuran panel ke default (33%)"
-                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer border border-stroke/40"
-                    >
-                      <RotateCcw className="w-2.5 h-2.5" />
-                      <span>Reset</span>
-                    </button>
-                  )}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-ink text-xs">Peta Navigasi</span>
+                    {Math.abs(sidebarWidthPct - SIDEBAR_DEFAULT) > 0.5 && (
+                      <button
+                        type="button"
+                        onClick={handleResetSidebarWidth}
+                        title="Kembalikan ukuran panel ke default (33%)"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer border border-stroke/40"
+                      >
+                        <RotateCcw className="w-2.5 h-2.5" />
+                        <span>Reset</span>
+                      </button>
+                    )}
+                  </div>
+                  <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
+                    Soal #{activeNumber}
+                  </span>
                 </div>
-                <span className="text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full border border-brand/20">
-                  Soal #{activeNumber}
-                </span>
-              </div>
 
-              {/* Progress Evaluasi Terintegrasi di Peta Navigasi */}
-              <div className="bg-surface-subtle/50 rounded-xl p-2.5 border border-stroke/50 space-y-1.5">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-ink-secondary font-medium">
-                    {userRole === 'OPD' ? 'Kelengkapan F01' : 'Kemajuan Penilaian'}
-                  </span>
-                  <span className="font-semibold text-ink font-mono">
-                    {userRole === 'OPD' ? `${completedF01WithProofCount}/31` : `${filledF02Count}/31`} ({overallProgress}%)
-                  </span>
-                </div>
-                <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden border border-stroke/60">
+                {/* Progress bar tipis dengan track abu-abu muda + angka persen di ujungnya */}
+                <div className="flex items-center gap-2 pt-0.5">
                   <div
-                    className="bg-brand h-full transition-all duration-300 rounded-full"
-                    style={{ width: `${overallProgress}%` }}
-                  />
+                    title={`Kemajuan: ${userRole === 'OPD' ? completedF01WithProofCount : filledF02Count}/31 (${overallProgress}%)`}
+                    className="flex-1 bg-neutral-200 dark:bg-stroke/60 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-brand h-full transition-all duration-300 rounded-full"
+                      style={{ width: `${overallProgress}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-mono font-semibold text-ink-muted shrink-0 tabular-nums min-w-[28px] text-right">
+                    {overallProgress}%
+                  </span>
                 </div>
               </div>
 
@@ -1672,7 +1724,7 @@ export function EvaluationWorkspaceLayout({
           {/* ------------------------------------------------------------- */}
           {/* RIGHT PANEL: SPACIOUS WORKSPACE (~67% width)                 */}
           {/* ------------------------------------------------------------- */}
-          <div id="active-workspace-card" className={`w-full lg:flex-1 min-w-0 max-w-full space-y-4 ${isResizing ? 'select-none [&_iframe]:pointer-events-none' : ''}`}>
+          <div id="active-workspace-card" className={`w-full lg:flex-1 min-w-0 max-w-full space-y-4 pb-24 ${isResizing ? 'select-none [&_iframe]:pointer-events-none' : ''}`}>
           {/* Standard Question Form View */}
           <div className={`rounded-bento border bg-surface shadow-soft-card overflow-hidden transition-[border-color,box-shadow] duration-500 ${
             highlightTarget
@@ -1732,11 +1784,11 @@ export function EvaluationWorkspaceLayout({
                   {/* Question Title */}
                   <div className="space-y-1.5 pt-0.5 min-w-0">
                     {activeScoreItem.indicator.isSupplementary && (
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-surface-subtle text-ink-muted border border-stroke/50 mb-1">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-subtle text-ink-muted border border-stroke/50 mb-1">
                         Pertanyaan Tambahan
                       </span>
                     )}
-                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-ink leading-relaxed break-words">
+                    <h2 className="text-sm sm:text-base md:text-lg font-semibold text-ink leading-relaxed break-words">
                       {activeScoreItem.indicator.question}
                     </h2>
                   </div>
@@ -1940,7 +1992,10 @@ export function EvaluationWorkspaceLayout({
 
             {/* Floating Sticky Save Bar (Full Width, Compact Height, Never Overlaps Comments) */}
             <div
-              className={`sticky bottom-4 z-40 w-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+              style={saveBarRect ? { left: saveBarRect.left, width: saveBarRect.width } : undefined}
+              className={`fixed bottom-4 z-[60] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                saveBarRect ? '' : 'left-4 right-4'
+              } ${
                 hasUnsavedChanges
                   ? 'opacity-100 translate-y-0 pointer-events-auto'
                   : 'opacity-0 translate-y-12 pointer-events-none'

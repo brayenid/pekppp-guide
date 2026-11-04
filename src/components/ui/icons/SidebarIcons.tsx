@@ -109,3 +109,28 @@ export function BookBookmarkDuotoneIcon({ className = 'w-4 h-4', ...props }: Ico
     </svg>
   )
 }
+
+/**
+ * 10. Media Manager & Pustaka Berkas (folder-notch-duotone)
+ */
+export function FolderNotchDuotoneIcon({ className = 'w-4 h-4', ...props }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" className={className} {...props}>
+      <path d="M216 88v120a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8V88Z" opacity=".2" />
+      <path d="M216 72h-84.69L104 44.69A15.86 15.86 0 0 0 92.69 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h168a16 16 0 0 0 16-16V88a16 16 0 0 0-16-16m0 128H40V56h52.69l27.31 27.31A15.86 15.86 0 0 0 131.31 88H216Z" />
+    </svg>
+  )
+}
+
+/**
+ * 11. Artikel & Kabar Berita (newspaper-duotone)
+ */
+export function NewspaperDuotoneIcon({ className = 'w-4 h-4', ...props }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" className={className} {...props}>
+      <path d="M192 48v144H40a16 16 0 0 1-16-16V48Z" opacity=".2" />
+      <path d="M224 88V56a16 16 0 0 0-16-16H40a24 24 0 0 0-24 24v128a32 32 0 0 0 32 32h160a24 24 0 0 0 24-24v-8a24 24 0 0 0-8-17.58V88ZM40 56h152v120H48a31.8 31.8 0 0 0-16 4.29V64a8 8 0 0 1 8-8m168 136a8 8 0 0 1-8 8H48a16 16 0 0 1-16-16a15.86 15.86 0 0 1 8-13.88a31.88 31.88 0 0 0 8 1.88h152a8 8 0 0 1 8 8v12a8 8 0 0 1-8 8m0-32h-8V56h8ZM72 88h88a8 8 0 0 1 0 16H72a8 8 0 0 1 0-16m0 32h88a8 8 0 0 1 0 16H72a8 8 0 0 1 0-16" />
+    </svg>
+  )
+}
+

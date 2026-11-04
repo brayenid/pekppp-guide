@@ -1,8 +1,13 @@
+import React from 'react'
 import { db } from '../../services/db'
-import { BookOpen, CheckCircle2 } from 'lucide-react'
 import { PageHeader } from '../../components/ui/PageHeader'
 
 export const revalidate = 0
+
+export const metadata = {
+  title: 'Wiki 31 Indikator PEKPPP - Kutai Barat',
+  description: 'Katalog dan referensi resmi instrumen evaluasi 31 indikator kinerja pelayanan publik berdasarkan PermenPAN-RB Nomor 29 Tahun 2022.'
+}
 
 export default async function WikiPage() {
   const indicators = await db.indicator.findMany({
@@ -17,74 +22,108 @@ export default async function WikiPage() {
   }, {})
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-12">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto space-y-10 sm:space-y-12 pb-16">
+      {/* ── Page Header ── */}
       <PageHeader
-        icon={<BookOpen className="w-5 h-5 text-brand" />}
-        title="Wiki 31 Indikator PEKPPP"
-        description="Referensi lengkap kriteria penilaian, bobot persentase, dan dokumen bukti dukung wajib untuk seluruh 31 Indikator PEKPPP."
+        title="Katalog 31 Indikator Standar Pelayanan (PEKPPP)"
+        description="Referensi lengkap instrumen evaluasi kinerja penyelenggaraan pelayanan publik berdasarkan PermenPAN-RB No. 29 Tahun 2022, mencakup rumusan butir penilaian, bobot terstandar, dan persyaratan bukti dukung pembuktian."
       />
 
-      {/* List per Aspect */}
-      <div className="space-y-6">
+      {/* ── Aspect Quick Navigation Bar ── */}
+      <div className="p-3 sm:p-4 rounded-2xl bg-surface border border-line shadow-2xs space-y-2">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted px-1">
+          Lompat Cepat ke Aspek Evaluasi
+        </div>
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          {Object.entries(grouped).map(([aspectCode, items]) => {
+            const aspect = items[0]?.aspect
+            return (
+              <a
+                key={aspectCode}
+                href={`#aspek-${aspectCode.toLowerCase()}`}
+                className="px-3 py-1.5 rounded-xl bg-surface-subtle hover:bg-brand-light hover:text-brand border border-line text-xs font-medium text-ink transition-colors">
+                <span className="font-semibold text-brand mr-1.5">{aspectCode}</span>
+                <span>{aspect?.name.split(' ')[0]}</span>
+                <span className="text-ink-muted text-[11px] ml-1">({aspect?.aspectWeight}%)</span>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Aspect Sections ── */}
+      <div className="space-y-10 sm:space-y-12">
         {Object.entries(grouped).map(([aspectCode, items]) => {
           const aspect = items[0]?.aspect
 
           return (
-            <div key={aspectCode} className="rounded-bento border border-stroke/50 bg-surface shadow-2xs overflow-hidden">
-              <div className="p-4 sm:p-5 border-b border-stroke/50 bg-surface-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <section
+              key={aspectCode}
+              id={`aspek-${aspectCode.toLowerCase()}`}
+              className="scroll-mt-24 space-y-4">
+              {/* Aspect Chapter Header */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-pill bg-brand-light text-brand text-[10px] font-semibold border border-brand/20">
+                    <span className="font-mono text-xs font-bold text-brand bg-brand-light dark:bg-brand/20 px-2.5 py-0.5 rounded-md">
                       Aspek {aspectCode}
                     </span>
-                    <h2 className="text-sm font-semibold text-ink">{aspect?.name}</h2>
+                    <h2 className="text-base sm:text-lg font-semibold text-ink">
+                      {aspect?.name}
+                    </h2>
                   </div>
-                  <p className="text-xs text-ink-muted">
-                    Bobot Aspek: <span className="font-semibold text-ink">{aspect?.aspectWeight}%</span>
+                  <p className="text-xs text-ink-secondary">
+                    Total kontribusi bobot: <strong>{aspect?.aspectWeight}%</strong> dari total Indeks Pelayanan Publik (IPP).
                   </p>
                 </div>
-                <span className="inline-flex items-center self-start sm:self-auto px-2.5 py-1 rounded-pill bg-surface text-ink-secondary text-xs font-medium border border-stroke/50">
+                <span className="text-xs font-medium text-ink-muted self-start sm:self-auto px-2.5 py-1 rounded-full bg-surface-subtle border border-line">
                   {items.length} Indikator
                 </span>
               </div>
 
-              <div className="p-4 sm:p-5 space-y-4 divide-y divide-stroke/40">
+              {/* Indicator Items List */}
+              <div className="space-y-3.5">
                 {items.map((ind) => (
-                  <div key={ind.id} className="pt-4 first:pt-0 space-y-2.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-pill bg-surface-subtle text-ink font-medium text-[11px] border border-stroke/50">
-                        Indikator #{ind.indicatorNumber} ({ind.code})
-                      </span>
-                      <span className="text-xs text-ink-muted">
-                        Bobot: <strong className="text-ink font-medium">{ind.indicatorWeight}%</strong>
-                      </span>
-                      {ind.isSupplementary && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-pill bg-surface-subtle text-ink-secondary text-[10px] border border-stroke/50">
-                          Informasi Tambahan
+                  <div
+                    key={ind.id}
+                    className="p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-3 transition-colors hover:border-brand/40">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-xs font-semibold text-ink bg-surface-subtle border border-line px-2 py-0.5 rounded-md">
+                          Indikator #{ind.indicatorNumber} • {ind.code}
                         </span>
-                      )}
+                        {ind.isSupplementary && (
+                          <span className="text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 px-2 py-0.5 rounded-md">
+                            Data Tambahan
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs font-mono font-medium text-ink-secondary">
+                        Bobot: <strong className="text-brand font-semibold">{ind.indicatorWeight}%</strong>
+                      </span>
                     </div>
 
-                    <h3 className="font-medium text-ink text-xs sm:text-sm leading-snug">{ind.question}</h3>
+                    <h3 className="font-medium text-sm sm:text-base text-ink leading-relaxed">
+                      {ind.question}
+                    </h3>
 
                     {ind.proofRequirements && (
-                      <div className="p-3 rounded-xl bg-surface-subtle border border-stroke/40 text-xs space-y-1">
-                        <span className="font-medium text-ink flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-ink-muted" />
+                      <div className="p-3.5 rounded-xl bg-surface-subtle/70 border border-line/60 text-xs space-y-1">
+                        <span className="font-semibold text-ink block">
                           Syarat Dokumen Bukti Dukung Wajib:
                         </span>
-                        <p className="text-ink-secondary leading-relaxed pl-5">{ind.proofRequirements}</p>
+                        <p className="text-ink-secondary leading-relaxed whitespace-pre-line">
+                          {ind.proofRequirements}
+                        </p>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )
         })}
       </div>
     </div>
   )
 }
-

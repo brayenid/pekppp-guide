@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Printer, ShieldAlert, Award, FileText, ClipboardList } from 'lucide-react'
 import { calculatePekpppScore, calculateEffectiveF03AndIpp } from '../../../../core/domain/pekppp-calculator'
+import { getCurrentUserAction } from '../../../../actions/auth-actions'
 import { PrintButton } from '../../../../components/ui/PrintButton'
 import { Breadcrumb } from '../../../../components/ui/Breadcrumb'
 
@@ -30,6 +31,30 @@ export default async function BeritaAcaraPage({
   })
 
   if (!evaluation) {
+    notFound()
+  }
+
+  // Cek otorisasi akses Berita Acara: Hanya Super Admin & Lokus Pemilik
+  const currentUser = await getCurrentUserAction()
+  let isAuthorized = false
+
+  if (currentUser) {
+    if (currentUser.role === 'SUPER_ADMIN') {
+      isAuthorized = true
+    } else if (currentUser.role === 'OPD') {
+      const userUnit = await db.userUnit.findUnique({
+        where: {
+          userId_unitId: {
+            userId: currentUser.id,
+            unitId: evaluation.unitId
+          }
+        }
+      })
+      isAuthorized = Boolean(userUnit)
+    }
+  }
+
+  if (!isAuthorized) {
     notFound()
   }
 
@@ -105,26 +130,75 @@ export default async function BeritaAcaraPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-16">
-      {/* CSS Override for Clean Printing Layout */}
+    <div className="ba-container max-w-4xl mx-auto space-y-6 pb-16">
+      {/* CSS Override for Multi-Page Clean Printing Layout */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          /* Hide global outer Next.js layouts, navbars, sidebars, headers, floating components */
-          body * {
-            visibility: hidden !important;
+          @page {
+            size: A4 portrait;
+            margin: 12mm 15mm 15mm 15mm;
           }
-          #print-area, #print-area * {
-            visibility: visible !important;
+
+          /* Reset root dan layout pembungkus Next.js */
+          html, body {
+            overflow: visible !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            color: #000000 !important;
           }
-          #print-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            border: none !important;
-            box-shadow: none !important;
+
+          /* Hilangkan padding top/bottom bawaan AppLayoutWrapper pada saat cetak */
+          main {
             padding: 0 !important;
             margin: 0 !important;
+            max-width: 100% !important;
+          }
+
+          .ba-container {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          /* Sembunyikan elemen navigasi luar */
+          header, nav, aside, footer, .print\\:hidden {
+            display: none !important;
+          }
+
+          /* Pastikan wrapper berita acara berada tepat di atas halaman cetak */
+          #print-area {
+            display: block !important;
+            position: static !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+
+          /* Aturan pemotongan halaman tabel & baris agar tidak terpotong canggung */
+          table {
+            page-break-inside: auto !important;
+          }
+          tr {
+            page-break-inside: avoid !important;
+            page-break-after: auto !important;
+          }
+          thead {
+            display: table-header-group !important;
+          }
+          tfoot {
+            display: table-footer-group !important;
+          }
+
+          /* Blok tanda tangan jangan terbelah di akhir halaman */
+          .signature-section {
+            page-break-inside: avoid !important;
           }
         }
       `}} />
@@ -142,141 +216,179 @@ export default async function BeritaAcaraPage({
         <PrintButton />
       </div>
 
-      {/* Main Minutes Paper (Isolated Print Area) */}
-      <div id="print-area" className="bg-white border border-[#e8e8e8] rounded-[16px] p-8 sm:p-12 shadow-md space-y-8 print:border-none print:shadow-none print:p-0">
+      {/* Main Minutes Paper (Isolated Print Area) - Dokumen Resmi / Kedinasan */}
+      <div
+        id="print-area"
+        className="bg-white text-black border border-neutral-300 p-8 sm:p-12 space-y-6 shadow-sm print:border-none print:shadow-none print:p-0 print:m-0 font-sans"
+        style={{ borderRadius: 0 }}>
 
         {/* Title */}
-        <div className="text-center">
-          <h2 className="text-lg font-black text-[#090c1d] uppercase tracking-wide">
-            BERITA ACARA PENILAIAN {evaluation.isFinished ? 'FINAL (SELESAI)' : 'SEMENTARA'}
-          </h2>
+        <div className="text-center pb-2 border-b border-black">
+          <h1 className="text-base sm:text-lg font-bold text-black uppercase tracking-wider">
+            BERITA ACARA PENILAIAN {evaluation.isFinished ? 'FINAL' : 'SEMENTARA'}
+          </h1>
+          <p className="text-xs text-neutral-700 tracking-wide mt-0.5">
+            EVALUASI KINERJA PENYELENGGARAAN PELAYANAN PUBLIK TAHUN {evaluation.year}
+          </p>
         </div>
 
         {/* Intro */}
-        <p className="text-xs text-[#202020] leading-relaxed">
-          Pada tanggal <strong>{formatIndoDate(lastAssessmentDate)}</strong>, Tim Evaluator PEKPPP Kabupaten Kutai Barat telah menyelesaikan pemantauan dan evaluasi penilaian {evaluation.isFinished ? 'final (telah ditandai selesai)' : 'sementara'} terhadap kinerja penyelenggara pelayanan publik pada unit kerja di bawah ini:
+        <p className="text-xs text-neutral-800 leading-relaxed text-justify">
+          Pada tanggal <strong>{formatIndoDate(lastAssessmentDate)}</strong>, Tim Evaluator PEKPPP Bagian Organisasi Sekretariat Daerah Kabupaten Kutai Barat telah melaksanakan pemantauan dan evaluasi penilaian {evaluation.isFinished ? 'final' : 'sementara'} terhadap kinerja penyelenggaraan pelayanan publik pada unit kerja sebagai berikut:
         </p>
 
         {/* Identity Table */}
-        <table className="w-full text-xs border border-[#e8e8e8] rounded-[8px] overflow-hidden">
+        <table className="w-full text-xs border border-neutral-300" style={{ borderCollapse: 'collapse' }}>
           <tbody>
-            <tr className="border-b border-[#e8e8e8]">
-              <td className="w-1/3 bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Nama Unit / Lokus</td>
-              <td className="px-4 py-2.5 font-bold text-[#090c1d]">{evaluation.unit.name}</td>
-            </tr>
-            <tr className="border-b border-[#e8e8e8]">
-              <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Kategori Pelayanan</td>
-              <td className="px-4 py-2.5 text-[#202020]">{evaluation.unit.category?.name || '-'}</td>
-            </tr>
-            <tr className="border-b border-[#e8e8e8]">
-              <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Tahun Penilaian</td>
-              <td className="px-4 py-2.5 text-[#202020] font-medium tabular-nums">{evaluation.year}</td>
-            </tr>
-            <tr className="border-b border-[#e8e8e8]">
-              <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Status Penilaian</td>
-              <td className="px-4 py-2.5 font-bold">
-                {evaluation.isFinished ? (
-                  <span className="text-emerald-700 font-bold uppercase tracking-wider text-xs">
-                    ✓ SELESAI
-                  </span>
-                ) : (
-                  <span className="text-amber-700 font-bold uppercase tracking-wider text-xs">
-                    DALAM PROSES / SEMENTARA
-                  </span>
-                )}
+            <tr className="border-b border-neutral-300">
+              <td className="w-1/3 bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Nama Unit / Lokus
+              </td>
+              <td className="px-3 py-2 font-semibold text-black">
+                {evaluation.unit.name}
               </td>
             </tr>
-            <tr className="border-b border-[#e8e8e8]">
-              <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Rincian Instrumen PEKPPP</td>
-              <td className="px-4 py-2.5 text-[#202020]">
-                F-02 Evaluator (75%): <strong>{f02Pct.toFixed(2)}%</strong> | F-03 Survei Responden (25%): <strong>{hasF03 ? `${f03AvgPct.toFixed(2)}% (${evaluation.f03Count}/${targetQuota} resp${isF03Qualified ? '' : ' - Kuota Belum Cukup'})` : 'Belum Terisi'}</strong>
+            <tr className="border-b border-neutral-300">
+              <td className="bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Kategori Pelayanan
+              </td>
+              <td className="px-3 py-2 text-black">
+                {evaluation.unit.category?.name || '-'}
               </td>
             </tr>
-            <tr className="border-b border-[#e8e8e8]">
-              <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Indeks Pelayanan Publik (IPP) Final</td>
-              <td className="px-4 py-2.5 text-slate-900 font-bold text-sm">
+            <tr className="border-b border-neutral-300">
+              <td className="bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Tahun Penilaian
+              </td>
+              <td className="px-3 py-2 text-black font-medium tabular-nums">
+                {evaluation.year}
+              </td>
+            </tr>
+            <tr className="border-b border-neutral-300">
+              <td className="bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Status Penilaian
+              </td>
+              <td className="px-3 py-2 font-semibold text-black">
+                {evaluation.isFinished ? 'SELESAI' : 'DALAM PROSES / SEMENTARA'}
+              </td>
+            </tr>
+            <tr className="border-b border-neutral-300">
+              <td className="bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Rincian Formulir PEKPPP
+              </td>
+              <td className="px-3 py-2 text-black">
+                F-02 Evaluator (75%): {f02Pct.toFixed(2)}% | F-03 Survei Responden (25%): {hasF03 ? `${f03AvgPct.toFixed(2)}% (${evaluation.f03Count}/${targetQuota} resp${isF03Qualified ? '' : ' - Kuota Belum Cukup'})` : 'Belum Terisi'}
+              </td>
+            </tr>
+            <tr className="border-b border-neutral-300">
+              <td className="bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Indeks Pelayanan Publik (IPP)
+              </td>
+              <td className="px-3 py-2 text-black font-semibold">
                 {finalPct.toFixed(2)}% (Skala 5: {finalScale5.toFixed(2)})
               </td>
             </tr>
             <tr>
-              <td className="bg-[#f8f9fa] px-4 py-2.5 font-bold text-[#646464]">Grade & Predikat</td>
-              <td className="px-4 py-2.5 text-[#202020]">
-                <span className="font-bold text-sm text-[#090c1d]">{grade}</span> - {predicate}
+              <td className="bg-neutral-100 px-3 py-2 font-medium text-neutral-700 border-r border-neutral-300">
+                Grade &amp; Predikat
+              </td>
+              <td className="px-3 py-2 text-black font-semibold">
+                {grade} ({predicate})
               </td>
             </tr>
           </tbody>
         </table>
 
-        {/* Aspect Breakdown Summary */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#090c1d] border-b border-[#e8e8e8] pb-1.5">
+        {/* Aspect Breakdown Summary (Formal Compact Table, No Rounded Cards) */}
+        <div className="space-y-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-black border-b border-neutral-300 pb-1">
             1. Rincian Capaian per Aspek Penilaian
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {Object.entries(calculation.aspectResults).map(([code, res]) => (
-              <div key={code} className="p-3 bg-[#f8f9fa] border border-[#e8e8e8] rounded-[8px]">
-                <span className="text-[9px] font-mono uppercase text-[#838383] block truncate">
-                  {code}
-                </span>
-                <span className="text-xs font-bold text-[#202020] block mt-0.5">
-                  {res.percentage.toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
+          </h2>
+          <table className="w-full text-xs border border-neutral-300" style={{ borderCollapse: 'collapse' }}>
+            <thead className="bg-neutral-100 border-b border-neutral-300 text-neutral-700">
+              <tr>
+                <th className="px-2.5 py-1.5 text-center w-[50px] font-semibold border-r border-neutral-300">Kode</th>
+                <th className="px-3 py-1.5 text-left font-semibold border-r border-neutral-300">Dimensi Aspek Standar Pelayanan</th>
+                <th className="px-3 py-1.5 text-center w-[90px] font-semibold border-r border-neutral-300">Bobot</th>
+                <th className="px-3 py-1.5 text-center w-[100px] font-semibold">Capaian Nilai</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-300">
+              {Object.entries(calculation.aspectResults).map(([code, res]) => (
+                <tr key={code}>
+                  <td className="px-2.5 py-1.5 text-center font-mono text-neutral-800 border-r border-neutral-300">
+                    {code}
+                  </td>
+                  <td className="px-3 py-1.5 text-neutral-900 border-r border-neutral-300 font-medium">
+                    {res.aspectName || code}
+                  </td>
+                  <td className="px-3 py-1.5 text-center text-neutral-800 border-r border-neutral-300">
+                    {res.aspectWeight}%
+                  </td>
+                  <td className="px-3 py-1.5 text-center font-semibold text-black">
+                    {res.percentage.toFixed(1)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Detailed per Question Section */}
-        <div className="space-y-3 pt-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#090c1d] border-b border-[#e8e8e8] pb-1.5">
-            2. Rincian Penilaian & Catatan Evaluator per Pertanyaan
-          </h3>
+        <div className="space-y-2 pt-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-black border-b border-neutral-300 pb-1">
+            2. Rincian Penilaian &amp; Catatan Evaluator per Indikator
+          </h2>
 
-          <div className="border border-[#e8e8e8] rounded-[8px] overflow-hidden">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-[#f8f9fa] border-b border-[#e8e8e8] text-[10px] font-semibold uppercase tracking-[0.06em] text-[#838383]">
-                <tr>
-                  <th className="px-3 py-2 text-center w-[50px]">No</th>
-                  <th className="px-3 py-2">Pertanyaan</th>
-                  <th className="px-3 py-2 text-center w-[70px]">Skor</th>
-                  <th className="px-3 py-2">Catatan Evaluator</th>
+          <table className="w-full text-xs border border-neutral-300" style={{ borderCollapse: 'collapse' }}>
+            <thead className="bg-neutral-100 border-b border-neutral-300 text-neutral-700">
+              <tr>
+                <th className="px-2 py-1.5 text-center w-[45px] font-semibold border-r border-neutral-300">No</th>
+                <th className="px-3 py-1.5 text-left font-semibold border-r border-neutral-300">Indikator Pertanyaan</th>
+                <th className="px-2.5 py-1.5 text-center w-[60px] font-semibold border-r border-neutral-300">Skor</th>
+                <th className="px-3 py-1.5 text-left font-semibold">Catatan Evaluator</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-300">
+              {evaluation.scores.map((s) => (
+                <tr key={s.id}>
+                  <td className="px-2 py-2 text-center text-neutral-700 border-r border-neutral-300 font-mono">
+                    {s.indicator.indicatorNumber}
+                  </td>
+                  <td className="px-3 py-2 text-neutral-900 leading-normal border-r border-neutral-300">
+                    {s.indicator.question}
+                  </td>
+                  <td className="px-2.5 py-2 text-center font-semibold text-black border-r border-neutral-300">
+                    {s.score ?? '-'}
+                  </td>
+                  <td className="px-3 py-2 text-neutral-700 leading-normal">
+                    {s.notes && s.notes.trim() !== '' ? s.notes : <span className="text-neutral-400 italic">Tidak ada catatan</span>}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e8e8e8]">
-                {evaluation.scores.map((s) => (
-                  <tr key={s.id} className="hover:bg-[#f8f9fa]/50">
-                    <td className="px-3 py-2.5 text-center font-bold text-[#646464]">{s.indicator.indicatorNumber}</td>
-                    <td className="px-3 py-2.5 text-[#202020] font-medium leading-relaxed">{s.indicator.question}</td>
-                    <td className="px-3 py-2.5 text-center font-bold">
-                      <span className={`px-2 py-0.5 rounded text-[10px] ${s.score !== null ? 'bg-amber-50 border border-amber-200 text-amber-700' : 'bg-gray-100 text-gray-400'}`}>
-                        {s.score ?? '-'}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-[#646464] italic leading-normal">
-                      {s.notes && s.notes.trim() !== '' ? s.notes : <span className="text-[#b3b3b3]">Tidak ada catatan</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Signature Box */}
-        <div className="pt-8 grid grid-cols-2 gap-8 text-xs">
-          <div className="text-center space-y-12">
-            <div>Perwakilan Unit Kerja / OPD,</div>
+        <div className="signature-section pt-8 grid grid-cols-2 gap-8 text-xs text-black">
+          <div className="text-center space-y-16">
+            <div>Perwakilan Unit Kerja / Lokus Pelayanan,</div>
             <div className="space-y-0.5">
-              <div className="font-bold border-b border-dashed border-[#646464] inline-block px-12 pb-0.5"></div>
-              <div className="text-[#838383] text-[10px]">NIP. </div>
+              <div className="font-semibold underline inline-block min-w-[200px]">
+                ( ............................................................ )
+              </div>
+              <div className="text-neutral-600 text-[11px]">NIP. </div>
             </div>
           </div>
 
-          <div className="text-center space-y-12">
-            <div>Tim Evaluator Pemda,</div>
+          <div className="text-center space-y-16">
+            <div>Tim Evaluator Bagian Organisasi Setdakab,</div>
             <div className="space-y-0.5">
-              <div className="font-bold border-b border-dashed border-[#646464] inline-block px-12 pb-0.5"></div>
-              <div className="text-[#838383] text-[10px]">NIP. </div>
+              <div className="font-semibold underline inline-block min-w-[200px]">
+                ( ............................................................ )
+              </div>
+              <div className="text-neutral-600 text-[11px]">NIP. </div>
             </div>
           </div>
         </div>

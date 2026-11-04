@@ -51,6 +51,24 @@ export default async function PublicHasilDetailPage({
     notFound()
   }
 
+  // Cek kepemilikan lokus untuk akses fitur privat (seperti Cetak Berita Acara)
+  let isOwner = false
+  if (currentUser) {
+    if (isSuperAdmin) {
+      isOwner = true
+    } else if (currentUser.role === 'OPD') {
+      const userUnit = await db.userUnit.findUnique({
+        where: {
+          userId_unitId: {
+            userId: currentUser.id,
+            unitId: evaluation.unitId
+          }
+        }
+      })
+      isOwner = Boolean(userUnit)
+    }
+  }
+
   // Cek status publikasi pada periode tahun terkait
   const period = await db.evaluationPeriod.findUnique({
     where: { year: evaluation.year }
@@ -193,10 +211,12 @@ export default async function PublicHasilDetailPage({
             </p>
 
             <div className="flex flex-wrap items-center gap-2.5 pt-2 pl-0 sm:pl-11.5">
-              <PrintBeritaAcaraButton
-                evaluationId={evaluation.id}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-white/95 text-brand text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
-              />
+              {isOwner && (
+                <PrintBeritaAcaraButton
+                  evaluationId={evaluation.id}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-white/95 text-brand text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                />
+              )}
               {evaluation.isFinished ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 text-white border border-white/25 text-xs font-semibold backdrop-blur-xs">
                   <CheckCircle2 className="w-3.5 h-3.5 text-white" /> Penilaian Selesai

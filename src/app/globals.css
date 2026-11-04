@@ -65,6 +65,7 @@
 
 html {
   overflow-x: hidden;
+  overflow-y: scroll;
   max-width: 100%;
 }
 
@@ -630,6 +631,204 @@ html {
     margin-top: 0 !important;
   }
 }
+
+/* ── WYSIWYG & Article Rich Content Styling (Tiptap & Reader) ── */
+.tiptap,
+.article-content {
+  font-family: inherit;
+  color: var(--ink);
+  line-height: 1.8;
+}
+
+.tiptap p,
+.article-content p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap h1,
+.article-content h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.tiptap h2,
+.article-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 1.5rem;
+  margin-bottom: 0.625rem;
+  color: var(--ink);
+}
+
+.tiptap h3,
+.article-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+
+/* Lists: Bullet & Ordered */
+.tiptap ul,
+.article-content ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.tiptap ol,
+.article-content ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.tiptap li,
+.article-content li {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  padding-left: 0.25rem;
+}
+
+.tiptap li > p,
+.article-content li > p {
+  margin: 0;
+  display: inline;
+}
+
+/* Blockquote */
+.tiptap blockquote,
+.article-content blockquote {
+  border-left: 4px solid var(--brand) !important;
+  background-color: var(--surface-subtle);
+  padding: 0.75rem 1.25rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.dark .tiptap blockquote,
+.dark .article-content blockquote {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.tiptap blockquote p,
+.article-content blockquote p {
+  margin: 0;
+}
+
+/* Horizontal Rule / Divider */
+.tiptap hr,
+.article-content hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Tables */
+.tiptap table,
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.tiptap th,
+.article-content th {
+  border: 1px solid var(--line);
+  background-color: var(--surface-subtle);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+
+.tiptap td,
+.article-content td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+
+/* Images */
+.tiptap img,
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+/* Links */
+.tiptap a,
+.article-content a {
+  color: var(--brand);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.tiptap a:hover,
+.article-content a:hover {
+  color: var(--brand-hover);
+}
+
+/* Code */
+.tiptap code,
+.article-content code {
+  background-color: var(--surface-subtle);
+  color: var(--brand);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+  font-family: var(--font-mono);
+}
+
+.tiptap pre,
+.article-content pre {
+  background-color: #0F172A;
+  color: #F8FAFC;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+/* Placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  color: var(--ink-muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
 
 
 

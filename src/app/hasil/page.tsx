@@ -1,12 +1,9 @@
 import { db } from '../../services/db'
 import { calculateEffectiveF03AndIpp } from '../../core/domain/pekppp-calculator'
-import { BarChart3, Trophy, Building2, ClipboardList, CheckCircle2, Lock, ShieldAlert, Eye, Calendar, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { PageHeader } from '../../components/ui/PageHeader'
-import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
 import { getCurrentUserAction } from '../../actions/auth-actions'
 import { PublicReportButton } from '../../components/features/PublicReportButton'
 
@@ -87,14 +84,13 @@ export default async function HasilPage({
     : '-'
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12 font-sans">
-      {/* Header */}
+    <div className="space-y-8 sm:space-y-10 max-w-6xl mx-auto pb-16 font-sans">
+      {/* ── Page Header ── */}
       <PageHeader
-        icon={<Trophy className="w-5 h-5 text-brand" />}
-        title="Peringkat Capaian &amp; Hasil PEKPPP"
-        description={`Peringkat indeks pelayanan publik lokus evaluasi tahun ${activeYear} (gabungan evaluator 75% & survei responden 25%).`}
+        title="Rekapitulasi Indeks Pelayanan Publik (IPP)"
+        description={`Peringkat dan capaian indeks pelayanan publik Kabupaten Kutai Barat Tahun ${activeYear} berdasarkan komposisi terpadu evaluasi daerah (75%) dan survei kepuasan masyarakat (25%).`}
         actions={
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             {allPeriods.length > 0 && (
               <YearSelector
                 currentYear={activeYear}
@@ -105,94 +101,92 @@ export default async function HasilPage({
               <PublicReportButton year={activeYear} />
             )}
             <Badge variant={isPublished ? 'info' : 'neutral'} size="sm">
-              {isPublished ? 'Telah Dipublikasikan' : 'Internal / Draft'}
+              {isPublished ? 'Publikasi Resmi' : 'Draft Internal'}
             </Badge>
           </div>
         }
       />
 
-      {/* Admin Notice if viewing unpublished in preview mode */}
+      {/* ── Admin Notice (Preview Mode) ── */}
       {!isPublished && isSuperAdmin && (
-        <div className="rounded-bento border border-brand/40 bg-brand-light/30 p-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0">
-              <Eye className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-ink">Mode Pratinjau Administrator</div>
-              <div className="text-[11px] text-ink-muted">
-                Hasil evaluasi Tahun {activeYear} ini belum dipublikasikan ke publik. Hanya Tim Administrator / Evaluator yang dapat melihat data ini sebelum dirilis resmi.
-              </div>
+        <div className="rounded-2xl border border-brand/20 bg-brand/5 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <div className="text-xs font-semibold text-brand tracking-wide uppercase">Mode Pratinjau Administrator</div>
+            <div className="text-xs text-ink-muted leading-relaxed">
+              Hasil evaluasi Tahun {activeYear} saat ini belum dipublikasikan ke publik. Hanya Tim Administrator / Evaluator yang memiliki akses sebelum penetapan resmi.
             </div>
           </div>
           <Link href={`/admin/periode/${activeYear}`}>
             <Button variant="brand" size="sm">
-              Publikasikan di Portal Admin
+              Manajemen Periode
             </Button>
           </Link>
         </div>
       )}
 
-      {/* If NOT published and NOT super admin: Show Informative Waiting State */}
+      {/* ── State: Belum Dipublikasikan ── */}
       {!canViewResults ? (
-        <div className="rounded-bento border border-stroke/50 bg-surface p-12 sm:p-16 text-center space-y-5 shadow-soft-card">
-          <div className="w-16 h-16 rounded-3xl bg-surface-subtle border border-stroke/60 mx-auto flex items-center justify-center text-ink-muted shadow-inner">
-            <Lock className="w-8 h-8 text-brand" />
-          </div>
+        <div className="rounded-2xl border border-line bg-surface p-10 sm:p-14 text-center space-y-6 shadow-2xs">
           <div className="max-w-md mx-auto space-y-2">
-            <h2 className="text-lg sm:text-xl font-semibold text-ink tracking-tight">
+            <span className="text-[11px] font-semibold tracking-wider text-ink-muted uppercase">Status Periode</span>
+            <h2 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
               Hasil Evaluasi Tahun {activeYear} Belum Dipublikasikan
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
-              Hasil akhir penilaian dan peringkat indeks pelayanan publik (IPP) untuk periode Tahun {activeYear} saat ini masih dalam tahap verifikasi, audit tim evaluator, dan rekapitulasi data.
+            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+              Hasil akhir penilaian dan peringkat indeks pelayanan publik (IPP) untuk periode Tahun {activeYear} sedang dalam tahapan verifikasi bukti dukung, validasi silang tim evaluator, dan rekapitulasi data.
             </p>
           </div>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-subtle border border-stroke/60 text-xs font-medium text-ink-muted">
-              <Calendar className="w-3.5 h-3.5 text-brand" />
-              <span>Periode Evaluasi: Tahun {activeYear}</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-subtle border border-stroke/60 text-xs font-medium text-ink-muted">
-              <Sparkles className="w-3.5 h-3.5 text-brand" />
-              <span>Akan dirilis setelah penetapan resmi</span>
-            </div>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5 text-xs text-ink-muted">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-subtle border border-line">
+              Periode: Tahun {activeYear}
+            </span>
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-subtle border border-line">
+              Penetapan Resmi: Kementerian PAN-RB
+            </span>
           </div>
         </div>
       ) : (
         <>
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <StatCard
-              icon={<Building2 className="w-4 h-4 text-brand" />}
-              label="Total Evaluasi"
-              value={sortedEvaluations.length}
-              sublabel="Unit lokus pelayanan terdata"
-              valueClassName="font-mono font-semibold"
-            />
-            <StatCard
-              icon={<Trophy className="w-4 h-4 text-emerald-600" />}
-              label="Predikat Prima / Baik (A/B)"
-              value={sortedEvaluations.filter((e) => e.finalPct >= 75).length}
-              sublabel={`${sortedEvaluations.length > 0 ? ((sortedEvaluations.filter((e) => e.finalPct >= 75).length / sortedEvaluations.length) * 100).toFixed(0) : 0}% dari seluruh lokus`}
-              valueClassName="font-mono font-semibold"
-            />
-            <StatCard
-              icon={<BarChart3 className="w-4 h-4 text-brand" />}
-              label="Rata-Rata IPP Final"
-              value={`${avgIpp}%`}
-              sublabel={`Skala 5: ${(Number(avgIpp) * 5 / 100).toFixed(2)} / 5.00`}
-              valueClassName="font-mono font-semibold"
-            />
+          {/* ── Summary Stats ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-2xs space-y-1.5">
+              <div className="text-xs font-medium text-ink-muted">Total Lokus Pelayanan</div>
+              <div className="text-2xl sm:text-3xl font-bold text-ink tracking-tight font-mono">
+                {sortedEvaluations.length}
+              </div>
+              <div className="text-[11px] text-ink-muted">Unit kerja terdaftar dalam periode {activeYear}</div>
+            </div>
+
+            <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-2xs space-y-1.5">
+              <div className="text-xs font-medium text-ink-muted">Rata-Rata IPP Kabupaten</div>
+              <div className="text-2xl sm:text-3xl font-bold text-brand tracking-tight font-mono">
+                {avgIpp}%
+              </div>
+              <div className="text-[11px] text-ink-muted">
+                Konversi Skala 5: {avgIpp !== '-' ? ((Number(avgIpp) * 5) / 100).toFixed(2) : '-'} / 5.00
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-2xs space-y-1.5">
+              <div className="text-xs font-medium text-ink-muted">Predikat Prima / Baik (A &amp; B)</div>
+              <div className="text-2xl sm:text-3xl font-bold text-ink tracking-tight font-mono">
+                {sortedEvaluations.filter((e) => e.finalPct >= 75).length}
+              </div>
+              <div className="text-[11px] text-ink-muted">
+                {sortedEvaluations.length > 0
+                  ? `${((sortedEvaluations.filter((e) => e.finalPct >= 75).length / sortedEvaluations.length) * 100).toFixed(0)}% dari seluruh lokus terevaluasi`
+                  : '0%'}
+              </div>
+            </div>
           </div>
 
-          {/* Leaderboard Table with Auto Loadmore (Server-Side Refetch) */}
+          {/* ── Leaderboard Table ── */}
           {sortedEvaluations.length === 0 ? (
-            <div className="rounded-bento border border-stroke/50 bg-surface p-12 text-center space-y-3 shadow-soft-card">
-              <BarChart3 className="w-8 h-8 text-ink-muted mx-auto" />
-              <p className="text-sm font-semibold text-ink">Belum ada data evaluasi.</p>
-              <p className="text-xs text-ink-muted font-normal">
-                Silakan lengkapi form evaluasi mandiri atau pengisian evaluator terlebih dahulu.
+            <div className="rounded-2xl border border-line bg-surface p-12 text-center space-y-2 shadow-2xs">
+              <p className="text-sm font-semibold text-ink">Belum ada data evaluasi</p>
+              <p className="text-xs text-ink-muted leading-relaxed max-w-sm mx-auto">
+                Silakan lengkapi instrumen evaluasi mandiri atau pengisian evaluator terlebih dahulu untuk memunculkan rekapitulasi.
               </p>
             </div>
           ) : (

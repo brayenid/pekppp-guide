@@ -10,6 +10,7 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const isPublicSurvey = pathname?.startsWith('/survei')
   const isSharedEvidence = pathname?.startsWith('/shared')
   const isDashboard = pathname?.startsWith('/admin') || pathname?.startsWith('/opd')
+  const isHome = pathname === '/'
 
   if (isPublicSurvey || isSharedEvidence) {
     return <>{children}</>
@@ -27,7 +28,7 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   return (
     <HeaderProvider>
       <Navbar />
-      <main className="flex-1 w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-6 min-w-0 max-w-full overflow-x-clip">
+      <main className={`flex-1 w-full min-w-0 max-w-full overflow-x-clip ${isHome ? '' : 'pt-20 sm:pt-24 pb-12 max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8'}`}>
         {children}
       </main>
       <Footer />

@@ -184,11 +184,11 @@ export function F01QuestionForm({
                   : ''
               }`}>
               <div className="flex items-start justify-between gap-2">
-                <label className="block text-sm sm:text-base font-semibold text-ink leading-relaxed">
+                <label className="block text-xs sm:text-sm font-medium text-ink leading-relaxed">
                   {item.text}
                 </label>
                 {isTarget && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand text-white shrink-0">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand text-white shrink-0">
                     Fokus Target
                   </span>
                 )}
@@ -196,13 +196,13 @@ export function F01QuestionForm({
 
               {/* Input Type: Yes / No */}
               {item.type === 'yes_no' && (
-                <div className="flex items-center gap-2.5 pt-0.5">
+                <div className="flex items-center gap-2 pt-0.5">
                   {['Ya', 'Tidak'].map((opt) => {
                     const isSelected = f01State[item.id] === opt
                     return (
                       <label
                         key={opt}
-                        className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
                           isSelected
                             ? 'bg-brand text-white border-brand shadow-hz-button ring-1 ring-brand/40'
                             : 'bg-surface-elevated text-ink border-stroke hover:border-brand/60 hover:bg-surface-subtle'
@@ -225,15 +225,15 @@ export function F01QuestionForm({
 
               {/* Input Type: Single Select */}
               {item.type === 'single_select' && item.options && (
-                <div className="space-y-2 pt-0.5">
+                <div className="space-y-1.5 pt-0.5">
                   {item.options.map((opt) => {
                     const isSelected = f01State[item.id] === opt
                     return (
                       <label
                         key={opt}
-                        className={`p-3.5 rounded-xl text-sm border flex items-center gap-3 cursor-pointer transition-all shadow-2xs ${
+                        className={`p-3 rounded-xl text-xs sm:text-sm border flex items-center gap-2.5 cursor-pointer transition-all shadow-2xs ${
                           isSelected
-                            ? 'bg-brand-light/60 border-brand text-brand font-semibold ring-1 ring-brand/40'
+                            ? 'bg-brand-light/60 border-brand text-brand font-medium ring-1 ring-brand/40'
                             : 'bg-surface-elevated border-stroke text-ink hover:bg-surface-subtle hover:border-brand/40 font-normal'
                         }`}>
                         <input
@@ -243,7 +243,7 @@ export function F01QuestionForm({
                           value={opt}
                           checked={isSelected}
                           onChange={() => handleInputChange(item.id, opt)}
-                          className="accent-brand w-4 h-4 shrink-0"
+                          className="accent-brand w-3.5 h-3.5 shrink-0"
                         />
                         <span className="leading-relaxed">{opt}</span>
                       </label>
@@ -254,16 +254,16 @@ export function F01QuestionForm({
 
               {/* Input Type: Multi Select */}
               {item.type === 'multi_select' && item.options && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
                   {item.options.map((opt) => {
                     const selectedList: string[] = Array.isArray(f01State[item.id]) ? f01State[item.id] : []
                     const isChecked = selectedList.includes(opt)
                     return (
                       <label
                         key={opt}
-                        className={`p-3.5 rounded-xl text-sm border flex items-center gap-3 cursor-pointer transition-all shadow-2xs ${
+                        className={`p-3 rounded-xl text-xs sm:text-sm border flex items-center gap-2.5 cursor-pointer transition-all shadow-2xs ${
                           isChecked
-                            ? 'bg-brand-light/60 border-brand text-brand font-semibold ring-1 ring-brand/40'
+                            ? 'bg-brand-light/60 border-brand text-brand font-medium ring-1 ring-brand/40'
                             : 'bg-surface-elevated border-stroke text-ink hover:bg-surface-subtle hover:border-brand/40 font-normal'
                         }`}>
                         <input
@@ -271,7 +271,7 @@ export function F01QuestionForm({
                           disabled={!isEditable}
                           checked={isChecked}
                           onChange={() => handleMultiSelectToggle(item.id, opt)}
-                          className="accent-brand rounded w-4 h-4 shrink-0"
+                          className="accent-brand rounded w-3.5 h-3.5 shrink-0"
                         />
                         <span className="leading-snug">{opt}</span>
                       </label>
@@ -300,7 +300,7 @@ export function F01QuestionForm({
                     value={f01State[item.id] ?? ''}
                     onChange={(e) => handleInputChange(item.id, e.target.value, item.type)}
                     placeholder="Tulis isian jawaban..."
-                    className={`w-full px-4 py-2.5 text-sm font-normal rounded-xl border bg-surface focus:outline-none transition-all shadow-2xs ${
+                    className={`w-full px-3.5 py-2 text-xs sm:text-sm font-normal rounded-xl border bg-surface focus:outline-none transition-all shadow-2xs ${
                       item.id === 'q1a_jumlah_sp' && isQ1Warning
                         ? 'border-amber-400 focus:border-amber-500 text-ink'
                         : 'border-stroke/60 focus:border-brand text-ink placeholder:text-ink-muted'
@@ -328,13 +328,13 @@ export function F01QuestionForm({
                     value={f01State[item.id] ?? ''}
                     onChange={(e) => handleInputChange(item.id, e.target.value)}
                     placeholder="Uraikan penjelasan lengkap..."
-                    className="w-full px-4 py-2.5 text-sm font-normal rounded-xl border border-stroke/60 bg-surface focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted transition-all shadow-2xs resize-y leading-relaxed"
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm font-normal rounded-xl border border-stroke/60 bg-surface focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted transition-all shadow-2xs resize-y leading-relaxed"
                   />
                 </div>
               )}
 
               {item.note && (
-                <p className="text-xs sm:text-sm text-ink-muted italic flex items-center gap-1.5 pt-0.5 font-normal">
+                <p className="text-xs text-ink-muted italic flex items-center gap-1.5 pt-0.5 font-normal">
                   <Info className="w-3.5 h-3.5 text-ink-muted/80 shrink-0" /> {item.note}
                 </p>
               )}

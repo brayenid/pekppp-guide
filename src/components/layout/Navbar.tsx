@@ -21,7 +21,9 @@ import {
   LogOut,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  FolderOpen,
+  Newspaper
 } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 import { UserNavDropdown } from './UserNavDropdown'
@@ -30,7 +32,9 @@ const NAV_ITEMS = [
   { href: '/', label: 'Beranda', icon: Home },
   { href: '/alur-proses', label: 'Alur Proses', icon: Workflow },
   { href: '/hasil', label: 'Hasil Evaluasi', icon: BarChart3 },
+  { href: '/kabar', label: 'Kabar & Artikel', icon: Newspaper },
   { href: '/wiki', label: 'Wiki Indikator', icon: BookOpen },
+  { href: '/contoh-berkas', label: 'Contoh Berkas', icon: FolderOpen },
   { href: '/panduan', label: 'Panduan', icon: FileText },
   { href: '/regulasi', label: 'Regulasi', icon: Shield }
 ]
@@ -109,82 +113,35 @@ export function Navbar() {
   const isOpd = pathname.startsWith('/opd')
   const isEvaluation = pathname.startsWith('/evaluasi')
   const dashboardHref = user?.role === 'SUPER_ADMIN' ? '/admin' : '/opd'
+  const isHome = pathname === '/'
 
-  const [translateY, setTranslateY] = useState(0)
-  const prevScrollY = useRef(0)
-  const currentTranslateY = useRef(0)
-  const NAVBAR_HEIGHT = 64
+  const [isScrolled, setIsScrolled] = useState(false)
 
-  // Helper untuk sinkronisasi CSS variable secara synchronous saat scroll
-  const updateCssVars = (transY: number) => {
-    if (typeof document !== 'undefined') {
-      const visibleHeight = Math.max(0, NAVBAR_HEIGHT + transY)
-      document.documentElement.style.setProperty('--nav-visible-height', `${visibleHeight}px`)
-      document.documentElement.style.setProperty('--navbar-translate-y', `${transY}px`)
-    }
-  }
-
-  // Proportional delta scroll (auto-hide & auto-reveal)
+  // Track scroll position to transition from transparent (hero) to frosted brand glass
   useEffect(() => {
-    // Reset saat drawer terbuka atau rute berubah
-    if (mobileDrawerOpen) {
-      currentTranslateY.current = 0
-      setTranslateY(0)
-      updateCssVars(0)
-      return
-    }
-
     const handleScroll = () => {
-      const scrollY = window.scrollY
-      const deltaY = scrollY - prevScrollY.current
-
-      // Abaikan pergeseran mikro/jitter di bawah 4px
-      if (Math.abs(deltaY) < 4) {
-        return
-      }
-
-      // Jika di paling atas halaman, kunci terlihat penuh
-      if (scrollY <= 0) {
-        currentTranslateY.current = 0
-        setTranslateY(0)
-        updateCssVars(0)
-        prevScrollY.current = scrollY
-        return
-      }
-
-      // Hitung pergeseran proporsional: deltaY positif (scroll ke bawah) -> geser ke atas (-px)
-      // deltaY negatif (scroll ke atas) -> geser ke bawah (+px)
-      const nextTranslate = Math.max(
-        -NAVBAR_HEIGHT,
-        Math.min(0, currentTranslateY.current - deltaY)
-      )
-
-      currentTranslateY.current = nextTranslate
-      setTranslateY(nextTranslate)
-      updateCssVars(nextTranslate)
-      prevScrollY.current = scrollY
+      setIsScrolled(window.scrollY > 20)
     }
-
-    // Inisialisasi saat pertama kali mount atau route change
-    if (typeof window !== 'undefined') {
-      const initialTranslate = window.scrollY <= 0 ? 0 : Math.max(-NAVBAR_HEIGHT, -window.scrollY)
-      currentTranslateY.current = initialTranslate
-      setTranslateY(initialTranslate)
-      updateCssVars(initialTranslate)
-      prevScrollY.current = window.scrollY
-    }
-
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [mobileDrawerOpen, pathname])
+  }, [])
+
+  // Dynamic navbar styling:
+  // - Homepage (/): completely transparent at top (merging into the jumbotron), frosts when scrolling.
+  // - Sub-pages (/alur-proses, /hasil, etc.): solid fixed brand navbar.
+  const navbarClasses = isHome
+    ? isScrolled
+      ? 'bg-[#154E9E]/95 dark:bg-[#0B0C10]/95 backdrop-blur-md border-b border-white/10 shadow-md text-white'
+      : 'bg-transparent border-b border-transparent text-white'
+    : 'bg-[#154E9E] dark:bg-[#0B0C10]/95 backdrop-blur-md border-b border-white/10 shadow-sm text-white'
 
   return (
     <>
       <nav
-        style={{ transform: `translate3d(0, ${translateY}px, 0)` }}
-        className="sticky top-0 z-30 w-full bg-brand dark:bg-[#0B0C10]/95 dark:backdrop-blur-md text-white border-b border-brand-hover dark:border-white/[0.08] shadow-md dark:shadow-none will-change-transform">
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${navbarClasses}`}>
         <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group py-0.5 min-w-0 shrink-0">

@@ -14,9 +14,15 @@ import {
   CheckCircle2,
   Award,
   Layers,
-  Sparkles
+  Sparkles,
+  ImageIcon,
+  Calendar,
+  Clock,
+  Star,
+  Newspaper
 } from 'lucide-react'
 import { ModernVectorBackground } from '../components/ui/ModernVectorBackground'
+import { getPublishedArticlesAction } from '../actions/article-actions'
 
 export const revalidate = 0
 
@@ -48,8 +54,14 @@ export default async function HomePage() {
   const activeUnitsDisplay = evaluationsCount > 0 ? evaluationsCount : unitsCount
   const activeIndicatorsDisplay = indicatorsCount > 0 ? indicatorsCount : 31
 
+  // Ambil 3 artikel publikasi terbaru untuk etalase landing page
+  const latestArticlesRes = await getPublishedArticlesAction({ page: 1, limit: 3 })
+  const latestArticles = latestArticlesRes.success && latestArticlesRes.items ? latestArticlesRes.items : []
+
   // Resolve optional uploaded custom landing images
-  const heroImageSrc = resolveLandingImage('hero-kubar')
+  const heroImageSrc = fs.existsSync(path.join(process.cwd(), 'public', 'kantor.png'))
+    ? '/kantor.png'
+    : resolveLandingImage('hero-kubar')
 
   // Determine user dashboard target
   const dashboardLink = currentUser
@@ -116,60 +128,48 @@ export default async function HomePage() {
     }
   ]
 
-  // Workflow Stages with alternating layout configuration
+  // Workflow Stages: Clean 4-step sequence
   const workflowSteps = [
     {
-      step: '01',
-      formCode: 'F-01',
+      stepNum: '1',
+      formCode: 'Formulir F-01',
       title: 'Evaluasi Mandiri',
-      actor: 'OPD / Unit Lokus',
-      badgeText: 'Input Mandiri',
-      desc: 'Pengisian mandiri 31 indikator kinerja dan pengunggahan berkas bukti dukung digital.',
-      sideTag: 'Tahap Awal: Formulir F-01 & Dokumen Eviden',
-      sideNote: 'Unit lokus memvalidasi ketersediaan data dukung sebelum audit lapangan.'
+      actor: 'Unit Layanan / OPD',
+      desc: 'Pada tahap ini, perangkat daerah melakukan pengisian mandiri 31 indikator kinerja standar pelayanan dan mengunggah seluruh berkas bukti dukung digital ke dalam sistem.'
     },
     {
-      step: '02',
-      formCode: 'F-02',
-      title: 'Penilaian & Verifikasi Daerah',
+      stepNum: '2',
+      formCode: 'Formulir F-02 (Bobot 75%)',
+      title: 'Verifikasi & Penilaian Daerah',
       actor: 'Bagian Organisasi Setdakab',
-      badgeText: 'Porsi 75% IPP',
-      desc: 'Pemeriksaan telaah berkas eviden, klarifikasi dokumen faktual, serta uji petik lapangan oleh Tim Penilai Kabupaten.',
-      sideTag: 'Tahap Verifikasi: Uji Petik & Berita Acara',
-      sideNote: 'Evaluator kabupaten memberikan skor objektif berbobot 75% terhadap hasil akhir.'
+      desc: 'Pada tahap ini, Tim Penilai Kabupaten meneliti berkas eviden, melakukan klarifikasi faktual dan uji petik lapangan, lalu menetapkan skor penilaian daerah.'
     },
     {
-      step: '03',
-      formCode: 'F-03',
-      title: 'Validasi Provinsi & Survei SKM',
-      actor: 'Biro Organisasi Prov. Kaltim',
-      badgeText: 'Porsi 25% IPP',
-      desc: 'Harmonisasi dan validasi hasil penilaian kabupaten yang dikombinasikan dengan survei persepsi masyarakat (F-03).',
-      sideTag: 'Tahap Validasi: Survei Persepsi Publik',
-      sideNote: 'Memastikan integritas hasil melalui persepsi langsung dari pengguna layanan.'
+      stepNum: '3',
+      formCode: 'Formulir F-03 (Bobot 25%)',
+      title: 'Survei Kepuasan Masyarakat & Validasi',
+      actor: 'Unit Lokus Pelayanan & Pengguna Layanan',
+      desc: 'Pada tahap ini, unit lokus secara mandiri menyebarkan kuesioner survei F-03 kepada masyarakat penerima layanan hingga kuota responden terpenuhi, yang kemudian divalidasi dan diharmonisasikan bersama pihak provinsi.'
     },
     {
-      step: '04',
-      formCode: 'IPP',
+      stepNum: '4',
+      formCode: 'Indeks Pelayanan Publik (IPP)',
       title: 'Penetapan Hasil Nasional',
       actor: 'Kementerian PAN-RB',
-      badgeText: 'Skor Definitif 100%',
-      desc: 'Penetapan definitif skor kompilasi (75% F-02 + 25% F-03), predikat mutu (A/B/C), dan penerbitan rekomendasi perbaikan resmi.',
-      sideTag: 'Tahap Akhir: Keputusan MenPAN-RB',
-      sideNote: 'Menjadi dasar indeks reformasi birokrasi dan akuntabilitas pelayanan publik nasional.'
+      desc: 'Pada tahap ini, Kementerian PAN-RB menetapkan skor kompilasi akhir 100%, predikat mutu pelayanan (A/B/C), serta menerbitkan rekomendasi perbaikan resmi.'
     }
   ]
 
   return (
-    <div className="max-w-[1360px] mx-auto space-y-12 sm:space-y-14 pb-14">
-      {/* ── 1. Compact Hero with Modern Cartographic Vector Canvas ────────── */}
-      <section className="relative rounded-3xl border border-line bg-surface overflow-hidden shadow-xs">
-        <ModernVectorBackground />
+    <div className="w-full">
+      {/* ── 1. Full-Bleed Hero with Primary Brand Theme in Light Mode, Elegant Deep Dark in Dark Mode ── */}
+      <section className="relative w-full bg-gradient-to-br from-[#154E9E] via-[#1D5BB9] to-[#0A2652] dark:from-[#0B0F19] dark:via-[#111827] dark:to-[#080B11] text-white min-h-screen flex flex-col justify-between pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-10 border-b border-white/15 dark:border-white/10 overflow-hidden">
+        <ModernVectorBackground className="inset-0" />
 
-        <div className="relative z-10 p-6 sm:p-9 lg:p-11 flex flex-col gap-6 sm:gap-8">
+        <div className="relative z-10 max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between flex-1 gap-8 sm:gap-10">
           {/* Institutional Top Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-surface-subtle/80 backdrop-blur-xs border border-line text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs shadow-xs">
               <div className="w-5 h-5 relative shrink-0 flex items-center justify-center">
                 <Image
                   src="/kubar.png"
@@ -179,102 +179,143 @@ export default async function HomePage() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="font-semibold text-ink">Pemkab Kutai Barat</span>
-              <span className="text-ink-faint">•</span>
-              <span className="text-ink-secondary">Bagian Organisasi Setdakab</span>
+              <span className="font-semibold text-white">Pemkab Kutai Barat</span>
+              <span className="text-white/40">•</span>
+              <span className="text-sky-100">Bagian Organisasi Setdakab</span>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-subtle/80 backdrop-blur-xs border border-line text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="font-medium text-ink">Agenda PEKPPP {activeYear}</span>
-            </div>
-          </div>
-
-          {/* Hero Typography & Primary Actions */}
-          <div className="space-y-4 max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-ink leading-tight tracking-tight">
-              Sistem Evaluasi Kinerja Penyelenggaraan Pelayanan Publik
-            </h1>
-            <p className="text-sm sm:text-base text-ink-secondary leading-relaxed max-w-[65ch]">
-              Pusat kendali evaluasi mandiri perangkat daerah, verifikasi berkas bukti dukung standar pelayanan, dan penetapan Indeks Pelayanan Publik (IPP) terpadu di Kabupaten Kutai Barat.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Link
-                href={dashboardLink}
-                className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs sm:text-sm font-semibold transition-all shadow-hz-button active:scale-98">
-                <span>{currentUser ? 'Buka Dasbor Saya' : 'Masuk Portal Evaluasi'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                href="/hasil"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface hover:bg-surface-subtle border border-line text-ink text-xs sm:text-sm font-semibold transition-all active:scale-98">
-                <TrendingUp className="w-4 h-4 text-brand" />
-                <span>Rekapitulasi Nilai IPP</span>
-              </Link>
-
-              <Link
-                href="/alur-proses"
-                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-ink-secondary hover:text-brand text-xs sm:text-sm font-medium transition-colors">
-                <BookOpen className="w-4 h-4" />
-                <span>Alur Kerja</span>
-              </Link>
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs shadow-xs">
+              <span className="font-medium text-white">Agenda PEKPPP {activeYear}</span>
             </div>
           </div>
 
-          {/* Optional Uploaded Hero Photo Slot (Shown only when image exists) */}
-          {heroImageSrc && (
-            <div className="relative w-full aspect-[21/9] max-h-[280px] rounded-2xl overflow-hidden border border-line shadow-xs">
-              <Image
-                src={heroImageSrc}
-                alt="Penyelenggaraan Pelayanan Publik Kutai Barat"
-                fill
-                priority
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs">
-                <span className="font-semibold drop-shadow-sm">Sentra Layanan Terpadu Kutai Barat</span>
-                <span className="font-mono text-[11px] bg-black/40 px-2 py-0.5 rounded border border-white/20">PEKPPP {activeYear}</span>
+          {/* Hero Main Content (2-Column Desktop Grid) */}
+          <div className="my-auto py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
+            {/* Left Column: Typography & Primary Actions */}
+            <div className="lg:col-span-7 xl:col-span-7 space-y-4 sm:space-y-5">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[2.75rem] font-semibold text-white leading-[1.2] tracking-tight">
+                Sistem Evaluasi Mandiri PEKPPP Kabupaten Kutai Barat
+              </h1>
+              <p className="text-sm sm:text-base text-sky-100/90 leading-relaxed max-w-[62ch]">
+                Pusat kendali evaluasi mandiri perangkat daerah, verifikasi berkas bukti dukung standar pelayanan, dan penetapan Indeks Pelayanan Publik (IPP) terpadu.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href={dashboardLink}
+                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white hover:bg-sky-50 text-[#134994] dark:bg-brand dark:hover:bg-brand-hover dark:text-white text-xs sm:text-sm font-semibold transition-all shadow-md active:scale-98">
+                  <span>{currentUser ? 'Buka Dasbor Saya' : 'Masuk Portal Evaluasi'}</span>
+                  <ArrowRight className="w-4 h-4 text-[#134994] dark:text-white" />
+                </Link>
+
+                <Link
+                  href="/hasil"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/25 text-white text-xs sm:text-sm font-semibold transition-all backdrop-blur-xs active:scale-98 shadow-xs">
+                  <TrendingUp className="w-4 h-4 text-sky-200" />
+                  <span>Rekapitulasi Nilai IPP</span>
+                </Link>
+
+                <Link
+                  href="/alur-proses"
+                  className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sky-100 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-colors">
+                  <BookOpen className="w-4 h-4" />
+                  <span>Alur Kerja</span>
+                </Link>
               </div>
             </div>
-          )}
 
-          {/* Integrated Telemetry Row */}
-          <div className="pt-6 border-t border-line grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-line">
+            {/* Right Column: Hero Image or Clean Visual Placeholder Frame */}
+            <div className="lg:col-span-5 xl:col-span-5 w-full">
+              {heroImageSrc ? (
+                <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] rounded-2xl overflow-hidden border border-white/20 shadow-xl group">
+                  <Image
+                    src={heroImageSrc}
+                    alt="Penyelenggaraan Pelayanan Publik Kutai Barat"
+                    fill
+                    priority
+                    className="object-cover group-hover:scale-102 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-3.5 left-4 right-4 flex items-center justify-between text-white text-xs">
+                    <span className="font-semibold drop-shadow-sm">Sempekat Bersama Kita Pasti Bisa</span>
+                    <span className="font-mono text-[11px] bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded border border-white/20">
+                      PEKPPP {activeYear}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] rounded-2xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-md shadow-xl flex flex-col justify-between p-5 sm:p-6 group">
+                  {/* Top Bar of the Mockup / Placeholder Frame */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-white/30 border border-white/40" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-white/30 border border-white/40" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-white/30 border border-white/40" />
+                    </div>
+                    <span className="text-[11px] font-mono font-medium text-sky-100 bg-white/10 px-2 py-0.5 rounded-md border border-white/15">
+                      Preview Ilustrasi Layanan
+                    </span>
+                  </div>
+
+                  {/* Center Graphic & Label */}
+                  <div className="my-auto text-center flex flex-col items-center justify-center gap-3 py-4">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center text-white shadow-xs">
+                      <ImageIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-white">
+                        Placeholder Foto / Ilustrasi
+                      </p>
+                      <p className="text-xs text-sky-200 max-w-[28ch] mx-auto leading-relaxed">
+                        Sentra Pelayanan Publik Terpadu &amp; Maklumat Standar Pelayanan
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Status Ribbon */}
+                  <div className="flex items-center justify-between pt-3 border-t border-white/15 text-[11px] text-sky-200">
+                    <span>Rasio Visual 4:3 / 16:9</span>
+                    <span className="font-mono text-white font-medium">PEKPPP {activeYear}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Integrated Telemetry Row (Pinned to bottom of full height fold) */}
+          <div className="pt-6 sm:pt-8 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-white/15 shrink-0">
             <div className="space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-ink tracking-tight font-mono tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 6 Aspek
               </div>
-              <p className="text-xs text-ink-muted">
+              <p className="text-xs text-sky-200">
                 Dimensi Standar Pelayanan
               </p>
             </div>
 
             <div className="pt-3 sm:pt-0 sm:pl-6 space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-ink tracking-tight font-mono tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 {activeIndicatorsDisplay} Butir
               </div>
-              <p className="text-xs text-ink-muted">
+              <p className="text-xs text-sky-200">
                 Indikator Terbobot Baku
               </p>
             </div>
 
             <div className="pt-3 sm:pt-0 sm:pl-6 space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-ink tracking-tight font-mono tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 {activeUnitsDisplay} Unit
               </div>
-              <p className="text-xs text-ink-muted">
+              <p className="text-xs text-sky-200">
                 Lokus Layanan Terdaftar
               </p>
             </div>
 
             <div className="pt-3 sm:pt-0 sm:pl-6 space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-brand tracking-tight font-mono tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 75% : 25%
               </div>
-              <p className="text-xs text-ink-muted">
+              <p className="text-xs text-sky-200">
                 Bobot F-02 &amp; F-03 (IPP)
               </p>
             </div>
@@ -282,15 +323,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 2. 6 Aspek Standar Pelayanan (Compact, Punchy Chips - No Paragraph Bloat) ── */}
-      <section className="space-y-4">
+      {/* ── Landing Page Content Body ── */}
+      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-24 lg:space-y-28 py-16 sm:py-24">
+        {/* ── 2. Apa yang Dinilai? (3-Column Grid, Clean & Spacious) ── */}
+      <section className="space-y-6 sm:space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div className="space-y-0.5">
-            <h2 className="text-lg sm:text-xl font-semibold text-ink tracking-tight">
-              6 Aspek Standar Pelayanan Publik
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
+              Apa yang Dinilai?
             </h2>
             <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-              Komposisi bobot baku kementerian dengan fokus indikator kunci di setiap dimensi.
+              6 Aspek standar Kementerian PAN-RB yang menjadi tolok ukur kualitas penyelenggaraan pelayanan publik.
             </p>
           </div>
           <Link
@@ -301,53 +344,34 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {/* Proportional Stacked Strip (100% Total Breakdown) */}
-        <div className="bg-surface p-3 sm:p-3.5 rounded-2xl border border-line flex flex-col gap-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-ink-secondary">Distribusi Bobot Nilai</span>
-            <span className="font-mono font-semibold text-brand">Total 100%</span>
-          </div>
-
-          <div className="h-2 w-full rounded-full overflow-hidden flex gap-0.5 bg-surface-subtle p-0.5 border border-line/60">
-            {aspects.map((a) => (
-              <div
-                key={a.code}
-                style={{ width: `${a.weightValue}%` }}
-                title={`${a.code} - ${a.name} (${a.weight})`}
-                className={`h-full first:rounded-l-full last:rounded-r-full ${a.barColor}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* 6 Aspect Tiles (Distilled, High-Density Chips, Zero Paragraph Walls) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {/* 6 Aspect Tiles (3-Column Grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {aspects.map((aspect) => (
             <div
               key={aspect.code}
-              className="bg-surface p-3.5 sm:p-4 rounded-2xl border border-line hover:border-brand/50 hover:shadow-subtle transition-all flex flex-col justify-between gap-3 group">
-              <div className="space-y-2">
+              className="bg-surface p-5 sm:p-6 rounded-2xl border border-line hover:border-brand/40 hover:shadow-subtle transition-all flex flex-col justify-between gap-4 group">
+              <div className="space-y-3">
                 {/* Code & Weight Hero Number */}
-                <div className="flex items-center justify-between gap-1">
-                  <span className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded-md ${aspect.badgeColor}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`font-mono text-xs font-bold px-2.5 py-1 rounded-md ${aspect.badgeColor}`}>
                     {aspect.code}
                   </span>
-                  <span className="font-mono text-base sm:text-lg font-bold text-ink tabular-nums">
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-ink tabular-nums">
                     {aspect.weight}
                   </span>
                 </div>
 
                 {/* Aspect Title */}
-                <h3 className="text-xs sm:text-sm font-semibold text-ink leading-snug group-hover:text-brand transition-colors">
+                <h3 className="text-sm sm:text-base font-semibold text-ink leading-snug group-hover:text-brand transition-colors">
                   {aspect.name}
                 </h3>
 
-                {/* Distilled Keywords Chips (No verbose sentences) */}
-                <div className="flex flex-wrap gap-1 pt-0.5">
+                {/* Distilled Keywords Chips */}
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {aspect.chips.map((chip) => (
                     <span
                       key={chip}
-                      className="text-[10px] font-medium text-ink-muted bg-surface-subtle px-1.5 py-0.5 rounded border border-line/50">
+                      className="text-[11px] font-medium text-ink-secondary bg-surface-subtle px-2 py-0.5 rounded-md border border-line/60">
                       {chip}
                     </span>
                   ))}
@@ -355,7 +379,7 @@ export default async function HomePage() {
               </div>
 
               {/* Accent Color Indicator Bar */}
-              <div className="h-1 w-full rounded-full bg-surface-subtle overflow-hidden">
+              <div className="h-1.5 w-full rounded-full bg-surface-subtle overflow-hidden">
                 <div
                   style={{ width: `${aspect.weightValue * 2.5}%` }}
                   className={`h-full rounded-full ${aspect.barColor}`}
@@ -366,11 +390,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 3. Tahapan Evaluasi: Pola Selang-Seling (Alternating Zigzag Flow) ── */}
-      <section className="space-y-6">
+      {/* ── 3. Tahapan Penyelenggaraan Evaluasi (Pola Selang-Seling) ── */}
+      <section className="space-y-6 sm:space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div className="space-y-0.5">
-            <h2 className="text-lg sm:text-xl font-semibold text-ink tracking-tight">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
               Tahapan Penyelenggaraan Evaluasi
             </h2>
             <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
@@ -385,147 +409,63 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {/* ── Alternating Zigzag Timeline Spine ──────────────────────────── */}
-        <div className="relative">
-          {/* Vertical Center Spine Line (Visible on md and larger) */}
+        {/* ── Alternating Timeline: 1 Card Per Row (Left - Right) ────────── */}
+        <div className="relative py-2">
+          {/* Vertical Center Spine Line (Desktop) */}
           <div
-            className="hidden md:block absolute left-1/2 top-4 bottom-4 w-px -translate-x-1/2 bg-line"
+            className="hidden md:block absolute left-1/2 top-6 bottom-6 w-px -translate-x-1/2 bg-line"
             aria-hidden="true"
           />
 
-          <div className="space-y-6 md:space-y-8">
+          <div className="space-y-6 md:space-y-10">
             {workflowSteps.map((wf, idx) => {
-              const isEven = idx % 2 === 1 // 0=Odd(Left), 1=Even(Right), 2=Odd(Left), 3=Even(Right)
+              const isRight = idx % 2 === 1
+
+              const cardNode = (
+                <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line hover:border-brand/40 hover:shadow-subtle transition-all space-y-2.5 group">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-semibold text-brand bg-brand-light dark:bg-brand/20 px-2.5 py-1 rounded-md">
+                      {wf.formCode}
+                    </span>
+                    <span className="text-[11px] font-medium text-ink-muted">
+                      {wf.actor}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base sm:text-lg font-semibold text-ink group-hover:text-brand transition-colors">
+                    Tahap {wf.stepNum}: {wf.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
+                    {wf.desc}
+                  </p>
+                </div>
+              )
 
               return (
                 <div
-                  key={wf.step}
-                  className="relative grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12 items-center">
+                  key={wf.stepNum}
+                  className="relative grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-16 items-center">
                   {/* Central Node Badge (Desktop) */}
                   <div
                     className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-surface border-2 border-brand text-brand items-center justify-center font-mono font-bold text-xs shadow-xs"
                     aria-hidden="true">
-                    {wf.step}
+                    {wf.stepNum}
                   </div>
 
-                  {/* ── SISI KIRI (Col 1) ─────────────────────────────────── */}
-                  <div className={`space-y-2 ${isEven ? 'md:order-2 md:pl-6' : 'md:order-1 md:pr-6 md:text-right'}`}>
-                    {!isEven ? (
-                      /* Card berada di KIRI */
-                      <div className="bg-surface p-4 sm:p-5 rounded-2xl border border-line hover:border-brand/50 hover:shadow-subtle transition-all text-left space-y-2.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="inline-flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-brand-light dark:bg-brand/20 text-brand text-xs font-bold font-mono flex items-center justify-center">
-                              {wf.step}
-                            </span>
-                            <span className="font-mono text-xs font-semibold text-ink-secondary">
-                              {wf.formCode}
-                            </span>
-                          </div>
-                          <span className="text-[11px] font-semibold text-brand bg-brand-light dark:bg-brand/20 px-2 py-0.5 rounded-full">
-                            {wf.badgeText}
-                          </span>
-                        </div>
+                  {/* Left Column */}
+                  {!isRight ? (
+                    <div className="md:pr-2">{cardNode}</div>
+                  ) : (
+                    <div aria-hidden="true" className="hidden md:block" />
+                  )}
 
-                        <div className="space-y-0.5">
-                          <h3 className="text-sm sm:text-base font-semibold text-ink">
-                            {wf.title}
-                          </h3>
-                          <p className="text-xs font-medium text-brand">
-                            {wf.actor}
-                          </p>
-                        </div>
-
-                        <p className="text-xs text-ink-secondary leading-relaxed">
-                          {wf.desc}
-                        </p>
-                      </div>
-                    ) : (
-                      /* Sisi Kiri untuk item genap: Side Info Tag & Context */
-                      <div className="hidden md:flex flex-col items-end text-right pr-4 space-y-1">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink">
-                          <span>{wf.sideTag}</span>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                        </span>
-                        <p className="text-[11px] text-ink-muted max-w-[34ch] leading-relaxed">
-                          {wf.sideNote}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ── SISI KANAN (Col 2) ────────────────────────────────── */}
-                  <div className={`space-y-2 ${isEven ? 'md:order-1 md:pr-6 md:text-left' : 'md:order-2 md:pl-6'}`}>
-                    {isEven ? (
-                      /* Card berada di KANAN */
-                      <div
-                        className={`p-4 sm:p-5 rounded-2xl border transition-all text-left space-y-2.5 ${
-                          idx === workflowSteps.length - 1
-                            ? 'bg-brand text-white border-brand shadow-sm'
-                            : 'bg-surface border-line hover:border-brand/50 hover:shadow-subtle'
-                        }`}>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="inline-flex items-center gap-2">
-                            <span
-                              className={`w-6 h-6 rounded-full text-xs font-bold font-mono flex items-center justify-center ${
-                                idx === workflowSteps.length - 1
-                                  ? 'bg-white text-brand'
-                                  : 'bg-brand-light dark:bg-brand/20 text-brand'
-                              }`}>
-                              {wf.step}
-                            </span>
-                            <span
-                              className={`font-mono text-xs font-semibold ${
-                                idx === workflowSteps.length - 1 ? 'text-sky-100' : 'text-ink-secondary'
-                              }`}>
-                              {wf.formCode}
-                            </span>
-                          </div>
-                          <span
-                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                              idx === workflowSteps.length - 1
-                                ? 'bg-white/20 text-white border border-white/25'
-                                : 'text-brand bg-brand-light dark:bg-brand/20'
-                            }`}>
-                            {wf.badgeText}
-                          </span>
-                        </div>
-
-                        <div className="space-y-0.5">
-                          <h3
-                            className={`text-sm sm:text-base font-semibold ${
-                              idx === workflowSteps.length - 1 ? 'text-white' : 'text-ink'
-                            }`}>
-                            {wf.title}
-                          </h3>
-                          <p
-                            className={`text-xs font-medium ${
-                              idx === workflowSteps.length - 1 ? 'text-sky-200' : 'text-brand'
-                            }`}>
-                            {wf.actor}
-                          </p>
-                        </div>
-
-                        <p
-                          className={`text-xs leading-relaxed ${
-                            idx === workflowSteps.length - 1 ? 'text-sky-100' : 'text-ink-secondary'
-                          }`}>
-                          {wf.desc}
-                        </p>
-                      </div>
-                    ) : (
-                      /* Sisi Kanan untuk item ganjil: Side Info Tag & Context */
-                      <div className="hidden md:flex flex-col items-start pl-4 space-y-1">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                          <span>{wf.sideTag}</span>
-                        </span>
-                        <p className="text-[11px] text-ink-muted max-w-[34ch] leading-relaxed">
-                          {wf.sideNote}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  {/* Right Column */}
+                  {isRight ? (
+                    <div className="md:pl-2">{cardNode}</div>
+                  ) : (
+                    <div aria-hidden="true" className="hidden md:block" />
+                  )}
                 </div>
               )
             })}
@@ -534,7 +474,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── 4. Pintu Akses & Navigasi Cepat (Asymmetric Editorial Portals) ── */}
-      <section className="space-y-4">
+      <section className="space-y-6 sm:space-y-8">
         <div className="space-y-0.5">
           <h2 className="text-lg sm:text-xl font-semibold text-ink tracking-tight">
             Pusat Akses &amp; Navigasi Cepat
@@ -611,6 +551,143 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* ── 5. Potongan Kabar & Publikasi Terbaru ── */}
+      {latestArticles.length > 0 && (
+        <section className="space-y-6 sm:space-y-8 pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-0.5">
+              <h2 className="text-lg sm:text-xl font-semibold text-ink tracking-tight">
+                Kabar Terkini PEKPPP Kutai Barat
+              </h2>
+              <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
+                Ikuti perkembangan evaluasi, sosialisasi bimtek, serta inovasi pelayanan perangkat daerah.
+              </p>
+            </div>
+
+            <Link
+              href="/kabar"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-line bg-surface hover:bg-surface-subtle text-ink hover:text-brand text-xs font-semibold transition-all shrink-0 self-start sm:self-auto shadow-2xs group">
+              <span>Lihat Semua Artikel</span>
+              <ArrowRight className="w-3.5 h-3.5 text-ink-muted group-hover:text-brand group-hover:translate-x-0.5 transition-all" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {latestArticles.map((article) => {
+              const coverUrl = article.coverImageAsset?.fileUrl
+                ? article.coverImageAsset.fileUrl.startsWith('http') ||
+                  article.coverImageAsset.fileUrl.startsWith('/')
+                  ? article.coverImageAsset.fileUrl
+                  : `/api/media/${article.coverImageAsset.id}/preview`
+                : null
+
+              return (
+                <article
+                  key={article.id}
+                  className="flex flex-col rounded-2xl bg-surface border border-line shadow-2xs hover:shadow-subtle hover:border-brand/40 transition-all overflow-hidden group">
+                  {/* Container Thumbnail dengan Padding Halus */}
+                  <div className="p-2 sm:p-2.5 pb-0">
+                    <Link
+                      href={`/kabar/${article.slug}`}
+                      className="relative aspect-video w-full rounded-xl bg-surface-subtle overflow-hidden block">
+                      {coverUrl ? (
+                        <img
+                          src={coverUrl}
+                          alt={article.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-brand/15 to-surface-subtle flex items-center justify-center text-ink-muted">
+                          <Newspaper className="w-10 h-10 stroke-[1.2] opacity-30 text-brand" />
+                        </div>
+                      )}
+
+                      {/* Pinned Star Icon Badge di Kanan Atas */}
+                      {article.isFeatured && (
+                        <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide shadow-md bg-amber-500 text-white border border-amber-400"
+                            style={{
+                              backgroundColor: '#F59E0B',
+                              color: '#FFFFFF',
+                              borderColor: '#FBBF24',
+                              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.45)'
+                            }}
+                            title="Artikel Sorotan">
+                            <Star
+                              className="w-3 h-3 shrink-0"
+                              style={{ fill: '#FFFFFF', stroke: '#FFFFFF', color: '#FFFFFF' }}
+                            />
+                            <span style={{ color: '#FFFFFF' }}>Sorotan</span>
+                          </span>
+                        </div>
+                      )}
+                    </Link>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-[11px] text-ink-muted">
+                        <Calendar className="w-3 h-3" />
+                        <span>
+                          {new Intl.DateTimeFormat('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          }).format(new Date(article.publishedAt || article.createdAt))}
+                        </span>
+                        <span>•</span>
+                        <Clock className="w-3 h-3" />
+                        <span>{article.readingTime || 2} min baca</span>
+                      </div>
+
+                      <h3 className="text-base font-semibold text-ink line-clamp-2 leading-snug group-hover:text-brand transition-colors">
+                        <Link href={`/kabar/${article.slug}`}>{article.title}</Link>
+                      </h3>
+
+                      {article.excerpt && (
+                        <p className="text-xs text-ink-secondary line-clamp-2 leading-relaxed">
+                          {article.excerpt}
+                        </p>
+                      )}
+
+                      <div className="pt-1">
+                        <Link
+                          href={`/kabar`}
+                          className="inline-block text-[11px] font-medium text-brand hover:underline">
+                          #{article.category.replace(/\s+/g, '')}
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Card Footer */}
+                    <div className="pt-3 border-t border-line flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-brand/10 text-brand flex items-center justify-center text-[10px] font-bold shrink-0">
+                          {article.authorName.charAt(0)}
+                        </div>
+                        <span className="text-ink-secondary text-[11px] truncate">
+                          {article.authorName}
+                        </span>
+                      </div>
+
+                      <Link
+                        href={`/kabar/${article.slug}`}
+                        className="inline-flex items-center gap-1 text-brand font-semibold hover:underline text-xs shrink-0">
+                        <span>Baca</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+      )}
+      </div>
     </div>
   )
 }

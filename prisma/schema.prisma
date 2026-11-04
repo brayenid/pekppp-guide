@@ -392,4 +392,97 @@ model UnitEvidenceMaster {
   @@index([unitId])
 }
 
+// 16. Pustaka Berkas & Media Manager (Aset Agnostik Terpusat)
+model MediaAsset {
+  id              String   @id @default(uuid())
+  title           String   // Judul dokumen resmi
+  description     String?  // Keterangan / petunjuk dokumen
+  category        String   @default("UMUM") // Kategori agnostik (e.g. "Template Dokumen", "Formulir & Format", "Pedoman Teknis", "Regulasi", "Umum")
+  
+  fileName        String   // Nama berkas asli
+  fileUrl         String   @unique // URL fisik (R2 atau Local /uploads/...)
+  fileType        String   // "DOCUMENT" | "PDF" | "IMAGE" | "SPREADSHEET"
+  mimeType        String?  // MIME type
+  fileSize        Int?     // Ukuran berkas dalam bytes
+  storageProvider String   @default("LOCAL") // "LOCAL" | "R2"
+
+  // Metadata fleksibel untuk menyimpan atribut & keterkaitan bebas (tags, relatedAspects, instansi, versi, dll.)
+  metadata        Json?
+
+  isPublic        Boolean  @default(true) // Ditampilkan ke lokus / publik
+  downloadCount   Int      @default(0)
+
+  // Relasi ke kurasi Contoh Berkas
+  contohBerkasItems ContohBerkas[]
+
+  // Relasi ke Artikel Kabar / Berita
+  articlesCovered   Article[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+  @@index([fileType])
+}
+
+model ContohBerkas {
+  id           String      @id @default(uuid())
+  mediaAssetId String
+  mediaAsset   MediaAsset  @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+
+  title        String      // Judul tampilan panduan contoh berkas
+  description  String?     // Petunjuk penggunaan / format bagi lokus
+  category     String      @default("Template Dokumen") // Kategori tampilan lokus
+  orderIndex   Int         @default(0)
+  isActive     Boolean     @default(true)
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([mediaAssetId])
+  @@index([category])
+  @@index([orderIndex])
+}
+
+// 17. Artikel & Kabar Berita PEKPPP (SEO-Optimized Blog Engine)
+model Article {
+  id                String      @id @default(uuid())
+  slug              String      @unique // e.g. "sosialisasi-evaluasi-pekppp-2026"
+  title             String      // Judul artikel
+  excerpt           String?     // Ringkasan singkat untuk kartu & meta description
+  content           String      // Rich HTML content dari Tiptap
+  category          String      @default("Kabar Kegiatan") // "Kabar Kegiatan", "Tips & Trik", "Inovasi Lokus", "Siaran Pers", "Panduan"
+  
+  // Cover Image dari Media Manager
+  coverImageAssetId String?
+  coverImageAsset   MediaAsset? @relation(fields: [coverImageAssetId], references: [id], onDelete: SetNull)
+
+  // Tags & Keterkaitan untuk SEO Keywords
+  tags              String?     // Comma-separated tags (e.g. "PEKPPP, Pelayanan Publik, Kutai Barat, F-01")
+
+  // SEO & Social Meta Attributes
+  seoTitle          String?     // Custom meta title (jika beda dari title)
+  seoDescription    String?     // Custom meta description (jika beda dari excerpt)
+  
+  // Author & Editorial Info
+  authorName        String      @default("Bagian Organisasi")
+  authorRole        String?     @default("Tim Pembina Pelayanan Publik")
+  readingTime       Int         @default(3) // Estimasi menit baca
+
+  // Publication State
+  isPublished       Boolean     @default(false)
+  isFeatured        Boolean     @default(false) // Pin ke hero atas
+  publishedAt       DateTime?
+  viewCount         Int         @default(0)
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([slug])
+  @@index([category, isPublished])
+  @@index([isPublished, publishedAt])
+}
+
+
+
 
