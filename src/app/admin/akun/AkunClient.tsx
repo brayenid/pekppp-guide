@@ -721,7 +721,7 @@ export default function AkunClient({
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp (Tersimpan ke DB)</label>
+              <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp</label>
               <span className="text-[10px] text-ink-muted">Opsional (e.g. 08123456789)</span>
             </div>
             <div className="relative">
@@ -769,7 +769,7 @@ export default function AkunClient({
       <ConfirmationModal
         isOpen={createConfirmOpen}
         title={`Buat Akun "${fullName}"?`}
-        description={`Akun dengan email "${email}"${phone.trim() ? ` (WhatsApp: ${phone.trim()})` : ''} dan role ${role} akan ditambahkan ke sistem database.`}
+        description={`Akun dengan email "${email}"${phone.trim() ? ` (WhatsApp: ${phone.trim()})` : ''} dan role ${role} akan ditambahkan ke sistem.`}
         confirmText="Ya, Buat Akun"
         cancelText="Batal"
         loading={loading}
@@ -877,7 +877,7 @@ export default function AkunClient({
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp (Tersimpan ke DB)</label>
+              <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp</label>
               <span className="text-[10px] text-ink-muted">Opsional (e.g. 08123456789)</span>
             </div>
             <div className="relative">
