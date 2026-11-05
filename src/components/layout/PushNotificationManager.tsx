@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
-import { Bell, BellRing, CheckCircle2, ShieldAlert, Sparkles, X } from 'lucide-react'
+import { Bell, BellRing, CheckCircle2, ShieldAlert, X } from 'lucide-react'
 import { saveSubscriptionAction, removeSubscriptionAction } from '../../actions/push-actions'
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -148,7 +148,6 @@ export function PushNotificationManager() {
             onClick={handleSubscribe}
             disabled={isLoading}
             className="flex-1 py-1.5 px-3 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all shadow-hz-button flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
-            <Sparkles className="w-3 h-3" />
             <span>{isLoading ? 'Mengaktifkan...' : 'Izinkan Notifikasi'}</span>
           </button>
           <button
