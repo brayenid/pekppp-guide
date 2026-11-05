@@ -1,27 +1,27 @@
-﻿{
+{
   "name": "PEKPPP.ext - Evaluasi Pelayanan Publik Kutai Barat",
   "short_name": "PEKPPP",
   "description": "Platform pemantauan dan evaluasi kinerja penyelenggaraan pelayanan publik Kabupaten Kutai Barat",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060913",
-  "theme_color": "#060913",
+  "background_color": "#0f6d31",
+  "theme_color": "#0f6d31",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/kubar.png",
+      "src": "/pwa/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/kubar.png",
+      "src": "/pwa/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/kubar.png",
+      "src": "/pwa/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

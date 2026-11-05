@@ -1,4 +1,4 @@
-﻿// public/sw.js
+// public/sw.js
 // Service Worker untuk PEKPPP Kutai Barat PWA & Push Notifications
 
 self.addEventListener('install', (event) => {
@@ -15,8 +15,8 @@ self.addEventListener('push', (event) => {
     body: 'Ada pembaruan data evaluasi pelayanan publik.',
     url: '/notifikasi',
     tag: 'pekppp-notification',
-    icon: '/kubar.png',
-    badge: '/kubar.png'
+    icon: '/pwa/android-chrome-192x192.png',
+    badge: '/pwa/favicon-32x32.png'
   };
 
   if (event.data) {
@@ -30,8 +30,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: data.icon || '/kubar.png',
-    badge: data.badge || '/kubar.png',
+    icon: data.icon || '/pwa/android-chrome-192x192.png',
+    badge: data.badge || '/pwa/favicon-32x32.png',
     data: {
       url: data.url || '/notifikasi'
     },
