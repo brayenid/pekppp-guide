@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '../../../../components/ui/PageHeader'
+import { Breadcrumb } from '../../../../components/ui/Breadcrumb'
 import {
   updateTicketStatusAction,
   sendTicketMessageAction,
@@ -209,26 +210,27 @@ export function OpdTicketDetailClient({
 
   return (
     <div className="space-y-6">
+      {/* ── Breadcrumb Navigasi ── */}
+      <Breadcrumb
+        showBackOnFirst
+        items={[
+          { label: 'Tiket & Pengaduan', href: '/opd/tiket' },
+          { label: `#${ticket.ticketCode}` }
+        ]}
+      />
+
       {/* ── Page Header Standar Admin/OPD ── */}
       <PageHeader
         title={`Tiket #${ticket.ticketCode}`}
         description={ticket.title}
         actions={
-          <div className="flex items-center gap-2">
-            <Link
-              href="/opd/tiket"
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/25 transition-all cursor-pointer">
-              <ArrowLeft className="w-3.5 h-3.5 text-white shrink-0" />
-              <span>Daftar Tiket</span>
-            </Link>
-            <Link
-              href={`/lapor/${ticket.ticketCode}`}
-              target="_blank"
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/25 transition-all cursor-pointer">
-              <ExternalLink className="w-3.5 h-3.5 text-white shrink-0" />
-              <span>Lihat Halaman Publik</span>
-            </Link>
-          </div>
+          <Link
+            href={`/lapor/${ticket.ticketCode}`}
+            target="_blank"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/25 transition-all cursor-pointer">
+            <ExternalLink className="w-3.5 h-3.5 text-white shrink-0" />
+            <span>Lihat Halaman Publik</span>
+          </Link>
         }
       />
 
