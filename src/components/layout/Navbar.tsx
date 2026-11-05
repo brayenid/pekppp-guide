@@ -16,7 +16,6 @@ import {
   BarChart3,
   BookOpen,
   FileText,
-  Shield,
   LayoutDashboard,
   LogOut,
   Sun,
@@ -35,8 +34,7 @@ const NAV_ITEMS = [
   { href: '/kabar', label: 'Kabar & Artikel', icon: Newspaper },
   { href: '/wiki', label: 'Wiki Indikator', icon: BookOpen },
   { href: '/contoh-berkas', label: 'Contoh Berkas', icon: FolderOpen },
-  { href: '/panduan', label: 'Panduan', icon: FileText },
-  { href: '/regulasi', label: 'Regulasi', icon: Shield }
+  { href: '/panduan', label: 'Panduan', icon: FileText }
 ]
 
 export function Navbar() {

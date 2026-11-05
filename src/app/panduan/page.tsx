@@ -141,13 +141,13 @@ export default function PanduanPage() {
       {/* ── Quick Footer Links ── */}
       <div className="p-6 rounded-2xl bg-surface-subtle border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-0.5">
-          <h4 className="text-sm font-semibold text-ink">Dasar Hukum &amp; Regulasi Pendukung</h4>
-          <p className="text-xs text-ink-secondary">Pelajari dasar yuridis PermenPAN-RB No. 29 Tahun 2022 dan regulasi terkait pelayanan publik.</p>
+          <h4 className="text-sm font-semibold text-ink">Wiki Indikator &amp; Glosarium</h4>
+          <p className="text-xs text-ink-secondary">Pelajari definisi teknis, dasar penilaian, dan penjelasan 31 indikator kinerja PEKPPP.</p>
         </div>
         <Link
-          href="/regulasi"
+          href="/wiki"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all shrink-0 self-start sm:self-auto shadow-2xs">
-          <span>Lihat Regulasi</span>
+          <span>Buka Wiki Indikator</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
