@@ -251,3 +251,25 @@ export async function sendSelfTestPushAction() {
 
   return { success: true, count: successCount }
 }
+export async function getRecentBroadcastHistoryAction(limit = 10) {
+  const user = await getCurrentUserAction()
+  if (!user || user.role !== 'SUPER_ADMIN') {
+    return []
+  }
+
+  const items = await db.notification.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: limit
+  })
+
+  return items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    message: item.message,
+    type: item.type,
+    roleTarget: item.roleTarget,
+    unitId: item.unitId,
+    link: item.link,
+    createdAt: item.createdAt
+  }))
+}

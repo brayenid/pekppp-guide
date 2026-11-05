@@ -1,12 +1,12 @@
 ﻿import { Metadata } from 'next'
 import { db } from '../../../services/db'
 import { getCurrentUserAction } from '../../../actions/auth-actions'
-import { getPushSubscriptionStatsAction } from '../../../actions/push-actions'
+import { getPushSubscriptionStatsAction, getRecentBroadcastHistoryAction } from '../../../actions/push-actions'
 import { AdminBroadcastClient } from './AdminBroadcastClient'
 import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
-  title: 'Broadcast & Notifikasi PWA | Admin PEKPPP Kutai Barat',
+  title: 'Pusat Notifikasi & Web Push | Admin PEKPPP Kutai Barat',
   description: 'Pengiriman Web Push Notification dan Broadcast Pesan Evaluasi PEKPPP'
 }
 
@@ -16,7 +16,7 @@ export default async function AdminNotifikasiPage() {
     redirect('/login')
   }
 
-  const [units, stats] = await Promise.all([
+  const [units, stats, initialHistory] = await Promise.all([
     db.unit.findMany({
       select: {
         id: true,
@@ -25,8 +25,9 @@ export default async function AdminNotifikasiPage() {
       },
       orderBy: { name: 'asc' }
     }),
-    getPushSubscriptionStatsAction()
+    getPushSubscriptionStatsAction(),
+    getRecentBroadcastHistoryAction(15)
   ])
 
-  return <AdminBroadcastClient units={units} stats={stats} />
+  return <AdminBroadcastClient units={units} stats={stats} initialHistory={initialHistory} />
 }
