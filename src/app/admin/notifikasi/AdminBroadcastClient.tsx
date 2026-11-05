@@ -20,7 +20,9 @@ import {
   Filter,
   Check,
   History,
-  Info
+  Info,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -88,6 +90,7 @@ export function AdminBroadcastClient({
   const [selectedUnitId, setSelectedUnitId] = useState<string>('')
   const [notifType, setNotifType] = useState<string>('PENGUMUMAN')
   const [link, setLink] = useState<string>('/notifikasi')
+  const [previewTheme, setPreviewTheme] = useState<'system' | 'dark' | 'light'>('system')
 
   const [historyItems, setHistoryItems] = useState<NotificationHistoryItem[]>(initialHistory)
   const [isRefreshingHistory, setIsRefreshingHistory] = useState(false)
@@ -544,34 +547,135 @@ export function AdminBroadcastClient({
             <div className="bg-surface border border-stroke/60 rounded-2xl p-5 shadow-2xs space-y-4">
               <div className="flex items-center justify-between border-b border-stroke/50 pb-3">
                 <span className="text-xs font-semibold text-ink">Pratinjau Hasil Tampilan</span>
-                <span className="text-[10px] font-mono text-ink-muted">Realtime Canvas</span>
+                <div className="flex items-center gap-1 bg-surface-subtle p-0.5 rounded-lg border border-stroke/50 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTheme('system')}
+                    className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                      previewTheme === 'system'
+                        ? 'bg-surface text-ink font-semibold shadow-2xs'
+                        : 'text-ink-muted hover:text-ink'
+                    }`}>
+                    Auto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTheme('light')}
+                    className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 cursor-pointer ${
+                      previewTheme === 'light'
+                        ? 'bg-white text-slate-900 font-semibold shadow-2xs'
+                        : 'text-ink-muted hover:text-ink'
+                    }`}>
+                    <Sun className="w-2.5 h-2.5" />
+                    <span>Terang</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTheme('dark')}
+                    className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 cursor-pointer ${
+                      previewTheme === 'dark'
+                        ? 'bg-slate-900 text-white font-semibold shadow-2xs'
+                        : 'text-ink-muted hover:text-ink'
+                    }`}>
+                    <Moon className="w-2.5 h-2.5" />
+                    <span>Gelap</span>
+                  </button>
+                </div>
               </div>
 
               {/* Pratinjau OS Push Banner */}
               <div className="space-y-2">
-                <div className="text-[11px] font-medium text-ink-muted">
-                  1. Tampilan Banner Native OS (Windows / Android)
+                <div className="flex items-center justify-between text-[11px] text-ink-muted">
+                  <span className="font-medium">1. Tampilan Banner Native OS (Windows / Android)</span>
+                  <span className="text-[10px] font-mono">
+                    {previewTheme === 'system' ? 'Mengikuti Tema Sistem' : previewTheme === 'dark' ? 'Mode Gelap' : 'Mode Terang'}
+                  </span>
                 </div>
-                <div className="rounded-xl border border-stroke bg-[#0B0F19] text-white p-3.5 shadow-soft-float space-y-2 font-sans">
-                  <div className="flex items-center justify-between text-[11px] text-white/50 pb-1.5 border-b border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <img src="/kubar.png" alt="Kubar" className="w-3.5 h-3.5 object-contain" />
-                      <span className="font-semibold text-white/90">PEKPPP Kutai Barat</span>
+
+                {/* Banner Adaptive Container */}
+                <div
+                  className={`rounded-xl border p-3.5 shadow-soft-float space-y-2.5 font-sans transition-all duration-200 ${
+                    previewTheme === 'dark'
+                      ? 'bg-[#0F1420] text-white border-white/10'
+                      : previewTheme === 'light'
+                      ? 'bg-white text-slate-900 border-slate-200/90 shadow-soft-card'
+                      : 'bg-white dark:bg-[#0F1420] text-slate-900 dark:text-white border-slate-200/90 dark:border-white/10 shadow-soft-card dark:shadow-soft-float'
+                  }`}>
+                  <div
+                    className={`flex items-center justify-between text-[11px] pb-2 border-b ${
+                      previewTheme === 'dark'
+                        ? 'text-white/60 border-white/10'
+                        : previewTheme === 'light'
+                        ? 'text-slate-500 border-slate-100'
+                        : 'text-slate-500 dark:text-white/60 border-slate-100 dark:border-white/10'
+                    }`}>
+                    <div className="flex items-center gap-2">
+                      <img src="/kubar.png" alt="Kubar" className="w-4 h-4 object-contain shrink-0" />
+                      <span
+                        className={`font-semibold ${
+                          previewTheme === 'dark'
+                            ? 'text-white/90'
+                            : previewTheme === 'light'
+                            ? 'text-slate-900'
+                            : 'text-slate-900 dark:text-white/90'
+                        }`}>
+                        PEKPPP Kutai Barat
+                      </span>
                     </div>
-                    <span className="text-[10px] font-mono">Sekarang</span>
+                    <span
+                      className={`text-[10px] font-mono ${
+                        previewTheme === 'dark'
+                          ? 'text-white/50'
+                          : previewTheme === 'light'
+                          ? 'text-slate-400'
+                          : 'text-slate-400 dark:text-white/50'
+                      }`}>
+                      Sekarang
+                    </span>
                   </div>
+
                   <div className="space-y-1">
-                    <div className="text-xs font-semibold text-white tracking-tight">
+                    <div
+                      className={`text-xs font-semibold tracking-tight leading-snug ${
+                        previewTheme === 'dark'
+                          ? 'text-white'
+                          : previewTheme === 'light'
+                          ? 'text-slate-900'
+                          : 'text-slate-900 dark:text-white'
+                      }`}>
                       {title.trim() || 'Judul Notifikasi Ditampilkan di Sini'}
                     </div>
-                    <div className="text-[11px] text-white/70 leading-relaxed line-clamp-2">
+                    <div
+                      className={`text-[11px] leading-relaxed line-clamp-2 ${
+                        previewTheme === 'dark'
+                          ? 'text-white/75'
+                          : previewTheme === 'light'
+                          ? 'text-slate-600'
+                          : 'text-slate-600 dark:text-white/75'
+                      }`}>
                       {message.trim() ||
                         'Ringkasan teks notifikasi akan terbaca secara native pada pusat aksi atau lockscreen pengguna.'}
                     </div>
                   </div>
-                  <div className="pt-1.5 flex items-center justify-between text-[10px] text-white/40 border-t border-white/10">
+
+                  <div
+                    className={`pt-2 flex items-center justify-between text-[10px] border-t ${
+                      previewTheme === 'dark'
+                        ? 'text-white/45 border-white/10'
+                        : previewTheme === 'light'
+                        ? 'text-slate-400 border-slate-100'
+                        : 'text-slate-400 dark:text-white/45 border-slate-100 dark:border-white/10'
+                    }`}>
                     <span className="truncate max-w-[220px]">Buka: {link || '/notifikasi'}</span>
-                    <ExternalLink className="w-3 h-3 text-white/50" />
+                    <ExternalLink
+                      className={`w-3 h-3 shrink-0 ${
+                        previewTheme === 'dark'
+                          ? 'text-white/50'
+                          : previewTheme === 'light'
+                          ? 'text-slate-400'
+                          : 'text-slate-400 dark:text-white/50'
+                      }`}
+                    />
                   </div>
                 </div>
               </div>
