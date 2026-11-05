@@ -1,4 +1,4 @@
-﻿import { Metadata } from 'next'
+import { Metadata } from 'next'
 import { db } from '../../../services/db'
 import { getCurrentUserAction } from '../../../actions/auth-actions'
 import { getPushSubscriptionStatsAction, getRecentBroadcastHistoryAction } from '../../../actions/push-actions'
@@ -16,7 +16,7 @@ export default async function AdminNotifikasiPage() {
     redirect('/login')
   }
 
-  const [units, stats, initialHistory] = await Promise.all([
+  const [units, stats, historyData] = await Promise.all([
     db.unit.findMany({
       select: {
         id: true,
@@ -26,8 +26,17 @@ export default async function AdminNotifikasiPage() {
       orderBy: { name: 'asc' }
     }),
     getPushSubscriptionStatsAction(),
-    getRecentBroadcastHistoryAction(15)
+    getRecentBroadcastHistoryAction({ page: 1, limit: 10 })
   ])
 
-  return <AdminBroadcastClient units={units} stats={stats} initialHistory={initialHistory} />
+  return (
+    <AdminBroadcastClient
+      units={units}
+      stats={stats}
+      initialHistory={historyData.items}
+      initialTotalCount={historyData.totalCount}
+      initialHasMore={historyData.hasMore}
+    />
+  )
 }
+

@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { db } from '../services/db'
 import { getCurrentUserAction } from './auth-actions'
@@ -251,25 +251,77 @@ export async function sendSelfTestPushAction() {
 
   return { success: true, count: successCount }
 }
-export async function getRecentBroadcastHistoryAction(limit = 10) {
+export interface GetBroadcastHistoryParams {
+  page?: number
+  limit?: number
+  search?: string
+  category?: string
+}
+
+export interface BroadcastHistoryResult {
+  items: Array<{
+    id: string
+    title: string
+    message: string
+    type: string
+    roleTarget: 'SUPER_ADMIN' | 'OPD' | null
+    unitId: string | null
+    link: string | null
+    createdAt: Date
+  }>
+  totalCount: number
+  hasMore: boolean
+}
+
+export async function getRecentBroadcastHistoryAction(
+  params?: GetBroadcastHistoryParams | number
+): Promise<BroadcastHistoryResult> {
   const user = await getCurrentUserAction()
   if (!user || user.role !== 'SUPER_ADMIN') {
-    return []
+    return { items: [], totalCount: 0, hasMore: false }
   }
 
-  const items = await db.notification.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: limit
-  })
+  const page = typeof params === 'object' && params?.page ? Math.max(1, params.page) : 1
+  const limit = typeof params === 'object' && params?.limit ? Math.max(1, params.limit) : typeof params === 'number' ? params : 10
+  const search = typeof params === 'object' ? params?.search?.trim() : undefined
+  const category = typeof params === 'object' ? params?.category : undefined
 
-  return items.map((item) => ({
-    id: item.id,
-    title: item.title,
-    message: item.message,
-    type: item.type,
-    roleTarget: item.roleTarget,
-    unitId: item.unitId,
-    link: item.link,
-    createdAt: item.createdAt
-  }))
+  const where: any = {}
+
+  if (category && category !== 'ALL') {
+    where.type = category
+  }
+
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { message: { contains: search, mode: 'insensitive' } }
+    ]
+  }
+
+  const [totalCount, items] = await Promise.all([
+    db.notification.count({ where }),
+    db.notification.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit
+    })
+  ])
+
+  return {
+    items: items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      message: item.message,
+      type: item.type,
+      roleTarget: item.roleTarget,
+      unitId: item.unitId,
+      link: item.link,
+      createdAt: item.createdAt
+    })),
+    totalCount,
+    hasMore: page * limit < totalCount
+  }
 }
+

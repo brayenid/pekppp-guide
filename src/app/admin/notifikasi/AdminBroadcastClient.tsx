@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
   Bell,
   Send,
@@ -22,7 +23,8 @@ import {
   History,
   Info,
   Sun,
-  Moon
+  Moon,
+  Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -60,6 +62,8 @@ interface AdminBroadcastClientProps {
     guestCount: number
   }
   initialHistory?: NotificationHistoryItem[]
+  initialTotalCount?: number
+  initialHasMore?: boolean
 }
 
 const NOTIFICATION_CATEGORIES = [
@@ -80,10 +84,30 @@ const TARGET_OPTIONS = [
 export function AdminBroadcastClient({
   units,
   stats,
-  initialHistory = []
+  initialHistory = [],
+  initialTotalCount = 0,
+  initialHasMore = false
 }: AdminBroadcastClientProps) {
-  const [activeTab, setActiveTab] = useState<'broadcast' | 'history'>('broadcast')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
+  // 1. Tab synced with URL query (?tab=broadcast or ?tab=history)
+  const currentTabParam = searchParams.get('tab')
+  const activeTab = currentTabParam === 'history' ? 'history' : 'broadcast'
+
+  const handleTabChange = (tab: 'broadcast' | 'history') => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (tab === 'history') {
+      params.set('tab', 'history')
+    } else {
+      params.delete('tab')
+    }
+    const queryString = params.toString()
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`, { scroll: false })
+  }
+
+  // Form states
   const [title, setTitle] = useState('')
   const [message, setMessage] = useState('')
   const [targetType, setTargetType] = useState<'ALL' | 'SUPER_ADMIN' | 'OPD' | 'UNIT'>('ALL')
@@ -92,10 +116,19 @@ export function AdminBroadcastClient({
   const [link, setLink] = useState<string>('/notifikasi')
   const [previewTheme, setPreviewTheme] = useState<'system' | 'dark' | 'light'>('system')
 
+  // Real Server-Side History Pagination States
   const [historyItems, setHistoryItems] = useState<NotificationHistoryItem[]>(initialHistory)
-  const [isRefreshingHistory, setIsRefreshingHistory] = useState(false)
-  const [historyFilter, setHistoryFilter] = useState('ALL')
-  const [historySearch, setHistorySearch] = useState('')
+  const [totalHistoryCount, setTotalHistoryCount] = useState<number>(initialTotalCount || initialHistory.length)
+  const [historyPage, setHistoryPage] = useState<number>(1)
+  const [hasMoreHistory, setHasMoreHistory] = useState<boolean>(initialHasMore)
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
+  const [isFilterFetching, setIsFilterFetching] = useState<boolean>(false)
+  const [isRefreshingHistory, setIsRefreshingHistory] = useState<boolean>(false)
+  const [historyFilter, setHistoryFilter] = useState<string>('ALL')
+  const [historySearch, setHistorySearch] = useState<string>('')
+
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
+  const isFirstFilterMountRef = useRef<boolean>(true)
 
   const [isSending, setIsSending] = useState(false)
   const [isTestingSelf, setIsTestingSelf] = useState(false)
@@ -176,26 +209,124 @@ export function AdminBroadcastClient({
     }
   }
 
+  // Real Server-Side Filter & Search Fetch with Debounce
+  useEffect(() => {
+    if (isFirstFilterMountRef.current) {
+      isFirstFilterMountRef.current = false
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      setIsFilterFetching(true)
+      try {
+        const params = new URLSearchParams()
+        params.set('page', '1')
+        params.set('limit', '10')
+        if (historySearch.trim()) params.set('search', historySearch.trim())
+        if (historyFilter !== 'ALL') params.set('category', historyFilter)
+
+        const res = await fetch(`/api/admin/notifikasi/history?${params.toString()}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.success) {
+            setHistoryItems(data.items || [])
+            setTotalHistoryCount(data.totalCount || 0)
+            setHistoryPage(1)
+            setHasMoreHistory(Boolean(data.hasMore))
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching broadcast history:', err)
+      } finally {
+        setIsFilterFetching(false)
+      }
+    }, 250)
+
+    return () => clearTimeout(timer)
+  }, [historySearch, historyFilter])
+
+  // Real Server-Side Load More
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMoreHistory || isFilterFetching) return
+    setIsLoadingMore(true)
+
+    try {
+      const nextPage = historyPage + 1
+      const params = new URLSearchParams()
+      params.set('page', String(nextPage))
+      params.set('limit', '10')
+      if (historySearch.trim()) params.set('search', historySearch.trim())
+      if (historyFilter !== 'ALL') params.set('category', historyFilter)
+
+      const res = await fetch(`/api/admin/notifikasi/history?${params.toString()}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          const newBatch: NotificationHistoryItem[] = data.items || []
+          setHistoryItems((prev) => {
+            const seen = new Set(prev.map((i) => i.id))
+            const filteredNew = newBatch.filter((i) => !seen.has(i.id))
+            return [...prev, ...filteredNew]
+          })
+          setHistoryPage(nextPage)
+          setTotalHistoryCount(data.totalCount || 0)
+          setHasMoreHistory(Boolean(data.hasMore))
+        }
+      }
+    } catch (err) {
+      console.error('Error loading more broadcast history:', err)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }, [historyPage, hasMoreHistory, isLoadingMore, isFilterFetching, historySearch, historyFilter])
+
+  // Infinite Scroll Trigger via IntersectionObserver
+  useEffect(() => {
+    if (activeTab !== 'history' || !hasMoreHistory || isLoadingMore || isFilterFetching) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+
+    const el = loadMoreTriggerRef.current
+    if (el) observer.observe(el)
+
+    return () => {
+      if (el) observer.unobserve(el)
+    }
+  }, [activeTab, hasMoreHistory, isLoadingMore, isFilterFetching, loadMore])
+
   const refreshHistory = async () => {
     setIsRefreshingHistory(true)
     try {
-      const updated = await getRecentBroadcastHistoryAction(25)
-      setHistoryItems(updated)
+      const params = new URLSearchParams()
+      params.set('page', '1')
+      params.set('limit', '10')
+      if (historySearch.trim()) params.set('search', historySearch.trim())
+      if (historyFilter !== 'ALL') params.set('category', historyFilter)
+
+      const res = await fetch(`/api/admin/notifikasi/history?${params.toString()}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          setHistoryItems(data.items || [])
+          setTotalHistoryCount(data.totalCount || 0)
+          setHistoryPage(1)
+          setHasMoreHistory(Boolean(data.hasMore))
+          toast.success('Riwayat notifikasi berhasil dimuat ulang.')
+        }
+      }
     } catch {
       toast.error('Gagal memuat ulang riwayat.')
     } finally {
       setIsRefreshingHistory(false)
     }
   }
-
-  const filteredHistory = historyItems.filter((item) => {
-    if (historyFilter !== 'ALL' && item.type !== historyFilter) return false
-    if (historySearch) {
-      const q = historySearch.toLowerCase()
-      return item.title.toLowerCase().includes(q) || item.message.toLowerCase().includes(q)
-    }
-    return true
-  })
 
   const getCategoryBadge = (type: string) => {
     switch (type) {
@@ -320,7 +451,7 @@ export function AdminBroadcastClient({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setActiveTab('broadcast')}
+            onClick={() => handleTabChange('broadcast')}
             className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === 'broadcast'
                 ? 'border-brand text-brand'
@@ -332,7 +463,7 @@ export function AdminBroadcastClient({
 
           <button
             type="button"
-            onClick={() => setActiveTab('history')}
+            onClick={() => handleTabChange('history')}
             className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === 'history'
                 ? 'border-brand text-brand'
@@ -341,7 +472,7 @@ export function AdminBroadcastClient({
             <History className="w-3.5 h-3.5" />
             <span>Riwayat Transmisi</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-surface-subtle text-ink-muted">
-              {historyItems.length}
+              {totalHistoryCount}
             </span>
           </button>
         </div>
@@ -750,7 +881,12 @@ export function AdminBroadcastClient({
           </div>
 
           {/* Table / Ledger List */}
-          {filteredHistory.length === 0 ? (
+          {isFilterFetching ? (
+            <div className="p-12 text-center space-y-3">
+              <Loader2 className="w-6 h-6 animate-spin text-brand mx-auto" />
+              <p className="text-xs text-ink-muted">Menyaring data notifikasi...</p>
+            </div>
+          ) : historyItems.length === 0 ? (
             <div className="p-12 text-center space-y-2">
               <Bell className="w-8 h-8 text-ink-muted mx-auto opacity-30" />
               <h3 className="text-xs font-semibold text-ink">Tidak Ada Riwayat Notifikasi</h3>
@@ -761,46 +897,70 @@ export function AdminBroadcastClient({
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-stroke/50">
-              {filteredHistory.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-4 hover:bg-surface-subtle/40 transition-colors flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {getCategoryBadge(item.type)}
-                      {getTargetBadge(item.roleTarget, item.unitId)}
-                      <span className="text-[10px] text-ink-muted font-mono">
-                        {new Date(item.createdAt).toLocaleString('id-ID', {
-                          dateStyle: 'medium',
-                          timeStyle: 'short'
-                        })}
-                      </span>
-                    </div>
-
-                    <h4 className="text-xs sm:text-sm font-semibold text-ink leading-snug">
-                      {item.title}
-                    </h4>
-
-                    <p className="text-xs text-ink-secondary leading-relaxed line-clamp-2">
-                      {item.message}
-                    </p>
-
-                    {item.link && (
-                      <div className="pt-0.5">
-                        <span className="text-[10px] font-mono text-ink-muted bg-surface-subtle px-2 py-0.5 rounded border border-stroke/40 inline-flex items-center gap-1">
-                          <span>Link:</span>
-                          <span className="text-brand font-medium truncate max-w-[280px]">{item.link}</span>
+            <>
+              <div className="divide-y divide-stroke/50">
+                {historyItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 hover:bg-surface-subtle/40 transition-colors flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {getCategoryBadge(item.type)}
+                        {getTargetBadge(item.roleTarget, item.unitId)}
+                        <span className="text-[10px] text-ink-muted font-mono">
+                          {new Date(item.createdAt).toLocaleString('id-ID', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                          })}
                         </span>
                       </div>
-                    )}
+
+                      <h4 className="text-xs sm:text-sm font-semibold text-ink leading-snug">
+                        {item.title}
+                      </h4>
+
+                      <p className="text-xs text-ink-secondary leading-relaxed line-clamp-2">
+                        {item.message}
+                      </p>
+
+                      {item.link && (
+                        <div className="pt-0.5">
+                          <span className="text-[10px] font-mono text-ink-muted bg-surface-subtle px-2 py-0.5 rounded border border-stroke/40 inline-flex items-center gap-1">
+                            <span>Link:</span>
+                            <span className="text-brand font-medium truncate max-w-[280px]">{item.link}</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {/* Real Server-Side Load More Trigger Area */}
+              <div ref={loadMoreTriggerRef} className="p-4 border-t border-stroke/50 text-center">
+                {isLoadingMore ? (
+                  <div className="flex items-center justify-center gap-2 text-xs text-ink-muted py-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                    <span>Memuat arsip lebih lama...</span>
+                  </div>
+                ) : hasMoreHistory ? (
+                  <button
+                    type="button"
+                    onClick={loadMore}
+                    className="px-4 py-2 text-xs font-semibold text-brand hover:text-brand-hover hover:bg-surface-subtle rounded-xl border border-stroke/80 transition-all cursor-pointer">
+                    Muat Lebih Banyak ({historyItems.length} dari {totalHistoryCount})
+                  </button>
+                ) : historyItems.length > 0 ? (
+                  <p className="text-[11px] text-ink-muted py-1 font-mono">
+                    Menampilkan seluruh {totalHistoryCount} riwayat notifikasi.
+                  </p>
+                ) : null}
+              </div>
+            </>
           )}
         </div>
       )}
+
     </div>
   )
 }
