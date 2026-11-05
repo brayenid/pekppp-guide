@@ -21,6 +21,7 @@ import {
   Plus,
   Paperclip,
   FileText,
+  Send,
   Sparkles
 } from 'lucide-react'
 import { PageHeader } from '../../../components/ui/PageHeader'
@@ -693,27 +694,7 @@ export function OpdTicketListClient({
       description="Ajukan permohonan pendampingan, konsultasi teknis standar pelayanan, atau laporkan kendala sistem langsung dari akun unit kerja Anda."
       icon={<Plus className="w-5 h-5 text-brand" />}
       maxWidth="2xl">
-      <form onSubmit={handleCreateTicket} className="p-5 sm:p-6 space-y-4 text-xs">
-        {/* Banner Identitas Pelapor Resmi */}
-        <div className="p-3.5 rounded-xl bg-surface-subtle border border-line flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <div className="font-semibold text-ink truncate">
-                {currentUser?.fullName || 'Akun OPD Terverifikasi'}
-              </div>
-              <div className="text-[11px] text-ink-muted truncate">
-                Tiket terhubung ke unit lokus &amp; mendukung diskusi tindak lanjut interaktif.
-              </div>
-            </div>
-          </div>
-          <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-            Resmi Unit
-          </span>
-        </div>
-
+      <form onSubmit={handleCreateTicket} className="p-4 sm:p-5 pt-3 sm:pt-4 space-y-4 text-xs">
         {/* Judul Tiket */}
         <div className="space-y-1.5">
           <label className="font-semibold text-ink block">
@@ -898,8 +879,8 @@ export function OpdTicketListClient({
               </>
             ) : (
               <>
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Kirim Tiket Sekarang</span>
+                <Send className="w-3.5 h-3.5" />
+                <span>Kirim Tiket</span>
               </>
             )}
           </button>
