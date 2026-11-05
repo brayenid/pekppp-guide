@@ -3,6 +3,7 @@
 import { db } from '../services/db'
 import { getCurrentUserAction } from './auth-actions'
 import { revalidatePath } from 'next/cache'
+import { sendWebPush, PushPayload } from '../lib/web-push'
 
 export interface NotificationData {
   id: string
@@ -39,8 +40,54 @@ export async function createNotificationHelper(data: {
         link: data.link || null
       }
     })
+
+    // 2. Kirim Web Push Notification ke perangkat penerima yang relevan
+    let whereCondition: any = {}
+    if (data.userId) {
+      whereCondition = { userId: data.userId }
+    } else if (data.unitId) {
+      whereCondition = { role: 'OPD', unitId: data.unitId }
+    } else if (data.roleTarget === 'SUPER_ADMIN') {
+      whereCondition = { role: 'SUPER_ADMIN' }
+    } else if (data.roleTarget === 'OPD') {
+      whereCondition = { role: 'OPD' }
+    }
+
+    const subscriptions = await db.pushSubscription.findMany({
+      where: whereCondition
+    })
+
+    if (subscriptions.length > 0) {
+      const payload: PushPayload = {
+        title: data.title,
+        body: data.message,
+        url: data.link || '/notifikasi',
+        icon: '/kubar.png',
+        badge: '/kubar.png',
+        tag: `notif-${(data.type || 'alert').toLowerCase()}-${Date.now()}`
+      }
+
+      const staleEndpoints: string[] = []
+      await Promise.allSettled(
+        subscriptions.map(async (sub) => {
+          try {
+            await sendWebPush(sub, payload)
+          } catch (err: any) {
+            if (err?.statusCode === 404 || err?.statusCode === 410) {
+              staleEndpoints.push(sub.endpoint)
+            }
+          }
+        })
+      )
+
+      if (staleEndpoints.length > 0) {
+        await db.pushSubscription.deleteMany({
+          where: { endpoint: { in: staleEndpoints } }
+        }).catch(() => {})
+      }
+    }
   } catch (error) {
-    console.error('Failed to create notification:', error)
+    console.error('Failed to create notification or dispatch push:', error)
   }
 }
 
