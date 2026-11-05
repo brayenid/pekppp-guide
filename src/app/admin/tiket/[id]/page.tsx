@@ -48,13 +48,11 @@ export default async function AdminTicketDetailPage({
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
-      <AdminTicketDetailClient
-        ticket={ticketRes.ticket as any}
-        permissions={ticketRes.permissions!}
-        units={unitsRes.units || []}
-        currentUser={user}
-      />
-    </div>
+    <AdminTicketDetailClient
+      ticket={ticketRes.ticket as any}
+      permissions={ticketRes.permissions!}
+      units={unitsRes.units || []}
+      currentUser={user}
+    />
   )
 }
