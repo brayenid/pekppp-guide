@@ -23,7 +23,7 @@ export function YearSelector({ currentYear, allYears }: YearSelectorProps) {
         value={currentYear}
         onChange={handleYearChange}
         aria-label="Pilih Tahun Evaluasi"
-        className="pl-9 pr-8 py-1.5 text-xs font-semibold rounded-full border border-line bg-surface hover:bg-surface-subtle text-ink appearance-none cursor-pointer focus:outline-none focus:border-brand shadow-2xs transition-colors">
+        className="h-9 pl-9 pr-8 text-xs font-semibold rounded-full border border-line bg-surface hover:bg-surface-subtle hover:border-brand/40 text-ink appearance-none cursor-pointer focus:outline-none focus:border-brand shadow-2xs transition-all">
         {allYears.map((year) => (
           <option key={year} value={year} className="bg-surface text-ink font-sans">
             Tahun {year}

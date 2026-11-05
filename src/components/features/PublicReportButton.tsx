@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { FileText, Loader2 } from 'lucide-react'
 import { ComprehensiveReportModal } from './ComprehensiveReportModal'
 import { getComprehensiveAnnualReportAction, ComprehensiveAnnualReport } from '../../actions/report-actions'
 import { toast } from 'sonner'
@@ -30,13 +29,18 @@ export function PublicReportButton({ year }: { year: number }) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
+      <button
+        type="button"
         onClick={handleOpen}
-        leftIcon={<FileText className="w-3.5 h-3.5" />}>
-        Laporan Komprehensif
-      </Button>
+        disabled={loading}
+        className="h-9 px-3.5 inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border border-line bg-surface hover:bg-surface-subtle hover:border-brand/40 text-ink shadow-2xs hover:shadow-xs transition-all cursor-pointer select-none active:scale-[0.98]">
+        {loading ? (
+          <Loader2 className="w-3.5 h-3.5 text-brand animate-spin" />
+        ) : (
+          <FileText className="w-3.5 h-3.5 text-brand" />
+        )}
+        <span>Laporan Komprehensif</span>
+      </button>
 
       <ComprehensiveReportModal
         isOpen={isOpen}

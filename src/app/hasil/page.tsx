@@ -2,7 +2,6 @@ import { db } from '../../services/db'
 import { calculateEffectiveF03AndIpp } from '../../core/domain/pekppp-calculator'
 import Link from 'next/link'
 import { PageHeader } from '../../components/ui/PageHeader'
-import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { getCurrentUserAction } from '../../actions/auth-actions'
 import { PublicReportButton } from '../../components/features/PublicReportButton'
@@ -100,9 +99,6 @@ export default async function HasilPage({
             {canViewResults && (
               <PublicReportButton year={activeYear} />
             )}
-            <Badge variant={isPublished ? 'info' : 'neutral'} size="sm">
-              {isPublished ? 'Publikasi Resmi' : 'Draft Internal'}
-            </Badge>
           </div>
         }
       />
