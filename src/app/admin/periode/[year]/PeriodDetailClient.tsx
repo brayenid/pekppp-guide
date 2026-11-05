@@ -764,7 +764,7 @@ export default function PeriodDetailClient({
         onChange={(val) => setActiveTab(val)}
         rightContent={
           activeTab === 'lokus' ? (
-            <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar py-0.5 shrink-0">
+            <div className="flex items-center gap-2 flex-nowrap overflow-x-auto overflow-y-hidden no-scrollbar py-0.5 shrink-0">
               {/* Search Input - Ringkas & Fleksibel */}
               <div className="relative shrink-0 flex items-center">
                 <Search className="w-3 h-3 text-ink-muted absolute left-2.5 pointer-events-none" />

@@ -50,7 +50,7 @@ export function AdminTabs<T extends string = string>({
         )}>
         <div
           role="tablist"
-          className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          className="flex items-center gap-1 overflow-x-auto overflow-y-hidden no-scrollbar">
           {items.map((item) => {
             const isActive = activeId === item.id
             const iconNode = item.icon || (item.badge && typeof item.badge !== 'string' ? item.badge : null)
@@ -117,7 +117,7 @@ export function AdminTabs<T extends string = string>({
       )}>
       <div
         role="tablist"
-        className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        className="flex items-center gap-1.5 overflow-x-auto overflow-y-hidden pb-1 no-scrollbar">
         {items.map((item) => {
           const isActive = activeId === item.id
           return (
