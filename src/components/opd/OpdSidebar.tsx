@@ -223,7 +223,7 @@ export function OpdSidebar({
                   alt="Logo Kutai Barat"
                   width={28}
                   height={28}
-                  className="w-full h-full object-contain grayscale contrast-125 brightness-110"
+                  className="w-full h-full object-contain dark:grayscale dark:contrast-125 dark:brightness-110"
                 />
               </div>
               <div className="flex flex-col leading-tight">
@@ -345,7 +345,7 @@ export function OpdSidebar({
                 alt="Logo Kutai Barat"
                 width={28}
                 height={28}
-                className="w-full h-full object-contain grayscale contrast-125 brightness-110 group-hover:scale-105 transition-transform"
+                className="w-full h-full object-contain dark:grayscale dark:contrast-125 dark:brightness-110 group-hover:scale-105 transition-transform"
               />
             </div>
             <div className="flex flex-col leading-tight">
