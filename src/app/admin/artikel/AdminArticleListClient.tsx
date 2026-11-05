@@ -182,16 +182,24 @@ export function AdminArticleListClient({
       setTogglingId(id)
       const res = await togglePublishArticleAction(id, !currentStatus)
       if (res.success) {
+        const nextStatus = res.isPublished ?? !currentStatus
         setArticles((prev) =>
-          prev.map((a) => (a.id === id ? { ...a, isPublished: !currentStatus } : a))
+          prev.map((a) => (a.id === id ? { ...a, isPublished: nextStatus } : a))
         )
-        setMetrics((prev) => ({
-          ...prev,
-          totalPublished: !currentStatus ? prev.totalPublished + 1 : prev.totalPublished - 1,
-          totalDraft: !currentStatus ? prev.totalDraft - 1 : prev.totalDraft + 1
-        }))
+        if (res.metrics) {
+          setMetrics(res.metrics)
+        } else {
+          setMetrics((prev) => {
+            const pubChange = nextStatus ? 1 : -1
+            return {
+              ...prev,
+              totalPublished: Math.max(0, prev.totalPublished + pubChange),
+              totalDraft: Math.max(0, prev.totalDraft - pubChange)
+            }
+          })
+        }
         toast.success(
-          !currentStatus ? 'Artikel berhasil dipublikasikan!' : 'Artikel diubah menjadi draf.'
+          nextStatus ? 'Artikel berhasil dipublikasikan!' : 'Artikel diubah menjadi draf.'
         )
       } else {
         toast.error(res.error || 'Gagal mengubah status publikasi.')
@@ -215,6 +223,14 @@ export function AdminArticleListClient({
       if (res.success) {
         setArticles((prev) => prev.filter((a) => a.id !== id))
         setTotal((prev) => Math.max(0, prev - 1))
+        if (res.metrics) {
+          setMetrics(res.metrics)
+        } else {
+          setMetrics((prev) => ({
+            ...prev,
+            totalArticles: Math.max(0, prev.totalArticles - 1)
+          }))
+        }
         toast.success('Artikel berhasil dihapus.')
       } else {
         toast.error(res.error || 'Gagal menghapus artikel.')
@@ -260,7 +276,9 @@ export function AdminArticleListClient({
           <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
             Total Artikel
           </span>
-          <div className="text-2xl font-bold font-mono text-ink">{metrics.totalArticles}</div>
+          <div className="text-2xl font-bold font-mono text-ink">
+            {Math.max(0, metrics.totalArticles)}
+          </div>
           <div className="text-[11px] text-ink-muted">Artikel terdaftar</div>
         </div>
 
@@ -269,7 +287,7 @@ export function AdminArticleListClient({
             Diterbitkan (Live)
           </span>
           <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
-            {metrics.totalPublished}
+            {Math.max(0, metrics.totalPublished)}
           </div>
           <div className="text-[11px] text-ink-muted">Tampil di portal publik</div>
         </div>
@@ -279,7 +297,7 @@ export function AdminArticleListClient({
             Draf / Tersimpan
           </span>
           <div className="text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">
-            {metrics.totalDraft}
+            {Math.max(0, metrics.totalDraft)}
           </div>
           <div className="text-[11px] text-ink-muted">Belum dipublikasikan</div>
         </div>

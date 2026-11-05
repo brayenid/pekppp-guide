@@ -235,6 +235,27 @@ export async function getArticleBySlugAction(slug: string) {
 }
 
 /**
+ * Helper untuk menghitung metrik artikel secara akurat dari basis data
+ */
+export async function getArticleMetricsHelper() {
+  const [stats, totalPublished, totalDraft] = await Promise.all([
+    prisma.article.aggregate({
+      _count: { id: true },
+      _sum: { viewCount: true }
+    }),
+    prisma.article.count({ where: { isPublished: true } }),
+    prisma.article.count({ where: { isPublished: false } })
+  ])
+
+  return {
+    totalArticles: stats._count.id || 0,
+    totalPublished,
+    totalDraft,
+    totalViews: stats._sum.viewCount || 0
+  }
+}
+
+/**
  * Mendapatkan artikel untuk panel admin (/admin/artikel) dengan pagination real server-side
  */
 export async function getAdminArticlesAction(options?: {
@@ -270,7 +291,7 @@ export async function getAdminArticlesAction(options?: {
       ]
     }
 
-    const [total, items, stats] = await Promise.all([
+    const [total, items, metrics, allCategories] = await Promise.all([
       prisma.article.count({ where }),
       prisma.article.findMany({
         where,
@@ -289,15 +310,7 @@ export async function getAdminArticlesAction(options?: {
         skip,
         take: limit
       }),
-      prisma.article.aggregate({
-        _count: { id: true },
-        _sum: { viewCount: true }
-      })
-    ])
-
-    const [totalPublished, totalDraft, allCategories] = await Promise.all([
-      prisma.article.count({ where: { isPublished: true } }),
-      prisma.article.count({ where: { isPublished: false } }),
+      getArticleMetricsHelper(),
       prisma.article.findMany({
         select: { category: true },
         distinct: ['category']
@@ -312,12 +325,7 @@ export async function getAdminArticlesAction(options?: {
       limit,
       totalPages: Math.ceil(total / limit),
       hasMore: skip + items.length < total,
-      metrics: {
-        totalArticles: stats._count.id || 0,
-        totalPublished,
-        totalDraft,
-        totalViews: stats._sum.viewCount || 0
-      },
+      metrics,
       availableCategories: allCategories.map((c) => c.category)
     }
   } catch (error: any) {
@@ -528,10 +536,11 @@ export async function updateArticleAction(
 export async function deleteArticleAction(id: string) {
   try {
     const deleted = await prisma.article.delete({ where: { id } })
+    const metrics = await getArticleMetricsHelper()
     revalidatePath('/kabar')
     revalidatePath(`/kabar/${deleted.slug}`)
     revalidatePath('/admin/artikel')
-    return { success: true }
+    return { success: true, metrics }
   } catch (error: any) {
     console.error('deleteArticleAction error:', error)
     return { success: false, error: error.message || 'Gagal menghapus artikel.' }
@@ -554,11 +563,12 @@ export async function togglePublishArticleAction(id: string, isPublished: boolea
       }
     })
 
+    const metrics = await getArticleMetricsHelper()
     revalidatePath('/kabar')
     revalidatePath(`/kabar/${updated.slug}`)
     revalidatePath('/admin/artikel')
 
-    return { success: true, isPublished: updated.isPublished }
+    return { success: true, isPublished: updated.isPublished, metrics }
   } catch (error: any) {
     console.error('togglePublishArticleAction error:', error)
     return { success: false, error: error.message || 'Gagal mengubah status publikasi.' }
