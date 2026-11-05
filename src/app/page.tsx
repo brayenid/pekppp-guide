@@ -168,9 +168,9 @@ export default async function HomePage() {
 
         <div className="relative z-10 max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between flex-1 gap-8 sm:gap-10">
           {/* Institutional Top Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
-            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs shadow-xs">
-              <div className="w-5 h-5 relative shrink-0 flex items-center justify-center">
+          <div className="flex items-center justify-between gap-2.5 sm:gap-3 shrink-0">
+            <div className="inline-flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs shadow-xs min-w-0">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 relative shrink-0 flex items-center justify-center">
                 <Image
                   src="/kubar.png"
                   alt="Logo Kutai Barat"
@@ -179,13 +179,15 @@ export default async function HomePage() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="font-semibold text-white">Pemkab Kutai Barat</span>
-              <span className="text-white/40">•</span>
-              <span className="text-sky-100">Bagian Organisasi Setdakab</span>
+              <span className="font-semibold text-white whitespace-nowrap">Pemkab Kutai Barat</span>
+              <span className="hidden sm:inline text-white/40">•</span>
+              <span className="hidden sm:inline text-sky-100 whitespace-nowrap">Bagian Organisasi Setdakab</span>
             </div>
 
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs shadow-xs">
-              <span className="font-medium text-white">Agenda PEKPPP {activeYear}</span>
+            <div className="inline-flex items-center px-2.5 sm:px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs shadow-xs shrink-0 whitespace-nowrap">
+              <span className="font-medium text-white">
+                <span className="hidden sm:inline">Agenda </span>PEKPPP {activeYear}
+              </span>
             </div>
           </div>
 
