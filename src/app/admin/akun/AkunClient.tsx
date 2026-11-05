@@ -361,19 +361,19 @@ export default function AkunClient({
       },
       {
         id: 'OPD',
-        badge: <Building2 className="w-3.5 h-3.5 text-teal-600" />,
+        badge: <Building2 className="w-3.5 h-3.5" />,
         label: 'Perangkat Daerah',
         count: opdCount
       },
       {
         id: 'SUPER_ADMIN',
-        badge: <ShieldCheck className="w-3.5 h-3.5 text-brand" />,
+        badge: <ShieldCheck className="w-3.5 h-3.5" />,
         label: 'Super Admin',
         count: adminCount
       },
       {
         id: 'UNBOUND',
-        badge: <AlertCircle className="w-3.5 h-3.5 text-amber-500" />,
+        badge: <AlertCircle className="w-3.5 h-3.5" />,
         label: 'Belum Ada Lokus',
         count: unboundOpdCount
       }
@@ -419,7 +419,7 @@ export default function AkunClient({
   }
 
   return (
-    <div className="space-y-6 w-full pb-12">
+    <div className="w-full pb-12 space-y-4">
       {/* Header */}
       <PageHeader
         icon={<UserCog className="w-5 h-5 text-brand" />}
@@ -459,8 +459,9 @@ export default function AkunClient({
         }
       />
 
-      {/* Reusable Underline Tabs (Terpisah dari container tabel) */}
+      {/* Reusable Underline Tabs (Margin atas dinetralkan/dihapus) */}
       <UnderlineTabs<AccountTabFilter>
+        className="-mt-4 sm:-mt-4"
         items={accountTabItems}
         activeId={activeAccountTab}
         onChange={(val) => {
