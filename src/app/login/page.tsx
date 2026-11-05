@@ -11,7 +11,6 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
-  ShieldCheck,
   CheckCircle2,
   Sparkles
 } from 'lucide-react'
@@ -62,7 +61,7 @@ export default function LoginPage() {
     <div className="h-screen max-h-screen w-full flex flex-col lg:grid lg:grid-cols-12 bg-canvas font-sans overflow-y-auto lg:overflow-hidden">
       {/* ── LEFT COLUMN: Login Form & Authenticated Panel (5 Cols) ── */}
       <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-between p-6 sm:p-8 lg:p-8 xl:p-10 bg-surface border-r border-line h-full overflow-y-auto lg:overflow-hidden">
-        {/* Top Bar: Back Link & Regional Identity */}
+        {/* Top Bar: Back Link */}
         <div className="flex items-center justify-between gap-3 shrink-0">
           <Link
             href="/"
@@ -70,11 +69,6 @@ export default function LoginPage() {
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span>Kembali ke Beranda</span>
           </Link>
-
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-subtle border border-line text-[11px] font-medium text-ink-muted">
-            <ShieldCheck className="w-3.5 h-3.5 text-brand" />
-            <span>Portal Resmi</span>
-          </div>
         </div>
 
         {/* Center: Auth Card & Form */}
@@ -236,9 +230,8 @@ export default function LoginPage() {
         </div>
 
         {/* Bottom Footer Information */}
-        <div className="pt-3 border-t border-line text-[11px] text-ink-muted flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
+        <div className="pt-3 border-t border-line text-[11px] text-ink-muted flex items-center justify-between gap-2 shrink-0">
           <span>&copy; {new Date().getFullYear()} Pemerintah Kabupaten Kutai Barat</span>
-          <span className="text-[10px] text-ink-muted font-mono">v2.6 • PEKPPP.ext</span>
         </div>
       </div>
 
@@ -259,22 +252,7 @@ export default function LoginPage() {
         </div>
 
         {/* Top Header Floating Badge */}
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/15 text-xs shadow-sm">
-            <div className="w-4 h-4 relative shrink-0">
-              <Image
-                src="/kubar.png"
-                alt="Logo Kutai Barat"
-                width={16}
-                height={16}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <span className="font-semibold text-white">Pemkab Kutai Barat</span>
-            <span className="text-white/40">•</span>
-            <span className="text-sky-100">Bagian Organisasi Setdakab</span>
-          </div>
-
+        <div className="relative z-10 flex items-center justify-end">
           <span className="text-xs font-mono text-sky-100/90 bg-black/30 backdrop-blur-xs px-3 py-1 rounded-full border border-white/15">
             Bumi Tanaa Purai Ngeriman
           </span>
