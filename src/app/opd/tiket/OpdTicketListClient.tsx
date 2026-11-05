@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
@@ -244,7 +244,7 @@ export function OpdTicketListClient({
   ]
 
   return (
-    <div className="space-y-6">
+    <>
       {/* ── Page Header (Sesuai Standar Admin) ── */}
       <PageHeader
         title="Tiket &amp; Pengaduan Layanan Unit"
@@ -260,7 +260,8 @@ export function OpdTicketListClient({
         }
       />
 
-      {/* ── Metric Bento Cards ── */}
+      <div className="-mt-3.5 sm:-mt-6 lg:-mt-7 space-y-5">
+        {/* ── Metric Bento Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
           <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
@@ -539,5 +540,6 @@ export function OpdTicketListClient({
         </div>
       </div>
     </div>
-  )
+  </>
+)
 }
