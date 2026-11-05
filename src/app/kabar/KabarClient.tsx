@@ -271,12 +271,11 @@ export function KabarClient({
                       {article.isFeatured && (
                         <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
                           <span
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide shadow-md bg-amber-500 text-white border border-amber-400"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide bg-amber-500 text-white border border-amber-400"
                             style={{
                               backgroundColor: '#F59E0B',
                               color: '#FFFFFF',
-                              borderColor: '#FBBF24',
-                              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.45)'
+                              borderColor: '#FBBF24'
                             }}
                             title="Artikel Sorotan">
                             <Star
