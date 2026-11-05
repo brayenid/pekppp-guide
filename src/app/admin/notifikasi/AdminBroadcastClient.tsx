@@ -35,6 +35,7 @@ import {
 } from '../../../actions/push-actions'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
+import { UnderlineTabs } from '../../../components/ui/Tabs'
 
 interface UnitOption {
   id: string
@@ -447,47 +448,35 @@ export function AdminBroadcastClient({
       </div>
 
       {/* Navigasi Tab Internal: Buat Broadcast vs Riwayat Transmisi */}
-      <div className="flex items-center justify-between border-b border-stroke/60 pb-px">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => handleTabChange('broadcast')}
-            className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
-              activeTab === 'broadcast'
-                ? 'border-brand text-brand'
-                : 'border-transparent text-ink-secondary hover:text-ink hover:border-stroke'
-            }`}>
-            <Send className="w-3.5 h-3.5" />
-            <span>Kirim Broadcast Baru</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTabChange('history')}
-            className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
-              activeTab === 'history'
-                ? 'border-brand text-brand'
-                : 'border-transparent text-ink-secondary hover:text-ink hover:border-stroke'
-            }`}>
-            <History className="w-3.5 h-3.5" />
-            <span>Riwayat Transmisi</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-surface-subtle text-ink-muted">
-              {totalHistoryCount}
-            </span>
-          </button>
-        </div>
-
-        {activeTab === 'history' && (
-          <button
-            type="button"
-            onClick={refreshHistory}
-            disabled={isRefreshingHistory}
-            className="text-xs text-ink-secondary hover:text-ink flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-surface-subtle transition-colors cursor-pointer">
-            <RotateCw className={`w-3.5 h-3.5 ${isRefreshingHistory ? 'animate-spin text-brand' : ''}`} />
-            <span>Muat Ulang</span>
-          </button>
-        )}
-      </div>
+      <UnderlineTabs<'broadcast' | 'history'>
+        activeId={activeTab}
+        onChange={handleTabChange}
+        items={[
+          {
+            id: 'broadcast',
+            label: 'Kirim Broadcast Baru',
+            icon: <Send className="w-3.5 h-3.5" />
+          },
+          {
+            id: 'history',
+            label: 'Riwayat Transmisi',
+            icon: <History className="w-3.5 h-3.5" />,
+            count: totalHistoryCount
+          }
+        ]}
+        rightContent={
+          activeTab === 'history' ? (
+            <button
+              type="button"
+              onClick={refreshHistory}
+              disabled={isRefreshingHistory}
+              className="text-xs text-ink-secondary hover:text-ink flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-surface-subtle transition-colors cursor-pointer">
+              <RotateCw className={`w-3.5 h-3.5 ${isRefreshingHistory ? 'animate-spin text-brand' : ''}`} />
+              <span>Muat Ulang</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* TAB 1: FORMULIR BROADCAST */}
       {activeTab === 'broadcast' && (

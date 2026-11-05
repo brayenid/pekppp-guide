@@ -64,4 +64,4 @@ const TabsContent = React.forwardRef<
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
 export { Tabs, TabsList, TabsTrigger, TabsContent }
-export { AdminTabs, type AdminTabItem, type AdminTabsProps } from './AdminTabs'
+export { AdminTabs, UnderlineTabs, type AdminTabItem, type AdminTabsProps, type UnderlineTabsProps } from './AdminTabs'
