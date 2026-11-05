@@ -187,7 +187,7 @@ export function LaporClient({
       {/* ── Page Header Standard (Sesuai Gaya /panduan & /contoh-berkas) ── */}
       <PageHeader
         title="Pusat Laporan & Bantuan Layanan"
-        description="Saluran aspirasi masyarakat, konsultasi teknis standar pelayanan publik, serta pelaporan kendala sistem PEKPPP di lingkungan Pemerintah Kabupaten Kutai Barat."
+        description="Saluran aspirasi, konsultasi teknis standar pelayanan, serta pelaporan kendala sistem PEKPPP di lingkungan Pemerintah Kabupaten Kutai Barat."
         actions={
           <div className="inline-flex p-1 bg-surface-subtle border border-line rounded-xl gap-1">
             <button
