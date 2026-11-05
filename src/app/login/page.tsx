@@ -13,9 +13,7 @@ import {
   EyeOff,
   ShieldCheck,
   CheckCircle2,
-  Sparkles,
-  Building2,
-  Layers
+  Sparkles
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { loginAction } from '../../actions/auth-actions'
@@ -245,7 +243,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT COLUMN: Immersive Landmark Canvas (7 Cols) ── */}
-      <div className="hidden lg:relative lg:col-span-7 xl:col-span-7 lg:flex flex-col justify-between p-10 xl:p-14 overflow-hidden bg-[#0A2652] text-white">
+      <div className="hidden lg:relative lg:col-span-7 xl:col-span-7 lg:flex flex-col justify-between p-8 xl:p-12 overflow-hidden bg-[#0A2652] text-white lg:m-3 xl:m-4 rounded-3xl border border-white/10 shadow-2xl">
         {/* Full Bleed Image using kantor.png */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -282,40 +280,19 @@ export default function LoginPage() {
           </span>
         </div>
 
-        {/* Bottom Editorial Showcase */}
-        <div className="relative z-10 max-w-xl space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-semibold backdrop-blur-xs">
-            <Building2 className="w-3.5 h-3.5" />
-            <span>Kantor Bupati Sendawar</span>
-          </div>
-
+        {/* Bottom Editorial Showcase Main Card */}
+        <div className="relative z-10 max-w-xl rounded-2xl sm:rounded-3xl bg-[#061833]/60 backdrop-blur-md border border-white/15 p-6 sm:p-7 space-y-4 shadow-xl">
           <div className="space-y-2">
-            <h2 className="text-2xl xl:text-3xl font-bold text-white tracking-tight leading-snug drop-shadow-sm">
+            <h2 className="text-xl sm:text-2xl xl:text-3xl font-bold text-white tracking-tight leading-snug drop-shadow-sm">
               Sistem Evaluasi Mandiri Kinerja Pelayanan Publik (PEKPPP)
             </h2>
-            <p className="text-sm xl:text-base text-sky-100/90 leading-relaxed font-normal">
-              Instrumen pembinaan terpadu 31 indikator kinerja standar pelayanan, verifikasi eviden digital, dan penetapan Indeks Pelayanan Publik (IPP) tingkat kabupaten.
+            <p className="text-xs sm:text-sm xl:text-base text-sky-100/90 leading-relaxed font-normal">
+              Portal terpadu pelaksanaan Pemantauan dan Evaluasi Kinerja Penyelenggaraan Pelayanan Publik (PEKPPP) di lingkungan Pemerintah Kabupaten Kutai Barat.
             </p>
           </div>
 
-          {/* Key Metric Highlights */}
-          <div className="grid grid-cols-3 gap-3 pt-2">
-            <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 space-y-0.5">
-              <div className="text-lg font-bold font-mono text-white">6 Aspek</div>
-              <div className="text-[11px] text-sky-200">Dimensi Standar</div>
-            </div>
-            <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 space-y-0.5">
-              <div className="text-lg font-bold font-mono text-white">31 Butir</div>
-              <div className="text-[11px] text-sky-200">Indikator Baku</div>
-            </div>
-            <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 space-y-0.5">
-              <div className="text-lg font-bold font-mono text-white">Living Doc</div>
-              <div className="text-[11px] text-sky-200">Eviden Otomatis</div>
-            </div>
-          </div>
-
           {/* Slogan Ribbon */}
-          <div className="pt-2 flex items-center justify-between text-xs text-sky-200/80 border-t border-white/15">
+          <div className="pt-3 flex items-center justify-between text-xs text-sky-200/80 border-t border-white/15">
             <span className="italic font-medium">Sempekat Bersama Kita Pasti Bisa</span>
             <span className="font-mono text-white">PEKPPP {new Date().getFullYear()}</span>
           </div>
