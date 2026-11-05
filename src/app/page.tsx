@@ -285,39 +285,39 @@ export default async function HomePage() {
           </div>
 
           {/* Integrated Telemetry Row (Pinned to bottom of full height fold) */}
-          <div className="pt-6 sm:pt-8 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-white/15 shrink-0">
-            <div className="space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
+          <div className="pt-6 sm:pt-8 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-6 sm:divide-x divide-white/15 shrink-0">
+            <div className="p-3 sm:p-0 rounded-xl sm:rounded-none bg-white/[0.06] sm:bg-transparent border border-white/10 sm:border-0 backdrop-blur-xs sm:backdrop-blur-none flex flex-col justify-between space-y-1">
+              <div className="text-lg sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 6 Aspek
               </div>
-              <p className="text-xs text-sky-200">
+              <p className="text-xs text-sky-200 leading-snug">
                 Dimensi Standar Pelayanan
               </p>
             </div>
 
-            <div className="pt-3 sm:pt-0 sm:pl-6 space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
+            <div className="p-3 sm:p-0 rounded-xl sm:rounded-none bg-white/[0.06] sm:bg-transparent border border-white/10 sm:border-0 backdrop-blur-xs sm:backdrop-blur-none sm:pl-6 flex flex-col justify-between space-y-1">
+              <div className="text-lg sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 {activeIndicatorsDisplay} Butir
               </div>
-              <p className="text-xs text-sky-200">
+              <p className="text-xs text-sky-200 leading-snug">
                 Indikator Terbobot Baku
               </p>
             </div>
 
-            <div className="pt-3 sm:pt-0 sm:pl-6 space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
+            <div className="p-3 sm:p-0 rounded-xl sm:rounded-none bg-white/[0.06] sm:bg-transparent border border-white/10 sm:border-0 backdrop-blur-xs sm:backdrop-blur-none sm:pl-6 flex flex-col justify-between space-y-1">
+              <div className="text-lg sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 {activeUnitsDisplay} Unit
               </div>
-              <p className="text-xs text-sky-200">
+              <p className="text-xs text-sky-200 leading-snug">
                 Lokus Layanan Terdaftar
               </p>
             </div>
 
-            <div className="pt-3 sm:pt-0 sm:pl-6 space-y-1">
-              <div className="text-xl sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
+            <div className="p-3 sm:p-0 rounded-xl sm:rounded-none bg-white/[0.06] sm:bg-transparent border border-white/10 sm:border-0 backdrop-blur-xs sm:backdrop-blur-none sm:pl-6 flex flex-col justify-between space-y-1">
+              <div className="text-lg sm:text-2xl font-bold text-white tracking-tight font-mono tabular-nums">
                 75% : 25%
               </div>
-              <p className="text-xs text-sky-200">
+              <p className="text-xs text-sky-200 leading-snug">
                 Bobot F-02 &amp; F-03 (IPP)
               </p>
             </div>
