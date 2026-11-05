@@ -263,7 +263,7 @@ export function Navbar() {
           <div className="p-4 space-y-5 flex-1 overflow-y-auto">
             {/* Context Capsule for Logged-In Roles */}
             {user && (
-              <div className="p-3 rounded-xl bg-surface border border-stroke/60 space-y-2">
+              <div className="p-3 rounded-xl bg-surface border border-stroke/60 space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-ink truncate">{user.fullName}</span>
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-brand-light text-brand border border-brand/20 shrink-0">
@@ -272,14 +272,6 @@ export function Navbar() {
                 </div>
                 <div className="text-[11px] text-ink-muted truncate font-mono">
                   {user.email}
-                </div>
-                <div className="pt-1.5 border-t border-stroke/40 flex items-center gap-2">
-                  <Link
-                    href={dashboardHref}
-                    onClick={() => setMobileDrawerOpen(false)}
-                    className="flex-1 py-1.5 px-3 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-medium text-center transition-colors shadow-2xs">
-                    {user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Dashboard OPD'}
-                  </Link>
                 </div>
               </div>
             )}
@@ -354,16 +346,26 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Drawer Footer: Auth action */}
-          <div className="p-4 border-t border-stroke bg-surface">
+          {/* Drawer Footer: Dashboard Shortcut & Auth Action */}
+          <div className="p-4 border-t border-stroke bg-surface space-y-2">
             {user ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full min-h-[44px] py-2.5 px-4 rounded-xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/60 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/40 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer">
-                <LogOut className="w-4 h-4" />
-                <span>Keluar Akun</span>
-              </button>
+              <>
+                <Link
+                  href={dashboardHref}
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-2xs cursor-pointer">
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>{user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Dashboard OPD'}</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full min-h-[44px] py-2.5 px-4 rounded-xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/60 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/40 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer">
+                  <LogOut className="w-4 h-4" />
+                  <span>Keluar Akun</span>
+                </button>
+              </>
             ) : (
               <Link
                 href="/login"
