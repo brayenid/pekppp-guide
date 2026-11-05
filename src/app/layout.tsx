@@ -1,5 +1,6 @@
 import './globals.css'
 import { AppLayoutWrapper } from '../components/layout/AppLayoutWrapper'
+import { PushNotificationManager } from '../components/layout/PushNotificationManager'
 import { Toaster } from 'sonner'
 import NextTopLoader from 'nextjs-toploader'
 import localFont from 'next/font/local'
@@ -12,13 +13,28 @@ const googleSans = localFont({
 
 export const metadata = {
   title: 'PEKPPP.ext - Evaluasi Pelayanan Publik Kutai Barat',
-  description: 'Platform pemantauan dan evaluasi kinerja penyelenggaraan pelayanan publik Kabupaten Kutai Barat. 6 Aspek, 31 Indikator Berbobot.'
+  description: 'Platform pemantauan dan evaluasi kinerja penyelenggaraan pelayanan publik Kabupaten Kutai Barat. 6 Aspek, 31 Indikator Berbobot.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'PEKPPP.ext'
+  }
+}
+
+export const viewport = {
+  themeColor: '#060913',
+  width: 'device-width',
+  initialScale: 1
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={`${googleSans.variable} font-sans`} suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-icon" href="/kubar.png" />
+        <meta name="theme-color" content="#060913" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -41,21 +57,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppLayoutWrapper>
           {children}
         </AppLayoutWrapper>
+        <PushNotificationManager />
         <Toaster position="bottom-right" richColors />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for (let registration of registrations) {
-                    registration.unregister();
-                  }
-                });
-              }
-            `
-          }}
-        />
       </body>
     </html>
   )
 }
+

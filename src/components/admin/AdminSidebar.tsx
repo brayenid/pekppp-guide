@@ -16,7 +16,8 @@ import {
   SparkleDuotoneIcon,
   CodeBlockDuotoneIcon,
   BookBookmarkDuotoneIcon,
-  NewspaperDuotoneIcon
+  NewspaperDuotoneIcon,
+  BellDuotoneIcon
 } from '../ui/icons/SidebarIcons'
 
 export interface NavChildItem {
@@ -88,6 +89,13 @@ const ADMIN_NAV_STRUCTURE: NavItem[] = [
     label: 'Artikel & Kabar',
     icon: NewspaperDuotoneIcon,
     description: 'Publikasi berita & panduan SEO'
+  },
+  {
+    id: 'notifikasi',
+    href: '/admin/notifikasi',
+    label: 'Broadcast Notifikasi PWA',
+    icon: BellDuotoneIcon,
+    description: 'Web Push & broadcast sistem'
   },
   {
     id: 'akun',

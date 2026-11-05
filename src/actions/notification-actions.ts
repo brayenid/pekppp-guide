@@ -57,15 +57,16 @@ export async function getNotificationsAction(): Promise<{
     let whereCondition: any = {}
 
     if (user.role === 'SUPER_ADMIN') {
-      // Super Admin menerima notifikasi miliknya, atau yang ditujukan ke SUPER_ADMIN
+      // Super Admin menerima notifikasi miliknya, ditujukan ke SUPER_ADMIN, atau pengumuman umum (roleTarget null)
       whereCondition = {
         OR: [
           { userId: user.id },
-          { roleTarget: 'SUPER_ADMIN' }
+          { roleTarget: 'SUPER_ADMIN' },
+          { roleTarget: null }
         ]
       }
     } else {
-      // OPD: hanya menerima notifikasi miliknya, atau notifikasi unit yang dibind ke akunnya
+      // OPD: menerima notifikasi miliknya, notifikasi unit yang dibind ke akunnya, atau pengumuman umum (roleTarget null)
       const userUnits = await db.userUnit.findMany({
         where: { userId: user.id },
         select: { unitId: true }
@@ -78,7 +79,12 @@ export async function getNotificationsAction(): Promise<{
           {
             roleTarget: 'OPD',
             unitId: { in: boundUnitIds }
-          }
+          },
+          {
+            roleTarget: 'OPD',
+            unitId: null
+          },
+          { roleTarget: null }
         ]
       }
     }

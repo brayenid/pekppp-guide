@@ -483,6 +483,20 @@ model Article {
   @@index([isPublished, publishedAt])
 }
 
+// 18. PWA Web Push Subscriptions
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?  // Relasi opsional ke user yang sedang login saat subscribe
+  role      Role?    // SUPER_ADMIN atau OPD
+  unitId    String?  // Lokus unit jika role OPD
+  userAgent String?  // Info browser / OS perangkat
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-
-
+  @@index([userId])
+  @@index([role])
+  @@index([unitId])
+}

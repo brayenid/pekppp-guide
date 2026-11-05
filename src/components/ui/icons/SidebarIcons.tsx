@@ -134,3 +134,15 @@ export function NewspaperDuotoneIcon({ className = 'w-4 h-4', ...props }: IconPr
   )
 }
 
+/**
+ * 12. Notifikasi & Broadcast (bell-ringing-duotone)
+ */
+export function BellDuotoneIcon({ className = 'w-4 h-4', ...props }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" className={className} {...props}>
+      <path d="M216 176H40a8 8 0 0 1-7-12l23-38.33V96a72 72 0 0 1 144 0v29.67l23 38.33a8 8 0 0 1-7 12" opacity=".2" />
+      <path d="M221.78 160.71L200 124.42V96a72 72 0 0 0-64-71.55V16a8 8 0 0 0-16 0v8.45A72 72 0 0 0 56 96v28.42l-21.78 36.29A16 16 0 0 0 47.93 184H96a32 32 0 0 0 64 0h48.07a16 16 0 0 0 13.71-23.29M128 200a16 16 0 0 1-14.9-10.15a32.06 32.06 0 0 0 29.8 0A16 16 0 0 1 128 200m79.93-32H47.93L69.53 132A8 8 0 0 0 72 127.42V96a56 56 0 0 1 112 0v31.42a8 8 0 0 0 2.47 4.58Z" />
+    </svg>
+  )
+}
+
