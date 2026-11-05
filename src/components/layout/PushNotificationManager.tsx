@@ -116,7 +116,7 @@ export function PushNotificationManager() {
   return (
     <aside
       aria-label="Notifikasi Pembaruan Evaluasi"
-      className="fixed bottom-4 left-4 z-50 max-w-sm w-[calc(100vw-2rem)] sm:w-auto animate-fade-in-content">
+      className="fixed bottom-4 right-4 z-50 max-w-sm w-[calc(100vw-2rem)] sm:w-auto animate-fade-in-content">
       <div className="p-4 rounded-2xl bg-surface border border-brand/30 shadow-soft-float backdrop-blur-md space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="w-8 h-8 rounded-xl bg-brand-light flex items-center justify-center shrink-0 text-brand">
