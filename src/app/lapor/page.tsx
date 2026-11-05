@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { db } from '../../services/db'
 import { getCurrentUserAction } from '../../actions/auth-actions'
 import { LaporClient } from './LaporClient'
@@ -21,7 +22,9 @@ export default async function LaporPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10 pb-16">
-      <LaporClient currentUser={currentUser} units={units} />
+      <Suspense fallback={<div className="p-12 text-center text-xs text-ink-muted">Memuat portal layanan...</div>}>
+        <LaporClient currentUser={currentUser} units={units} />
+      </Suspense>
     </div>
   )
 }

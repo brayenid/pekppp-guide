@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
   Send,
@@ -49,7 +49,28 @@ export function LaporClient({
   units: UnitItem[]
 }) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'create' | 'track'>('create')
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const tabQuery = searchParams.get('tab')
+  const codeQuery = searchParams.get('kode') || searchParams.get('code') || ''
+
+  // Sinkronisasi state tab dengan query parameter URL (?tab=lacak)
+  const activeTab: 'create' | 'track' =
+    tabQuery === 'lacak' || tabQuery === 'track' ? 'track' : 'create'
+
+  const handleSelectTab = (nextTab: 'create' | 'track') => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (nextTab === 'track') {
+      params.set('tab', 'lacak')
+    } else {
+      params.delete('tab')
+      params.delete('kode')
+      params.delete('code')
+    }
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
 
   // Mode otomatis berdasarkan status login pengguna
   const isAnonymous = !currentUser
@@ -70,8 +91,15 @@ export function LaporClient({
   const [copied, setCopied] = useState(false)
 
   // Track State
-  const [searchCode, setSearchCode] = useState('')
+  const [searchCode, setSearchCode] = useState(codeQuery)
   const [isSearching, setIsSearching] = useState(false)
+
+  // Update searchCode jika parameter query kode berubah
+  useEffect(() => {
+    if (codeQuery) {
+      setSearchCode(codeQuery.toUpperCase())
+    }
+  }, [codeQuery])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -164,7 +192,7 @@ export function LaporClient({
           <div className="inline-flex p-1 bg-surface-subtle border border-line rounded-xl gap-1">
             <button
               type="button"
-              onClick={() => setActiveTab('create')}
+              onClick={() => handleSelectTab('create')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'create'
                   ? 'bg-surface text-ink shadow-2xs'
@@ -174,7 +202,7 @@ export function LaporClient({
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('track')}
+              onClick={() => handleSelectTab('track')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'track'
                   ? 'bg-surface text-ink shadow-2xs'
