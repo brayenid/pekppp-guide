@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { useState } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Search,
@@ -12,7 +12,14 @@ import {
   MessageSquare,
   AlertTriangle,
   RefreshCw,
-  Phone
+  Phone,
+  Mail,
+  X,
+  Loader2,
+  Building,
+  User,
+  ShieldCheck,
+  ChevronDown
 } from 'lucide-react'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { getAdminTicketsAction } from '../../../actions/ticket-actions'
@@ -41,200 +48,402 @@ interface UnitItem {
   code: string | null
 }
 
+const PAGE_SIZE = 15
+
 export function AdminTicketListClient({
   initialData,
-  pagination: initialPagination,
-  stats,
+  initialPagination,
+  initialStats,
   units
 }: {
   initialData: AdminTicketItem[]
-  pagination: { page: number; limit: number; total: number; totalPages: number }
-  stats: { total: number; open: number; inProgress: number; dispatched: number; resolved: number }
+  initialPagination: { page: number; limit: number; total: number; totalPages: number }
+  initialStats: { total: number; open: number; inProgress: number; dispatched: number; resolved: number }
   units: UnitItem[]
 }) {
   const [items, setItems] = useState<AdminTicketItem[]>(initialData)
-  const [pagination, setPagination] = useState(initialPagination)
-  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(initialPagination.page || 1)
+  const [total, setTotal] = useState(initialPagination.total || 0)
+  const [stats, setStats] = useState(initialStats)
 
-  // Filters
+  // Status Load More & Filter
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [isFiltering, setIsFiltering] = useState(false)
+
+  // Filter States
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [categoryFilter, setCategoryFilter] = useState('ALL')
   const [unitFilter, setUnitFilter] = useState('ALL')
 
-  const fetchTickets = async (page = 1) => {
-    setLoading(true)
+  const hasMore = items.length < total
+  const remainingCount = Math.max(0, total - items.length)
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search.trim())
+    }, 350)
+    return () => clearTimeout(handler)
+  }, [search])
+
+  // Refetch saat filter berubah (Reset ke page 1)
+  const isFirstMount = useRef(true)
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false
+      return
+    }
+
+    let isCancelled = false
+    setIsFiltering(true)
+
+    getAdminTicketsAction({
+      page: 1,
+      limit: PAGE_SIZE,
+      search: debouncedSearch,
+      status: statusFilter,
+      priority: priorityFilter,
+      category: categoryFilter,
+      unitId: unitFilter
+    })
+      .then((res) => {
+        if (!isCancelled && res.success && res.items) {
+          setItems(res.items as any)
+          setPage(1)
+          setTotal(res.pagination.total)
+          if (res.stats) setStats(res.stats)
+        }
+      })
+      .catch((err) => {
+        console.error('Error filtering tickets:', err)
+        toast.error('Gagal memfilter tiket.')
+      })
+      .finally(() => {
+        if (!isCancelled) setIsFiltering(false)
+      })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [debouncedSearch, statusFilter, priorityFilter, categoryFilter, unitFilter])
+
+  // Fungsi Paginasi Load More (Murni append data, tanpa gimmick)
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore || isFiltering) return
+    setIsLoadingMore(true)
+
     try {
+      const nextPage = page + 1
       const res = await getAdminTicketsAction({
-        page,
-        limit: pagination.limit,
+        page: nextPage,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
         status: statusFilter,
         priority: priorityFilter,
         category: categoryFilter,
-        unitId: unitFilter,
-        search
+        unitId: unitFilter
       })
-      if (res.success && res.items) {
-        setItems(res.items as any)
-        setPagination(res.pagination)
+
+      if (res.success && res.items && res.items.length > 0) {
+        setItems((prev) => [...prev, ...(res.items as any)])
+        setPage(nextPage)
+        setTotal(res.pagination.total)
+        if (res.stats) setStats(res.stats)
       } else {
-        toast.error(res.error || 'Gagal memuat data.')
+        toast.info('Seluruh tiket telah dimuat.')
       }
-    } catch {
-      toast.error('Terjadi gangguan saat memuat tiket.')
+    } catch (err) {
+      console.error('Error loading more tickets:', err)
+      toast.error('Gagal memuat tiket tambahan.')
     } finally {
-      setLoading(false)
+      setIsLoadingMore(false)
     }
   }
 
-  const handleFilterSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    fetchTickets(1)
+  const resetAllFilters = () => {
+    setSearch('')
+    setDebouncedSearch('')
+    setStatusFilter('ALL')
+    setPriorityFilter('ALL')
+    setCategoryFilter('ALL')
+    setUnitFilter('ALL')
   }
+
+  const hasActiveFilters =
+    search !== '' ||
+    statusFilter !== 'ALL' ||
+    priorityFilter !== 'ALL' ||
+    categoryFilter !== 'ALL' ||
+    unitFilter !== 'ALL'
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'OPEN':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400">Menunggu</span>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+            Menunggu Telaah
+          </span>
+        )
       case 'IN_PROGRESS':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400">Ditelaah</span>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+            Sedang Ditelaah
+          </span>
+        )
       case 'DISPATCHED':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400">Didisposisi</span>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20">
+            Didisposisikan
+          </span>
+        )
       case 'RESOLVED':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Selesai</span>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+            Selesai Ditangani
+          </span>
+        )
       case 'CLOSED':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-subtle text-ink-muted">Ditutup</span>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-surface-subtle text-ink-muted border border-line">
+            Ditutup Resmi
+          </span>
+        )
       default:
-        return <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-subtle text-ink">{status}</span>
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-surface-subtle text-ink border border-line">
+            {status}
+          </span>
+        )
     }
   }
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'URGENT':
-        return <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400">Mendesak</span>
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 dark:text-rose-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span>Mendesak</span>
+          </span>
+        )
       case 'HIGH':
-        return <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Tinggi</span>
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span>Tinggi</span>
+          </span>
+        )
       case 'MEDIUM':
-        return <span className="text-[11px] font-medium text-ink-muted">Sedang</span>
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-ink-muted">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+            <span>Sedang</span>
+          </span>
+        )
       case 'LOW':
-        return <span className="text-[11px] font-normal text-ink-muted">Rendah</span>
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-normal text-ink-muted">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+            <span>Rendah</span>
+          </span>
+        )
       default:
         return <span className="text-[11px] text-ink-muted">{priority}</span>
     }
   }
 
+  const STATUS_TABS = [
+    { key: 'ALL', label: 'Semua Tiket' },
+    { key: 'OPEN', label: 'Menunggu' },
+    { key: 'IN_PROGRESS', label: 'Ditelaah' },
+    { key: 'DISPATCHED', label: 'Didisposisi' },
+    { key: 'RESOLVED', label: 'Selesai' },
+    { key: 'CLOSED', label: 'Ditutup' }
+  ]
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* ── Page Header (Sesuai Standar Admin) ── */}
       <PageHeader
-        tag="Helpdesk Terpadu"
-        title="Manajemen Tiket & Pengaduan"
-        description="Pusat telaah laporan pelayanan publik, konsultasi SOP, dan disposisi penanganan ke unit kerja lokus."
+        title="Manajemen Tiket &amp; Pengaduan"
+        description="Pusat telaah pengaduan masyarakat, konsultasi teknis standar pelayanan publik, dan disposisi resmi ke unit lokus Pemerintah Kabupaten Kutai Barat."
+        actions={
+          <Link
+            href="/lapor"
+            target="_blank"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/25 transition-all cursor-pointer shrink-0">
+            <ExternalLink className="w-3.5 h-3.5 text-white shrink-0" />
+            <span>Lihat Portal Lapor Publik</span>
+          </Link>
+        }
       />
 
-      {/* ── Metric Summary Strip ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="p-3.5 rounded-xl bg-surface border border-line shadow-2xs space-y-1">
-          <span className="text-[11px] font-medium text-ink-muted block">Total Laporan</span>
-          <span className="text-xl font-bold text-ink">{stats.total}</span>
+      {/* ── Metric Bento Cards ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
+          <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
+            Total Laporan
+          </span>
+          <div className="text-2xl font-bold font-mono text-ink">
+            {stats.total}
+          </div>
+          <div className="text-[11px] text-ink-muted">Seluruh tiket masuk</div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-surface border border-line shadow-2xs space-y-1">
-          <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 block">Menunggu Telaah</span>
-          <span className="text-xl font-bold text-amber-600 dark:text-amber-400">{stats.open}</span>
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
+          <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+            Menunggu Telaah
+          </span>
+          <div className="text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">
+            {stats.open}
+          </div>
+          <div className="text-[11px] text-ink-muted">Memerlukan telaah awal</div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-surface border border-line shadow-2xs space-y-1">
-          <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 block">Sedang Ditelaah</span>
-          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{stats.inProgress}</span>
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
+          <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
+            Sedang Ditelaah
+          </span>
+          <div className="text-2xl font-bold font-mono text-blue-600 dark:text-blue-400">
+            {stats.inProgress}
+          </div>
+          <div className="text-[11px] text-ink-muted">Dalam proses verifikasi</div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-surface border border-line shadow-2xs space-y-1">
-          <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 block">Didisposisikan</span>
-          <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">{stats.dispatched}</span>
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
+          <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
+            Didisposisikan
+          </span>
+          <div className="text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">
+            {stats.dispatched}
+          </div>
+          <div className="text-[11px] text-ink-muted">Diteruskan ke lokus OPD</div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-surface border border-line shadow-2xs space-y-1 col-span-2 sm:col-span-1">
-          <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 block">Selesai Ditangani</span>
-          <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{stats.resolved}</span>
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1 col-span-2 sm:col-span-1">
+          <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+            Selesai Ditangani
+          </span>
+          <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
+            {stats.resolved}
+          </div>
+          <div className="text-[11px] text-ink-muted">Berita acara tuntas</div>
         </div>
       </div>
 
-      {/* ── Search & Filter Bar ── */}
-      <div className="p-4 rounded-xl bg-surface border border-line shadow-2xs">
-        <form onSubmit={handleFilterSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-          <div className="sm:col-span-4 relative">
+      {/* ── Search & Filter Controls ── */}
+      <div className="space-y-3.5 p-5 rounded-2xl bg-surface border border-line shadow-subtle">
+        {/* Row 1: Search + Segmented Status Tabs */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari kode tiket, judul, atau nama pelapor..."
-              className="w-full pl-9 pr-3.5 py-2 rounded-lg border border-line bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand"
+              placeholder="Cari kode tiket, pokok laporan, atau nama pelapor..."
+              className="w-full pl-10 pr-9 py-2 rounded-xl border border-line bg-surface-subtle/40 text-xs sm:text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand transition-colors"
             />
-            <Search className="w-3.5 h-3.5 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink p-1">
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          <div className="sm:col-span-2">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-2.5 py-2 rounded-lg border border-line bg-surface text-xs text-ink focus:outline-none focus:border-brand">
-              <option value="ALL">Semua Status</option>
-              <option value="OPEN">Menunggu Telaah</option>
-              <option value="IN_PROGRESS">Sedang Ditelaah</option>
-              <option value="DISPATCHED">Didisposisi ke Lokus</option>
-              <option value="RESOLVED">Selesai</option>
-              <option value="CLOSED">Ditutup</option>
-            </select>
+          {/* Quick Status Filter Tabs */}
+          <div className="flex items-center p-1 rounded-xl bg-surface-subtle border border-line text-xs overflow-x-auto shrink-0">
+            {STATUS_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setStatusFilter(tab.key)}
+                className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                  statusFilter === tab.key
+                    ? 'bg-surface text-ink font-semibold shadow-2xs'
+                    : 'text-ink-muted hover:text-ink'
+                }`}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Row 2: Secondary Dropdown Filters */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-line text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1">
+            {/* Lokus Tujuan Filter */}
+            <div>
+              <select
+                value={unitFilter}
+                onChange={(e) => setUnitFilter(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-lg border border-line bg-surface-subtle/30 text-xs text-ink focus:outline-none focus:border-brand">
+                <option value="ALL">Semua Unit Lokus</option>
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Prioritas Filter */}
+            <div>
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-lg border border-line bg-surface-subtle/30 text-xs text-ink focus:outline-none focus:border-brand">
+                <option value="ALL">Semua Prioritas</option>
+                <option value="URGENT">Mendesak (Urgent)</option>
+                <option value="HIGH">Tinggi</option>
+                <option value="MEDIUM">Sedang</option>
+                <option value="LOW">Rendah</option>
+              </select>
+            </div>
+
+            {/* Kategori Filter */}
+            <div>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-lg border border-line bg-surface-subtle/30 text-xs text-ink focus:outline-none focus:border-brand">
+                <option value="ALL">Semua Kategori</option>
+                <option value="Pelayanan Publik & Fasilitas Lokus">Pelayanan Publik & Fasilitas Lokus</option>
+                <option value="Konsultasi Teknis & Regulasi/SOP">Konsultasi Teknis & Regulasi/SOP</option>
+                <option value="Kendala Sistem & Portal PEKPPP">Kendala Sistem & Portal PEKPPP</option>
+                <option value="Aspirasi & Inovasi Layanan">Aspirasi & Inovasi Layanan</option>
+                <option value="Lainnya / Umum">Lainnya / Umum</option>
+              </select>
+            </div>
           </div>
 
-          <div className="sm:col-span-3">
-            <select
-              value={unitFilter}
-              onChange={(e) => setUnitFilter(e.target.value)}
-              className="w-full px-2.5 py-2 rounded-lg border border-line bg-surface text-xs text-ink focus:outline-none focus:border-brand truncate">
-              <option value="ALL">Semua Unit Lokus</option>
-              {units.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="sm:col-span-2">
-            <select
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
-              className="w-full px-2.5 py-2 rounded-lg border border-line bg-surface text-xs text-ink focus:outline-none focus:border-brand">
-              <option value="ALL">Semua Prioritas</option>
-              <option value="URGENT">Mendesak</option>
-              <option value="HIGH">Tinggi</option>
-              <option value="MEDIUM">Sedang</option>
-              <option value="LOW">Rendah</option>
-            </select>
-          </div>
-
-          <div className="sm:col-span-1 flex items-center gap-1.5">
+          {/* Reset Action */}
+          {hasActiveFilters && (
             <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 px-3 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold flex items-center justify-center transition-all cursor-pointer">
-              {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : 'Filter'}
+              type="button"
+              onClick={resetAllFilters}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-500/10 transition-colors shrink-0 cursor-pointer self-start sm:self-center">
+              <X className="w-3.5 h-3.5" />
+              <span>Reset Filter</span>
             </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
 
       {/* ── High-Density Data Table ── */}
-      <div className="bg-surface border border-line rounded-xl overflow-hidden shadow-2xs">
+      <div className="bg-surface border border-line rounded-2xl overflow-hidden shadow-subtle">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-line bg-surface-subtle text-ink-muted uppercase font-semibold text-[10px] tracking-wider">
                 <th className="py-3 px-4">Kode Tiket</th>
-                <th className="py-3 px-4">Pokok Laporan &amp; Kategori</th>
+                <th className="py-3 px-4 min-w-[240px]">Pokok Laporan &amp; Kategori</th>
                 <th className="py-3 px-4">Pelapor</th>
                 <th className="py-3 px-4">Disposisi Lokus</th>
                 <th className="py-3 px-3 text-center">Prioritas</th>
@@ -244,27 +453,40 @@ export function AdminTicketListClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {items.length === 0 ? (
+              {isFiltering ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-xs text-ink-muted">
-                    Tidak ada tiket yang cocok dengan kriteria pencarian.
+                    <div className="inline-flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                      <span>Memfilter data tiket...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : items.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-xs text-ink-muted">
+                    Tidak ada tiket yang cocok dengan kriteria pencarian atau filter yang dipilih.
                   </td>
                 </tr>
               ) : (
                 items.map((t) => (
                   <tr key={t.id} className="hover:bg-surface-subtle/50 transition-colors">
                     {/* Kode Tiket */}
-                    <td className="py-3 px-4 font-mono font-bold text-ink whitespace-nowrap">
-                      {t.ticketCode}
+                    <td className="py-3 px-4 font-mono font-bold text-brand whitespace-nowrap">
+                      <Link
+                        href={`/admin/tiket/${t.id}`}
+                        className="hover:underline">
+                        #{t.ticketCode}
+                      </Link>
                     </td>
 
                     {/* Pokok Laporan & Kategori */}
-                    <td className="py-3 px-4 max-w-xs sm:max-w-md">
+                    <td className="py-3 px-4">
                       <div className="font-semibold text-ink line-clamp-1">{t.title}</div>
                       <div className="text-[11px] text-ink-muted flex items-center gap-2 mt-0.5">
                         <span>{t.category}</span>
                         {t._count.messages > 0 && (
-                          <span className="inline-flex items-center gap-0.5 text-brand">
+                          <span className="inline-flex items-center gap-0.5 text-brand font-medium">
                             <MessageSquare className="w-3 h-3" />
                             <span>{t._count.messages}</span>
                           </span>
@@ -272,7 +494,7 @@ export function AdminTicketListClient({
                       </div>
                     </td>
 
-                    {/* Pelapor */}
+                    {/* Pelapor & Kontak */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="font-medium text-ink flex items-center gap-1.5">
                         <span>{t.reporterName || 'Anonim'}</span>
@@ -284,6 +506,11 @@ export function AdminTicketListClient({
                       </div>
                       {t.reporterContact && (
                         <div className="text-[11px] text-ink-muted mt-0.5 flex items-center gap-1">
+                          {t.contactChannel === 'WHATSAPP' ? (
+                            <Phone className="w-3 h-3 text-emerald-500" />
+                          ) : (
+                            <Mail className="w-3 h-3 text-brand" />
+                          )}
                           <span className="font-mono">{t.reporterContact}</span>
                         </div>
                       )}
@@ -292,11 +519,13 @@ export function AdminTicketListClient({
                     {/* Disposisi Lokus */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       {t.targetUnit ? (
-                        <span className="font-medium text-brand truncate block max-w-[200px]">
+                        <span className="font-medium text-ink truncate block max-w-[200px]" title={t.targetUnit.name}>
                           {t.targetUnit.name}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-ink-muted italic">Belum didisposisi</span>
+                        <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                          Belum Didisposisi
+                        </span>
                       )}
                     </td>
 
@@ -314,7 +543,8 @@ export function AdminTicketListClient({
                     <td className="py-3 px-4 text-right whitespace-nowrap text-ink-muted font-mono text-[11px]">
                       {new Date(t.createdAt).toLocaleDateString('id-ID', {
                         day: '2-digit',
-                        month: 'short'
+                        month: 'short',
+                        year: 'numeric'
                       })}
                     </td>
 
@@ -322,7 +552,7 @@ export function AdminTicketListClient({
                     <td className="py-3 px-4 text-center whitespace-nowrap">
                       <Link
                         href={`/admin/tiket/${t.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface border border-line hover:bg-brand hover:border-brand hover:text-white text-ink text-xs font-medium transition-colors shadow-2xs">
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface border border-line hover:bg-brand hover:border-brand hover:text-white text-ink text-xs font-semibold transition-colors shadow-2xs">
                         <span>Detail</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
@@ -334,33 +564,39 @@ export function AdminTicketListClient({
           </table>
         </div>
 
-        {/* ── Pagination ── */}
-        {pagination.totalPages > 1 && (
-          <div className="p-3 border-t border-line flex items-center justify-between text-xs text-ink-muted bg-surface">
-            <span>
-              Menampilkan {items.length} dari {pagination.total} laporan
-            </span>
-            <div className="flex items-center gap-1">
+        {/* ── Paginasi Load More Tanpa Gimmick ── */}
+        <div className="p-4 border-t border-line bg-surface flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <span className="text-ink-muted">
+            Menampilkan <span className="font-semibold text-ink">{items.length}</span> dari{' '}
+            <span className="font-semibold text-ink">{total}</span> total tiket
+          </span>
+
+          <div className="flex items-center gap-2">
+            {hasMore ? (
               <button
                 type="button"
-                disabled={pagination.page <= 1}
-                onClick={() => fetchTickets(pagination.page - 1)}
-                className="px-2.5 py-1 rounded border border-line disabled:opacity-40 hover:bg-surface-subtle">
-                Sebelumnya
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-surface border border-line hover:bg-surface-subtle text-ink font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-50">
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />
+                    <span>Memuat {Math.min(PAGE_SIZE, remainingCount)} tiket berikutnya...</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-3.5 h-3.5 text-ink-muted" />
+                    <span>Muat Lebih Banyak ({remainingCount} tersisa)</span>
+                  </>
+                )}
               </button>
-              <span className="px-2 font-mono text-ink">
-                {pagination.page} / {pagination.totalPages}
+            ) : total > 0 ? (
+              <span className="text-[11px] text-ink-muted italic">
+                Semua tiket telah ditampilkan ({total} tiket)
               </span>
-              <button
-                type="button"
-                disabled={pagination.page >= pagination.totalPages}
-                onClick={() => fetchTickets(pagination.page + 1)}
-                className="px-2.5 py-1 rounded border border-line disabled:opacity-40 hover:bg-surface-subtle">
-                Berikutnya
-              </button>
-            </div>
+            ) : null}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
