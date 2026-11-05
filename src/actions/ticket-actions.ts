@@ -321,41 +321,45 @@ export async function getOpdTicketsAction(params?: {
     })
     const unitIds = userUnits.map((u) => u.unitId)
 
-    if (unitIds.length === 0 && user.role !== 'SUPER_ADMIN') {
-      return {
-        success: true,
-        items: [],
-        pagination: { page: 1, limit: 15, total: 0, totalPages: 1 },
-        stats: { total: 0, open: 0, inProgress: 0, dispatched: 0, resolved: 0 }
-      }
+    // Base condition: Tiket yang ditujukan ke unit lokus OPD, ATAU tiket yang diajukan oleh akun OPD ini
+    const baseConditions: any[] = []
+    if (unitIds.length > 0) {
+      baseConditions.push({ targetUnitId: { in: unitIds } })
     }
+    baseConditions.push({ authorId: user.id })
+
+    const baseWhere: any = baseConditions.length > 1
+      ? { OR: baseConditions }
+      : baseConditions[0] || {}
 
     const page = Math.max(1, params?.page || 1)
     const limit = Math.max(5, Math.min(params?.limit || 15, 100))
     const skip = (page - 1) * limit
 
-    const where: any = {
-      targetUnitId: { in: unitIds }
-    }
+    const andConditions: any[] = [baseWhere]
 
     if (params?.status && params.status !== 'ALL') {
-      where.status = params.status as TicketStatus
+      andConditions.push({ status: params.status as TicketStatus })
     }
     if (params?.priority && params.priority !== 'ALL') {
-      where.priority = params.priority as TicketPriority
+      andConditions.push({ priority: params.priority as TicketPriority })
     }
     if (params?.category && params.category !== 'ALL') {
-      where.category = params.category
+      andConditions.push({ category: params.category })
     }
     if (params?.search && params.search.trim()) {
       const q = params.search.trim()
-      where.OR = [
-        { ticketCode: { contains: q, mode: 'insensitive' } },
-        { title: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
-        { reporterName: { contains: q, mode: 'insensitive' } }
-      ]
+      andConditions.push({
+        OR: [
+          { ticketCode: { contains: q, mode: 'insensitive' } },
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+          { reporterName: { contains: q, mode: 'insensitive' } }
+        ]
+      })
     }
+
+    const where: any = andConditions.length > 1 ? { AND: andConditions } : andConditions[0]
 
     const [items, total] = await Promise.all([
       db.ticket.findMany({
@@ -373,10 +377,10 @@ export async function getOpdTicketsAction(params?: {
     ])
 
     const [openCount, inProgressCount, dispatchedCount, resolvedCount] = await Promise.all([
-      db.ticket.count({ where: { targetUnitId: { in: unitIds }, status: TicketStatus.OPEN } }),
-      db.ticket.count({ where: { targetUnitId: { in: unitIds }, status: TicketStatus.IN_PROGRESS } }),
-      db.ticket.count({ where: { targetUnitId: { in: unitIds }, status: TicketStatus.DISPATCHED } }),
-      db.ticket.count({ where: { targetUnitId: { in: unitIds }, status: TicketStatus.RESOLVED } })
+      db.ticket.count({ where: { AND: [baseWhere, { status: TicketStatus.OPEN }] } }),
+      db.ticket.count({ where: { AND: [baseWhere, { status: TicketStatus.IN_PROGRESS }] } }),
+      db.ticket.count({ where: { AND: [baseWhere, { status: TicketStatus.DISPATCHED }] } }),
+      db.ticket.count({ where: { AND: [baseWhere, { status: TicketStatus.RESOLVED }] } })
     ])
 
     return {

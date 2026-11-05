@@ -17,11 +17,32 @@ import {
   User,
   ShieldCheck,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  Plus,
+  Paperclip,
+  FileText,
+  Sparkles
 } from 'lucide-react'
 import { PageHeader } from '../../../components/ui/PageHeader'
-import { getOpdTicketsAction } from '../../../actions/ticket-actions'
+import { FormModal } from '../../../components/ui/FormModal'
+import { getOpdTicketsAction, createTicketAction } from '../../../actions/ticket-actions'
+import type { UserSession } from '../../../actions/auth-actions'
 import { toast } from 'sonner'
+
+export interface UnitItem {
+  id: string
+  name: string
+  code: string | null
+  category: { name: string } | null
+}
+
+const CATEGORIES = [
+  'Konsultasi Teknis & Regulasi/SOP',
+  'Kendala Sistem & Portal PEKPPP',
+  'Pelayanan Publik & Fasilitas Lokus',
+  'Aspirasi & Inovasi Layanan',
+  'Lainnya / Umum'
+]
 
 interface OpdTicketItem {
   id: string
@@ -45,11 +66,15 @@ const PAGE_SIZE = 15
 export function OpdTicketListClient({
   initialData,
   initialPagination,
-  initialStats
+  initialStats,
+  units = [],
+  currentUser
 }: {
   initialData: OpdTicketItem[]
   initialPagination: { page: number; limit: number; total: number; totalPages: number }
   initialStats: { total: number; open: number; inProgress: number; dispatched: number; resolved: number }
+  units?: UnitItem[]
+  currentUser?: UserSession | null
 }) {
   const [items, setItems] = useState<OpdTicketItem[]>(initialData)
   const [page, setPage] = useState(initialPagination.page || 1)
@@ -66,6 +91,18 @@ export function OpdTicketListClient({
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [categoryFilter, setCategoryFilter] = useState('ALL')
+
+  // Create Ticket Modal States
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [createTitle, setCreateTitle] = useState('')
+  const [createCategory, setCreateCategory] = useState(CATEGORIES[0])
+  const [createPriority, setCreatePriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'>('MEDIUM')
+  const [createTargetUnitId, setCreateTargetUnitId] = useState('')
+  const [createDescription, setCreateDescription] = useState('')
+  const [createContact, setCreateContact] = useState('')
+  const [createChannel, setCreateChannel] = useState<'WHATSAPP' | 'EMAIL'>('WHATSAPP')
+  const [createAttachments, setCreateAttachments] = useState<File[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const hasMore = items.length < total
   const remainingCount = Math.max(0, total - items.length)
@@ -148,6 +185,103 @@ export function OpdTicketListClient({
     } finally {
       setIsLoadingMore(false)
     }
+  }
+
+  const reloadTickets = async () => {
+    setIsFiltering(true)
+    try {
+      const res = await getOpdTicketsAction({
+        page: 1,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+        status: statusFilter,
+        priority: priorityFilter,
+        category: categoryFilter
+      })
+      if (res.success && res.items) {
+        setItems(res.items as any)
+        setPage(1)
+        setTotal(res.pagination.total)
+        if (res.stats) setStats(res.stats)
+      }
+    } catch (err) {
+      console.error('Error reloading tickets:', err)
+    } finally {
+      setIsFiltering(false)
+    }
+  }
+
+  const resetCreateForm = () => {
+    setCreateTitle('')
+    setCreateCategory(CATEGORIES[0])
+    setCreatePriority('MEDIUM')
+    setCreateTargetUnitId('')
+    setCreateDescription('')
+    setCreateContact('')
+    setCreateChannel('WHATSAPP')
+    setCreateAttachments([])
+  }
+
+  const handleCreateTicket = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!createTitle.trim()) {
+      toast.error('Judul tiket wajib diisi.')
+      return
+    }
+    if (!createDescription.trim()) {
+      toast.error('Uraian permasalahan wajib diisi.')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const fd = new FormData()
+      fd.append('title', createTitle.trim())
+      fd.append('category', createCategory)
+      fd.append('priority', createPriority)
+      fd.append('targetUnitId', createTargetUnitId.trim())
+      fd.append('description', createDescription.trim())
+      fd.append('isAnonymous', 'false') // Mode dashboard selalu berakun
+      if (createContact.trim()) {
+        fd.append('reporterContact', createContact.trim())
+        fd.append('contactChannel', createChannel)
+      }
+
+      createAttachments.forEach((f) => fd.append('attachments', f))
+
+      const res = await createTicketAction(fd)
+      if (res.success) {
+        toast.success(`Tiket #${res.ticketCode} berhasil diajukan!`)
+        resetCreateForm()
+        setIsCreateOpen(false)
+        await reloadTickets()
+      } else {
+        toast.error(res.error || 'Gagal membuat tiket.')
+      }
+    } catch (err) {
+      console.error('Error creating ticket from OPD:', err)
+      toast.error('Terjadi gangguan saat membuat tiket.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files)
+      const validFiles = newFiles.filter((f) => {
+        if (f.size > 10 * 1024 * 1024) {
+          toast.error(`Berkas ${f.name} melebihi batas 10MB`)
+          return false
+        }
+        return true
+      })
+      setCreateAttachments((prev) => [...prev, ...validFiles])
+    }
+  }
+
+  const handleRemoveFile = (index: number) => {
+    setCreateAttachments((prev) => prev.filter((_, i) => i !== index))
   }
 
   const resetAllFilters = () => {
@@ -248,19 +382,19 @@ export function OpdTicketListClient({
       {/* ── Page Header (Sesuai Standar Admin) ── */}
       <PageHeader
         title="Tiket &amp; Pengaduan Layanan Unit"
-        description="Pantau dan tindak lanjuti laporan masyarakat, kendala teknis standar pelayanan, serta konsultasi publik yang didisposisikan ke unit kerja lokus Anda."
+        description="Pantau tindak lanjut laporan masyarakat, ajukan permohonan konsultasi teknis, serta kelola kendala standar pelayanan publik unit lokus Anda."
         actions={
-          <Link
-            href="/lapor"
-            target="_blank"
-            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/25 transition-all cursor-pointer shrink-0">
-            <ExternalLink className="w-3.5 h-3.5 text-white shrink-0" />
-            <span>Lihat Portal Lapor Publik</span>
-          </Link>
+          <button
+            type="button"
+            onClick={() => setIsCreateOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full bg-white text-brand hover:bg-white/90 text-xs font-semibold shadow-xs transition-all cursor-pointer shrink-0">
+            <Plus className="w-4 h-4 text-brand shrink-0" />
+            <span>Buat Tiket</span>
+          </button>
         }
       />
 
-      <div className="-mt-3.5 sm:-mt-6 lg:-mt-7 space-y-5">
+      <div className="space-y-5">
         {/* ── Metric Bento Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
@@ -452,9 +586,17 @@ export function OpdTicketListClient({
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="font-medium text-ink flex items-center gap-1.5">
                         <span>{t.reporterName || 'Anonim'}</span>
-                        {t.isAnonymous && (
+                        {currentUser && t.author?.id === currentUser.id ? (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20 font-semibold">
+                            Diajukan Anda
+                          </span>
+                        ) : t.isAnonymous ? (
                           <span className="text-[9px] px-1.5 py-0.2 rounded bg-surface-subtle text-ink-muted border border-line">
                             Anonim
+                          </span>
+                        ) : (
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                            Berakun
                           </span>
                         )}
                       </div>
@@ -540,6 +682,230 @@ export function OpdTicketListClient({
         </div>
       </div>
     </div>
+
+    {/* ── Modal Pembuatan Tiket Mode Dashboard OPD ── */}
+    <FormModal
+      isOpen={isCreateOpen}
+      onClose={() => {
+        if (!isSubmitting) setIsCreateOpen(false)
+      }}
+      title="Buat Tiket Layanan &amp; Konsultasi"
+      description="Ajukan permohonan pendampingan, konsultasi teknis standar pelayanan, atau laporkan kendala sistem langsung dari akun unit kerja Anda."
+      icon={<Plus className="w-5 h-5 text-brand" />}
+      maxWidth="2xl">
+      <form onSubmit={handleCreateTicket} className="p-5 sm:p-6 space-y-4 text-xs">
+        {/* Banner Identitas Pelapor Resmi */}
+        <div className="p-3.5 rounded-xl bg-surface-subtle border border-line flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-semibold text-ink truncate">
+                {currentUser?.fullName || 'Akun OPD Terverifikasi'}
+              </div>
+              <div className="text-[11px] text-ink-muted truncate">
+                Tiket terhubung ke unit lokus &amp; mendukung diskusi tindak lanjut interaktif.
+              </div>
+            </div>
+          </div>
+          <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+            Resmi Unit
+          </span>
+        </div>
+
+        {/* Judul Tiket */}
+        <div className="space-y-1.5">
+          <label className="font-semibold text-ink block">
+            Judul Tiket / Pokok Bahasan <span className="text-rose-500">*</span>
+          </label>
+          <input
+            type="text"
+            required
+            value={createTitle}
+            onChange={(e) => setCreateTitle(e.target.value)}
+            placeholder="Contoh: Permohonan asistensi instrumen bukti Kebijakan Pelayanan F-01"
+            className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-brand text-xs transition-colors"
+          />
+        </div>
+
+        {/* Kategori & Prioritas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="space-y-1.5">
+            <label className="font-semibold text-ink block">
+              Kategori Laporan <span className="text-rose-500">*</span>
+            </label>
+            <select
+              value={createCategory}
+              onChange={(e) => setCreateCategory(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink focus:outline-none focus:border-brand text-xs">
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-semibold text-ink block">Tingkat Prioritas</label>
+            <select
+              value={createPriority}
+              onChange={(e) => setCreatePriority(e.target.value as any)}
+              className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink focus:outline-none focus:border-brand text-xs">
+              <option value="LOW">Rendah (Biasa / Pertanyaan Umum)</option>
+              <option value="MEDIUM">Sedang (Konsultasi Standar)</option>
+              <option value="HIGH">Tinggi (Perlu Segera Ditelaah)</option>
+              <option value="URGENT">Mendesak (Kendala Kritis / Batas Waktu)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Tujuan Disposisi / Sasaran Unit */}
+        <div className="space-y-1.5">
+          <label className="font-semibold text-ink block">
+            Tujuan Disposisi / Unit Sasaran
+          </label>
+          <select
+            value={createTargetUnitId}
+            onChange={(e) => setCreateTargetUnitId(e.target.value)}
+            className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink focus:outline-none focus:border-brand text-xs">
+            <option value="">
+              Tim Pembina / Bagian Organisasi Setdakab (Pusat Kabupaten)
+            </option>
+            {units.length > 0 && (
+              <optgroup label="Unit Lokus Pelayanan Publik">
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.code ? `[${u.code}] ` : ''}{u.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+          </select>
+          <p className="text-[11px] text-ink-muted">
+            Pilih Pusat Setdakab untuk konsultasi teknis PEKPPP, atau pilih unit terkait bila pencatatan kendala lokus.
+          </p>
+        </div>
+
+        {/* Deskripsi Uraian Permasalahan */}
+        <div className="space-y-1.5">
+          <label className="font-semibold text-ink block">
+            Uraian Permasalahan &amp; Kebutuhan <span className="text-rose-500">*</span>
+          </label>
+          <textarea
+            required
+            rows={4}
+            value={createDescription}
+            onChange={(e) => setCreateDescription(e.target.value)}
+            placeholder="Jelaskan secara rinci kendala yang dihadapi, pertanyaan regulasi/SOP, atau permohonan asistensi standar pelayanan yang dibutuhkan..."
+            className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-brand text-xs transition-colors resize-y"
+          />
+        </div>
+
+        {/* Narahubung Opsional */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div className="sm:col-span-2 space-y-1.5">
+            <label className="font-semibold text-ink block">
+              Narahubung Petugas Lokus (Opsional)
+            </label>
+            <input
+              type="text"
+              value={createContact}
+              onChange={(e) => setCreateContact(e.target.value)}
+              placeholder="Nomor WhatsApp atau Email aktif untuk konfirmasi cepat"
+              className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-brand text-xs"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-semibold text-ink block">Kanal Kontak</label>
+            <select
+              value={createChannel}
+              onChange={(e) => setCreateChannel(e.target.value as any)}
+              className="w-full px-3.5 py-2 rounded-xl border border-line bg-surface text-ink focus:outline-none focus:border-brand text-xs">
+              <option value="WHATSAPP">WhatsApp</option>
+              <option value="EMAIL">Email</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Unggah Lampiran Berkas Bukti Dukung */}
+        <div className="space-y-2 pt-1 border-t border-line">
+          <label className="font-semibold text-ink block">
+            Lampiran Berkas / Screenshot Bukti Dukung (Opsional)
+          </label>
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-surface-subtle hover:bg-surface text-ink text-xs font-semibold cursor-pointer transition-colors shadow-2xs">
+              <Paperclip className="w-3.5 h-3.5 text-ink-muted" />
+              <span>Pilih Berkas</span>
+              <input
+                type="file"
+                multiple
+                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+            <span className="text-[11px] text-ink-muted">
+              Mendukung gambar, PDF, dokumen (Maks. 10MB per file)
+            </span>
+          </div>
+
+          {/* List File Terpilih */}
+          {createAttachments.length > 0 && (
+            <div className="space-y-1.5 pt-1">
+              {createAttachments.map((file, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 rounded-lg bg-surface-subtle border border-line text-[11px]">
+                  <div className="flex items-center gap-2 truncate">
+                    <FileText className="w-3.5 h-3.5 text-brand shrink-0" />
+                    <span className="font-medium text-ink truncate">{file.name}</span>
+                    <span className="text-ink-muted shrink-0">
+                      ({(file.size / 1024).toFixed(0)} KB)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFile(idx)}
+                    className="p-1 rounded text-ink-muted hover:text-rose-500 hover:bg-surface transition-colors cursor-pointer shrink-0">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Action Buttons */}
+        <div className="pt-3 border-t border-line flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => setIsCreateOpen(false)}
+            className="px-4 py-2 rounded-xl border border-line hover:bg-surface-subtle text-ink font-semibold transition-colors cursor-pointer disabled:opacity-50">
+            Batal
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-brand hover:bg-brand/90 text-white font-semibold transition-colors shadow-xs cursor-pointer disabled:opacity-50">
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Mengajukan Tiket...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Kirim Tiket Sekarang</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </FormModal>
   </>
 )
 }

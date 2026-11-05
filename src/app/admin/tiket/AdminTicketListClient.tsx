@@ -281,7 +281,7 @@ export function AdminTicketListClient({
         }
       />
 
-      <div className="-mt-3.5 sm:-mt-6 lg:-mt-7 space-y-5">
+      <div className="space-y-5">
         {/* ── Metric Bento Cards ── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-1">
