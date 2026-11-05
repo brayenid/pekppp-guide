@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -158,7 +158,6 @@ export function LaporClient({
     <div className="space-y-8 sm:space-y-10">
       {/* ── Page Header Standard (Sesuai Gaya /panduan & /contoh-berkas) ── */}
       <PageHeader
-        tag="Layanan Terbuka"
         title="Pusat Laporan & Bantuan Layanan"
         description="Saluran aspirasi masyarakat, konsultasi teknis standar pelayanan publik, serta pelaporan kendala sistem PEKPPP di lingkungan Pemerintah Kabupaten Kutai Barat."
         actions={
@@ -252,12 +251,7 @@ export function LaporClient({
                       <User className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-ink">{currentUser.fullName}</span>
-                        <span className="px-2 py-0.2 rounded-full text-[10px] font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
-                          Mode Berakun (2 Arah)
-                        </span>
-                      </div>
+                      <span className="text-xs font-semibold text-ink block">{currentUser.fullName}</span>
                       <p className="text-xs text-ink-muted leading-relaxed">
                         Terkoneksi ke akun terverifikasi ({currentUser.email}). Anda dapat saling membalas tanggapan secara interaktif dengan petugas.
                       </p>
@@ -272,12 +266,7 @@ export function LaporClient({
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-ink">Pengajuan Laporan Tanpa Akun</span>
-                        <span className="px-2 py-0.2 rounded-full text-[10px] font-medium bg-amber-500/15 text-amber-700 dark:text-amber-300">
-                          Anonim (1 Arah)
-                        </span>
-                      </div>
+                      <span className="text-xs font-semibold text-ink block">Pengajuan Laporan Tanpa Akun</span>
                       <p className="text-xs text-ink-muted leading-relaxed">
                         Identitas pribadi Anda terlindungi secara penuh. Perkembangan penanganan dapat dipantau melalui kode tiket publik.
                       </p>
