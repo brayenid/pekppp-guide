@@ -12,7 +12,9 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const isDashboard = pathname?.startsWith('/admin') || pathname?.startsWith('/opd')
   const isHome = pathname === '/'
 
-  if (isPublicSurvey || isSharedEvidence) {
+  const isLogin = pathname === '/login'
+
+  if (isPublicSurvey || isSharedEvidence || isLogin) {
     return <>{children}</>
   }
 
