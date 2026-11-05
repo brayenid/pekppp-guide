@@ -48,12 +48,10 @@ export default async function OpdTicketDetailPage({
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
-      <OpdTicketDetailClient
-        ticket={ticketRes.ticket as any}
-        permissions={ticketRes.permissions!}
-        currentUser={user}
-      />
-    </div>
+    <OpdTicketDetailClient
+      ticket={ticketRes.ticket as any}
+      permissions={ticketRes.permissions!}
+      currentUser={user}
+    />
   )
 }
