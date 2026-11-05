@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { createProfileAction, bindUnitToProfileAction, unbindUnitFromProfileAction, updateProfileAction, deleteProfileAction, importProfilesAction } from '../../../actions/account-actions'
-import { UserCog, Plus, Building2, X, Pencil, Trash2, FileSpreadsheet, Search, ChevronLeft, ChevronRight, Users, ShieldCheck, AlertCircle } from 'lucide-react'
+import { UserCog, Plus, Building2, X, Pencil, Trash2, FileSpreadsheet, Search, Users, ShieldCheck, AlertCircle, Eye, EyeOff, Phone, ChevronDown, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { FormModal } from '../../../components/ui/FormModal'
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
@@ -41,6 +41,7 @@ export default function AkunClient({
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [phone, setPhone] = useState('')
   const [role, setRole] = useState<'SUPER_ADMIN' | 'OPD'>('OPD')
   const [loading, setLoading] = useState(false)
@@ -51,9 +52,10 @@ export default function AkunClient({
   const [activeAccountTab, setActiveAccountTab] = useState<AccountTabFilter>('ALL')
   const [unitFilter, setUnitFilter] = useState('ALL')
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  // Pagination state (Load More pattern no-gimmick)
+  const PAGE_SIZE = 10
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
   // Excel Import states
   const [isImportOpen, setIsImportOpen] = useState(false)
@@ -73,6 +75,7 @@ export default function AkunClient({
   const [editFullName, setEditFullName] = useState('')
   const [editEmail, setEditEmail] = useState('')
   const [editPassword, setEditPassword] = useState('')
+  const [showEditPassword, setShowEditPassword] = useState(false)
   const [editPhone, setEditPhone] = useState('')
   const [editRole, setEditRole] = useState<'SUPER_ADMIN' | 'OPD'>('OPD')
 
@@ -109,7 +112,7 @@ export default function AkunClient({
         fullName: fullName.trim(),
         email: email.trim(),
         password: password.trim(),
-        phone: phone.trim() || undefined,
+        phone: phone.trim() ? phone.trim() : null,
         role
       })
 
@@ -118,6 +121,7 @@ export default function AkunClient({
         setFullName('')
         setEmail('')
         setPassword('')
+        setShowPassword(false)
         setPhone('')
         setIsFormOpen(false)
         window.location.reload()
@@ -167,6 +171,7 @@ export default function AkunClient({
     setEditFullName(profile.fullName)
     setEditEmail(profile.email)
     setEditPassword('')
+    setShowEditPassword(false)
     setEditPhone(profile.phone || '')
     setEditRole(profile.role)
     setIsEditOpen(true)
@@ -185,7 +190,7 @@ export default function AkunClient({
         fullName: editFullName.trim(),
         email: editEmail.trim(),
         password: editPassword.trim() || undefined,
-        phone: editPhone.trim() || undefined,
+        phone: editPhone.trim() ? editPhone.trim() : null,
         role: editRole
       })
 
@@ -231,8 +236,8 @@ export default function AkunClient({
 
   const downloadTemplate = () => {
     const data = [
-      { 'Nama Lengkap': 'John Doe', 'Email': 'johndoe@kubar.go.id', 'Password': 'password123', 'Role': 'OPD' },
-      { 'Nama Lengkap': 'Admin Utama', 'Email': 'admin@kubar.go.id', 'Password': 'password321', 'Role': 'SUPER_ADMIN' }
+      { 'Nama Lengkap': 'John Doe', 'Email': 'johndoe@kubar.go.id', 'Nomor WhatsApp': '08123456789', 'Password': 'password123', 'Role': 'OPD' },
+      { 'Nama Lengkap': 'Admin Utama', 'Email': 'admin@kubar.go.id', 'Nomor WhatsApp': '08129876543', 'Password': 'password321', 'Role': 'SUPER_ADMIN' }
     ]
     const ws = XLSX.utils.json_to_sheet(data)
     const wb = XLSX.utils.book_new()
@@ -259,6 +264,22 @@ export default function AkunClient({
           const emailVal = (row['Email'] || row['email'])?.toString().trim()
           const nameVal = (row['Nama Lengkap'] || row['nama lengkap'] || row['Nama'] || row['nama'])?.toString().trim()
           const passVal = (row['Password'] || row['password'])?.toString().trim()
+          const phoneVal = (
+            row['Nomor WhatsApp'] ||
+            row['nomor whatsapp'] ||
+            row['No WhatsApp'] ||
+            row['no whatsapp'] ||
+            row['No WA'] ||
+            row['no wa'] ||
+            row['WhatsApp'] ||
+            row['whatsapp'] ||
+            row['Telepon'] ||
+            row['telepon'] ||
+            row['No HP'] ||
+            row['no hp'] ||
+            row['Phone'] ||
+            row['phone']
+          )?.toString().trim()
           let roleVal = (row['Role'] || row['role'])?.toString().trim().toUpperCase()
 
           if (!emailVal || !nameVal) continue
@@ -272,6 +293,7 @@ export default function AkunClient({
             email: emailVal,
             fullName: nameVal,
             password: passVal || '123456',
+            phone: phoneVal || undefined,
             role: roleVal as 'SUPER_ADMIN' | 'OPD',
             conflictResolution: 'SKIP', // default to skip
             hasConflict
@@ -383,15 +405,18 @@ export default function AkunClient({
     })
   }, [initialProfiles, searchQuery, activeAccountTab, unitFilter])
 
-  const totalPages = Math.ceil(filteredProfiles.length / itemsPerPage)
-  const paginatedProfiles = useMemo(
-    () =>
-      filteredProfiles.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      ),
-    [filteredProfiles, currentPage, itemsPerPage]
+  const displayedProfiles = useMemo(
+    () => filteredProfiles.slice(0, visibleCount),
+    [filteredProfiles, visibleCount]
   )
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true)
+    setTimeout(() => {
+      setVisibleCount((prev) => prev + PAGE_SIZE)
+      setIsLoadingMore(false)
+    }, 200)
+  }
 
   return (
     <div className="space-y-6 w-full pb-12">
@@ -440,7 +465,7 @@ export default function AkunClient({
         activeId={activeAccountTab}
         onChange={(val) => {
           setActiveAccountTab(val)
-          setCurrentPage(1)
+          setVisibleCount(PAGE_SIZE)
         }}
       />
 
@@ -452,7 +477,7 @@ export default function AkunClient({
             value={unitFilter}
             onChange={(e) => {
               setUnitFilter(e.target.value)
-              setCurrentPage(1)
+              setVisibleCount(PAGE_SIZE)
             }}
             className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer max-w-[200px] truncate">
             <option value="ALL">Semua Unit Lokus</option>
@@ -468,11 +493,11 @@ export default function AkunClient({
             <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="Cari nama, email, atau lokus..."
+              placeholder="Cari nama, email, nomor WA, atau lokus..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
-                setCurrentPage(1)
+                setVisibleCount(PAGE_SIZE)
               }}
               className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
             />
@@ -507,7 +532,7 @@ export default function AkunClient({
         ) : (
           <div className="overflow-hidden rounded-xl border border-line bg-surface">
             <div className="divide-y divide-line">
-              {paginatedProfiles.map((profile) => (
+              {displayedProfiles.map((profile) => (
                 <div
                   key={profile.id}
                   className="px-5 py-3.5 flex items-center justify-between hover:bg-surface-subtle transition-colors">
@@ -526,12 +551,20 @@ export default function AkunClient({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 mt-1 text-[11px] text-ink-muted">
+                    <div className="flex items-center gap-3 mt-1 text-[11px] text-ink-muted flex-wrap">
                       <span>{profile.email}</span>
-                      {profile.phone && (
+                      {profile.phone ? (
                         <>
                           <span className="text-ink-muted/40">•</span>
-                          <span className="tabular-nums text-emerald-700 font-medium">WA: {profile.phone}</span>
+                          <span className="inline-flex items-center gap-1 font-mono text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                            <Phone className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span>{profile.phone}</span>
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-ink-muted/40">•</span>
+                          <span className="text-ink-muted/60 text-[11px] italic">Tanpa WA</span>
                         </>
                       )}
                       <span className="text-ink-muted/40">•</span>
@@ -571,72 +604,41 @@ export default function AkunClient({
               ))}
             </div>
 
-            {/* Paginasi Footer */}
+            {/* Paginasi Footer Load More No-Gimmick */}
             {filteredProfiles.length > 0 && (
-              <div className="px-5 py-3 bg-surface-subtle/30 border-t border-stroke/40 flex items-center justify-between flex-wrap gap-3 text-xs">
-                <div className="flex items-center gap-3 text-ink-muted">
-                  <span>
-                    Menampilkan <strong className="text-ink font-semibold">{(currentPage - 1) * itemsPerPage + 1}</strong> -{' '}
-                    <strong className="text-ink font-semibold">
-                      {Math.min(currentPage * itemsPerPage, filteredProfiles.length)}
-                    </strong>{' '}
-                    dari <strong className="text-ink font-semibold">{filteredProfiles.length}</strong> akun
-                    {filteredProfiles.length < initialProfiles.length ? ` (total ${initialProfiles.length} akun)` : ''}
-                  </span>
-
-                  <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-stroke/40">
-                    <span>Per halaman:</span>
-                    <select
-                      value={itemsPerPage}
-                      onChange={(e) => {
-                        setItemsPerPage(Number(e.target.value))
-                        setCurrentPage(1)
-                      }}
-                      className="px-2 py-0.5 text-xs rounded-md bg-surface border border-stroke/60 text-ink focus:outline-none focus:border-brand cursor-pointer">
-                      <option value={5}>5</option>
-                      <option value={10}>10</option>
-                      <option value={20}>20</option>
-                      <option value={50}>50</option>
-                    </select>
-                  </div>
+              <div className="px-5 py-3.5 bg-surface-subtle/30 border-t border-stroke/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="text-ink-muted text-center sm:text-left">
+                  Menampilkan <strong className="text-ink font-semibold">{displayedProfiles.length}</strong> dari{' '}
+                  <strong className="text-ink font-semibold">{filteredProfiles.length}</strong> total akun
+                  {filteredProfiles.length < initialProfiles.length && (
+                    <span className="text-ink-muted/70"> (difilter dari total {initialProfiles.length} akun)</span>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}>
-                    Sebelumnya
-                  </Button>
-
-                  <div className="flex items-center gap-1 px-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        type="button"
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                          currentPage === page
-                            ? 'bg-brand text-white shadow-2xs font-semibold'
-                            : 'text-ink-muted hover:text-ink hover:bg-surface-subtle'
-                        }`}>
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    rightIcon={<ChevronRight className="w-3.5 h-3.5" />}>
-                    Selanjutnya
-                  </Button>
+                <div className="flex items-center gap-2">
+                  {visibleCount < filteredProfiles.length ? (
+                    <button
+                      type="button"
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                      className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-stroke/70 bg-surface hover:bg-surface-subtle text-ink font-semibold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer disabled:opacity-50">
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />
+                          <span>Memuat akun...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-3.5 h-3.5 text-brand" />
+                          <span>Muat Lebih Banyak ({filteredProfiles.length - visibleCount} tersisa)</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <span className="text-[11px] text-ink-muted italic">
+                      Semua akun telah ditampilkan ({filteredProfiles.length} akun)
+                    </span>
+                  )}
                 </div>
               </div>
             )}
@@ -677,26 +679,61 @@ export default function AkunClient({
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-ink-secondary">Password</label>
-            <input
-              type="text"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-3.5 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs"
-              required
-            />
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-ink-secondary">Password</label>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                className="text-[11px] text-ink-muted hover:text-brand flex items-center gap-1 cursor-pointer select-none">
+                {showPassword ? (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5" />
+                    <span>Sembunyikan</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Lihat</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-3.5 pr-10 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs font-mono"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink transition-colors cursor-pointer"
+                title={showPassword ? 'Sembunyikan password' : 'Lihat password'}>
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp (Opsional)</label>
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="08123456789"
-              className="w-full px-3.5 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs font-mono"
-            />
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp (Tersimpan ke DB)</label>
+              <span className="text-[10px] text-ink-muted">Opsional (e.g. 08123456789)</span>
+            </div>
+            <div className="relative">
+              <Phone className="w-3.5 h-3.5 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="08123456789"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs font-mono"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -732,7 +769,7 @@ export default function AkunClient({
       <ConfirmationModal
         isOpen={createConfirmOpen}
         title={`Buat Akun "${fullName}"?`}
-        description={`Akun dengan email ${email} dan role ${role} akan ditambahkan ke sistem.`}
+        description={`Akun dengan email "${email}"${phone.trim() ? ` (WhatsApp: ${phone.trim()})` : ''} dan role ${role} akan ditambahkan ke sistem database.`}
         confirmText="Ya, Buat Akun"
         cancelText="Batal"
         loading={loading}
@@ -799,25 +836,60 @@ export default function AkunClient({
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-ink-secondary">Password Baru</label>
-            <input
-              type="password"
-              value={editPassword}
-              onChange={(e) => setEditPassword(e.target.value)}
-              placeholder="Biarkan kosong jika tidak diubah"
-              className="w-full px-3.5 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs"
-            />
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-ink-secondary">Password Baru</label>
+              <button
+                type="button"
+                onClick={() => setShowEditPassword(!showEditPassword)}
+                tabIndex={-1}
+                className="text-[11px] text-ink-muted hover:text-brand flex items-center gap-1 cursor-pointer select-none">
+                {showEditPassword ? (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5" />
+                    <span>Sembunyikan</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Lihat</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                type={showEditPassword ? 'text' : 'password'}
+                value={editPassword}
+                onChange={(e) => setEditPassword(e.target.value)}
+                placeholder="Biarkan kosong jika tidak diubah"
+                className="w-full pl-3.5 pr-10 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setShowEditPassword(!showEditPassword)}
+                tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink transition-colors cursor-pointer"
+                title={showEditPassword ? 'Sembunyikan password' : 'Lihat password'}>
+                {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp (Opsional)</label>
-            <input
-              type="text"
-              value={editPhone}
-              onChange={(e) => setEditPhone(e.target.value)}
-              placeholder="08123456789"
-              className="w-full px-3.5 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs font-mono"
-            />
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-ink-secondary">Nomor WhatsApp (Tersimpan ke DB)</label>
+              <span className="text-[10px] text-ink-muted">Opsional (e.g. 08123456789)</span>
+            </div>
+            <div className="relative">
+              <Phone className="w-3.5 h-3.5 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="tel"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="08123456789"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-stroke/70 bg-surface text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs font-mono"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -963,7 +1035,7 @@ export default function AkunClient({
           <div className="p-3.5 bg-surface-subtle rounded-2xl border border-stroke/40 flex items-center justify-between gap-3">
             <div>
               <div className="text-xs font-medium text-ink">Format Template Excel</div>
-              <div className="text-[10px] text-ink-muted">Gunakan kolom: Nama Lengkap, Email, Password, Role</div>
+              <div className="text-[10px] text-ink-muted">Gunakan kolom: Nama Lengkap, Email, Nomor WhatsApp, Password, Role</div>
             </div>
             <Button
               type="button"
@@ -997,8 +1069,12 @@ export default function AkunClient({
                     <div className="space-y-0.5 min-w-0">
                       <div className="font-medium text-ink truncate">{item.fullName}</div>
                       <div className="text-[11px] text-ink-muted truncate">{item.email}</div>
-                      <div className="text-[10px] text-ink-muted">
-                        Role: <span className="font-medium text-ink">{item.role}</span> | Pass: <span>{item.password}</span>
+                      <div className="text-[10px] text-ink-muted flex items-center gap-2 flex-wrap">
+                        <span>Role: <strong className="font-medium text-ink">{item.role}</strong></span>
+                        {item.phone && (
+                          <span>| WA: <strong className="font-mono text-emerald-600">{item.phone}</strong></span>
+                        )}
+                        <span>| Pass: <span className="font-mono tracking-widest">••••••••</span></span>
                       </div>
                     </div>
 

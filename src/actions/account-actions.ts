@@ -14,7 +14,7 @@ export async function createProfileAction(data: {
   email: string
   password: string
   fullName: string
-  phone?: string
+  phone?: string | null
   role: 'SUPER_ADMIN' | 'OPD'
 }) {
   const existing = await db.profile.findUnique({ where: { email: data.email } })
@@ -43,7 +43,7 @@ export async function updateProfileAction(id: string, data: {
   email: string
   password?: string
   fullName: string
-  phone?: string
+  phone?: string | null
   role: 'SUPER_ADMIN' | 'OPD'
 }) {
   const existing = await db.profile.findFirst({
@@ -57,8 +57,11 @@ export async function updateProfileAction(id: string, data: {
   const updateData: any = {
     email: data.email,
     fullName: data.fullName,
-    phone: data.phone !== undefined ? (data.phone?.trim() || null) : undefined,
     role: data.role
+  }
+
+  if (data.phone !== undefined) {
+    updateData.phone = data.phone?.trim() ? data.phone.trim() : null
   }
 
   if (data.password && data.password.trim() !== '') {
@@ -95,6 +98,7 @@ export async function importProfilesAction(
     email: string
     password?: string
     fullName: string
+    phone?: string
     role: 'SUPER_ADMIN' | 'OPD'
     conflictResolution: 'OVERWRITE' | 'SKIP'
   }>
@@ -115,6 +119,9 @@ export async function importProfilesAction(
           fullName: item.fullName.trim(),
           role: item.role
         }
+        if (item.phone !== undefined) {
+          updateData.phone = item.phone?.trim() ? item.phone.trim() : null
+        }
         if (item.password && item.password.trim() !== '') {
           updateData.password = item.password.trim()
         }
@@ -132,6 +139,7 @@ export async function importProfilesAction(
           email: emailLower,
           password: item.password?.trim() || '123456',
           fullName: item.fullName.trim(),
+          phone: item.phone?.trim() ? item.phone.trim() : null,
           role: item.role
         }
       })
