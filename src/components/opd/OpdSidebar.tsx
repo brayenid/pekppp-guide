@@ -187,10 +187,10 @@ export function OpdSidebar({
     },
     {
       id: 'contoh-berkas',
-      href: '/contoh-berkas',
+      href: '/opd/contoh-berkas',
       label: 'Format & Contoh Berkas',
       icon: FolderNotchDuotoneIcon,
-      isActive: pathname === '/contoh-berkas',
+      isActive: pathname.startsWith('/opd/contoh-berkas'),
       badge: () => null
     },
     {
