@@ -146,3 +146,16 @@ export function BellDuotoneIcon({ className = 'w-4 h-4', ...props }: IconProps) 
   )
 }
 
+/**
+ * 13. Tiket & Pengaduan (ticket-duotone)
+ */
+export function TicketDuotoneIcon({ className = 'w-4 h-4', ...props }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" className={className} {...props}>
+      <path d="M224 88a32 32 0 0 0-32-32H64a32 32 0 0 0-32 32a32 32 0 0 0 0 80a32 32 0 0 0 32 32h128a32 32 0 0 0 32-32a32 32 0 0 0 0-80" opacity=".2" />
+      <path d="M232 88a40 40 0 0 0-40-40H64a40 40 0 0 0-40 40a40 40 0 0 0 16 32a40 40 0 0 0-16 32a40 40 0 0 0 40 40h128a40 40 0 0 0 40-40a40 40 0 0 0-16-32a40 40 0 0 0 16-32M40 88a24 24 0 0 1 24-24h128a24 24 0 0 1 24 24a24 24 0 0 1-16 22.62a8 8 0 0 0-5 7.38a8 8 0 0 0 5 7.38a24 24 0 0 1 16 22.62a24 24 0 0 1-24 24H64a24 24 0 0 1-24-24a24 24 0 0 1 16-22.62a8 8 0 0 0 5-7.38a8 8 0 0 0-5-7.38A24 24 0 0 1 40 88m64 8v16a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0m0 48v16a8 8 0 0 1-16 0v-16a8 8 0 0 1 16 0" />
+    </svg>
+  )
+}
+
+

@@ -22,7 +22,8 @@ import {
   Moon,
   Monitor,
   FolderOpen,
-  Newspaper
+  Newspaper,
+  MessageSquare
 } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 import { UserNavDropdown } from './UserNavDropdown'
@@ -34,7 +35,8 @@ const NAV_ITEMS = [
   { href: '/kabar', label: 'Kabar & Artikel', icon: Newspaper },
   { href: '/wiki', label: 'Wiki Indikator', icon: BookOpen },
   { href: '/contoh-berkas', label: 'Contoh Berkas', icon: FolderOpen },
-  { href: '/panduan', label: 'Panduan', icon: FileText }
+  { href: '/panduan', label: 'Panduan', icon: FileText },
+  { href: '/lapor', label: 'Lapor & Bantuan', icon: MessageSquare }
 ]
 
 export function Navbar() {

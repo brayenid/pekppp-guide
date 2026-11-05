@@ -15,7 +15,8 @@ import {
 import {
   BuildingDuotoneIcon,
   ArchiveDuotoneIcon,
-  FolderNotchDuotoneIcon
+  FolderNotchDuotoneIcon,
+  TicketDuotoneIcon
 } from '../ui/icons/SidebarIcons'
 import { OpdYearSelect } from '../features/OpdYearSelect'
 
@@ -190,6 +191,14 @@ export function OpdSidebar({
       label: 'Format & Contoh Berkas',
       icon: FolderNotchDuotoneIcon,
       isActive: pathname === '/contoh-berkas',
+      badge: () => null
+    },
+    {
+      id: 'tiket',
+      href: '/opd/tiket',
+      label: 'Tiket & Pengaduan',
+      icon: TicketDuotoneIcon,
+      isActive: pathname.startsWith('/opd/tiket'),
       badge: () => null
     }
   ]

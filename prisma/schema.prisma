@@ -101,22 +101,25 @@ model Unit {
   userUnits      UserUnit[]
   evaluations    Evaluation[]
   evidenceMasters UnitEvidenceMaster[]
+  tickets        Ticket[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 }
 
 // 3. Profile Pengguna & Role
 model Profile {
-  id        String             @id @default(uuid())
-  email     String             @unique
-  password  String
-  fullName  String
-  phone     String?            // Nomor WhatsApp aktif untuk notifikasi penilaian
-  role      Role               @default(OPD)
-  userUnits UserUnit[]
-  comments  IndicatorComment[]
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  id             String             @id @default(uuid())
+  email          String             @unique
+  password       String
+  fullName       String
+  phone          String?            // Nomor WhatsApp aktif untuk notifikasi penilaian
+  role           Role               @default(OPD)
+  userUnits      UserUnit[]
+  comments       IndicatorComment[]
+  tickets        Ticket[]
+  ticketMessages TicketMessage[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 }
 
 // 4. Binding Account vs Lokus (Many-to-Many)
@@ -499,4 +502,88 @@ model PushSubscription {
   @@index([userId])
   @@index([role])
   @@index([unitId])
+}
+
+// 19. Sistem Tiket Laporan & Pengaduan Terbuka (Omnichannel Helpdesk)
+model Ticket {
+  id              String         @id @default(uuid())
+  ticketCode      String         @unique // Format publik: TKT-2026-XXXXX
+  
+  // Pokok Bahasan Terbuka
+  title           String
+  description     String
+  category        String         // "Pelayanan Publik", "Regulasi & SOP", "Kendala Sistem & Portal", "Sarana & Fasilitas", "Aspirasi & Inovasi", "Lainnya"
+  priority        TicketPriority @default(MEDIUM)
+  status          TicketStatus   @default(OPEN)
+
+  // Anonim vs Berakun
+  isAnonymous     Boolean        @default(false)
+  reporterName    String?        // Nama inisial / nama pemohon
+  reporterContact String?        // Nomor WhatsApp / HP / Email (Opsional, berguna untuk klarifikasi)
+  contactChannel  String?        // "WHATSAPP" | "EMAIL" | "PHONE"
+  allowContact    Boolean        @default(true)
+
+  // Relasi Pengguna Berakun (null jika anonim)
+  authorId        String?
+  author          Profile?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  // Relasi Unit Lokus Terkait / Disposisi
+  targetUnitId    String?
+  targetUnit      Unit?          @relation(fields: [targetUnitId], references: [id], onDelete: SetNull)
+  dispatchedAt    DateTime?
+  dispatchedById  String?        // ID Super Admin yang mendisposisikan
+
+  // Berkas Bukti Awal
+  attachments     Json?          // [{ url, fileName, fileType, fileSize }]
+
+  // Resume Penyelesaian Resmi (Dapat dilihat oleh pelapor publik / anonim)
+  resolutionNotes String?
+  resolvedAt      DateTime?
+
+  // Thread Balasan 2-Arah
+  messages        TicketMessage[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([ticketCode])
+  @@index([status])
+  @@index([targetUnitId])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+// 20. Pesan Thread Tiket (Diskusi 2-Arah & Catatan Internal)
+model TicketMessage {
+  id          String   @id @default(uuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  senderId    String?
+  sender      Profile? @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  senderRole  Role?    // SUPER_ADMIN | OPD
+  senderName  String   // Nama pengirim tampilan
+
+  message     String
+  attachments Json?    // [{ url, fileName, fileType, fileSize }]
+  isInternal  Boolean  @default(false) // True: Catatan koordinasi rahasia internal Admin & OPD
+
+  createdAt   DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+}
+
+enum TicketStatus {
+  OPEN          // Baru masuk, menunggu verifikasi Admin
+  IN_PROGRESS   // Sedang ditelaah / diproses
+  DISPATCHED    // Didisposisikan ke Unit Lokus / OPD
+  RESOLVED      // Selesai ditindaklanjuti
+  CLOSED        // Ditutup permanen
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
