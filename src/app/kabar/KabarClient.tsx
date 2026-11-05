@@ -161,7 +161,7 @@ export function KabarClient({
   }, [categoryCounts, total])
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
+    <div className="max-w-6xl mx-auto space-y-6 pb-20">
       {/* ── Page Header ── */}
       <PageHeader
         title="Kabar &amp; Artikel PEKPPP"

@@ -121,7 +121,7 @@ export function ArticleReaderClient({
     : []
 
   return (
-    <article className="max-w-4xl mx-auto space-y-8 pb-24 px-4 sm:px-6">
+    <article className="max-w-4xl mx-auto space-y-8 pb-24">
         {/* ── Breadcrumb ── */}
         <div className="text-xs text-ink-muted pt-4">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 truncate">

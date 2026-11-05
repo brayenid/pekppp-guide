@@ -180,7 +180,7 @@ export function ContohBerkasClient({
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-16 px-4 sm:px-6">
+    <div className="max-w-6xl mx-auto space-y-8 pb-16">
       {/* ── Page Header ── */}
       <PageHeader
         title="Format &amp; Contoh Berkas PEKPPP"
