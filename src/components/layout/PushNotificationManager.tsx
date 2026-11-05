@@ -123,11 +123,8 @@ export function PushNotificationManager() {
             <BellRing className="w-4 h-4 animate-bounce" />
           </div>
           <div className="flex-1 min-w-0 pr-1">
-            <h4 className="text-xs font-semibold text-ink flex items-center gap-1.5">
-              <span>Aktifkan Notifikasi PWA</span>
-              <span className="px-1.5 py-0.2 rounded-full bg-brand/10 text-brand text-[9px] font-mono font-bold">
-                BARU
-              </span>
+            <h4 className="text-xs font-semibold text-ink">
+              Aktifkan Notifikasi
             </h4>
             <p className="text-[11px] text-ink-muted leading-relaxed mt-0.5">
               Dapatkan info instan saat bukti dukung diperiksa, evaluasi direvisi, atau pengumuman penting dibagikan.
