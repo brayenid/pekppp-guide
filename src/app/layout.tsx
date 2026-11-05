@@ -33,7 +33,7 @@ export const metadata = {
 }
 
 export const viewport = {
-  themeColor: '#060913',
+  themeColor: '#1D5BB9',
   width: 'device-width',
   initialScale: 1
 }
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png" />
-        <meta name="theme-color" content="#060913" />
+        <meta name="theme-color" content="#1D5BB9" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

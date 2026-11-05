@@ -4,8 +4,8 @@
   "description": "Platform pemantauan dan evaluasi kinerja penyelenggaraan pelayanan publik Kabupaten Kutai Barat",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f6d31",
-  "theme_color": "#0f6d31",
+  "background_color": "#1D5BB9",
+  "theme_color": "#1D5BB9",
   "orientation": "portrait-primary",
   "icons": [
     {
