@@ -39,7 +39,7 @@ import { PageHeader } from '../../../components/ui/PageHeader'
 import { Card } from '../../../components/ui/Card'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
-import { AdminTabs, type AdminTabItem } from '../../../components/ui/AdminTabs'
+import { AdminTabs, UnderlineTabs, type AdminTabItem } from '../../../components/ui/AdminTabs'
 
 export interface Category {
   id: string
@@ -575,41 +575,38 @@ export default function LokusClient({
         }
       />
 
-      {/* Full Width Unit List via Card + Radar-Style Integrated Toolbar */}
+      {/* Reusable Underline Tabs (Terpisah dari container tabel) */}
+      <UnderlineTabs<LokusTabFilter>
+        items={lokusTabItems}
+        activeId={activeLokusTab}
+        onChange={(val) => setActiveLokusTab(val)}
+      />
+
+      {/* Full Width Unit List via Card + Toolbar Filter & Pencarian */}
       <Card padding="sm" className="space-y-3">
-        {/* Toolbar Terpadu: AdminTabs (size=default) + Kategori + Pencarian */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <AdminTabs
-            items={lokusTabItems}
-            activeId={activeLokusTab}
-            onChange={(val) => setActiveLokusTab(val)}
-            bordered={false}
-            size="default"
-          />
+        {/* Toolbar Filter & Pencarian */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+          <select
+            value={tableCategoryFilter}
+            onChange={(e) => setTableCategoryFilter(e.target.value)}
+            className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer">
+            <option value="ALL">Semua Kategori</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            <select
-              value={tableCategoryFilter}
-              onChange={(e) => setTableCategoryFilter(e.target.value)}
-              className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer">
-              <option value="ALL">Semua Kategori</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-            <div className="relative min-w-[220px] sm:min-w-[260px]">
-              <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={tableSearchTerm}
-                onChange={(e) => setTableSearchTerm(e.target.value)}
-                placeholder="Cari master lokus..."
-                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
-              />
-            </div>
+          <div className="relative min-w-[220px] sm:min-w-[260px]">
+            <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={tableSearchTerm}
+              onChange={(e) => setTableSearchTerm(e.target.value)}
+              placeholder="Cari master lokus..."
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
+            />
           </div>
         </div>
 

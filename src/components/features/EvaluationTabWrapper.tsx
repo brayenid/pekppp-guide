@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ClipboardList, FolderHeart, Maximize2, Minimize2, UploadCloud } from 'lucide-react'
 import { EvaluationNavbarStatus } from '../layout/Navbar'
-import { Tabs, TabsList, TabsTrigger } from '../ui/Tabs'
+import { UnderlineTabs } from '../ui/Tabs'
 
 export function EvaluationTabWrapper({
   f02Content,
@@ -136,89 +136,80 @@ export function EvaluationTabWrapper({
   const content = (
     <div className="space-y-4">
       {/* Clean Unified 3-Pillar Tab Switcher + Mode Fokus Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-b border-stroke/40 pb-3 min-w-0 max-w-full">
-        <div className="flex items-center gap-2.5 min-w-0 max-w-full overflow-x-auto no-scrollbar overscroll-x-contain py-0.5">
-          <Tabs value={activeTab} className="min-w-0 shrink-0" onValueChange={(val) => handleTabClick(val as 'f02' | 'evidence' | 'f03')}>
-            <TabsList className="inline-flex min-w-max p-1 gap-1">
-              {/* 1. Formulir Utama: F01 (OPD) atau F02 (Evaluator) */}
-              <TabsTrigger value="f02" size="default" className="gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
-                <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                <span className="hidden xs:inline">{isOpd ? 'Formulir F01' : 'Penilaian F02'}</span>
-                <span className="xs:hidden">{isOpd ? 'F01' : 'F02'}</span>
-              </TabsTrigger>
+      <UnderlineTabs<'f02' | 'evidence' | 'f03'>
+        activeId={activeTab}
+        onChange={(val) => handleTabClick(val)}
+        items={[
+          {
+            id: 'f02',
+            icon: <ClipboardList className="w-4 h-4" />,
+            label: isOpd ? 'Formulir F01' : 'Penilaian F02'
+          },
+          {
+            id: 'f03',
+            icon: <FolderHeart className="w-4 h-4" />,
+            label: 'Survei F03',
+            count: f03Count
+          },
+          {
+            id: 'evidence',
+            icon: <UploadCloud className="w-4 h-4" />,
+            label: 'Unggah Bukti Dukung',
+            count: (
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold transition-colors ${
+                  activeTab === 'evidence'
+                    ? 'bg-brand/10 text-brand'
+                    : incompleteCount === 0
+                    ? 'bg-emerald-500/10 text-emerald-600'
+                    : 'bg-rose-500/10 text-rose-600'
+                }`}
+                title={
+                  incompleteCount === 0
+                    ? 'Seluruh 6 aspek telah lengkap'
+                    : `${incompleteCount} dari 6 aspek belum lengkap / belum diisi`
+                }>
+                {incompleteCount}
+              </span>
+            )
+          }
+        ]}
+        rightContent={
+          <div className="flex items-center gap-2">
+            {/* Status Disimpan / Belum Disimpan - Beranimasi saat Mode Fokus Aktif */}
+            <div
+              className={`transition-all duration-300 ease-out overflow-hidden flex items-center shrink-0 ${
+                isFocusMode
+                  ? 'opacity-100 max-w-[260px] translate-x-0 scale-100'
+                  : 'opacity-0 max-w-0 -translate-x-2 scale-95 pointer-events-none'
+              }`}>
+              <EvaluationNavbarStatus userRole={userRole} variant="page" className="flex" />
+            </div>
 
-              {/* 2. Formulir Uji Petik: F03 */}
-              <TabsTrigger value="f03" size="default" className="gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
-                <FolderHeart className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                <span className="hidden xs:inline">Survei F03</span>
-                <span className="xs:hidden">F03</span>
-                <span
-                  className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold transition-colors ${
-                    activeTab === 'f03'
-                      ? 'bg-white/20 text-white'
-                      : 'bg-surface text-ink-secondary border border-stroke/50'
-                  }`}>
-                  {f03Count}
-                </span>
-              </TabsTrigger>
-
-              {/* 3. Bukti Dukung */}
-              <TabsTrigger value="evidence" size="default" className="gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
-                <UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                <span className="hidden sm:inline">Unggah Bukti Dukung</span>
-                <span className="sm:hidden">Bukti Dukung</span>
-                <span
-                  className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold transition-colors ${
-                    activeTab === 'evidence'
-                      ? 'bg-white/20 text-white'
-                      : incompleteCount === 0
-                      ? 'bg-pastel-green text-pastel-green-text'
-                      : 'bg-pastel-rose text-pastel-rose-text'
-                  }`}
-                  title={
-                    incompleteCount === 0
-                      ? 'Seluruh 6 aspek telah lengkap'
-                      : `${incompleteCount} dari 6 aspek belum lengkap / belum diisi`
-                  }>
-                  {incompleteCount}
-                </span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {/* Status Disimpan / Belum Disimpan - Beranimasi saat Mode Fokus Aktif */}
-          <div
-            className={`transition-all duration-300 ease-out overflow-hidden flex items-center shrink-0 ${
-              isFocusMode
-                ? 'opacity-100 max-w-[260px] translate-x-0 scale-100'
-                : 'opacity-0 max-w-0 -translate-x-2 scale-95 pointer-events-none'
-            }`}>
-            <EvaluationNavbarStatus userRole={userRole} variant="page" className="flex" />
+            {/* Focus Mode Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsFocusMode(!isFocusMode)}
+              className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border cursor-pointer select-none shrink-0 ${
+                isFocusMode
+                  ? 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-soft-card'
+                  : 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs'
+              }`}>
+              {isFocusMode ? (
+                <>
+                  <Minimize2 className="w-3.5 h-3.5 text-brand" />
+                  <span className="hidden sm:inline">Keluar Fokus</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-3.5 h-3.5 text-ink-muted" />
+                  <span className="hidden sm:inline">Mode Fokus</span>
+                </>
+              )}
+            </button>
           </div>
-        </div>
-
-        {/* Focus Mode Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setIsFocusMode(!isFocusMode)}
-          className={`self-end sm:self-auto inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border cursor-pointer select-none shrink-0 ${
-            isFocusMode
-              ? 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-soft-card'
-              : 'bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs'
-          }`}>
-          {isFocusMode ? (
-            <>
-              <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand" />
-              <span>Keluar Mode Fokus</span>
-            </>
-          ) : (
-            <>
-              <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink-muted" />
-              <span>Mode Fokus</span>
-            </>
-          )}
-        </button>
-      </div>
+        }
+      />
 
       {/* Tab Panels */}
       <div>

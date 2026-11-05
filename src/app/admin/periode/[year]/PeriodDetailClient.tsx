@@ -38,7 +38,7 @@ import { Button } from '../../../../components/ui/Button'
 import { Badge } from '../../../../components/ui/Badge'
 import { Card } from '../../../../components/ui/Card'
 import { StatCard } from '../../../../components/ui/StatCard'
-import { AdminTabs } from '../../../../components/ui/AdminTabs'
+import { AdminTabs, UnderlineTabs } from '../../../../components/ui/AdminTabs'
 import { MenpanSyncModal } from '../../../../components/features/MenpanSyncModal'
 import { MenpanReconciliationSheet } from '../../../../components/features/MenpanReconciliationSheet'
 import { ComprehensiveReportModal } from '../../../../components/features/ComprehensiveReportModal'
@@ -744,93 +744,90 @@ export default function PeriodDetailClient({
         />
       </div>
 
-      {/* Top Bar: Tab Switcher (Kiri) Between Filter & Aksi (Kanan) */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-        <AdminTabs
-          items={[
-            {
-              id: 'lokus',
-              badge: <Building2 className="w-3.5 h-3.5" />,
-              label: 'Daftar Lokus Peserta',
-              count: totalUnits
-            },
-            {
-              id: 'jadwal',
-              badge: <CalendarDays className="w-3.5 h-3.5" />,
-              label: 'Jadwal & Tahapan',
-              count: timelineResult?.activeWindow ? 'Aktif' : undefined
-            }
-          ]}
-          activeId={activeTab}
-          onChange={(val) => setActiveTab(val as 'lokus' | 'jadwal')}
-          bordered={false}
-          size="sm"
-        />
+      {/* Top Bar: Reusable UnderlineTabs + Filter & Aksi */}
+      <UnderlineTabs<'lokus' | 'jadwal'>
+        items={[
+          {
+            id: 'lokus',
+            icon: <Building2 className="w-4 h-4" />,
+            label: 'Daftar Lokus Peserta',
+            count: totalUnits
+          },
+          {
+            id: 'jadwal',
+            icon: <CalendarDays className="w-4 h-4" />,
+            label: 'Jadwal & Tahapan',
+            count: timelineResult?.activeWindow ? 'Aktif' : undefined
+          }
+        ]}
+        activeId={activeTab}
+        onChange={(val) => setActiveTab(val)}
+        rightContent={
+          activeTab === 'lokus' ? (
+            <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar py-0.5 shrink-0">
+              {/* Search Input - Ringkas & Fleksibel */}
+              <div className="relative shrink-0 flex items-center">
+                <Search className="w-3 h-3 text-ink-muted absolute left-2.5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Cari lokus..."
+                  className="h-8 w-28 sm:w-36 focus:w-44 transition-all pl-7 pr-2.5 text-xs rounded-full bg-surface-elevated border border-stroke/60 text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs leading-none"
+                />
+              </div>
 
-        {activeTab === 'lokus' && (
-          <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar py-0.5 shrink-0">
-            {/* Search Input - Ringkas & Fleksibel */}
-            <div className="relative shrink-0 flex items-center">
-              <Search className="w-3 h-3 text-ink-muted absolute left-2.5 pointer-events-none" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Cari lokus..."
-                className="h-8 w-28 sm:w-36 focus:w-44 transition-all pl-7 pr-2.5 text-xs rounded-full bg-surface-elevated border border-stroke/60 text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand shadow-2xs leading-none"
-              />
+              {/* Kapsul Filter Terpadu (3-in-1 Segmented Pill) */}
+              <div className="inline-flex items-center h-8 rounded-full border border-stroke/60 bg-surface-elevated shadow-2xs shrink-0 overflow-hidden">
+                {/* Filter Prioritas (Ujung Kiri Melengkung) */}
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value as any)}
+                  className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-3 pr-2 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-l-full">
+                  <option value="ALL" className="bg-surface-elevated text-ink">Semua Lokus</option>
+                  <option value="PRIORITY" className="bg-surface-elevated text-ink">⭐ Prioritas ({priorityCount})</option>
+                  <option value="REGULAR" className="bg-surface-elevated text-ink">Non-Prioritas</option>
+                </select>
+
+                {/* Filter Aktivitas (Segmen Tengah) */}
+                <select
+                  value={updateFilter}
+                  onChange={(e) => setUpdateFilter(e.target.value as any)}
+                  className="h-full bg-transparent hover:bg-surface-subtle transition-colors px-2.5 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-none">
+                  <option value="ALL" className="bg-surface-elevated text-ink">Semua Aktivitas</option>
+                  <option value="UPDATED" className="bg-surface-elevated text-ink">⚡ Ada Update</option>
+                  <option value="REVISION" className="bg-surface-elevated text-ink">⚠️ Revisi</option>
+                </select>
+
+                {/* Filter Kategori (Ujung Kanan Melengkung) */}
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-2.5 pr-3 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-0 max-w-[130px] truncate rounded-r-full">
+                  <option value="ALL" className="bg-surface-elevated text-ink">Semua Kategori</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id} className="bg-surface-elevated text-ink">
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tombol Rekonsiliasi MenPAN */}
+              <Button
+                type="button"
+                variant="brand"
+                size="sm"
+                onClick={() => setIsReconciliationOpen(true)}
+                leftIcon={<FileSpreadsheet className="w-3.5 h-3.5" />}
+                className="h-8 text-xs shrink-0 rounded-full shadow-2xs whitespace-nowrap px-3.5 font-medium"
+                title="Buka Spreadsheet Rekonsiliasi & Binding Lokus dengan Portal MenPAN-RB">
+                Rekonsiliasi MenPAN
+              </Button>
             </div>
-
-            {/* Kapsul Filter Terpadu (3-in-1 Segmented Pill) */}
-            <div className="inline-flex items-center h-8 rounded-full border border-stroke/60 bg-surface-elevated shadow-2xs shrink-0 overflow-hidden">
-              {/* Filter Prioritas (Ujung Kiri Melengkung) */}
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value as any)}
-                className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-3 pr-2 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-l-full">
-                <option value="ALL" className="bg-surface-elevated text-ink">Semua Lokus</option>
-                <option value="PRIORITY" className="bg-surface-elevated text-ink">⭐ Prioritas ({priorityCount})</option>
-                <option value="REGULAR" className="bg-surface-elevated text-ink">Non-Prioritas</option>
-              </select>
-
-              {/* Filter Aktivitas (Segmen Tengah) */}
-              <select
-                value={updateFilter}
-                onChange={(e) => setUpdateFilter(e.target.value as any)}
-                className="h-full bg-transparent hover:bg-surface-subtle transition-colors px-2.5 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-none">
-                <option value="ALL" className="bg-surface-elevated text-ink">Semua Aktivitas</option>
-                <option value="UPDATED" className="bg-surface-elevated text-ink">⚡ Ada Update</option>
-                <option value="REVISION" className="bg-surface-elevated text-ink">⚠️ Revisi</option>
-              </select>
-
-              {/* Filter Kategori (Ujung Kanan Melengkung) */}
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-2.5 pr-3 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-0 max-w-[130px] truncate rounded-r-full">
-                <option value="ALL" className="bg-surface-elevated text-ink">Semua Kategori</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-surface-elevated text-ink">
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Tombol Rekonsiliasi MenPAN */}
-            <Button
-              type="button"
-              variant="brand"
-              size="sm"
-              onClick={() => setIsReconciliationOpen(true)}
-              leftIcon={<FileSpreadsheet className="w-3.5 h-3.5" />}
-              className="h-8 text-xs shrink-0 rounded-full shadow-2xs whitespace-nowrap px-3.5 font-medium"
-              title="Buka Spreadsheet Rekonsiliasi & Binding Lokus dengan Portal MenPAN-RB">
-              Rekonsiliasi MenPAN
-            </Button>
-          </div>
-        )}
-      </div>
+          ) : undefined
+        }
+      />
 
       {activeTab === 'jadwal' && timelineResult && (
         <PeriodTimelineManager

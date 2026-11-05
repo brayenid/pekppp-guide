@@ -29,6 +29,7 @@ import { PageHeader } from '../../../components/ui/PageHeader'
 import { Badge } from '../../../components/ui/Badge'
 import { Button } from '../../../components/ui/Button'
 import { Card } from '../../../components/ui/Card'
+import { UnderlineTabs } from '../../../components/ui/Tabs'
 
 type DocTab = 'fitur' | 'skema-json' | 'mapping-api' | 'payload-api'
 
@@ -461,55 +462,32 @@ export function DokumentasiClient() {
       />
 
       {/* Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-surface-subtle border border-stroke/60 rounded-xl">
-        <button
-          type="button"
-          onClick={() => handleTabChange('fitur')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-            activeTab === 'fitur'
-              ? 'bg-surface text-brand shadow-xs border border-stroke/50'
-              : 'text-ink-secondary hover:text-ink hover:bg-surface/50'
-          }`}>
-          <Layers className="w-3.5 h-3.5" />
-          Fitur Sistem
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleTabChange('skema-json')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-            activeTab === 'skema-json'
-              ? 'bg-surface text-brand shadow-xs border border-stroke/50'
-              : 'text-ink-secondary hover:text-ink hover:bg-surface/50'
-          }`}>
-          <Database className="w-3.5 h-3.5" />
-          Skema JSON
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleTabChange('mapping-api')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-            activeTab === 'mapping-api'
-              ? 'bg-surface text-brand shadow-xs border border-stroke/50'
-              : 'text-ink-secondary hover:text-ink hover:bg-surface/50'
-          }`}>
-          <ArrowRightLeft className="w-3.5 h-3.5" />
-          Mapping API
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleTabChange('payload-api')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-            activeTab === 'payload-api'
-              ? 'bg-surface text-brand shadow-xs border border-stroke/50'
-              : 'text-ink-secondary hover:text-ink hover:bg-surface/50'
-          }`}>
-          <FileCode2 className="w-3.5 h-3.5" />
-          Payload API
-        </button>
-      </div>
+      <UnderlineTabs<DocTab>
+        activeId={activeTab}
+        onChange={handleTabChange}
+        items={[
+          {
+            id: 'fitur',
+            label: 'Fitur Sistem',
+            icon: <Layers className="w-3.5 h-3.5" />
+          },
+          {
+            id: 'skema-json',
+            label: 'Skema JSON',
+            icon: <Database className="w-3.5 h-3.5" />
+          },
+          {
+            id: 'mapping-api',
+            label: 'Mapping API',
+            icon: <ArrowRightLeft className="w-3.5 h-3.5" />
+          },
+          {
+            id: 'payload-api',
+            label: 'Payload API',
+            icon: <FileCode2 className="w-3.5 h-3.5" />
+          }
+        ]}
+      />
 
       {/* =====================================================================
           TAB 1: FITUR SISTEM

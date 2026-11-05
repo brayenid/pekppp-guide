@@ -10,7 +10,7 @@ import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
 import { Card } from '../../../components/ui/Card'
-import { AdminTabs, type AdminTabItem } from '../../../components/ui/AdminTabs'
+import { AdminTabs, UnderlineTabs, type AdminTabItem } from '../../../components/ui/AdminTabs'
 import * as XLSX from 'xlsx'
 
 export interface ProfileItem {
@@ -434,51 +434,48 @@ export default function AkunClient({
         }
       />
 
-      {/* Full Width Account List via Card + Radar-Style Integrated Toolbar */}
+      {/* Reusable Underline Tabs (Terpisah dari container tabel) */}
+      <UnderlineTabs<AccountTabFilter>
+        items={accountTabItems}
+        activeId={activeAccountTab}
+        onChange={(val) => {
+          setActiveAccountTab(val)
+          setCurrentPage(1)
+        }}
+      />
+
+      {/* Full Width Account List via Card + Toolbar Filter & Pencarian */}
       <Card padding="sm" className="space-y-3">
-        {/* Toolbar Terpadu: AdminTabs (size=default) + Unit Lokus + Pencarian */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <AdminTabs
-            items={accountTabItems}
-            activeId={activeAccountTab}
-            onChange={(val) => {
-              setActiveAccountTab(val)
+        {/* Toolbar Filter & Pencarian */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+          <select
+            value={unitFilter}
+            onChange={(e) => {
+              setUnitFilter(e.target.value)
               setCurrentPage(1)
             }}
-            bordered={false}
-            size="default"
-          />
+            className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer max-w-[200px] truncate">
+            <option value="ALL">Semua Unit Lokus</option>
+            <option value="NONE">Tanpa Lokus (Belum Bind)</option>
+            {allUnits.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            <select
-              value={unitFilter}
+          <div className="relative min-w-[220px] sm:min-w-[260px]">
+            <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Cari nama, email, atau lokus..."
+              value={searchQuery}
               onChange={(e) => {
-                setUnitFilter(e.target.value)
+                setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer max-w-[200px] truncate">
-              <option value="ALL">Semua Unit Lokus</option>
-              <option value="NONE">Tanpa Lokus (Belum Bind)</option>
-              {allUnits.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-
-            <div className="relative min-w-[220px] sm:min-w-[260px]">
-              <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Cari nama, email, atau lokus..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  setCurrentPage(1)
-                }}
-                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
-              />
-            </div>
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
+            />
           </div>
         </div>
 

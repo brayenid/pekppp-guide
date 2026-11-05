@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Badge } from '../../../components/ui/Badge'
 import { Button } from '../../../components/ui/Button'
-import { AdminTabs } from '../../../components/ui/AdminTabs'
+import { AdminTabs, UnderlineTabs } from '../../../components/ui/AdminTabs'
 import { Card } from '../../../components/ui/Card'
 import {
   uploadAspectSlotExampleAction,
@@ -249,7 +249,7 @@ export function EvidenceGuideManagerClient({ initialSlots }: { initialSlots: Slo
       />
 
       {/* Aspect Selector Tabs */}
-      <AdminTabs
+      <UnderlineTabs
         items={ASPECTS.map((asp) => {
           const count = slots.filter((s) => s.aspectCode === asp.code).length
           const filled = slots.filter((s) => s.aspectCode === asp.code && s.exampleImages && s.exampleImages.length > 0).length

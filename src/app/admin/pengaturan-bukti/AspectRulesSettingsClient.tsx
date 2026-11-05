@@ -18,7 +18,7 @@ import {
 import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal'
-import { AdminTabs } from '../../../components/ui/AdminTabs'
+import { AdminTabs, UnderlineTabs } from '../../../components/ui/AdminTabs'
 import { Card } from '../../../components/ui/Card'
 import {
   PEKPPP_EVIDENCE_SLOTS,
@@ -201,7 +201,7 @@ export function AspectRulesSettingsClient({
       />
 
       {/* Selector Tabs Aspek */}
-      <AdminTabs
+      <UnderlineTabs
         items={ASPECTS.map((aspect) => ({
           id: aspect.code,
           badge: aspect.badge,

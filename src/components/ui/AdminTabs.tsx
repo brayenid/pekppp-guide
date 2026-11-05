@@ -44,8 +44,8 @@ export function AdminTabs<T extends string = string>({
     return (
       <div
         className={cn(
-          'flex items-center justify-between',
-          bordered && 'border-b border-stroke/60 pb-px',
+          'flex items-center justify-between gap-3',
+          bordered && 'border-b border-stroke/60',
           className
         )}>
         <div
@@ -64,7 +64,7 @@ export function AdminTabs<T extends string = string>({
                 disabled={item.disabled}
                 onClick={() => !item.disabled && onChange(item.id)}
                 className={cn(
-                  'font-semibold transition-all cursor-pointer flex items-center gap-2 select-none shrink-0 border-b-2',
+                  'font-semibold transition-all cursor-pointer flex items-center gap-2 select-none shrink-0 border-b-2 -mb-px',
                   size === 'sm' ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-xs sm:text-sm',
                   isActive
                     ? 'border-brand text-brand'
@@ -83,15 +83,19 @@ export function AdminTabs<T extends string = string>({
                 )}
                 <span className="whitespace-nowrap">{item.label}</span>
                 {item.count !== undefined && item.count !== null && (
-                  <span
-                    className={cn(
-                      'px-1.5 py-0.2 rounded-full text-[10px] font-mono leading-none shrink-0 transition-colors',
-                      isActive
-                        ? 'bg-brand/10 text-brand font-semibold'
-                        : 'bg-surface-subtle text-ink-muted'
-                    )}>
-                    {item.count}
-                  </span>
+                  React.isValidElement(item.count) ? (
+                    <span className="shrink-0 leading-none">{item.count}</span>
+                  ) : (
+                    <span
+                      className={cn(
+                        'px-1.5 py-0.5 rounded-full text-[10px] font-mono leading-none shrink-0 transition-colors',
+                        isActive
+                          ? 'bg-brand/10 text-brand font-semibold'
+                          : 'bg-surface-subtle text-ink-muted'
+                      )}>
+                      {item.count}
+                    </span>
+                  )
                 )}
               </button>
             )

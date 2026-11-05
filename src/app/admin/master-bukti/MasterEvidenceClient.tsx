@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Breadcrumb } from '../../../components/ui/Breadcrumb'
 import { Button } from '../../../components/ui/Button'
-import { AdminTabs } from '../../../components/ui/AdminTabs'
+import { AdminTabs, UnderlineTabs } from '../../../components/ui/AdminTabs'
 import { Card } from '../../../components/ui/Card'
 import { StatCard } from '../../../components/ui/StatCard'
 import { RegionalComplianceMatrix } from '../../../components/admin/RegionalComplianceMatrix'
@@ -459,23 +459,23 @@ export default function MasterEvidenceClient({
 
       {/* Tab Navigasi Utama: Repositori Berkas vs Matriks Profil Layanan & Radar */}
       {complianceOverview && (
-        <AdminTabs
+        <UnderlineTabs
           items={[
             {
               id: 'repository',
-              badge: <FolderArchive className="w-3.5 h-3.5" />,
+              icon: <FolderArchive className="w-3.5 h-3.5" />,
               label: 'Repositori Berkas Master',
               count: unitRows.length
             },
             {
               id: 'matrix',
-              badge: <Building2 className="w-3.5 h-3.5" />,
+              icon: <Building2 className="w-3.5 h-3.5" />,
               label: 'Matriks Profil Layanan OPD',
               count: complianceOverview.totalUnits
             },
             {
               id: 'radar',
-              badge: <Clock className="w-3.5 h-3.5" />,
+              icon: <Clock className="w-3.5 h-3.5" />,
               label: 'Radar Kedaluwarsa Dokumen',
               count: radarAlertCount
             }
