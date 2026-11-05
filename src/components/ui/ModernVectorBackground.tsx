@@ -17,14 +17,26 @@ export function ModernVectorBackground({ className = '' }: { className?: string 
       <div className="absolute top-1/3 -left-20 w-[360px] h-[360px] rounded-full bg-blue-300/15 dark:bg-indigo-600/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 right-1/4 w-[380px] h-[380px] rounded-full bg-indigo-300/15 dark:bg-sky-500/10 blur-3xl pointer-events-none" />
 
-      {/* Modern Technical Crosshair Grid */}
+      {/* Modern Technical Crosshair Grid with Gradient Fade to Transparent */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-65 dark:opacity-35"
+        className="absolute inset-0 w-full h-full opacity-65 dark:opacity-35 [mask-image:linear-gradient(to_bottom,black_0%,black_30%,transparent_95%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_30%,transparent_95%)]"
         xmlns="http://www.w3.org/2000/svg"
         width="100%"
         height="100%"
       >
         <defs>
+          {/* Vertical fade to transparent mask */}
+          <linearGradient id="grid-fade-gradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+            <stop offset="30%" stopColor="#ffffff" stopOpacity="0.85" />
+            <stop offset="65%" stopColor="#ffffff" stopOpacity="0.35" />
+            <stop offset="90%" stopColor="#ffffff" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
+          <mask id="grid-fade-mask">
+            <rect width="100%" height="100%" fill="url(#grid-fade-gradient)" />
+          </mask>
+
           <pattern
             id="hero-architectural-grid"
             width="44"
@@ -47,7 +59,7 @@ export function ModernVectorBackground({ className = '' }: { className?: string 
             />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#hero-architectural-grid)" />
+        <rect width="100%" height="100%" fill="url(#hero-architectural-grid)" mask="url(#grid-fade-mask)" />
       </svg>
     </div>
   )
