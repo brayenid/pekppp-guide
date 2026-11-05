@@ -20,10 +20,8 @@ export default async function LaporPage() {
   ])
 
   return (
-    <div className="min-h-screen bg-canvas py-8 sm:py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <LaporClient currentUser={currentUser} units={units} />
-      </div>
+    <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10 pb-16">
+      <LaporClient currentUser={currentUser} units={units} />
     </div>
   )
 }

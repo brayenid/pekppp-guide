@@ -44,10 +44,8 @@ export default async function PublicTicketDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-canvas py-8 sm:py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <TicketDetailClient ticket={ticketRes.ticket} currentUser={currentUser} />
-      </div>
+    <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10 pb-16">
+      <TicketDetailClient ticket={ticketRes.ticket} currentUser={currentUser} />
     </div>
   )
 }
