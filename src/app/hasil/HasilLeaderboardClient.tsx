@@ -129,132 +129,147 @@ export function HasilLeaderboardClient({
 
   return (
     <div className="rounded-2xl border border-line bg-surface overflow-hidden shadow-2xs">
-      {/* ── Desktop Table Header ── */}
-      <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-3.5 bg-surface-subtle border-b border-line text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
-        <div className="col-span-1">Peringkat</div>
-        <div className="col-span-5">Unit Lokus Layanan</div>
-        <div className="col-span-2">Kategori</div>
-        <div className="col-span-2 text-right">Skor IPP Final</div>
-        <div className="col-span-2 text-right">Predikat &amp; Aksi</div>
-      </div>
-
-      {/* ── Table Rows & Mobile Cards ── */}
-      <div className="divide-y divide-line">
+      {/* ── 1. Mobile Card Layout (< sm) ── */}
+      <div className="sm:hidden divide-y divide-line">
         {items.map((ev, idx) => {
           const rank = idx + 1
           const grade = getGrade(ev.finalPct)
           const cfg = GRADE_CONFIG[grade]
 
           return (
-            <div key={ev.id} className="hover:bg-surface-subtle/40 transition-colors">
-              {/* 1. Mobile Card Layout (< sm) */}
-              <div className="sm:hidden p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-6 h-6 rounded-md bg-surface-subtle border border-line text-xs font-bold font-mono text-ink flex items-center justify-center shrink-0">
-                      {rank}
-                    </span>
-                    <div>
-                      <h4 className="font-semibold text-xs text-ink leading-snug">{ev.unit.name}</h4>
-                      <div className="flex items-center gap-2 text-[10px] text-ink-muted mt-0.5">
-                        <span>{ev.unit.category?.name || 'OPD'}</span>
-                        <span>•</span>
-                        <span>Tahun {ev.year}</span>
-                      </div>
+            <div key={ev.id} className="p-4 space-y-3 hover:bg-surface-subtle/40 transition-colors">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-6 h-6 rounded-md bg-surface-subtle border border-line text-xs font-bold font-mono text-ink flex items-center justify-center shrink-0">
+                    {rank}
+                  </span>
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-xs text-ink leading-snug truncate">{ev.unit.name}</h4>
+                    <div className="flex items-center gap-2 text-[10px] text-ink-muted mt-0.5">
+                      <span>{ev.unit.category?.name || 'OPD'}</span>
+                      <span>•</span>
+                      <span>Tahun {ev.year}</span>
                     </div>
                   </div>
-                  <Badge variant={cfg.badgeVariant} size="sm">
-                    {grade} · {cfg.label}
-                  </Badge>
                 </div>
-
-                <div className="p-3 bg-surface-subtle/50 rounded-xl border border-line flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase tracking-wider text-ink-muted block font-medium">Skor Akhir</span>
-                    <span className="font-bold text-sm text-ink font-mono">
-                      {ev.finalPct.toFixed(1)}%
-                    </span>
-                    <span className="text-[10px] text-ink-muted ml-1.5 font-mono">
-                      (Skala 5: {ev.finalScale5.toFixed(2)})
-                    </span>
-                  </div>
-                  <Link href={`/hasil/${ev.id}`}>
-                    <Button
-                      type="button"
-                      variant="brand"
-                      size="sm">
-                      Rapor Lengkap
-                    </Button>
-                  </Link>
-                </div>
+                <Badge variant={cfg.badgeVariant} size="sm" className="whitespace-nowrap shrink-0">
+                  {grade} · {cfg.label}
+                </Badge>
               </div>
 
-              {/* 2. Desktop Grid Layout (≥ sm) */}
-              <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 items-center">
-                {/* Col 1: Rank */}
-                <div className="col-span-1">
-                  {rank <= 3 ? (
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-brand/10 text-brand font-bold text-xs font-mono">
-                      {rank}
-                    </span>
-                  ) : (
-                    <span className="text-xs font-mono text-ink-muted pl-1.5">
-                      {rank}
-                    </span>
-                  )}
-                </div>
-
-                {/* Col 2: Unit */}
-                <div className="col-span-5 pr-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-xs text-ink">{ev.unit.name}</span>
-                    <Badge variant={ev.isFinished ? 'success' : 'neutral'} size="sm">
-                      {ev.isFinished ? 'Selesai' : 'Progres'}
-                    </Badge>
-                  </div>
-                  <div className="text-[10px] text-ink-muted mt-0.5">Tahun Penilaian {ev.year}</div>
-                </div>
-
-                {/* Col 3: Kategori */}
-                <div className="col-span-2">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] text-ink-muted bg-surface-subtle border border-line">
-                    {ev.unit.category?.name || 'Unit Layanan'}
-                  </span>
-                </div>
-
-                {/* Col 4: Skor IPP Final */}
-                <div className="col-span-2 text-right">
-                  <span className="font-bold text-sm text-ink tracking-tight font-mono">
+              <div className="p-3 bg-surface-subtle/50 rounded-xl border border-line flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-ink-muted block font-medium">Skor Akhir</span>
+                  <span className="font-bold text-sm text-ink font-mono">
                     {ev.finalPct.toFixed(1)}%
                   </span>
-                  <div className="text-[10px] text-ink-muted font-mono">
-                    Skala 5: {ev.finalScale5.toFixed(2)}
-                  </div>
-                  {ev.hasF03 && (
-                    <div className="text-[10px] text-brand font-medium font-mono mt-0.5">
-                      F02: {ev.f02Pct.toFixed(0)}% · F03: {ev.f03Pct.toFixed(0)}%
-                    </div>
-                  )}
+                  <span className="text-[10px] text-ink-muted ml-1.5 font-mono">
+                    (Skala 5: {ev.finalScale5.toFixed(2)})
+                  </span>
                 </div>
-
-                {/* Col 5: Grade & Action */}
-                <div className="col-span-2 text-right flex items-center justify-end gap-2.5">
-                  <Badge variant={cfg.badgeVariant} size="sm">
-                    {grade} · {cfg.label}
-                  </Badge>
-                  <Link href={`/hasil/${ev.id}`}>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm">
-                      Rapor
-                    </Button>
-                  </Link>
-                </div>
+                <Link href={`/hasil/${ev.id}`}>
+                  <Button
+                    type="button"
+                    variant="brand"
+                    size="sm">
+                    Rapor Lengkap
+                  </Button>
+                </Link>
               </div>
             </div>
           )
         })}
+      </div>
+
+      {/* ── 2. Desktop Table Layout (≥ sm) ── */}
+      <div className="hidden sm:block overflow-x-auto">
+        <div className="min-w-[760px]">
+          {/* Desktop Table Header */}
+          <div className="grid grid-cols-12 gap-4 px-6 py-3.5 bg-surface-subtle border-b border-line text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+            <div className="col-span-1">Peringkat</div>
+            <div className="col-span-4">Unit Lokus Layanan</div>
+            <div className="col-span-2">Kategori</div>
+            <div className="col-span-2 text-right">Skor IPP Final</div>
+            <div className="col-span-3 text-right">Predikat &amp; Aksi</div>
+          </div>
+
+          {/* Desktop Table Rows */}
+          <div className="divide-y divide-line">
+            {items.map((ev, idx) => {
+              const rank = idx + 1
+              const grade = getGrade(ev.finalPct)
+              const cfg = GRADE_CONFIG[grade]
+
+              return (
+                <div
+                  key={ev.id}
+                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-subtle/40 transition-colors">
+                  {/* Col 1: Rank */}
+                  <div className="col-span-1">
+                    {rank <= 3 ? (
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-brand/10 text-brand font-bold text-xs font-mono">
+                        {rank}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-mono text-ink-muted pl-1.5">
+                        {rank}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Col 2: Unit */}
+                  <div className="col-span-4 pr-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-xs text-ink">{ev.unit.name}</span>
+                      <Badge variant={ev.isFinished ? 'success' : 'neutral'} size="sm">
+                        {ev.isFinished ? 'Selesai' : 'Progres'}
+                      </Badge>
+                    </div>
+                    <div className="text-[10px] text-ink-muted mt-0.5">Tahun Penilaian {ev.year}</div>
+                  </div>
+
+                  {/* Col 3: Kategori */}
+                  <div className="col-span-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] text-ink-muted bg-surface-subtle border border-line">
+                      {ev.unit.category?.name || 'Unit Layanan'}
+                    </span>
+                  </div>
+
+                  {/* Col 4: Skor IPP Final */}
+                  <div className="col-span-2 text-right whitespace-nowrap">
+                    <span className="font-bold text-sm text-ink tracking-tight font-mono">
+                      {ev.finalPct.toFixed(1)}%
+                    </span>
+                    <div className="text-[10px] text-ink-muted font-mono">
+                      Skala 5: {ev.finalScale5.toFixed(2)}
+                    </div>
+                    {ev.hasF03 && (
+                      <div className="text-[10px] text-brand font-medium font-mono mt-0.5">
+                        F02: {ev.f02Pct.toFixed(0)}% · F03: {ev.f03Pct.toFixed(0)}%
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Col 5: Grade & Action */}
+                  <div className="col-span-3 text-right flex items-center justify-end gap-2.5 shrink-0">
+                    <Badge variant={cfg.badgeVariant} size="sm" className="whitespace-nowrap shrink-0">
+                      {grade} · {cfg.label}
+                    </Badge>
+                    <Link href={`/hasil/${ev.id}`} className="shrink-0">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="whitespace-nowrap">
+                        Rapor
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
       {/* ── Auto Loadmore State Footer ── */}

@@ -16,15 +16,19 @@ export default function PanduanPage() {
       items: [
         {
           role: 'Unit Lokus Pelayanan (OPD)',
-          desc: 'Bertanggung jawab melaksanakan pengisian mandiri 31 indikator kinerja standar pelayanan (Formulir F-01), mengunggah seluruh berkas eviden digital internal yang valid, menyebarkan survei persepsi kepuasan masyarakat (Formulir F-03) kepada pengguna layanan secara mandiri hingga memenuhi kuota responden, dan memberikan klarifikasi tepat waktu atas catatan rekomendasi tim penilai.'
+          desc: 'Bertanggung jawab melaksanakan pengisian mandiri 31 indikator kinerja standar pelayanan (Formulir F-01) beserta berkas eviden. Secara berbarengan, unit lokus menyebarkan survei kepuasan masyarakat (Formulir F-03) kepada pengguna layanan hingga memenuhi kuota responden.'
         },
         {
           role: 'Tim Evaluator Bagian Organisasi Setdakab',
-          desc: 'Bertindak sebagai penilai objektif tingkat daerah: memvalidasi keabsahan dokumen pendukung, membuka sesi klarifikasi faktual, menyelenggarakan uji petik lapangan, dan menetapkan skor F-02 (75% bobot IPP) secara independen.'
+          desc: 'Bertindak sebagai penilai tingkat daerah: memvalidasi keabsahan dokumen pendukung, membuka sesi klarifikasi faktual, menyelenggarakan uji petik lapangan, dan memberikan nilai penilaian sementara tingkat kabupaten (belum menetapkan nilai akhir).'
         },
         {
-          role: 'Biro Organisasi Provinsi & Kementerian PAN-RB',
-          desc: 'Melakukan harmonisasi dan validasi nilai lintas kabupaten/kota, serta menetapkan predikat mutu pelayanan publik nasional resmi berdasarkan kompilasi nilai evaluasi daerah (F-02) dan hasil survei kepuasan masyarakat (F-03).'
+          role: 'Biro Organisasi Setda Provinsi',
+          desc: 'Menerima hasil evaluasi dan penilaian sementara dari tingkat kabupaten untuk dilakukan penelaahan, harmonisasi, dan validasi tingkat provinsi.'
+        },
+        {
+          role: 'Kementerian PAN-RB',
+          desc: 'Mengolah seluruh hasil evaluasi yang telah divalidasi dan menetapkan nilai akhir definitif Indeks Pelayanan Publik (IPP 100%), predikat mutu nasional (kategori A/B/C), serta menerbitkan lembar rekomendasi perbaikan resmi.'
         }
       ]
     },

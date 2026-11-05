@@ -43,7 +43,7 @@ export function Badge({
 
   return (
     <span
-      className={`inline-flex items-center rounded-full tracking-tight select-none transition-colors ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center rounded-full tracking-tight select-none whitespace-nowrap shrink-0 transition-colors ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {dot && (

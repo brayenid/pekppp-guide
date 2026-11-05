@@ -132,31 +132,31 @@ export default async function HomePage() {
   const workflowSteps = [
     {
       stepNum: '1',
-      formCode: 'Formulir F-01',
-      title: 'Evaluasi Mandiri',
-      actor: 'Unit Layanan / OPD',
-      desc: 'Pada tahap ini, perangkat daerah melakukan pengisian mandiri 31 indikator kinerja standar pelayanan dan mengunggah seluruh berkas bukti dukung digital ke dalam sistem.'
+      formCode: 'Formulir F-01 & F-03',
+      title: 'Evaluasi Mandiri & Survei Responden',
+      actor: 'Unit Lokus Layanan & Responden',
+      desc: 'Pada tahap ini, perangkat daerah melakukan pengisian mandiri 31 indikator kinerja (F-01) dan mengunggah seluruh berkas bukti dukung digital. Secara berbarengan, kuesioner survei F-03 disebarkan oleh unit lokus untuk diisi oleh responden penerima layanan.'
     },
     {
       stepNum: '2',
-      formCode: 'Formulir F-02 (Bobot 75%)',
-      title: 'Verifikasi & Penilaian Daerah',
+      formCode: 'Formulir F-02 (Penilaian Sementara)',
+      title: 'Verifikasi & Penilaian Sementara Daerah',
       actor: 'Bagian Organisasi Setdakab',
-      desc: 'Pada tahap ini, Tim Penilai Kabupaten meneliti berkas eviden, melakukan klarifikasi faktual dan uji petik lapangan, lalu menetapkan skor penilaian daerah.'
+      desc: 'Pada tahap ini, Tim Penilai Bagian Organisasi Setdakab meneliti berkas eviden, melakukan klarifikasi faktual serta uji petik lapangan, lalu memberikan nilai sementara (belum menetapkan nilai akhir).'
     },
     {
       stepNum: '3',
-      formCode: 'Formulir F-03 (Bobot 25%)',
-      title: 'Survei Kepuasan Masyarakat & Validasi',
-      actor: 'Unit Lokus Pelayanan & Pengguna Layanan',
-      desc: 'Pada tahap ini, unit lokus secara mandiri menyebarkan kuesioner survei F-03 kepada masyarakat penerima layanan hingga kuota responden terpenuhi, yang kemudian divalidasi dan diharmonisasikan bersama pihak provinsi.'
+      formCode: 'Validasi Provinsi',
+      title: 'Validasi Hasil Evaluasi Kabupaten',
+      actor: 'Biro Organisasi Setda Provinsi',
+      desc: 'Pada tahap ini, hasil evaluasi dan penilaian sementara dari tingkat kabupaten disampaikan ke Biro Organisasi Provinsi untuk diverifikasi dan divalidasi kelayakannya.'
     },
     {
       stepNum: '4',
       formCode: 'Indeks Pelayanan Publik (IPP)',
-      title: 'Penetapan Hasil Nasional',
+      title: 'Pengolahan & Penetapan Nilai Akhir',
       actor: 'Kementerian PAN-RB',
-      desc: 'Pada tahap ini, Kementerian PAN-RB menetapkan skor kompilasi akhir 100%, predikat mutu pelayanan (A/B/C), serta menerbitkan rekomendasi perbaikan resmi.'
+      desc: 'Pada tahap terakhir, seluruh hasil evaluasi yang telah divalidasi diolah secara nasional oleh Kementerian PAN-RB dan ditetapkan nilai akhirnya (skor kompilasi 100%), predikat mutu pelayanan, serta lembar rekomendasi resmi.'
     }
   ]
 

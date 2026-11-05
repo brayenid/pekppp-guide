@@ -9,10 +9,8 @@ import {
   Cpu,
   Coins,
   ShieldCheck,
-  AlertTriangle,
   FileText,
   HelpCircle,
-  CheckCircle2,
   Sliders,
   Layers,
   FileSearch,
@@ -24,7 +22,6 @@ import {
 import { toast } from 'sonner'
 import { PageHeader } from '../../../components/ui/PageHeader'
 import { Button } from '../../../components/ui/Button'
-import { Badge } from '../../../components/ui/Badge'
 import { Card, CardHeader } from '../../../components/ui/Card'
 import { StatCard } from '../../../components/ui/StatCard'
 import { NoticeBanner } from '../../../components/ui/NoticeBanner'
@@ -135,25 +132,14 @@ export function AiSettingsClient({ initialConfig, hasApiKey }: AiSettingsClientP
           }
         ]}
         actions={
-          <div className="flex items-center gap-2.5">
-            {hasApiKey ? (
-              <Badge variant="success" size="sm">
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> API Key Aktif
-              </Badge>
-            ) : (
-              <Badge variant="warning" size="sm">
-                <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Mode Heuristik
-              </Badge>
-            )}
-            <Button
-              type="submit"
-              variant="brand"
-              size="sm"
-              isLoading={saving}
-              leftIcon={<Save className="w-3.5 h-3.5" />}>
-              Simpan Pengaturan
-            </Button>
-          </div>
+          <Button
+            type="submit"
+            variant="brand"
+            size="sm"
+            isLoading={saving}
+            leftIcon={<Save className="w-3.5 h-3.5" />}>
+            Simpan Pengaturan
+          </Button>
         }
       />
 

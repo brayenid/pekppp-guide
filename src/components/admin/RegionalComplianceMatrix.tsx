@@ -555,82 +555,91 @@ export function RegionalComplianceMatrix({
       {/* 2. TAMPILAN MATRIKS PROFIL KESIAPAN LAYANAN OPD */}
       {/* ========================================================================= */}
       {activeSubTab === 'MATRIX' && (
-        <Card padding="sm" className="space-y-3">
-          {/* Toolbar Terpadu: AdminTabs (size=default) + Kategori + Pencarian */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <AdminTabs
-              items={[
-                {
-                  id: 'ALL',
-                  badge: <Building2 className="w-3.5 h-3.5" />,
-                  label: 'Semua OPD',
-                  count: compliance.unitProfiles.length
-                },
-                {
-                  id: 'NO_SP',
-                  badge: <FileText className="w-3.5 h-3.5" />,
-                  label: 'Belum Punya SP',
-                  count: Math.max(0, compliance.totalUnits - compliance.stats.unitsWithSp)
-                },
-                {
-                  id: 'NO_SAPRAS',
-                  badge: <ImageIcon className="w-3.5 h-3.5" />,
-                  label: 'Belum Ada Sapras',
-                  count: Math.max(0, compliance.totalUnits - compliance.stats.unitsWithSaprasRentan)
-                },
-                {
-                  id: 'NO_SKM',
-                  badge: <Calendar className="w-3.5 h-3.5" />,
-                  label: 'SKM Belum/Usang',
-                  count:
-                    compliance.stats.unitsWithExpiredSkm +
-                    Math.max(
-                      0,
-                      compliance.totalUnits -
-                        (compliance.stats.unitsWithActiveSkm + compliance.stats.unitsWithExpiredSkm)
-                    )
-                },
-                {
-                  id: 'AGING_SP',
-                  badge: <Clock className="w-3.5 h-3.5" />,
-                  label: 'SK SP ≥ 3 Thn',
-                  count: compliance.stats.unitsWithAgingSp
-                },
-                {
-                  id: 'NO_PENGADUAN',
-                  badge: <MessageSquare className="w-3.5 h-3.5" />,
-                  label: 'Belum Ada SP4N',
-                  count: Math.max(0, compliance.totalUnits - compliance.stats.unitsWithPengaduan)
-                }
-              ]}
-              activeId={matrixFilter}
-              onChange={(val) => setMatrixFilter(val as any)}
-              bordered={false}
-              size="default"
-            />
+        <Card padding="sm" className="space-y-3.5 overflow-hidden">
+          {/* Toolbar Terpadu: Baris 1 Tabs Status + Baris 2 Kategori & Pencarian */}
+          <div className="space-y-3">
+            {/* Baris 1: AdminTabs Filter Status Matriks (Scrollable jika layar sempit) */}
+            <div className="w-full min-w-0 overflow-x-auto pb-1 no-scrollbar">
+              <AdminTabs
+                items={[
+                  {
+                    id: 'ALL',
+                    badge: <Building2 className="w-3.5 h-3.5" />,
+                    label: 'Semua OPD',
+                    count: compliance.unitProfiles.length
+                  },
+                  {
+                    id: 'NO_SP',
+                    badge: <FileText className="w-3.5 h-3.5" />,
+                    label: 'Belum Punya SP',
+                    count: Math.max(0, compliance.totalUnits - compliance.stats.unitsWithSp)
+                  },
+                  {
+                    id: 'NO_SAPRAS',
+                    badge: <ImageIcon className="w-3.5 h-3.5" />,
+                    label: 'Belum Ada Sapras',
+                    count: Math.max(0, compliance.totalUnits - compliance.stats.unitsWithSaprasRentan)
+                  },
+                  {
+                    id: 'NO_SKM',
+                    badge: <Calendar className="w-3.5 h-3.5" />,
+                    label: 'SKM Belum/Usang',
+                    count:
+                      compliance.stats.unitsWithExpiredSkm +
+                      Math.max(
+                        0,
+                        compliance.totalUnits -
+                          (compliance.stats.unitsWithActiveSkm + compliance.stats.unitsWithExpiredSkm)
+                      )
+                  },
+                  {
+                    id: 'AGING_SP',
+                    badge: <Clock className="w-3.5 h-3.5" />,
+                    label: 'SK SP ≥ 3 Thn',
+                    count: compliance.stats.unitsWithAgingSp
+                  },
+                  {
+                    id: 'NO_PENGADUAN',
+                    badge: <MessageSquare className="w-3.5 h-3.5" />,
+                    label: 'Belum Ada SP4N',
+                    count: Math.max(0, compliance.totalUnits - compliance.stats.unitsWithPengaduan)
+                  }
+                ]}
+                activeId={matrixFilter}
+                onChange={(val) => setMatrixFilter(val as any)}
+                bordered={false}
+                size="default"
+              />
+            </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-              <select
-                value={selectedCategoryId}
-                onChange={(e) => setSelectedCategoryId(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer">
-                <option value="ALL">Semua Kategori</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+            {/* Baris 2: Filter Kategori & Pencarian */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1 border-t border-stroke/40">
+              <div className="text-xs text-ink-muted hidden sm:block">
+                Pilih filter status pilar di atas atau cari unit lokus secara langsung.
+              </div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                <select
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
+                  className="px-3.5 py-1.5 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer">
+                  <option value="ALL">Semua Kategori</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
 
-              <div className="relative min-w-[240px]">
-                <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari nama OPD atau nomor SK..."
-                  className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
-                />
+                <div className="relative min-w-[240px] sm:w-64">
+                  <Search className="w-3.5 h-3.5 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari nama OPD atau nomor SK..."
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -848,76 +857,85 @@ export function RegionalComplianceMatrix({
       {/* 3. TAMPILAN RADAR KEDALUWARSA & KEPATUHAN WAKTU */}
       {/* ========================================================================= */}
       {activeSubTab === 'RADAR' && (
-        <Card padding="sm" className="space-y-3">
-          {/* Toolbar Terpadu: AdminTabs (size=default) + Kategori + Pencarian */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <AdminTabs
-              items={[
-                {
-                  id: 'ALL',
-                  badge: <Clock className="w-3.5 h-3.5" />,
-                  label: 'Semua Isu Regulasi',
-                  count: radarAffectedItems.length
-                },
-                {
-                  id: 'SKM_EXPIRED',
-                  badge: 'I',
-                  label: 'Laporan SKM',
-                  count: radarIssues.find((i) => i.id === 'SKM_EXPIRED')?.units.length || 0
-                },
-                {
-                  id: 'SP_AGING',
-                  badge: 'I',
-                  label: 'Standar Pelayanan',
-                  count: radarIssues.find((i) => i.id === 'SP_AGING')?.units.length || 0
-                },
-                {
-                  id: 'SAPRAS_RENTAN',
-                  badge: 'III',
-                  label: 'Foto Sarpras Rentan',
-                  count: radarIssues.find((i) => i.id === 'SAPRAS_RENTAN')?.units.length || 0
-                },
-                {
-                  id: 'SKM_PUB',
-                  badge: 'I',
-                  label: 'Publikasi SKM',
-                  count: radarIssues.find((i) => i.id === 'SKM_PUB')?.units.length || 0
-                },
-                {
-                  id: 'PENGADUAN',
-                  badge: 'V',
-                  label: 'SP4N-LAPOR!',
-                  count: radarIssues.find((i) => i.id === 'PENGADUAN')?.units.length || 0
-                }
-              ]}
-              activeId={selectedRadarIssue}
-              onChange={(val) => setSelectedRadarIssue(val as any)}
-              bordered={false}
-              size="default"
-            />
+        <Card padding="sm" className="space-y-3.5 overflow-hidden">
+          {/* Toolbar Terpadu: Baris 1 Tabs Isu + Baris 2 Kategori & Pencarian */}
+          <div className="space-y-3">
+            {/* Baris 1: AdminTabs Filter Isu Regulasi (Scrollable jika layar sempit) */}
+            <div className="w-full min-w-0 overflow-x-auto pb-1 no-scrollbar">
+              <AdminTabs
+                items={[
+                  {
+                    id: 'ALL',
+                    badge: <Clock className="w-3.5 h-3.5" />,
+                    label: 'Semua Isu Regulasi',
+                    count: radarAffectedItems.length
+                  },
+                  {
+                    id: 'SKM_EXPIRED',
+                    badge: 'I',
+                    label: 'Laporan SKM',
+                    count: radarIssues.find((i) => i.id === 'SKM_EXPIRED')?.units.length || 0
+                  },
+                  {
+                    id: 'SP_AGING',
+                    badge: 'I',
+                    label: 'Standar Pelayanan',
+                    count: radarIssues.find((i) => i.id === 'SP_AGING')?.units.length || 0
+                  },
+                  {
+                    id: 'SAPRAS_RENTAN',
+                    badge: 'III',
+                    label: 'Foto Sarpras Rentan',
+                    count: radarIssues.find((i) => i.id === 'SAPRAS_RENTAN')?.units.length || 0
+                  },
+                  {
+                    id: 'SKM_PUB',
+                    badge: 'I',
+                    label: 'Publikasi SKM',
+                    count: radarIssues.find((i) => i.id === 'SKM_PUB')?.units.length || 0
+                  },
+                  {
+                    id: 'PENGADUAN',
+                    badge: 'V',
+                    label: 'SP4N-LAPOR!',
+                    count: radarIssues.find((i) => i.id === 'PENGADUAN')?.units.length || 0
+                  }
+                ]}
+                activeId={selectedRadarIssue}
+                onChange={(val) => setSelectedRadarIssue(val as any)}
+                bordered={false}
+                size="default"
+              />
+            </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-              <select
-                value={selectedCategoryId}
-                onChange={(e) => setSelectedCategoryId(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer">
-                <option value="ALL">Semua Kategori</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+            {/* Baris 2: Filter Kategori & Pencarian */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1 border-t border-stroke/40">
+              <div className="text-xs text-ink-muted hidden sm:block">
+                Pilih tab isu di atas atau gunakan filter kategori dan pencarian.
+              </div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                <select
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
+                  className="px-3.5 py-1.5 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 cursor-pointer">
+                  <option value="ALL">Semua Kategori</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
 
-              <div className="relative min-w-[240px]">
-                <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari nama lokus atau catatan..."
-                  className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-surface-subtle border border-stroke/60 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
-                />
+                <div className="relative min-w-[240px] sm:w-64">
+                  <Search className="w-3.5 h-3.5 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari nama lokus atau catatan..."
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-surface-subtle border border-stroke/60 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  />
+                </div>
               </div>
             </div>
           </div>

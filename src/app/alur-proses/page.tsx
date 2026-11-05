@@ -19,38 +19,38 @@ export default function AlurProsesPage() {
   const workflowSteps = [
     {
       num: '01',
-      actor: 'Unit Lokus Layanan (OPD)',
-      title: 'Evaluasi Mandiri (F-01) & Pengumpulan Eviden',
-      desc: 'Unit pelayanan melakukan pengisian mandiri instrumen evaluasi terhadap 31 indikator kinerja dan menautkan seluruh berkas bukti dukung digital (SK penetapan standar pelayanan, maklumat, dokumentasi sarana, dan laporan).',
-      deliverable: 'Formulir F-01 terisi lengkap beserta tautan eviden per aspek.'
+      actor: 'Unit Lokus Layanan & Responden',
+      title: 'Evaluasi Mandiri (F-01) & Survei Kepuasan (F-03)',
+      desc: 'Unit pelayanan melakukan pengisian mandiri 31 indikator kinerja standar pelayanan dan mengunggah berkas bukti dukung digital (F-01). Secara berbarengan, unit lokus menyebarkan kuesioner survei F-03 kepada masyarakat penerima layanan hingga memenuhi kuota target responden.',
+      deliverable: 'Formulir F-01 dan eviden terunggah, serta tabulasi kuesioner survei F-03 terhimpun.'
     },
     {
       num: '02',
       actor: 'Sistem & Administrator Daerah',
       title: 'Pra-Uji Kelayakan & Uji Petik Awal',
-      desc: 'Sistem melakukan validasi kelengkapan berkas, mendeteksi indikator yang belum memiliki dokumen pendukung, dan memberikan asistensi penelaahan awal agar lokus dapat memperbaiki berkas sebelum evaluasi lapangan.',
+      desc: 'Sistem melakukan validasi kelengkapan berkas F-01 dan pemenuhan survei F-03, mendeteksi indikator yang belum memiliki dokumen pendukung, dan memberikan asistensi penelaahan awal agar lokus dapat memperbaiki berkas sebelum evaluasi lapangan.',
       deliverable: 'Laporan kelengkapan dokumen dan rekomendasi pemenuhan awal.'
     },
     {
       num: '03',
       actor: 'Tim Evaluator Bagian Organisasi Setdakab',
-      title: 'Verifikasi Dokumen & Penilaian Daerah (F-02)',
-      desc: 'Tim evaluator kabupaten memeriksa keabsahan dokumen eviden, membuka dialog klarifikasi faktual dengan penanggung jawab lokus, melaksanakan uji petik lapangan, dan menetapkan skor penilaian daerah yang berbobot 75%.',
-      deliverable: 'Skor F-02 (75% bobot IPP) dan Berita Acara Hasil Evaluasi Daerah.'
+      title: 'Verifikasi Dokumen & Penilaian Sementara Daerah (F-02)',
+      desc: 'Tim evaluator kabupaten memeriksa keabsahan dokumen eviden, membuka dialog klarifikasi faktual dengan penanggung jawab lokus, melaksanakan uji petik lapangan, dan memberikan skor penilaian sementara tingkat kabupaten (belum menetapkan nilai akhir).',
+      deliverable: 'Skor sementara F-02 (75% bobot IPP) dan Berita Acara Hasil Evaluasi Kabupaten.'
     },
     {
       num: '04',
-      actor: 'Unit Lokus & Responden Pengguna Layanan',
-      title: 'Penyebaran Survei Kepuasan Masyarakat (F-03)',
-      desc: 'Unit lokus pelayanan menyebarkan kuesioner survei kepuasan masyarakat (Formulir F-03) kepada pengguna layanan secara langsung maupun daring hingga memenuhi kuota target responden, berbobot 25% dari total nilai akhir IPP.',
-      deliverable: 'Skor agregat survei kepuasan masyarakat F-03 (25% bobot IPP) dan tabulasi responden.'
+      actor: 'Biro Organisasi Setda Provinsi',
+      title: 'Penyampaian & Validasi Tingkat Provinsi',
+      desc: 'Hasil evaluasi dan penilaian sementara dari tingkat kabupaten disampaikan ke Biro Organisasi Pemerintah Provinsi untuk ditelaah, divalidasi keabsahannya, dan diselaraskan.',
+      deliverable: 'Berita Acara/Rekomendasi Validasi Provinsi dan berkas evaluasi terharmonisasi.'
     },
     {
       num: '05',
       actor: 'Kementerian PAN-RB',
-      title: 'Penetapan Hasil Nasional & Predikat Mutu',
-      desc: 'Kementerian PAN-RB menetapkan skor kompilasi akhir 100%, menetapkan predikat mutu pelayanan publik (kategori A, B, atau C), serta menerbitkan lembar rekomendasi perbaikan resmi yang terintegrasi dengan Indeks Reformasi Birokrasi.',
-      deliverable: 'Sertifikat Predikat IPP Definitif & Lembar Rekomendasi MenPAN-RB.'
+      title: 'Pengolahan Akhir & Penetapan Hasil Nasional',
+      desc: 'Kementerian PAN-RB mengolah seluruh data evaluasi terpadu (skor kompilasi 100%), menetapkan nilai akhir definitif dan predikat mutu pelayanan publik (kategori A, B, atau C), serta menerbitkan sertifikat dan lembar rekomendasi perbaikan resmi.',
+      deliverable: 'Nilai IPP Definitif 100%, Sertifikat Predikat Mutu, & Lembar Rekomendasi MenPAN-RB.'
     }
   ]
 
@@ -324,9 +324,9 @@ export default function AlurProsesPage() {
                   <path d="m 9 12 2 2 4-4" />
                 </g>
                 <text x="58" y="31" fill="#0F172A" fontSize="10.5" fontWeight="600" fontFamily="var(--font-google-sans), sans-serif">6. Verifikasi &amp; Uji Petik</text>
-                <text x="58" y="45" fill="#1D5BB9" fontSize="9" fontWeight="500" fontFamily="var(--font-google-sans), sans-serif">Penilaian Faktual Tim Daerah (75%)</text>
+                <text x="58" y="45" fill="#1D5BB9" fontSize="9" fontWeight="500" fontFamily="var(--font-google-sans), sans-serif">Penilaian Sementara Tim Daerah (75%)</text>
                 <line x1="14" y1="56" x2="226" y2="56" stroke="#F1F5F9" strokeWidth="1" />
-                <text x="14" y="71" fill="#64748B" fontSize="9" fontFamily="var(--font-google-sans), sans-serif">Klarifikasi eviden dan kunjungan fisik lokus</text>
+                <text x="14" y="71" fill="#64748B" fontSize="9" fontFamily="var(--font-google-sans), sans-serif">Klarifikasi eviden &amp; penilaian sementara daerah</text>
               </g>
 
               {/* STEP 7: Rekomendasi & Penetapan Akhir */}
@@ -338,10 +338,10 @@ export default function AlurProsesPage() {
                   <circle cx="9" cy="7" r="4" />
                   <polyline points="16 11 18 13 22 9" stroke="#FFFFFF" />
                 </g>
-                <text x="60" y="31" fill="#FFFFFF" fontSize="11" fontWeight="600" fontFamily="var(--font-google-sans), sans-serif">7. Rekomendasi &amp; Penetapan</text>
+                <text x="60" y="31" fill="#FFFFFF" fontSize="11" fontWeight="600" fontFamily="var(--font-google-sans), sans-serif">7. Validasi &amp; Nilai Akhir</text>
                 <text x="60" y="45" fill="#BAE6FD" fontSize="9.5" fontWeight="500" fontFamily="var(--font-google-sans), sans-serif">Validasi Provinsi &rarr; MenPAN-RB</text>
                 <line x1="14" y1="56" x2="226" y2="56" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-                <text x="14" y="71" fill="#E0F2FE" fontSize="9" fontFamily="var(--font-google-sans), sans-serif">Penetapan indeks akhir resmi oleh MenPAN-RB</text>
+                <text x="14" y="71" fill="#E0F2FE" fontSize="9" fontFamily="var(--font-google-sans), sans-serif">Divalidasi provinsi &amp; nilai akhir oleh MenPAN-RB</text>
               </g>
             </svg>
           </div>
@@ -416,19 +416,19 @@ export default function AlurProsesPage() {
                 <FileCheck2 className="w-4 h-4 text-brand" /> 6. Verifikasi &amp; Uji Petik Faktual
               </div>
               <p className="text-xs text-ink-secondary leading-relaxed">
-                Verifikasi faktual di lapangan dan penetapan skor penilaian daerah (F-02 berbobot 75%).
+                Verifikasi faktual di lapangan dan pemberian skor penilaian sementara daerah (F-02).
               </p>
             </div>
 
             {/* Step 7 Mobile */}
             <div className="space-y-1.5 relative bg-brand text-white p-4 rounded-xl shadow-sm">
               <span className="absolute -left-[31px] top-4 w-3.5 h-3.5 rounded-full bg-brand ring-4 ring-brand/30" />
-              <div className="font-semibold text-[11px] text-sky-200 tracking-wider uppercase">Penetapan Definitif</div>
+              <div className="font-semibold text-[11px] text-sky-200 tracking-wider uppercase">Validasi &amp; Penetapan</div>
               <div className="font-semibold text-sm text-white flex items-center gap-2">
                 <UserCheck className="w-4 h-4 text-sky-200" /> 7. Validasi Provinsi &amp; SK MenPAN-RB
               </div>
               <p className="text-xs text-sky-100 leading-relaxed">
-                Validasi silang provinsi dan penetapan skor kompilasi 100% serta sertifikat predikat oleh Kementerian PAN-RB.
+                Hasil evaluasi divalidasi oleh Biro Organisasi Provinsi, kemudian diolah dan ditetapkan nilai akhirnya oleh Kementerian PAN-RB.
               </p>
             </div>
           </div>
@@ -441,7 +441,7 @@ export default function AlurProsesPage() {
                 <span>1. Peran Unit Lokus</span>
               </div>
               <p className="text-ink-secondary leading-relaxed">
-                Pengisian mandiri dan tertib eviden 31 indikator. Terbantu karena mengetahui kekurangan berkas lebih dini sebelum dinilai resmi.
+                Pengisian mandiri dan tertib eviden 31 indikator (F-01) serta penyebaran survei kepuasan (F-03) kepada pengguna layanan.
               </p>
             </div>
 
@@ -461,7 +461,7 @@ export default function AlurProsesPage() {
                 <span>3. Evaluator &amp; Penetapan</span>
               </div>
               <p className="text-ink-secondary leading-relaxed">
-                Bagian Organisasi menetapkan skor daerah (75%), diselaraskan survei responden (25%), dan ditetapkan definitif oleh Kementerian PAN-RB.
+                Bagian Organisasi memberikan skor sementara (F-02), divalidasi oleh Biro Organisasi Provinsi, dan diolah oleh Kementerian PAN-RB untuk penetapan nilai akhir definitif.
               </p>
             </div>
           </div>

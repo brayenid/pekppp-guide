@@ -44,13 +44,13 @@ export function AdminTabs<T extends string = string>({
     return (
       <div
         className={cn(
-          'flex items-center justify-between gap-3',
+          'w-full min-w-0 flex items-center justify-between gap-3',
           bordered && 'border-b border-stroke/60',
           className
         )}>
         <div
           role="tablist"
-          className="flex items-center gap-1 overflow-x-auto overflow-y-hidden no-scrollbar">
+          className="w-full min-w-0 flex items-center gap-1 overflow-x-auto overflow-y-hidden no-scrollbar">
           {items.map((item) => {
             const isActive = activeId === item.id
             const iconNode = item.icon || (item.badge && typeof item.badge !== 'string' ? item.badge : null)
@@ -111,13 +111,13 @@ export function AdminTabs<T extends string = string>({
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-2',
+        'w-full min-w-0 flex items-center justify-between gap-2',
         bordered && 'border-b border-stroke/60',
         className
       )}>
       <div
         role="tablist"
-        className="flex items-center gap-1.5 overflow-x-auto overflow-y-hidden pb-1 no-scrollbar">
+        className="w-full min-w-0 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden pb-1 no-scrollbar">
         {items.map((item) => {
           const isActive = activeId === item.id
           return (

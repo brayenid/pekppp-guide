@@ -445,19 +445,14 @@ export function DokumentasiClient() {
           }
         ]}
         actions={
-          <div className="flex items-center gap-2">
-            <Badge variant="info" size="sm">
-              <ShieldCheck className="w-3.5 h-3.5 mr-1" /> OpenAPI 3.0.3 Compliant
-            </Badge>
-            <Link href="/admin/pengaturan-api">
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<Server className="w-3.5 h-3.5 text-ink-muted" />}>
-                Pengaturan API
-              </Button>
-            </Link>
-          </div>
+          <Link href="/admin/pengaturan-api">
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<Server className="w-3.5 h-3.5 text-ink-muted" />}>
+              Pengaturan API
+            </Button>
+          </Link>
         }
       />
 

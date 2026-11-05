@@ -605,7 +605,7 @@ export default function PeriodDetailClient({
               </button>
 
               {isActionDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-surface border border-stroke/70 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="dropdown-menu absolute right-0 top-full mt-2 w-72 rounded-2xl bg-surface border border-stroke/70 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-3 py-2 border-b border-stroke/40 mb-1">
                     <div className="text-[11px] font-bold text-ink uppercase tracking-wider">
                       Opsi &amp; Menu Periode
@@ -623,9 +623,9 @@ export default function PeriodDetailClient({
                         setSelectedUnitIds(new Set(enrolledUnitIds.length > 0 ? enrolledUnitIds : items.map((e) => e.unitId)))
                         setIsEnrollModalOpen(true)
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
-                      <div className="w-7 h-7 rounded-lg bg-brand/10 text-brand flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
-                        <Plus className="w-3.5 h-3.5" />
+                      className="dropdown-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
+                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
+                        <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 group-hover:text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-ink">Kelola Lokus ({totalUnits})</div>
@@ -639,9 +639,9 @@ export default function PeriodDetailClient({
                         setIsActionDropdownOpen(false)
                         setIsReconciliationOpen(true)
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
-                      <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                        <FileSpreadsheet className="w-3.5 h-3.5" />
+                      className="dropdown-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
+                      <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 dark:bg-teal-950/50 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400 group-hover:text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-ink">Rekonsiliasi MenPAN-RB</div>
@@ -655,9 +655,9 @@ export default function PeriodDetailClient({
                         setIsActionDropdownOpen(false)
                         handleOpenReport()
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
-                      <div className="w-7 h-7 rounded-lg bg-pastel-blue text-pastel-blue-text flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
-                        <FileText className="w-3.5 h-3.5" />
+                      className="dropdown-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
+                      <div className="w-7 h-7 rounded-lg bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-400 flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
+                        <FileText className="w-3.5 h-3.5 text-sky-700 dark:text-sky-400 group-hover:text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-ink">Laporan Komprehensif</div>
@@ -675,9 +675,9 @@ export default function PeriodDetailClient({
                         setEditTitle(period.title || `Evaluasi PEKPPP Tahun ${period.year}`)
                         setIsEditPeriodOpen(true)
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
-                      <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                        <Pencil className="w-3.5 h-3.5" />
+                      className="dropdown-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle hover:text-brand transition-colors text-left cursor-pointer group">
+                      <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        <Pencil className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 group-hover:text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-ink">Edit Tahun &amp; Periode</div>
@@ -693,11 +693,17 @@ export default function PeriodDetailClient({
                         setIsActionDropdownOpen(false)
                         setIsPublishModalOpen(true)
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle transition-colors text-left cursor-pointer group">
+                      className="dropdown-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-surface-subtle transition-colors text-left cursor-pointer group">
                       <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                        period.isPublished ? 'bg-pastel-amber text-pastel-amber-text' : 'bg-emerald-100 text-emerald-700'
+                        period.isPublished
+                          ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white'
+                          : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white'
                       }`}>
-                        {period.isPublished ? <EyeOff className="w-3.5 h-3.5" /> : <Globe className="w-3.5 h-3.5" />}
+                        {period.isPublished ? (
+                          <EyeOff className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 group-hover:text-white" />
+                        ) : (
+                          <Globe className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 group-hover:text-white" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-ink">

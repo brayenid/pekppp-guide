@@ -89,15 +89,6 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
         ]}
         actions={
           <div className="flex items-center gap-2.5">
-            {isConfigured ? (
-              <Badge variant="success" size="sm">
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Terintegrasi
-              </Badge>
-            ) : (
-              <Badge variant="warning" size="sm">
-                <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Belum Dikonfigurasi
-              </Badge>
-            )}
             <Button
               type="button"
               variant="secondary"
@@ -134,6 +125,17 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
             icon={<Server className="w-4 h-4 text-ink-muted" />}
             title="Parameter Endpoint API"
             uppercase
+            action={
+              isConfigured ? (
+                <Badge variant="success" size="sm">
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Terintegrasi
+                </Badge>
+              ) : (
+                <Badge variant="warning" size="sm">
+                  <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Belum Dikonfigurasi
+                </Badge>
+              )
+            }
           />
 
           <div className="grid grid-cols-1 gap-4">
