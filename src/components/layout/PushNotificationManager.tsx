@@ -38,8 +38,11 @@ export function PushNotificationManager() {
         .register('/sw.js')
         .then(async (registration) => {
           const sub = await registration.pushManager.getSubscription()
-          if (sub) {
+          if (sub && Notification.permission === 'granted') {
             setIsSubscribed(true)
+          } else if (sub && Notification.permission !== 'granted') {
+            await sub.unsubscribe().catch(() => {})
+            setIsSubscribed(false)
           }
         })
         .catch((err) => {
@@ -109,7 +112,7 @@ export function PushNotificationManager() {
   if (!isSupported) return null
 
   // Jika sudah granted dan subscribed, atau ditolak, atau dismissed -> tidak perlu tampilkan banner mengganggu
-  if (isSubscribed || permission === 'denied' || dismissed) {
+  if ((isSubscribed && permission === 'granted') || permission === 'denied' || dismissed) {
     return null
   }
 
