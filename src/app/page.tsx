@@ -323,34 +323,39 @@ export default async function HomePage() {
       {/* ── Landing Page Content Body (Alternating Rhythm) ── */}
       <div className="w-full">
         {/* ── 2A. Mengenal PEKPPP ── */}
-        <section className="py-14 sm:py-20 max-w-[1360px] mx-auto px-5 sm:px-6 lg:px-8 space-y-6">
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-mono font-semibold tracking-wider text-brand uppercase">
+        <section className="py-12 sm:py-16 max-w-[1360px] mx-auto px-5 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wider bg-brand/10 text-brand border border-brand/20">
               01 &bull; Kerangka Evaluasi
             </span>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-ink tracking-tight">
-              Apa itu PEKPPP?
-            </h2>
-            <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed max-w-[80ch]">
-              Pemantauan dan Evaluasi Kinerja Penyelenggaraan Pelayanan Publik berdasarkan PermenPAN-RB No. 29 Tahun 2022.
-            </p>
+            <div className="h-px flex-1 bg-line/60" />
           </div>
 
-          <div className="bg-surface p-5 sm:p-7 rounded-2xl border border-line shadow-2xs grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <p className="text-xs sm:text-sm text-ink leading-relaxed">
-                PEKPPP adalah instrumen resmi Kementerian PAN-RB untuk mengukur kepatuhan, kualitas tata kelola, dan efektivitas unit penyelenggara pelayanan publik secara berkala. Penilaian memotret standar pelayanan, kompetensi SDM, ketersediaan sarana prasarana yang ramah kelompok rentan, keterbukaan sistem informasi, responsivitas pengaduan, hingga keberadaan inovasi layanan.
-              </p>
-              <div className="pt-3 border-t border-line/60 flex flex-wrap items-center gap-2 text-xs text-ink-secondary">
-                <span className="font-semibold text-ink">Komponen Pengukuran:</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Formulir F-01 (Mandiri)</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Formulir F-02 (Evaluator Daerah)</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Formulir F-03 (Survei Pengguna)</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Muara Indeks Pelayanan Publik (IPP)</span>
+          <div className="bg-surface rounded-2xl border border-line shadow-2xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-line/70">
+            <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-5">
+              <div className="space-y-3">
+                <h2 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
+                  Apa itu PEKPPP?
+                </h2>
+                <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
+                  Pemantauan dan Evaluasi Kinerja Penyelenggaraan Pelayanan Publik berdasarkan <strong>PermenPAN-RB No. 29 Tahun 2022</strong>.
+                </p>
+                <p className="text-xs sm:text-sm text-ink/90 leading-relaxed pt-1">
+                  PEKPPP adalah instrumen resmi Kementerian PAN-RB untuk mengukur kepatuhan, kualitas tata kelola, dan efektivitas unit penyelenggara pelayanan publik secara berkala. Penilaian memotret standar pelayanan, kompetensi SDM, ketersediaan sarana prasarana yang ramah kelompok rentan, keterbukaan sistem informasi, responsivitas penanganan pengaduan, hingga keberadaan inovasi pelayanan.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/panduan"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:text-brand-hover hover:underline transition-colors"
+                >
+                  Pelajari panduan lengkap & bobot penilaian &rarr;
+                </Link>
               </div>
             </div>
 
-            <div className="lg:col-span-4 relative aspect-[4/3] rounded-xl overflow-hidden border border-line/80 bg-surface-subtle/40">
+            <div className="lg:col-span-5 relative aspect-[16/10] lg:aspect-auto min-h-[220px] bg-surface-subtle/50">
               <Image
                 src="/images/landing/tentang-pekppp.png"
                 alt="Ilustrasi Standar Evaluasi PEKPPP"
@@ -362,42 +367,49 @@ export default async function HomePage() {
         </section>
 
         {/* ── 2B. Peran & Kedudukan Portal PEKPPP.ext ── */}
-        <section className="py-14 sm:py-20 max-w-[1360px] mx-auto px-5 sm:px-6 lg:px-8 space-y-6">
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-mono font-semibold tracking-wider text-brand uppercase">
+        <section className="py-12 sm:py-16 max-w-[1360px] mx-auto px-5 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wider bg-brand/10 text-brand border border-brand/20">
               02 &bull; Kedudukan Sistem
             </span>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-ink tracking-tight">
-              Apa Peran Website Ini?
-            </h2>
-            <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed max-w-[80ch]">
-              Platform pra-evaluasi daerah untuk mendampingi perangkat daerah Kabupaten Kutai Barat sebelum sinkronisasi nasional.
-            </p>
+            <div className="h-px flex-1 bg-line/60" />
           </div>
 
-          <div className="bg-surface p-5 sm:p-7 rounded-2xl border border-line shadow-2xs grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <p className="text-xs sm:text-sm text-ink leading-relaxed">
-                Website ini hadir sebagai upaya mengatasi <strong>terfragmentasinya portal</strong> pada tahun-tahun penilaian sebelumnya (di mana ruang pengisian evaluasi, ruang informasi pemenuhan bukti dukung, dan repositori penyimpanan berkas terpisah di berbagai aplikasi dan tautan cloud). PEKPPP.ext <strong>menyatukan ketiganya ke dalam satu sistem kerja terpadu</strong>.
-              </p>
-              <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-                Platform ini berfungsi sebagai ruang pra-evaluasi internal daerah, bukan pengganti portal resmi <em>evaluasi.menpan.go.id</em>. Melalui sistem ini, unit lokus dapat melakukan telaah mandiri, menyiapkan dokumen berkelanjutan (<em>Living Document</em>), serta menerima asistensi dan uji kelayakan awal dari Tim Bagian Organisasi Setdakab agar bukti dukung siap sebelum batas waktu penguncian instrumen kementerian.
-              </p>
-              <div className="pt-3 border-t border-line/60 flex flex-wrap items-center gap-2 text-xs text-ink-secondary">
-                <span className="font-semibold text-ink">Fokus Platform:</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Pra-Evaluasi Internal</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Penyatuan Arsip &amp; Bukti Dukung</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Asistensi Dini Setdakab</span>
-                <span className="bg-surface-subtle px-2 py-0.5 rounded border border-line/60">Penetapan Akhir Tetap di KemenPAN-RB</span>
+          <div className="bg-surface rounded-2xl border border-line shadow-2xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-line/70">
+            <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-5">
+              <div className="space-y-3">
+                <h2 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
+                  Apa Peran Website Ini?
+                </h2>
+                <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
+                  Platform pra-evaluasi daerah untuk mendampingi perangkat daerah Kabupaten Kutai Barat sebelum sinkronisasi nasional.
+                </p>
+                <div className="space-y-2.5 text-xs sm:text-sm text-ink/90 leading-relaxed pt-1">
+                  <p>
+                    Website ini hadir sebagai solusi atas <strong>terfragmentasinya proses</strong> pada tahun-tahun sebelumnya—di mana ruang pengisian evaluasi mandiri, informasi pemenuhan bukti dukung, dan repositori berkas terpisah di berbagai dokumen serta tautan penyimpanan <em>cloud</em>. Sistem ini <strong>menyatukan seluruh alur tersebut ke dalam satu ekosistem terpadu</strong>.
+                  </p>
+                  <p className="text-ink-secondary">
+                    Platform ini berfungsi sebagai ruang pra-evaluasi internal daerah, bukan pengganti portal kementerian (<em>evaluasi.menpan.go.id</em>). Unit lokus dapat melakukan telaah mandiri, menyiapkan dokumen berkelanjutan (<em>Living Document</em>), serta memperoleh asistensi dini dari Tim Bagian Organisasi Setdakab agar bukti dukung matang sebelum batas sinkronisasi kementerian.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/alur-proses"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:text-brand-hover hover:underline transition-colors"
+                >
+                  Lihat alur proses dan tahapan asistensi &rarr;
+                </Link>
               </div>
             </div>
 
-            <div className="lg:col-span-4 relative aspect-[4/3] rounded-xl overflow-hidden border border-line/80 bg-surface">
+            <div className="lg:col-span-5 relative aspect-[16/10] lg:aspect-auto min-h-[220px] bg-surface-subtle/30 flex items-center justify-center p-4 sm:p-6">
               <Image
                 src="/images/landing/peran-website.svg"
                 alt="Diagram Unifikasi: Tiga Sistem Masuk Corong Menjadi Satu Layar Terpadu"
                 fill
-                className="object-contain p-2"
+                className="object-contain p-4"
               />
             </div>
           </div>
