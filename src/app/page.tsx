@@ -145,28 +145,28 @@ export default async function HomePage() {
       formCode: 'Formulir F-01 & F-03',
       title: 'Evaluasi Mandiri & Survei Responden',
       actor: 'Unit Lokus Layanan & Responden',
-      desc: 'Pada tahap ini, perangkat daerah melakukan pengisian mandiri 31 indikator kinerja (F-01) dan mengunggah seluruh berkas bukti dukung digital. Secara berbarengan, kuesioner survei F-03 disebarkan oleh unit lokus untuk diisi oleh responden penerima layanan.'
+      desc: 'Unit penyelenggara pelayanan publik melaksanakan pengisian mandiri atas 31 indikator kinerja standar pelayanan (Formulir F-01) serta mengunggah dokumen bukti dukung digital. Bersamaan dengan proses tersebut, kuesioner survei Formulir F-03 didistribusikan kepada masyarakat penerima layanan.'
     },
     {
       stepNum: '2',
       formCode: 'Formulir F-02 (Penilaian Sementara)',
       title: 'Verifikasi & Penilaian Sementara Daerah',
       actor: 'Bagian Organisasi Setdakab',
-      desc: 'Pada tahap ini, Tim Penilai Bagian Organisasi Setdakab meneliti berkas eviden, melakukan klarifikasi faktual serta uji petik lapangan, lalu memberikan nilai sementara (belum menetapkan nilai akhir).'
+      desc: 'Tim Evaluator Bagian Organisasi Setdakab memeriksa keabsahan dokumen bukti dukung, menyelenggarakan klarifikasi faktual dan uji petik lapangan, kemudian menetapkan skor penilaian sementara tingkat kabupaten.'
     },
     {
       stepNum: '3',
       formCode: 'Validasi Provinsi',
       title: 'Validasi Hasil Evaluasi Kabupaten',
       actor: 'Biro Organisasi Setda Provinsi',
-      desc: 'Pada tahap ini, hasil evaluasi dan penilaian sementara dari tingkat kabupaten disampaikan ke Biro Organisasi Provinsi untuk diverifikasi dan divalidasi kelayakannya.'
+      desc: 'Hasil evaluasi dan penilaian sementara dari tingkat kabupaten disampaikan kepada Biro Organisasi Setda Provinsi untuk ditelaah, diverifikasi, dan divalidasi kelayakannya.'
     },
     {
       stepNum: '4',
       formCode: 'Indeks Pelayanan Publik (IPP)',
       title: 'Pengolahan & Penetapan Nilai Akhir',
       actor: 'Kementerian PAN-RB',
-      desc: 'Pada tahap terakhir, seluruh hasil evaluasi yang telah divalidasi diolah secara nasional oleh Kementerian PAN-RB dan ditetapkan nilai akhirnya (skor kompilasi 100%), predikat mutu pelayanan, serta lembar rekomendasi resmi.'
+      desc: 'Seluruh hasil evaluasi yang telah divalidasi diolah secara nasional oleh Kementerian PAN-RB guna penetapan nilai akhir definitif (skor kompilasi 100%), predikat mutu pelayanan, serta penerbitan rekomendasi perbaikan resmi.'
     }
   ]
 

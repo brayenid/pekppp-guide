@@ -33,7 +33,7 @@ export default function AlurProsesPage() {
       actorRole: 'Unit Lokus Layanan & Responden',
       actorType: 'Lokus Lapangan',
       title: 'Evaluasi Mandiri (F-01) & Survei Kepuasan (F-03)',
-      desc: 'Unit pelayanan melakukan pengisian mandiri 31 indikator kinerja standar pelayanan dan mengunggah berkas bukti dukung digital (F-01). Secara berbarengan, unit lokus menyebarkan kuesioner survei F-03 kepada masyarakat penerima layanan hingga memenuhi kuota target responden.',
+      desc: 'Unit pelayanan melakukan pengisian mandiri 31 indikator kinerja standar pelayanan dan mengunggah berkas bukti dukung digital (F-01). Bersamaan dengan proses tersebut, unit lokus mendistribusikan kuesioner survei F-03 kepada masyarakat penerima layanan hingga memenuhi kuota target responden.',
       deliverable: 'Formulir F-01, berkas PDF eviden terunggah, serta tabulasi kuesioner survei F-03 terhimpun.',
       tag: 'Input Mandiri'
     },
