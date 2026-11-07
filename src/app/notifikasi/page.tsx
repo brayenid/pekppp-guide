@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
@@ -86,6 +86,8 @@ function parseNotificationDetails(item: NotificationData) {
   }
 }
 
+const PAGE_SIZE = 15
+
 function NotificationContent() {
   const searchParams = useSearchParams()
   const openId = searchParams.get('openId')
@@ -96,13 +98,24 @@ function NotificationContent() {
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | 'REVISION' | 'F02' | 'F01' | 'DRIVE'>('ALL')
 
+  const [page, setPage] = useState<number>(1)
+  const [totalCount, setTotalCount] = useState<number>(0)
+  const [hasMore, setHasMore] = useState<boolean>(false)
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const scrolledRef = useRef<boolean>(false)
 
-  const fetchNotifs = async () => {
+  const fetchNotifs = async (isReset = true) => {
     try {
-      const res = await getNotificationsAction()
+      const res = await getNotificationsAction({ page: 1, limit: PAGE_SIZE })
       setNotifications(res.notifications)
+      setTotalCount(res.totalCount)
+      setHasMore(res.hasMore)
+      if (isReset) {
+        setPage(1)
+      }
 
       if (openId && !scrolledRef.current) {
         setExpandedIds((prev) => new Set([...prev, openId]))
@@ -112,6 +125,64 @@ function NotificationContent() {
     }
   }
 
+  // Loadmore non-gimmick langsung ke database
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return
+    setIsLoadingMore(true)
+
+    try {
+      const nextPage = page + 1
+      const res = await getNotificationsAction({ page: nextPage, limit: PAGE_SIZE })
+      if (res.notifications.length > 0) {
+        setNotifications((prev) => {
+          const existingIds = new Set(prev.map((n) => n.id))
+          const newItems = res.notifications.filter((n) => !existingIds.has(n.id))
+          return [...prev, ...newItems]
+        })
+        setPage(nextPage)
+        setTotalCount(res.totalCount)
+        setHasMore(res.hasMore)
+      } else {
+        setHasMore(false)
+      }
+    } catch (err) {
+      console.error('Failed to load more notifications:', err)
+      setHasMore(false)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }, [isLoadingMore, hasMore, page])
+
+  // IntersectionObserver untuk auto loadmore saat mendekati dasar halaman
+  useEffect(() => {
+    if (!hasMore || isLoadingMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0]
+        if (first.isIntersecting && !isLoadingMore && hasMore) {
+          loadMore()
+        }
+      },
+      {
+        root: null,
+        rootMargin: '250px',
+        threshold: 0.1
+      }
+    )
+
+    const currentSentinel = sentinelRef.current
+    if (currentSentinel) {
+      observer.observe(currentSentinel)
+    }
+
+    return () => {
+      if (currentSentinel) {
+        observer.unobserve(currentSentinel)
+      }
+    }
+  }, [hasMore, isLoadingMore, loadMore])
+
   useEffect(() => {
     fetchNotifs()
   }, [openId])
@@ -120,13 +191,13 @@ function NotificationContent() {
   useEffect(() => {
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && !document.hidden) {
-        fetchNotifs()
+        fetchNotifs(false)
       }
     }, 25000)
 
     const handleVisibilityOrFocus = () => {
       if (typeof document !== 'undefined' && !document.hidden) {
-        fetchNotifs()
+        fetchNotifs(false)
       }
     }
 
@@ -237,9 +308,8 @@ function NotificationContent() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-16">
-      {/* Header */}
+      {/* Header (Tanpa Ikon) */}
       <PageHeader
-        icon={<Bell className="w-5 h-5 text-brand" />}
         title="Pusat Notifikasi"
         description="Riwayat pembaruan Formulir F01, revisi pasca penilaian, penilaian evaluator F02, dan dokumen bukti dukung."
         actions={
@@ -511,6 +581,30 @@ function NotificationContent() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* ── Auto Loadmore Sentinel & State (Non-Gimmick Real Server Pagination) ── */}
+      {hasMore && (
+        <div
+          ref={sentinelRef}
+          className="p-4 rounded-xl border border-stroke/50 bg-surface flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-muted">
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />
+            <span>
+              {isLoadingMore
+                ? 'Memuat notifikasi berikutnya...'
+                : `Menampilkan ${notifications.length} dari ${totalCount} notifikasi (Batas Maksimal: 200)`}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className="text-xs font-semibold text-brand hover:underline disabled:opacity-50">
+            Muat Lebih Banyak
+          </button>
         </div>
       )}
     </div>

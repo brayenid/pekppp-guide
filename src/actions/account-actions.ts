@@ -2,8 +2,11 @@
 
 import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
+import { hashPassword } from '../lib/jwt-auth'
+import { requireSuperAdmin } from '../services/auth-guard'
 
 export async function listProfilesAction() {
+  await requireSuperAdmin()
   return db.profile.findMany({
     include: { userUnits: { include: { unit: true } } },
     orderBy: { createdAt: 'desc' }
@@ -17,14 +20,19 @@ export async function createProfileAction(data: {
   phone?: string | null
   role: 'SUPER_ADMIN' | 'OPD'
 }) {
-  const existing = await db.profile.findUnique({ where: { email: data.email } })
+  await requireSuperAdmin()
+
+  const emailLower = data.email.trim().toLowerCase()
+  const existing = await db.profile.findUnique({ where: { email: emailLower } })
   if (existing) return { success: false, error: 'Email sudah terdaftar.' }
+
+  const hashedPassword = await hashPassword(data.password.trim())
 
   await db.profile.create({
     data: {
-      email: data.email,
-      password: data.password,
-      fullName: data.fullName,
+      email: emailLower,
+      password: hashedPassword,
+      fullName: data.fullName.trim(),
       phone: data.phone?.trim() || null,
       role: data.role
     }
@@ -34,29 +42,36 @@ export async function createProfileAction(data: {
 }
 
 export async function deleteProfileAction(id: string) {
+  await requireSuperAdmin()
   await db.profile.delete({ where: { id } })
   revalidatePath('/admin/akun')
   return { success: true }
 }
 
-export async function updateProfileAction(id: string, data: {
-  email: string
-  password?: string
-  fullName: string
-  phone?: string | null
-  role: 'SUPER_ADMIN' | 'OPD'
-}) {
+export async function updateProfileAction(
+  id: string,
+  data: {
+    email: string
+    password?: string
+    fullName: string
+    phone?: string | null
+    role: 'SUPER_ADMIN' | 'OPD'
+  }
+) {
+  await requireSuperAdmin()
+
+  const emailLower = data.email.trim().toLowerCase()
   const existing = await db.profile.findFirst({
     where: {
-      email: data.email,
+      email: emailLower,
       NOT: { id }
     }
   })
   if (existing) return { success: false, error: 'Email sudah digunakan oleh akun lain.' }
 
   const updateData: any = {
-    email: data.email,
-    fullName: data.fullName,
+    email: emailLower,
+    fullName: data.fullName.trim(),
     role: data.role
   }
 
@@ -65,7 +80,7 @@ export async function updateProfileAction(id: string, data: {
   }
 
   if (data.password && data.password.trim() !== '') {
-    updateData.password = data.password.trim()
+    updateData.password = await hashPassword(data.password.trim())
   }
 
   await db.profile.update({
@@ -78,6 +93,7 @@ export async function updateProfileAction(id: string, data: {
 }
 
 export async function bindUnitToProfileAction(userId: string, unitId: string) {
+  await requireSuperAdmin()
   await db.userUnit.upsert({
     where: { userId_unitId: { userId, unitId } },
     update: {},
@@ -88,6 +104,7 @@ export async function bindUnitToProfileAction(userId: string, unitId: string) {
 }
 
 export async function unbindUnitFromProfileAction(userId: string, unitId: string) {
+  await requireSuperAdmin()
   await db.userUnit.deleteMany({ where: { userId, unitId } })
   revalidatePath('/admin/akun')
   return { success: true }
@@ -103,6 +120,8 @@ export async function importProfilesAction(
     conflictResolution: 'OVERWRITE' | 'SKIP'
   }>
 ) {
+  await requireSuperAdmin()
+
   let createdCount = 0
   let updatedCount = 0
   let skippedCount = 0
@@ -123,7 +142,7 @@ export async function importProfilesAction(
           updateData.phone = item.phone?.trim() ? item.phone.trim() : null
         }
         if (item.password && item.password.trim() !== '') {
-          updateData.password = item.password.trim()
+          updateData.password = await hashPassword(item.password.trim())
         }
         await db.profile.update({
           where: { id: existing.id },
@@ -134,10 +153,13 @@ export async function importProfilesAction(
         skippedCount++
       }
     } else {
+      const rawPassword = item.password?.trim() || '123456'
+      const hashedPassword = await hashPassword(rawPassword)
+
       await db.profile.create({
         data: {
           email: emailLower,
-          password: item.password?.trim() || '123456',
+          password: hashedPassword,
           fullName: item.fullName.trim(),
           phone: item.phone?.trim() ? item.phone.trim() : null,
           role: item.role

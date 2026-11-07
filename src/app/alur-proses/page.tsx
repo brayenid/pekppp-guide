@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { PageHeader } from '../../components/ui/PageHeader'
 import {
@@ -7,65 +9,88 @@ import {
   Zap,
   Bot,
   FileCheck2,
-  UserCheck
+  UserCheck,
+  ChevronDown,
+  ExternalLink,
+  ShieldCheck,
+  BookOpen,
+  Calendar,
+  Layers,
+  Network,
+  HelpCircle
 } from 'lucide-react'
 
-export const metadata = {
-  title: 'Alur & Mekanisme Evaluasi - PEKPPP.ext',
-  description: 'Tata laksana alur penyelenggaraan evaluasi kinerja pelayanan publik Kabupaten Kutai Barat dari input mandiri hingga penetapan nasional.'
-}
-
 export default function AlurProsesPage() {
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
+
+  const toggleFaq = (idx: number) => {
+    setOpenFaqIndex((prev) => (prev === idx ? null : idx))
+  }
+
   const workflowSteps = [
     {
       num: '01',
-      actor: 'Unit Lokus Layanan & Responden',
+      actorRole: 'Unit Lokus Layanan & Responden',
+      actorType: 'Lokus Lapangan',
       title: 'Evaluasi Mandiri (F-01) & Survei Kepuasan (F-03)',
       desc: 'Unit pelayanan melakukan pengisian mandiri 31 indikator kinerja standar pelayanan dan mengunggah berkas bukti dukung digital (F-01). Secara berbarengan, unit lokus menyebarkan kuesioner survei F-03 kepada masyarakat penerima layanan hingga memenuhi kuota target responden.',
-      deliverable: 'Formulir F-01 dan eviden terunggah, serta tabulasi kuesioner survei F-03 terhimpun.'
+      deliverable: 'Formulir F-01, berkas PDF eviden terunggah, serta tabulasi kuesioner survei F-03 terhimpun.',
+      tag: 'Input Mandiri'
     },
     {
       num: '02',
-      actor: 'Sistem & Administrator Daerah',
+      actorRole: 'Sistem & Administrator Daerah',
+      actorType: 'Asistensi Teknis',
       title: 'Pra-Uji Kelayakan & Uji Petik Awal',
       desc: 'Sistem melakukan validasi kelengkapan berkas F-01 dan pemenuhan survei F-03, mendeteksi indikator yang belum memiliki dokumen pendukung, dan memberikan asistensi penelaahan awal agar lokus dapat memperbaiki berkas sebelum evaluasi lapangan.',
-      deliverable: 'Laporan kelengkapan dokumen dan rekomendasi pemenuhan awal.'
+      deliverable: 'Laporan kelengkapan dokumen dan rekomendasi pemenuhan awal.',
+      tag: 'Quality Gate'
     },
     {
       num: '03',
-      actor: 'Tim Evaluator Bagian Organisasi Setdakab',
+      actorRole: 'Tim Evaluator Bagian Organisasi Setdakab',
+      actorType: 'Evaluator Kabupaten',
       title: 'Verifikasi Dokumen & Penilaian Sementara Daerah (F-02)',
       desc: 'Tim evaluator kabupaten memeriksa keabsahan dokumen eviden, membuka dialog klarifikasi faktual dengan penanggung jawab lokus, melaksanakan uji petik lapangan, dan memberikan skor penilaian sementara tingkat kabupaten (belum menetapkan nilai akhir).',
-      deliverable: 'Skor sementara F-02 (75% bobot IPP) dan Berita Acara Hasil Evaluasi Kabupaten.'
+      deliverable: 'Skor sementara F-02 (75% bobot IPP) dan Berita Acara Hasil Evaluasi Kabupaten.',
+      tag: 'Verifikasi Lapangan'
     },
     {
       num: '04',
-      actor: 'Biro Organisasi Setda Provinsi',
+      actorRole: 'Biro Organisasi Setda Provinsi',
+      actorType: 'Pemerintah Provinsi',
       title: 'Penyampaian & Validasi Tingkat Provinsi',
-      desc: 'Hasil evaluasi dan penilaian sementara dari tingkat kabupaten disampaikan ke Biro Organisasi Pemerintah Provinsi untuk ditelaah, divalidasi keabsahannya, dan diselaraskan.',
-      deliverable: 'Berita Acara/Rekomendasi Validasi Provinsi dan berkas evaluasi terharmonisasi.'
+      desc: 'Hasil evaluasi dan penilaian sementara dari tingkat kabupaten disampaikan ke Biro Organisasi Pemerintah Provinsi untuk ditelaah, divalidasi keabsahannya, dan diselaraskan lintas wilayah kabupaten/kota.',
+      deliverable: 'Berita Acara/Rekomendasi Validasi Provinsi dan berkas evaluasi terharmonisasi.',
+      tag: 'Sinkronisasi Wilayah'
     },
     {
       num: '05',
-      actor: 'Kementerian PAN-RB',
+      actorRole: 'Kementerian PAN-RB',
+      actorType: 'Otoritas Nasional',
       title: 'Pengolahan Akhir & Penetapan Hasil Nasional',
       desc: 'Kementerian PAN-RB mengolah seluruh data evaluasi terpadu (skor kompilasi 100%), menetapkan nilai akhir definitif dan predikat mutu pelayanan publik (kategori A, B, atau C), serta menerbitkan sertifikat dan lembar rekomendasi perbaikan resmi.',
-      deliverable: 'Nilai IPP Definitif 100%, Sertifikat Predikat Mutu, & Lembar Rekomendasi MenPAN-RB.'
+      deliverable: 'Nilai IPP Definitif 100%, Sertifikat Predikat Mutu, & Lembar Rekomendasi MenPAN-RB.',
+      tag: 'Ketetapan Hukum'
     }
   ]
 
   const workflowFaqs = [
     {
       q: 'Bagaimana jika terdapat bukti dukung yang dinyatakan belum memenuhi syarat?',
-      a: 'Evaluator akan memberikan catatan telaah resmi pada instrumen penilaian. Unit lokus diberikan rentang waktu klarifikasi untuk memperbarui dokumen atau mengunggah bukti tambahan sebelum batas waktu (cut-off) penutupan periode evaluasi.'
+      a: 'Evaluator akan memberikan catatan telaah resmi pada instrumen penilaian. Unit lokus diberikan rentang waktu klarifikasi untuk memperbarui dokumen atau mengunggah bukti tambahan sebelum batas waktu (cut-off) penutupan periode evaluasi daerah.'
     },
     {
       q: 'Apakah dokumen yang sudah diunggah tahun lalu harus diunggah ulang dari nol?',
-      a: 'Tidak perlu. Melalui mekanisme Living Document, dokumen berkategori permanen (seperti SK Standar Pelayanan yang belum mengalami perubahan regulasi) otomatis tersambung ke tahun penilaian aktif. Unit hanya perlu memutakhirkan berkas berkala seperti laporan survei tahunan dan data penanganan pengaduan.'
+      a: 'Mekanisme Living Document berfungsi sebagai fallback (penopang cadangan) agar lokus tidak memulai dari nol jika dokumen permanen regulasinya belum berubah. Namun, untuk dokumen eviden yang sifatnya dinamis dan terus berkembang (seperti sarana prasarana/fasilitas, Standar Pelayanan, laporan Forum Konsultasi Publik, dan laporan pengaduan), sangat disarankan untuk dimutakhirkan agar hasil evaluasi mencerminkan kondisi eksisting terkini dan memperoleh penilaian maksimal.'
     },
     {
       q: 'Apakah skor di portal ini langsung menjadi nilai akhir resmi MenPAN-RB?',
       a: 'Portal PEKPPP.ext berfungsi sebagai platform pra-evaluasi dan verifikasi tingkat kabupaten untuk memastikan kualitas eviden telah memenuhi standar sebelum disinkronkan ke web resmi evaluasi.menpan.go.id. Nilai definitif 100% dan predikat resmi tetap ditetapkan oleh Kementerian PAN-RB.'
+    },
+    {
+      q: 'Kapan cut-off pengunggahan berkas eviden diberlakukan?',
+      a: 'Jadwal cut-off ditetapkan melalui Surat Edaran Sekretaris Daerah yang mengacu pada kalender evaluasi Kementerian PAN-RB. Begitu batas waktu tercapai, portal akan mengunci mode penyuntingan lokus dan mengalihkan status ke masa verifikasi evaluator.'
     }
   ]
 
@@ -73,44 +98,104 @@ export default function AlurProsesPage() {
     <div className="max-w-6xl mx-auto space-y-12 sm:space-y-16 pb-16 font-sans">
       {/* ── Page Header ── */}
       <PageHeader
-        title="Alur &amp; Mekanisme Evaluasi Pelayanan Publik"
-        description="Tata laksana penyelenggaraan evaluasi kinerja pelayanan publik Kabupaten Kutai Barat dari tahap pengisian mandiri oleh unit kerja hingga penetapan predikat mutu nasional."
+        title="Alur &amp; Mekanisme PEKPPP"
+        description="Tata laksana penyelenggaraan Pemantauan dan Evaluasi Kinerja Penyelenggaraan Pelayanan Publik (PEKPPP) Kabupaten Kutai Barat dari tahap pengisian mandiri oleh unit kerja hingga penetapan predikat mutu nasional."
       />
 
-      {/* ── 1. Kedudukan & Prinsip Kerja Sistem ── */}
+      {/* ── Ringkasan Regulasi & Dasar Hukum Operasional ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+        <div className="flex items-start gap-3 p-3.5 rounded-xl border border-line bg-surface">
+          <div className="w-8 h-8 rounded-lg bg-surface-subtle flex items-center justify-center shrink-0 border border-line">
+            <BookOpen className="w-4 h-4 text-brand" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Landasan Regulasi</div>
+            <div className="text-xs font-semibold text-ink leading-snug">PermenPAN-RB No. 29/2022</div>
+            <div className="text-[11px] text-ink-secondary">Pedoman evaluasi kinerja penyelenggara publik</div>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3 p-3.5 rounded-xl border border-line bg-surface">
+          <div className="w-8 h-8 rounded-lg bg-surface-subtle flex items-center justify-center shrink-0 border border-line">
+            <ShieldCheck className="w-4 h-4 text-brand" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Cakupan Evaluasi</div>
+            <div className="text-xs font-semibold text-ink leading-snug">6 Aspek &bull; 31 Indikator</div>
+            <div className="text-[11px] text-ink-secondary">Instrumen baku F-01, F-02, dan F-03</div>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3 p-3.5 rounded-xl border border-line bg-surface">
+          <div className="w-8 h-8 rounded-lg bg-surface-subtle flex items-center justify-center shrink-0 border border-line">
+            <Calendar className="w-4 h-4 text-brand" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Siklus Penilaian</div>
+            <div className="text-xs font-semibold text-ink leading-snug">Tahunan (Annual Cycle)</div>
+            <div className="text-[11px] text-ink-secondary">Penilaian daerah dilanjutkan penetapan pusat</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 1. Kedudukan & Batasan Wewenang Sistem ── */}
       <section className="space-y-4">
-        <div className="space-y-1">
-          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight">
-            Kedudukan &amp; Prinsip Penyelenggaraan
-          </h2>
-          <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-            Peran PEKPPP.ext sebagai layer pendamping terpadu di lingkungan Pemerintah Kabupaten Kutai Barat.
-          </p>
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight flex items-center gap-2">
+              <Layers className="w-4 h-4 text-brand" />
+              <span>Kedudukan &amp; Batasan Wewenang Penyelenggaraan</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
+              Pembagian peran yang jelas antara platform pendamping daerah dan sistem definitif kementerian.
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-2xs space-y-2.5">
-            <div className="text-xs font-semibold uppercase tracking-wider text-brand">
-              Inisiatif Mandiri Daerah
+          <div className="p-5 sm:p-6 rounded-xl bg-surface border border-line space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-brand px-2.5 py-0.5 bg-brand-light dark:bg-brand/15 rounded-md">
+                Tingkat Daerah (Kabupaten)
+              </span>
+              <span className="text-[11px] text-ink-muted font-mono">Fase Pra-Evaluasi</span>
             </div>
             <h3 className="text-sm sm:text-base font-semibold text-ink leading-snug">
-              Antisipasi Beban &amp; Akselerasi Telaah Eviden
+              Peran Portal PEKPPP.ext &amp; Bagian Organisasi
             </h3>
             <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-              Dikembangkan oleh Tim Pelayanan Publik &amp; Tata Laksana Bagian Organisasi Setdakab Kutai Barat guna mempermudah asistensi puluhan lokus layanan publik secara transparan, tertib dokumen, dan terstandarisasi.
+              Bertindak sebagai ruang kurasi eviden, pendampingan uji petik mandiri, dan simulasi skor awal 31 indikator. Bagian Organisasi Setdakab memastikan seluruh lokus siap dokumen sebelum batas waktu (cut-off) penguncian instrumen nasional.
             </p>
+            <div className="pt-2 border-t border-line/60 flex items-center gap-2 text-[11px] text-ink-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand" />
+              <span>Menghasilkan Skor Sementara F-02 (Bobot 75% Tahap Awal)</span>
+            </div>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-2xs space-y-2.5">
-            <div className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400">
-              Sinkronisasi Nasional
+          <div className="p-5 sm:p-6 rounded-xl bg-surface border border-line space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-800 dark:text-sky-300 px-2.5 py-0.5 bg-sky-50 dark:bg-sky-950/40 rounded-md border border-sky-200/60 dark:border-sky-800/40">
+                Tingkat Nasional
+              </span>
+              <a
+                href="https://evaluasi.menpan.go.id"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] text-brand hover:underline">
+                <span>evaluasi.menpan.go.id</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
             <h3 className="text-sm sm:text-base font-semibold text-ink leading-snug">
-              Pendamping Resmi evaluasi.menpan.go.id
+              Otoritas Penetapan Kementerian PAN-RB
             </h3>
             <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-              Sistem ini berfungsi sebagai ruang pra-evaluasi dan verifikasi internal daerah untuk memastikan seluruh eviden memenuhi rubrik penilaian sebelum dikunci secara resmi pada sistem evaluasi kementerian.
+              Kementerian PAN-RB memegang kewenangan mutlak dalam penetapan nilai Indeks Pelayanan Publik (IPP) 100%, konversi predikat (A, B, C), serta penerbitan piagam dan rekomendasi resmi perbaikan tata kelola bagi kepala daerah.
             </p>
+            <div className="pt-2 border-t border-line/60 flex items-center gap-2 text-[11px] text-ink-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-600" />
+              <span>SK MenPAN-RB &bull; Predikat Definitif Pelayanan Publik</span>
+            </div>
           </div>
         </div>
       </section>
@@ -118,8 +203,9 @@ export default function AlurProsesPage() {
       {/* ── 2. Bagan Visual Alur Terpadu (Grafik Alur Kerja) ── */}
       <section className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight">
-            Bagan Visual Alur Penyelenggaraan Evaluasi
+          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight flex items-center gap-2">
+            <Network className="w-4 h-4 text-brand" />
+            <span>Bagan Visual Alur Penyelenggaraan Evaluasi</span>
           </h2>
           <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
             Alur kerja terintegrasi lintas entitas: persiapan dokumen oleh unit lokus, telaah pra-evaluasi sistem, verifikasi daerah, hingga penetapan resmi.
@@ -469,86 +555,117 @@ export default function AlurProsesPage() {
       </section>
 
       {/* ── 3. Detail Tahapan Kerja Berjenjang ── */}
-      <section className="space-y-6">
+      <section className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight">
-            Tahapan Evaluasi (Alur Berjenjang)
+          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight flex items-center gap-2">
+            <FileCheck2 className="w-4 h-4 text-brand" />
+            <span>Tahapan Evaluasi (Alur Berjenjang)</span>
           </h2>
           <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
             Rangkaian kerja terstruktur dari persiapan dokumen oleh unit lokus hingga penetapan indeks definitif.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {workflowSteps.map((step) => (
             <div
               key={step.num}
-              className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-2xs space-y-3 transition-colors hover:border-brand/40">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm sm:text-base font-bold text-brand bg-brand-light dark:bg-brand/20 px-2.5 py-1 rounded-lg">
+              className="p-4 sm:p-5 rounded-xl bg-surface border border-line transition-colors hover:border-brand/40 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line/50 pb-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-mono text-xs font-bold text-brand bg-brand-light dark:bg-brand/20 px-2 py-0.5 rounded border border-brand/20">
                     {step.num}
                   </span>
-                  <h3 className="text-sm sm:text-base font-semibold text-ink">
+                  <h3 className="text-sm font-semibold text-ink">
                     {step.title}
                   </h3>
                 </div>
-                <span className="text-xs font-medium text-ink-muted self-start sm:self-auto">
-                  {step.actor}
-                </span>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <span className="text-[11px] font-medium text-ink-muted bg-surface-subtle px-2 py-0.5 rounded border border-line">
+                    {step.actorRole}
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-brand px-2 py-0.5 bg-brand-light dark:bg-brand/15 rounded">
+                    {step.tag}
+                  </span>
+                </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed pl-0 sm:pl-11">
+              <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
                 {step.desc}
               </p>
 
-              <div className="pt-2 pl-0 sm:pl-11 border-t border-line/60 flex items-center justify-between text-xs text-ink-muted">
-                <span><strong>Keluaran:</strong> {step.deliverable}</span>
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 text-xs bg-surface-subtle/50 px-3 py-2 rounded-lg border border-line/60">
+                <span className="font-semibold text-ink-secondary shrink-0">Dokumen Keluaran:</span>
+                <span className="text-ink-muted">{step.deliverable}</span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 4. Pertanyaan Kerap Diajukan (FAQ) ── */}
+      {/* ── 4. Pertanyaan Kerap Diajukan (FAQ Accordion) ── */}
       <section className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight">
-            Pertanyaan Kerap Diajukan Seputar Alur Kerja
+          <h2 className="text-base sm:text-lg font-semibold text-ink tracking-tight flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-brand" />
+            <span>Pertanyaan Kerap Diajukan Seputar Alur Kerja</span>
           </h2>
           <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-            Informasi penting terkait perbaikan bukti dukung, batas waktu, dan validitas hasil evaluasi.
+            Pedoman praktis mengenai ketentuan eviden, batas waktu pengunggahan, dan validitas hasil evaluasi.
           </p>
         </div>
 
-        <div className="space-y-3">
-          {workflowFaqs.map((faq, idx) => (
-            <div
-              key={idx}
-              className="p-5 rounded-2xl bg-surface border border-line shadow-2xs space-y-2">
-              <h3 className="text-sm font-semibold text-ink">
-                {faq.q}
-              </h3>
-              <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-                {faq.a}
-              </p>
-            </div>
-          ))}
+        <div className="space-y-2.5">
+          {workflowFaqs.map((faq, idx) => {
+            const isOpen = openFaqIndex === idx
+            return (
+              <div
+                key={idx}
+                className="rounded-xl bg-surface border border-line overflow-hidden transition-colors hover:border-brand/30">
+                <button
+                  type="button"
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full text-left p-4 sm:p-4.5 flex items-center justify-between gap-3 font-medium transition-colors select-none">
+                  <span className="text-xs sm:text-sm font-semibold text-ink">
+                    {faq.q}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-ink-muted shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'transform rotate-180 text-brand' : ''
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 pt-1 sm:px-4.5 sm:pb-4.5 border-t border-line/60 bg-surface-subtle/30">
+                    <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </section>
 
-      {/* ── Quick Footer Link ── */}
-      <div className="p-6 rounded-2xl bg-surface-subtle border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <h4 className="text-sm font-semibold text-ink">Pelajari Rincian Kriteria Penilaian</h4>
-          <p className="text-xs text-ink-secondary">Lihat daftar 31 indikator kinerja dan syarat dokumen bukti dukung pada Wiki Indikator.</p>
+      {/* ── 5. Quick Links & Navigasi Terkait ── */}
+      <div className="p-5 sm:p-6 rounded-xl bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="text-[11px] font-semibold text-brand uppercase tracking-wider">Akses Terkait</div>
+          <h4 className="text-sm font-semibold text-ink">Pelajari Rincian Kriteria 31 Indikator</h4>
+          <p className="text-xs text-ink-secondary">
+            Lihat daftar lengkap indikator kinerja standar pelayanan, bobot aspek, dan syarat berkas dukung digital pada Wiki Evaluasi.
+          </p>
         </div>
-        <Link
-          href="/wiki"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all shrink-0 self-start sm:self-auto shadow-2xs">
-          <span>Buka Wiki Indikator</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+          <Link
+            href="/wiki"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-colors">
+            <span>Buka Wiki Indikator</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
     </div>
   )

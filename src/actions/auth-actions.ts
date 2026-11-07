@@ -4,13 +4,17 @@ import { db } from '../services/db'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_MAX_AGE_SECONDS,
+  UserSessionPayload,
+  signSessionToken,
+  verifySessionToken,
+  hashPassword,
+  verifyPassword
+} from '../lib/jwt-auth'
 
-export interface UserSession {
-  id: string
-  email: string
-  fullName: string
-  role: 'SUPER_ADMIN' | 'OPD'
-}
+export type UserSession = UserSessionPayload
 
 export async function loginAction(formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase()
@@ -24,23 +28,43 @@ export async function loginAction(formData: FormData) {
     where: { email }
   })
 
-  if (!profile || profile.password !== password) {
+  if (!profile) {
     return { success: false, error: 'Email atau password salah.' }
+  }
+
+  const { isValid, needsRehash } = await verifyPassword(password, profile.password)
+
+  if (!isValid) {
+    return { success: false, error: 'Email atau password salah.' }
+  }
+
+  // Auto-upgrade password plaintext lama ke bcrypt hash secara transparan
+  if (needsRehash) {
+    const hashedPassword = await hashPassword(password)
+    await db.profile
+      .update({
+        where: { id: profile.id },
+        data: { password: hashedPassword }
+      })
+      .catch(() => {})
   }
 
   const sessionData: UserSession = {
     id: profile.id,
     email: profile.email,
     fullName: profile.fullName,
+    phone: profile.phone ?? null,
     role: profile.role
   }
 
+  const jwtToken = await signSessionToken(sessionData)
+
   const cookieStore = await cookies()
-  cookieStore.set('pekppp_session', JSON.stringify(sessionData), {
+  cookieStore.set(SESSION_COOKIE_NAME, jwtToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: SESSION_MAX_AGE_SECONDS,
     path: '/'
   })
 
@@ -50,21 +74,17 @@ export async function loginAction(formData: FormData) {
 
 export async function logoutAction() {
   const cookieStore = await cookies()
-  cookieStore.delete('pekppp_session')
+  cookieStore.delete(SESSION_COOKIE_NAME)
   revalidatePath('/')
   redirect('/login')
 }
 
 export async function getCurrentUserAction(): Promise<UserSession | null> {
   const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('pekppp_session')
-  if (!sessionCookie) return null
+  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)
+  if (!sessionCookie?.value) return null
 
-  try {
-    return JSON.parse(sessionCookie.value) as UserSession
-  } catch {
-    return null
-  }
+  return await verifySessionToken(sessionCookie.value)
 }
 
 export async function updateOwnPasswordAction(password: string) {
@@ -75,9 +95,11 @@ export async function updateOwnPasswordAction(password: string) {
     return { success: false, error: 'Password minimal 4 karakter.' }
   }
 
+  const hashedPassword = await hashPassword(password.trim())
+
   await db.profile.update({
     where: { id: user.id },
-    data: { password: password.trim() }
+    data: { password: hashedPassword }
   })
 
   return { success: true }

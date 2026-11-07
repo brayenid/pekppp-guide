@@ -91,20 +91,29 @@ export async function createNotificationHelper(data: {
   }
 }
 
-export async function getNotificationsAction(): Promise<{
+export async function getNotificationsAction(options?: {
+  page?: number
+  limit?: number
+}): Promise<{
   notifications: NotificationData[]
   unreadCount: number
+  totalCount: number
+  hasMore: boolean
 }> {
   const user = await getCurrentUserAction()
   if (!user) {
-    return { notifications: [], unreadCount: 0 }
+    return { notifications: [], unreadCount: 0, totalCount: 0, hasMore: false }
   }
+
+  const page = Math.max(1, options?.page || 1)
+  const limit = Math.max(1, Math.min(50, options?.limit || 20))
+  const skip = (page - 1) * limit
+  const MAX_NOTIFICATION_CAP = 200 // Batas maksimal notifikasi yang dapat diakses
 
   try {
     let whereCondition: any = {}
 
     if (user.role === 'SUPER_ADMIN') {
-      // Super Admin menerima notifikasi miliknya, ditujukan ke SUPER_ADMIN, atau pengumuman umum (roleTarget null)
       whereCondition = {
         OR: [
           { userId: user.id },
@@ -113,7 +122,6 @@ export async function getNotificationsAction(): Promise<{
         ]
       }
     } else {
-      // OPD: menerima notifikasi miliknya, notifikasi unit yang dibind ke akunnya, atau pengumuman umum (roleTarget null)
       const userUnits = await db.userUnit.findMany({
         where: { userId: user.id },
         select: { unitId: true }
@@ -136,13 +144,19 @@ export async function getNotificationsAction(): Promise<{
       }
     }
 
-    const rawNotifications = await db.notification.findMany({
-      where: whereCondition,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 50
-    })
+    const [dbTotalCount, unreadCount, rawNotifications] = await Promise.all([
+      db.notification.count({ where: whereCondition }),
+      db.notification.count({ where: { ...whereCondition, isRead: false } }),
+      db.notification.findMany({
+        where: whereCondition,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      })
+    ])
+
+    const totalCount = Math.min(dbTotalCount, MAX_NOTIFICATION_CAP)
+    const hasMore = skip + rawNotifications.length < totalCount
 
     const notifications: NotificationData[] = rawNotifications.map((n) => {
       let resolvedLink = n.link
@@ -175,12 +189,10 @@ export async function getNotificationsAction(): Promise<{
       }
     })
 
-    const unreadCount = notifications.filter((n) => !n.isRead).length
-
-    return { notifications, unreadCount }
+    return { notifications, unreadCount, totalCount, hasMore }
   } catch (error) {
     console.error('Failed to fetch notifications:', error)
-    return { notifications: [], unreadCount: 0 }
+    return { notifications: [], unreadCount: 0, totalCount: 0, hasMore: false }
   }
 }
 

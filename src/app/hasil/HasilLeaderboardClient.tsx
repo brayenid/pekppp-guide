@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Medal } from 'lucide-react'
 
 export interface LeaderboardEvaluationItem {
   id: string
@@ -27,14 +27,14 @@ export interface LeaderboardEvaluationItem {
 
 const GRADE_CONFIG: Record<
   string,
-  { label: string; badgeVariant: 'success' | 'info' | 'neutral' | 'warning' | 'danger' }
+  { label: string; shortLabel: string; badgeVariant: 'success' | 'info' | 'neutral' | 'warning' | 'danger' }
 > = {
-  A: { label: 'Sangat Baik', badgeVariant: 'success' },
-  B: { label: 'Baik', badgeVariant: 'info' },
-  C: { label: 'Cukup', badgeVariant: 'neutral' },
-  D: { label: 'Kurang', badgeVariant: 'warning' },
-  E: { label: 'Sangat Kurang', badgeVariant: 'danger' },
-  F: { label: 'Tidak Ada Data', badgeVariant: 'neutral' }
+  A: { label: 'Sangat Baik', shortLabel: 'Sangat Baik', badgeVariant: 'success' },
+  B: { label: 'Baik', shortLabel: 'Baik', badgeVariant: 'info' },
+  C: { label: 'Cukup', shortLabel: 'Cukup', badgeVariant: 'neutral' },
+  D: { label: 'Kurang', shortLabel: 'Kurang', badgeVariant: 'warning' },
+  E: { label: 'Sangat Kurang', shortLabel: 'S. Kurang', badgeVariant: 'danger' },
+  F: { label: 'Tidak Ada Data', shortLabel: 'N/A', badgeVariant: 'neutral' }
 }
 
 function getGrade(pct: number) {
@@ -185,11 +185,11 @@ export function HasilLeaderboardClient({
       <div className="hidden sm:block overflow-x-auto">
         <div className="min-w-[760px]">
           {/* Desktop Table Header */}
-          <div className="grid grid-cols-12 gap-4 px-6 py-3.5 bg-surface-subtle border-b border-line text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
-            <div className="col-span-1">Peringkat</div>
+          <div className="grid grid-cols-12 gap-3 px-6 py-3.5 bg-surface-subtle border-b border-line text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+            <div className="col-span-1 text-center">Peringkat</div>
             <div className="col-span-4">Unit Lokus Layanan</div>
             <div className="col-span-2">Kategori</div>
-            <div className="col-span-2 text-right">Skor IPP Final</div>
+            <div className="col-span-2 text-right">Skor</div>
             <div className="col-span-3 text-right">Predikat &amp; Aksi</div>
           </div>
 
@@ -203,24 +203,41 @@ export function HasilLeaderboardClient({
               return (
                 <div
                   key={ev.id}
-                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-subtle/40 transition-colors">
+                  className="grid grid-cols-12 gap-3 px-6 py-3.5 items-center hover:bg-surface-subtle/40 transition-colors">
                   {/* Col 1: Rank */}
-                  <div className="col-span-1">
-                    {rank <= 3 ? (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-brand/10 text-brand font-bold text-xs font-mono">
-                        {rank}
+                  <div className="col-span-1 flex items-center justify-center">
+                    {rank === 1 ? (
+                      <span
+                        title="Peringkat 1 (Emas)"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 font-bold text-xs font-mono shadow-2xs gap-0.5">
+                        <Medal className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <span>1</span>
+                      </span>
+                    ) : rank === 2 ? (
+                      <span
+                        title="Peringkat 2 (Perak)"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-300/30 border border-slate-400/30 text-slate-700 dark:text-slate-300 font-bold text-xs font-mono shadow-2xs gap-0.5">
+                        <Medal className="w-3.5 h-3.5 shrink-0 text-slate-500 dark:text-slate-300" />
+                        <span>2</span>
+                      </span>
+                    ) : rank === 3 ? (
+                      <span
+                        title="Peringkat 3 (Perunggu)"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-700/15 border border-amber-700/30 text-amber-800 dark:text-amber-500 font-bold text-xs font-mono shadow-2xs gap-0.5">
+                        <Medal className="w-3.5 h-3.5 shrink-0 text-amber-700 dark:text-amber-500" />
+                        <span>3</span>
                       </span>
                     ) : (
-                      <span className="text-xs font-mono text-ink-muted pl-1.5">
+                      <span className="text-xs font-mono text-ink-muted">
                         {rank}
                       </span>
                     )}
                   </div>
 
                   {/* Col 2: Unit */}
-                  <div className="col-span-4 pr-2">
+                  <div className="col-span-4 pr-2 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-xs text-ink">{ev.unit.name}</span>
+                      <span className="font-semibold text-xs text-ink leading-snug">{ev.unit.name}</span>
                       <Badge variant={ev.isFinished ? 'success' : 'neutral'} size="sm">
                         {ev.isFinished ? 'Selesai' : 'Progres'}
                       </Badge>
@@ -235,7 +252,7 @@ export function HasilLeaderboardClient({
                     </span>
                   </div>
 
-                  {/* Col 4: Skor IPP Final */}
+                  {/* Col 4: Skor */}
                   <div className="col-span-2 text-right whitespace-nowrap">
                     <span className="font-bold text-sm text-ink tracking-tight font-mono">
                       {ev.finalPct.toFixed(1)}%
@@ -251,16 +268,16 @@ export function HasilLeaderboardClient({
                   </div>
 
                   {/* Col 5: Grade & Action */}
-                  <div className="col-span-3 text-right flex items-center justify-end gap-2.5 shrink-0">
+                  <div className="col-span-3 text-right flex items-center justify-end gap-2 shrink-0">
                     <Badge variant={cfg.badgeVariant} size="sm" className="whitespace-nowrap shrink-0">
-                      {grade} · {cfg.label}
+                      {grade} · {cfg.shortLabel}
                     </Badge>
                     <Link href={`/hasil/${ev.id}`} className="shrink-0">
                       <Button
                         type="button"
                         variant="secondary"
                         size="sm"
-                        className="whitespace-nowrap">
+                        className="whitespace-nowrap text-xs h-7 px-2.5">
                         Rapor
                       </Button>
                     </Link>

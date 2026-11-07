@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%" fill="none">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#FFFFFF" />
+
+  <!-- Grid Pattern (Subtle Architectural Lines) -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#F1F5F9" stroke-width="1" />
+    </pattern>
+    <linearGradient id="funnelGrad" x1="400" y1="210" x2="400" y2="350" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EEF4FD" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#DFEDF8" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="flowBeam" x1="400" y1="350" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1D5BB9" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.06" />
+    </filter>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#grid)" />
+
+  <!-- ── 1. TIGA SUMBER INPUT ATAS (TERFRAGMENTASI) ── -->
+
+  <!-- Stream 1: Ruang Evaluasi (Kiri) -->
+  <g transform="translate(140, 60)" filter="url(#shadow)">
+    <rect width="130" height="110" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" />
+    <!-- Header bar -->
+    <rect x="0" y="0" width="130" height="28" rx="12" fill="#F8FAFC" />
+    <path d="M0 16 h130 v12 H0 z" fill="#F8FAFC" />
+    <line x1="0" y1="28" x2="130" y2="28" stroke="#E2E8F0" stroke-width="1.5" />
+    <circle cx="16" cy="14" r="3.5" fill="#1D5BB9" />
+    <rect x="26" y="11" width="45" height="6" rx="3" fill="#94A3B8" />
+
+    <!-- Checklist items inside -->
+    <rect x="16" y="42" width="10" height="10" rx="2" fill="#EEF4FD" stroke="#1D5BB9" stroke-width="1.2" />
+    <path d="M19 47 l2 2 4 -4" stroke="#1D5BB9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="34" y="44" width="76" height="6" rx="3" fill="#CBD5E1" />
+
+    <rect x="16" y="62" width="10" height="10" rx="2" fill="#EEF4FD" stroke="#1D5BB9" stroke-width="1.2" />
+    <path d="M19 67 l2 2 4 -4" stroke="#1D5BB9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="34" y="64" width="60" height="6" rx="3" fill="#CBD5E1" />
+
+    <rect x="16" y="82" width="10" height="10" rx="2" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.2" />
+    <rect x="34" y="84" width="68" height="6" rx="3" fill="#E2E8F0" />
+  </g>
+
+  <!-- Stream 2: Ruang Informasi Eviden (Tengah) -->
+  <g transform="translate(335, 45)" filter="url(#shadow)">
+    <rect width="130" height="110" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" />
+    <rect x="0" y="0" width="130" height="28" rx="12" fill="#F8FAFC" />
+    <path d="M0 16 h130 v12 H0 z" fill="#F8FAFC" />
+    <line x1="0" y1="28" x2="130" y2="28" stroke="#E2E8F0" stroke-width="1.5" />
+    <circle cx="16" cy="14" r="3.5" fill="#0284C7" />
+    <rect x="26" y="11" width="55" height="6" rx="3" fill="#94A3B8" />
+
+    <!-- Document icon & badge inside -->
+    <rect x="16" y="42" width="98" height="14" rx="4" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1" />
+    <circle cx="25" cy="49" r="3" fill="#0284C7" />
+    <rect x="34" y="46" width="68" height="6" rx="3" fill="#0284C7" opacity="0.6" />
+
+    <rect x="16" y="64" width="98" height="14" rx="4" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+    <circle cx="25" cy="71" r="3" fill="#64748B" />
+    <rect x="34" y="68" width="50" height="6" rx="3" fill="#94A3B8" />
+
+    <rect x="16" y="85" width="40" height="14" rx="4" fill="#EEF4FD" stroke="#C7D2FE" stroke-width="1" />
+    <rect x="24" y="89" width="24" height="6" rx="3" fill="#1D5BB9" />
+  </g>
+
+  <!-- Stream 3: Ruang Penyimpanan / Cloud Drive (Kanan) -->
+  <g transform="translate(530, 60)" filter="url(#shadow)">
+    <rect width="130" height="110" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" />
+    <rect x="0" y="0" width="130" height="28" rx="12" fill="#F8FAFC" />
+    <path d="M0 16 h130 v12 H0 z" fill="#F8FAFC" />
+    <line x1="0" y1="28" x2="130" y2="28" stroke="#E2E8F0" stroke-width="1.5" />
+    <circle cx="16" cy="14" r="3.5" fill="#475569" />
+    <rect x="26" y="11" width="48" height="6" rx="3" fill="#94A3B8" />
+
+    <!-- Cloud & Folder inside -->
+    <path d="M 50 56 A 14 14 0 0 1 76 50 A 10 10 0 0 1 88 62 A 8 8 0 0 1 84 76 L 46 76 A 10 10 0 0 1 50 56 Z" 
+          fill="#EEF4FD" stroke="#1D5BB9" stroke-width="1.4" stroke-linejoin="round" />
+    <path d="M 56 68 l 9 -9 l 9 9 M 65 59 v 17" stroke="#1D5BB9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <rect x="26" y="86" width="78" height="8" rx="4" fill="#E2E8F0" />
+  </g>
+
+  <!-- ── 2. GARIS ALIRAN MENUJU CORONG (CONVERGING FLOW LINES) ── -->
+  <!-- Left stream line -->
+  <path d="M 205 170 C 205 200, 310 220, 350 240" fill="none" stroke="#1D5BB9" stroke-width="2" stroke-dasharray="4 4" opacity="0.8" />
+  <!-- Center stream line -->
+  <path d="M 400 155 L 400 230" fill="none" stroke="#0284C7" stroke-width="2" stroke-dasharray="4 4" opacity="0.8" />
+  <!-- Right stream line -->
+  <path d="M 595 170 C 595 200, 490 220, 450 240" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="4 4" opacity="0.8" />
+
+  <!-- ── 3. CORONG PEMERSATU (MINIMALIST CONVERGENCE FUNNEL) ── -->
+  <g filter="url(#shadow)">
+    <!-- Corong Atas Lebar -> Leher Bawah Sempit -->
+    <path d="M 250 225 L 550 225 L 450 330 L 450 365 L 350 365 L 350 330 Z" 
+          fill="url(#funnelGrad)" stroke="#1D5BB9" stroke-width="1.8" stroke-linejoin="round" />
+    
+    <!-- Garis struktur corong halus -->
+    <ellipse cx="400" cy="225" rx="150" ry="14" fill="#FFFFFF" stroke="#1D5BB9" stroke-width="1.5" />
+    <line x1="350" y1="330" x2="450" y2="330" stroke="#CBD5E1" stroke-width="1" />
+    <line x1="350" y1="365" x2="450" y2="365" stroke="#1D5BB9" stroke-width="1.5" />
+  </g>
+
+  <!-- Sinar/Beam dari corong ke layar -->
+  <path d="M 350 365 L 290 425 L 510 425 L 450 365 Z" fill="#EEF4FD" opacity="0.7" />
+  <line x1="400" y1="365" x2="400" y2="425" stroke="#1D5BB9" stroke-width="2.5" stroke-dasharray="4 3" />
+  <circle cx="400" cy="425" r="4" fill="#1D5BB9" />
+
+  <!-- ── 4. SATU LAYAR TERINTEGRASI (SINGLE UNIFIED DASHBOARD) ── -->
+  <g transform="translate(190, 420)" filter="url(#shadow)">
+    <!-- Monitor Stand / Base -->
+    <path d="M 175 140 L 245 140 L 255 155 L 165 155 Z" fill="#CBD5E1" />
+    <rect x="200" y="125" width="20" height="20" fill="#94A3B8" />
+
+    <!-- Main Screen Body -->
+    <rect width="420" height="130" rx="14" fill="#FFFFFF" stroke="#0F172A" stroke-width="2" />
+    
+    <!-- Browser Top Bar -->
+    <rect x="0" y="0" width="420" height="26" rx="14" fill="#0F172A" />
+    <path d="M0 14 h420 v12 H0 z" fill="#0F172A" />
+    <!-- Window dots -->
+    <circle cx="16" cy="13" r="3.5" fill="#EF4444" opacity="0.8" />
+    <circle cx="27" cy="13" r="3.5" fill="#F59E0B" opacity="0.8" />
+    <circle cx="38" cy="13" r="3.5" fill="#10B981" opacity="0.8" />
+    <!-- Address pill -->
+    <rect x="60" y="6" width="160" height="14" rx="7" fill="rgba(255,255,255,0.15)" />
+    <rect x="75" y="10" width="70" height="6" rx="3" fill="rgba(255,255,255,0.7)" />
+
+    <!-- Unified Dashboard Inside (3-in-1 Workspace) -->
+    <!-- Left Sidebar -->
+    <rect x="10" y="34" width="70" height="86" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+    <rect x="18" y="44" width="54" height="6" rx="3" fill="#1D5BB9" />
+    <rect x="18" y="56" width="42" height="5" rx="2.5" fill="#94A3B8" />
+    <rect x="18" y="67" width="48" height="5" rx="2.5" fill="#94A3B8" />
+    <rect x="18" y="78" width="38" height="5" rx="2.5" fill="#94A3B8" />
+
+    <!-- Center Main Panel: Evaluasi & Eviden -->
+    <rect x="88" y="34" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+    <rect x="98" y="44" width="100" height="8" rx="4" fill="#0F172A" />
+    <!-- Row 1 -->
+    <rect x="98" y="58" width="185" height="16" rx="4" fill="#EEF4FD" stroke="#BFDBFE" stroke-width="0.8" />
+    <circle cx="108" cy="66" r="3.5" fill="#1D5BB9" />
+    <rect x="118" y="63" width="90" height="6" rx="3" fill="#1D5BB9" />
+    <rect x="250" y="63" width="25" height="6" rx="3" fill="#10B981" />
+
+    <!-- Row 2 -->
+    <rect x="98" y="78" width="185" height="16" rx="4" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="0.8" />
+    <circle cx="108" cy="86" r="3.5" fill="#64748B" />
+    <rect x="118" y="83" width="80" height="6" rx="3" fill="#64748B" />
+    <rect x="250" y="83" width="25" height="6" rx="3" fill="#94A3B8" />
+
+    <!-- Row 3 progress bar -->
+    <rect x="98" y="100" width="185" height="8" rx="4" fill="#F1F5F9" />
+    <rect x="98" y="100" width="130" height="8" rx="4" fill="#1D5BB9" />
+
+    <!-- Right Panel: Arsip / Repository Cloud Storage -->
+    <rect x="301" y="34" width="109" height="86" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+    <rect x="311" y="44" width="60" height="7" rx="3.5" fill="#0F172A" />
+    <rect x="311" y="58" width="89" height="26" rx="5" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+    <path d="M 322 71 A 6 6 0 0 1 333 69 A 5 5 0 0 1 339 74 A 4 4 0 0 1 337 80 L 320 80 A 5 5 0 0 1 322 71 Z" fill="#EEF4FD" stroke="#1D5BB9" stroke-width="1" />
+    <rect x="345" y="68" width="45" height="5" rx="2.5" fill="#1D5BB9" />
+    <rect x="345" y="76" width="30" height="4" rx="2" fill="#94A3B8" />
+
+    <!-- Verified Badge Icon -->
+    <circle cx="395" cy="104" r="9" fill="#10B981" />
+    <path d="M 391 104 l 3 3 l 5 -5" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>

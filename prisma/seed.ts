@@ -1,4 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -13,13 +14,16 @@ async function main() {
   })
   console.log('✅ Evaluation Period 2026 seeded.')
 
-  // 0.1 Seed Super Admin & OPD Profiles
+  // 0.1 Seed Super Admin & OPD Profiles (Bcrypt Hashed)
+  const adminPasswordHash = await bcrypt.hash('admin123', 10)
+  const opdPasswordHash = await bcrypt.hash('opd123', 10)
+
   await prisma.profile.upsert({
     where: { email: 'admin@kubar.go.id' },
-    update: { fullName: 'Super Admin Bagian Organisasi', role: Role.SUPER_ADMIN, password: 'admin123' },
+    update: { fullName: 'Super Admin Bagian Organisasi', role: Role.SUPER_ADMIN, password: adminPasswordHash },
     create: {
       email: 'admin@kubar.go.id',
-      password: 'admin123',
+      password: adminPasswordHash,
       fullName: 'Super Admin Bagian Organisasi',
       role: Role.SUPER_ADMIN
     }
@@ -27,15 +31,15 @@ async function main() {
 
   await prisma.profile.upsert({
     where: { email: 'opd@kubar.go.id' },
-    update: { fullName: 'Admin Unit Pelayanan (OPD)', role: Role.OPD, password: 'opd123' },
+    update: { fullName: 'Admin Unit Pelayanan (OPD)', role: Role.OPD, password: opdPasswordHash },
     create: {
       email: 'opd@kubar.go.id',
-      password: 'opd123',
+      password: opdPasswordHash,
       fullName: 'Admin Unit Pelayanan (OPD)',
       role: Role.OPD
     }
   })
-  console.log('✅ Auth Profiles (Super Admin & OPD) seeded.')
+  console.log('✅ Auth Profiles (Super Admin & OPD) seeded with bcrypt hash.')
 
   // 1. Seed Categories
   const categories = [

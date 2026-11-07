@@ -55,12 +55,12 @@ export default function PanduanPage() {
       title: 'Kebijakan Berkas Berkelanjutan (Living Document)',
       items: [
         {
-          role: 'Tersambung Otomatis Antar-Tahun',
-          desc: 'Sistem PEKPPP.ext menerapkan prinsip Living Document. Dokumen permanen yang belum mengalami perubahan regulasi (seperti SK Standar Pelayanan yang masih berlaku) otomatis tersambung ke periode evaluasi tahun berikutnya.'
+          role: 'Tersambung Otomatis sebagai Fallback',
+          desc: 'Sistem PEKPPP.ext menerapkan prinsip Living Document sebagai fallback cadangan agar lokus tidak memulai dari nol jika regulasi dokumen permanen belum berubah.'
         },
         {
-          role: 'Hanya Mutakhirkan Berkas yang Berubah',
-          desc: 'Perangkat daerah tidak perlu mengunggah ulang dokumen dari nol. Cukup lakukan pemutakhiran pada indikator yang memiliki perubahan data, seperti Laporan SKM Tahunan terbaru, rekap penanganan aduan SP4N-LAPOR!, atau pembaruan sertifikasi SDM.'
+          role: 'Prioritas Pemutakhiran Berkas Dinamis',
+          desc: 'Untuk dokumen eviden yang sifatnya dinamis dan terus berkembang (seperti sarana prasarana/fasilitas, Standar Pelayanan, laporan Forum Konsultasi Publik/FKP, dan tindak lanjut laporan pengaduan), sangat disarankan untuk dimutakhirkan agar penilaian mencerminkan kondisi eksisting terkini dan memperoleh capaian nilai maksimal.'
         }
       ]
     },
@@ -143,17 +143,22 @@ export default function PanduanPage() {
       </div>
 
       {/* ── Quick Footer Links ── */}
-      <div className="p-6 rounded-2xl bg-surface-subtle border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <h4 className="text-sm font-semibold text-ink">Wiki Indikator &amp; Glosarium</h4>
-          <p className="text-xs text-ink-secondary">Pelajari definisi teknis, dasar penilaian, dan penjelasan 31 indikator kinerja PEKPPP.</p>
+      <div className="p-5 sm:p-6 rounded-xl bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="text-[11px] font-semibold text-brand uppercase tracking-wider">Akses Terkait</div>
+          <h4 className="text-sm font-semibold text-ink">Wiki 6 Aspek Indikator &amp; Glosarium</h4>
+          <p className="text-xs text-ink-secondary">
+            Pelajari definisi teknis, dasar penilaian, dan penjelasan 6 aspek indikator utama dengan 31 pertanyaan evaluasi PEKPPP.
+          </p>
         </div>
-        <Link
-          href="/wiki"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-all shrink-0 self-start sm:self-auto shadow-2xs">
-          <span>Buka Wiki Indikator</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+          <Link
+            href="/wiki"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-colors">
+            <span>Buka Wiki Indikator</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
     </div>
   )
