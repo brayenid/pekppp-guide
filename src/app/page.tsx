@@ -386,7 +386,7 @@ export default async function HomePage() {
                 </p>
                 <div className="space-y-2.5 text-xs sm:text-sm text-ink/90 leading-relaxed pt-1">
                   <p>
-                    Website ini hadir sebagai solusi atas <strong>terfragmentasinya proses</strong> pada tahun-tahun sebelumnya—di mana ruang pengisian evaluasi mandiri, informasi pemenuhan bukti dukung, dan repositori berkas terpisah di berbagai dokumen serta tautan penyimpanan <em>cloud</em>. Sistem ini <strong>menyatukan seluruh alur tersebut ke dalam satu ekosistem terpadu</strong>.
+                    Website ini hadir sebagai solusi atas <strong>terfragmentasinya proses</strong> pada tahun-tahun sebelumnya, di mana ruang pengisian evaluasi mandiri, informasi pemenuhan bukti dukung, dan repositori berkas terpisah di berbagai dokumen serta tautan penyimpanan <em>cloud</em>. Sistem ini <strong>menyatukan seluruh alur tersebut ke dalam satu ekosistem terpadu</strong>.
                   </p>
                   <p className="text-ink-secondary">
                     Platform ini berfungsi sebagai ruang pra-evaluasi internal daerah, bukan pengganti portal kementerian (<em>evaluasi.menpan.go.id</em>). Unit lokus dapat melakukan telaah mandiri, menyiapkan dokumen berkelanjutan (<em>Living Document</em>), serta memperoleh asistensi dini dari Tim Bagian Organisasi Setdakab agar bukti dukung matang sebelum batas sinkronisasi kementerian.
