@@ -1,10 +1,103 @@
 'use server'
 
 import { getMenpanApiConfig, saveMenpanApiConfig, MenpanApiConfig } from '../services/system-setting-service'
-import { MenpanApiService } from '../services/menpan-api-service'
+import {
+  MenpanApiService,
+  MenpanEvaluationItem,
+  MenpanFormBindingInfo,
+  PekpppFormCode,
+  PEKPPP_FORM_CODES,
+  normalizePekpppFormCode
+} from '../services/menpan-api-service'
 import { validateEvaluationForSync } from '../services/sync-validator-service'
 import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
+
+export interface RemoteFormEntry {
+  formCode: PekpppFormCode
+  uuid: string
+  formSheetId?: number
+  formSheetName: string
+  remoteStatus?: string
+  progressPercentage?: number
+}
+
+export interface GroupedRemoteLokus {
+  remoteKey: string
+  primaryUuid: string
+  remoteName: string
+  remoteYear: number
+  remoteStatus: string
+  isPriority: boolean
+  formSheetName: string
+  forms: Partial<Record<PekpppFormCode, RemoteFormEntry>>
+  formsList: RemoteFormEntry[]
+}
+
+/**
+ * Mengelompokkan daftar evaluasi MenPAN-RB (F01, F02, F03) berdasarkan nama lokus
+ * sehingga 1 lokus (misal "KECAMATAN BARONG TONGKOK") menjadi 1 paket utuh berisi 3 UUID (F01, F02, F03).
+ */
+function groupRemoteEvaluationsByLokus(items: MenpanEvaluationItem[]): GroupedRemoteLokus[] {
+  const map = new Map<string, GroupedRemoteLokus>()
+
+  for (const item of items) {
+    const formCode = normalizePekpppFormCode(item.form_sheet?.name, item.form_sheet?.id)
+    if (!formCode) continue // Eksklusi form non-PEKPPP (seperti Kelompok Rentan)
+
+    const cleanName = (item.name || '').trim()
+    const normKey = cleanName.toUpperCase().replace(/\s+/g, ' ')
+
+    if (!map.has(normKey)) {
+      map.set(normKey, {
+        remoteKey: normKey,
+        primaryUuid: item.uuid,
+        remoteName: cleanName,
+        remoteYear: Number(item.year) || new Date().getFullYear(),
+        remoteStatus: item.status || 'Belum Diisi',
+        isPriority: Boolean(item.is_priority),
+        formSheetName: formCode,
+        forms: {},
+        formsList: []
+      })
+    }
+
+    const group = map.get(normKey)!
+    if (item.is_priority) group.isPriority = true
+    if (item.status && item.status !== 'Belum Diisi') {
+      group.remoteStatus = item.status
+    }
+
+    group.forms[formCode] = {
+      formCode,
+      uuid: item.uuid,
+      formSheetId: item.form_sheet?.id,
+      formSheetName: item.form_sheet?.name || formCode,
+      remoteStatus: item.status,
+      progressPercentage: item.progress_percentage
+    }
+  }
+
+  const result: GroupedRemoteLokus[] = []
+  for (const group of map.values()) {
+    const ordered: RemoteFormEntry[] = []
+    for (const code of PEKPPP_FORM_CODES) {
+      if (group.forms[code]) {
+        ordered.push(group.forms[code]!)
+      }
+    }
+    group.formsList = ordered
+    group.primaryUuid =
+      group.forms.F02?.uuid ||
+      group.forms.F01?.uuid ||
+      group.forms.F03?.uuid ||
+      group.primaryUuid
+    group.formSheetName = ordered.map((f) => f.formCode).join(' · ')
+    result.push(group)
+  }
+
+  return result
+}
 
 export async function getMenpanApiConfigAction() {
   return getMenpanApiConfig()
@@ -58,7 +151,7 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     return { success: false, message: 'Evaluasi lokal tidak ditemukan.' }
   }
 
-  // 2. Ambil daftar remote evaluations dari MenPAN
+  // 2. Ambil daftar remote evaluations PEKPPP (F01, F02, F03) dari MenPAN
   const remoteRes = await MenpanApiService.getRemoteEvaluations(localEval.year)
   if (!remoteRes.success || !remoteRes.data) {
     return {
@@ -67,27 +160,62 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     }
   }
 
-  // Cari remote evaluation yang cocok berdasarkan menpanEvaluationId atau kemiripan nama unit
-  const matchedRemote = localEval.menpanEvaluationId
-    ? remoteRes.data.find((r) => r.uuid === localEval.menpanEvaluationId)
-    : remoteRes.data.find((r) => {
-        const localName = localEval.unit.name.toLowerCase().trim()
-        const remoteName = r.name.toLowerCase().trim()
-        return (
-          localName === remoteName ||
-          localName.includes(remoteName) ||
-          remoteName.includes(localName)
-        )
-      })
+  const groupedRemotes = groupRemoteEvaluationsByLokus(remoteRes.data)
+  const syncLogs = (localEval.syncLogs as any) || {}
+  const storedForms = (syncLogs.forms || {}) as Partial<
+    Record<PekpppFormCode, MenpanFormBindingInfo>
+  >
 
-  // Hitung perbedaan status & kelengkapan lokal
+  // Kumpulkan semua UUID yang saat ini terikat pada evaluasi lokal ini
+  const localBoundUuids = new Set<string>()
+  if (localEval.menpanEvaluationId) localBoundUuids.add(localEval.menpanEvaluationId)
+  for (const code of PEKPPP_FORM_CODES) {
+    if (storedForms[code]?.uuid) localBoundUuids.add(storedForms[code]!.uuid)
+  }
+
+  // Cari paket lokus remote yang cocok berdasarkan UUID terikat atau kemiripan nama unit
+  const matchedGroup =
+    localBoundUuids.size > 0
+      ? groupedRemotes.find((g) => g.formsList.some((f) => localBoundUuids.has(f.uuid)))
+      : groupedRemotes.find((g) => {
+          const localName = localEval.unit.name.toLowerCase().trim()
+          const remoteName = g.remoteName.toLowerCase().trim()
+          return (
+            localName === remoteName ||
+            localName.includes(remoteName) ||
+            remoteName.includes(localName)
+          )
+        })
+
   const localFilledCount = localEval.scores.filter(
     (s) => s.score !== null || s.f01Submitted
   ).length
 
-  const syncLogs = localEval.syncLogs as any
-  const isQuestionsMapped = Boolean(syncLogs?.questionMap && syncLogs.questionMap.length > 0)
-  const questionsCount = syncLogs?.questionsCount || syncLogs?.questionMap?.length || 0
+  const boundFormsSummary = PEKPPP_FORM_CODES.map((code) => {
+    const stored = storedForms[code]
+    const matchedForm = matchedGroup?.forms[code]
+    return {
+      formCode: code,
+      uuid: stored?.uuid || matchedForm?.uuid || null,
+      isBound: Boolean(stored?.uuid || (matchedForm && localBoundUuids.has(matchedForm.uuid))),
+      questionsCount:
+        stored?.questionsCount ||
+        stored?.questionMap?.length ||
+        (code === 'F01' ? 90 : code === 'F02' ? 31 : 14),
+      isQuestionsMapped: Boolean(stored?.questionMap && stored.questionMap.length > 0),
+      syncStatus: stored?.syncStatus || 'IDLE',
+      syncedAt: stored?.syncedAt || null
+    }
+  })
+
+  const isQuestionsMapped =
+    boundFormsSummary.some((f) => f.isQuestionsMapped) ||
+    Boolean(syncLogs?.questionMap && syncLogs.questionMap.length > 0)
+  const questionsCount =
+    boundFormsSummary.find((f) => f.formCode === 'F02')?.questionsCount ||
+    syncLogs?.questionsCount ||
+    syncLogs?.questionMap?.length ||
+    31
 
   const localEvalInfo = {
     id: localEval.id,
@@ -99,37 +227,75 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     filledCount: localFilledCount,
     totalIndicators: 31,
     menpanEvaluationId: localEval.menpanEvaluationId,
+    menpanFormSheetName: localEval.menpanFormSheetName,
     isQuestionsMapped,
-    questionsCount
+    questionsCount,
+    boundForms: boundFormsSummary
   }
 
-  if (!matchedRemote) {
+  // Bentuk daftar pilihan lokus terkelompok untuk dropdown (95 lokus, bukan 380 baris duplikat)
+  const availableRemotes = groupedRemotes.map((g) => ({
+    uuid: g.primaryUuid,
+    name: g.remoteName,
+    year: g.remoteYear,
+    status: g.remoteStatus,
+    is_priority: g.isPriority,
+    form_sheet: {
+      id: 2,
+      name: g.formSheetName
+    },
+    forms: g.formsList
+  }))
+
+  if (!matchedGroup) {
     return {
       success: true,
       hasMatchedRemote: false,
-      availableRemotes: remoteRes.data || [],
+      availableRemotes,
       localEval: localEvalInfo,
       isConfigured,
       localName: localEval.unit.name,
-      message: 'Belum ditemukan pasangan evaluasi di portal MenPAN-RB. Silakan pilih secara manual.'
+      message:
+        'Belum ditemukan pasangan evaluasi di portal MenPAN-RB. Silakan pilih secara manual.'
     }
   }
 
-  // 3. Ambil remote answers untuk mendeteksi perbedaan (konflik)
-  const answersRes = await MenpanApiService.getRemoteAnswers(matchedRemote.uuid)
+  // Ambil detail dan jawaban untuk form utama (F02 atau primaryUuid)
+  const targetCheckUuid = matchedGroup.forms.F02?.uuid || matchedGroup.primaryUuid
+  const [detailRes, answersRes] = await Promise.all([
+    MenpanApiService.getRemoteEvaluationDetail(targetCheckUuid),
+    MenpanApiService.getRemoteAnswers(targetCheckUuid)
+  ])
+
+  const remoteDetail = detailRes.data
   const remoteAnswers = answersRes.data || []
+  const effectiveStatus = remoteDetail?.status || matchedGroup.remoteStatus || 'Belum Diisi'
+
+  const matchedRemote = {
+    uuid: matchedGroup.primaryUuid,
+    name: matchedGroup.remoteName,
+    year: matchedGroup.remoteYear,
+    status: effectiveStatus,
+    is_priority: matchedGroup.isPriority,
+    progress_percentage: remoteDetail?.progress_percentage,
+    form_sheet: {
+      id: 2,
+      name: matchedGroup.formSheetName
+    },
+    forms: matchedGroup.formsList
+  }
 
   return {
     success: true,
     hasMatchedRemote: true,
     matchedRemote,
-    availableRemotes: remoteRes.data || [],
+    availableRemotes,
     localEval: localEvalInfo,
     isConfigured,
     remoteAnswersCount: remoteAnswers.length,
     hasConflict: Boolean(
       remoteAnswers.length > 0 &&
-      (matchedRemote.status === 'Selesai' || matchedRemote.status === 'Sedang Diisi')
+        (effectiveStatus === 'Selesai' || effectiveStatus === 'Sedang Diisi')
     )
   }
 }
@@ -148,20 +314,41 @@ export async function linkEvaluationToMenpanAction(
       }
     }
 
-    // Tarik struktur pertanyaan resmi dari MenPAN saat menautkan UUID
-    const questionsRes = await MenpanApiService.getRemoteQuestions(menpanUuid)
-    const questions = questionsRes.data || []
-
-    await db.evaluation.update({
+    const localEval = await db.evaluation.findUnique({
       where: { id: evaluationId },
-      data: {
-        menpanEvaluationId: menpanUuid,
-        syncLogs: {
-          action: 'MANUAL_LINK_UUID',
-          linkedAt: new Date().toISOString(),
-          uuid: menpanUuid,
-          questionsCount: questions.length,
-          questionMap: questions.map((q) => ({
+      include: { unit: true }
+    })
+    if (!localEval) {
+      return { success: false, message: 'Evaluasi lokal tidak ditemukan.' }
+    }
+
+    // Cari seluruh form PEKPPP (F01, F02, F03) milik lokus remote yang dipilih
+    const remoteRes = await MenpanApiService.getRemoteEvaluations(localEval.year)
+    const grouped = remoteRes.data ? groupRemoteEvaluationsByLokus(remoteRes.data) : []
+    const matchedGroup = grouped.find(
+      (g) =>
+        g.primaryUuid === menpanUuid ||
+        g.formsList.some((f) => f.uuid === menpanUuid)
+    )
+
+    const existingLogs = ((localEval.syncLogs as any) || {}) as Record<string, any>
+    const formsMap: Partial<Record<PekpppFormCode, MenpanFormBindingInfo>> = {}
+    let totalQuestionsMapped = 0
+
+    if (matchedGroup) {
+      for (const formEntry of matchedGroup.formsList) {
+        const qRes = await MenpanApiService.getRemoteQuestions(formEntry.uuid)
+        const qList = qRes.data || []
+        totalQuestionsMapped += qList.length
+
+        formsMap[formEntry.formCode] = {
+          formCode: formEntry.formCode,
+          uuid: formEntry.uuid,
+          remoteName: matchedGroup.remoteName,
+          formSheetId: formEntry.formSheetId,
+          formSheetName: formEntry.formSheetName,
+          questionsCount: qList.length,
+          questionMap: qList.map((q) => ({
             id: q.id,
             index: q.index,
             name: q.name,
@@ -169,18 +356,61 @@ export async function linkEvaluationToMenpanAction(
             is_required: q.is_required,
             option_type: q.option_type,
             options: q.options
-          }))
+          })),
+          syncStatus: existingLogs?.forms?.[formEntry.formCode]?.syncStatus || 'IDLE',
+          syncedAt: existingLogs?.forms?.[formEntry.formCode]?.syncedAt || null
+        }
+      }
+    } else {
+      const questionsRes = await MenpanApiService.getRemoteQuestions(menpanUuid)
+      const qList = questionsRes.data || []
+      totalQuestionsMapped = qList.length
+      formsMap.F02 = {
+        formCode: 'F02',
+        uuid: menpanUuid,
+        remoteName: localEval.unit.name,
+        formSheetName: 'F02',
+        questionsCount: qList.length,
+        questionMap: qList,
+        syncStatus: 'IDLE'
+      }
+    }
+
+    const primaryBinding = formsMap.F02 || formsMap.F01 || formsMap.F03
+    const primaryUuid = primaryBinding?.uuid || menpanUuid
+    const remoteName = matchedGroup?.remoteName || localEval.menpanEvaluationName || localEval.unit.name
+    const joinedFormNames = matchedGroup?.formSheetName || 'F01 · F02 · F03'
+
+    await db.evaluation.update({
+      where: { id: evaluationId },
+      data: {
+        menpanEvaluationId: primaryUuid,
+        menpanEvaluationName: remoteName,
+        menpanFormSheetName: joinedFormNames,
+        isPriority: matchedGroup ? matchedGroup.isPriority : localEval.isPriority,
+        syncLogs: {
+          ...existingLogs,
+          action: 'MANUAL_LINK_UUID',
+          linkedAt: new Date().toISOString(),
+          uuid: primaryUuid,
+          remoteName,
+          formSheetName: joinedFormNames,
+          questionsCount: primaryBinding?.questionsCount || 31,
+          questionMap: primaryBinding?.questionMap || [],
+          forms: formsMap
         }
       }
     })
+
     revalidatePath('/admin/peserta')
+    revalidatePath('/admin/lokus')
+    revalidatePath(`/admin/periode/${localEval.year}`)
+
+    const boundCodes = Object.keys(formsMap).join(', ')
     return {
       success: true,
-      questionsCount: questions.length,
-      message:
-        questions.length > 0
-          ? `Lokus berhasil ditautkan! ${questions.length} butir pertanyaan resmi MenPAN-RB berhasil dipetakan.`
-          : 'Lokus berhasil ditautkan dengan UUID MenPAN-RB.'
+      questionsCount: totalQuestionsMapped,
+      message: `Lokus berhasil ditautkan untuk form [${boundCodes}] (${totalQuestionsMapped} total butir pertanyaan resmi MenPAN-RB berhasil dipetakan).`
     }
   } catch (err: any) {
     return { success: false, message: err.message || 'Gagal menautkan lokus.' }
@@ -189,7 +419,7 @@ export async function linkEvaluationToMenpanAction(
 
 export async function syncAllLokusFromMenpanAction(year: number) {
   try {
-    // 1. Ambil daftar remote evaluations resmi dari MenPAN
+    // 1. Ambil seluruh halaman remote evaluations PEKPPP (F01, F02, F03) dari MenPAN
     const remoteRes = await MenpanApiService.getRemoteEvaluations(year)
     if (!remoteRes.success || !remoteRes.data) {
       return {
@@ -197,6 +427,8 @@ export async function syncAllLokusFromMenpanAction(year: number) {
         message: remoteRes.message || 'Gagal mengambil data lokus dari server MenPAN-RB.'
       }
     }
+
+    const groupedRemotes = groupRemoteEvaluationsByLokus(remoteRes.data)
 
     // 2. Ambil seluruh evaluasi lokal di tahun yang sama
     const localEvals = await db.evaluation.findMany({
@@ -212,12 +444,12 @@ export async function syncAllLokusFromMenpanAction(year: number) {
     }
 
     let matchedCount = 0
-    const questionsCache = new Map<number, any[]>() // Cache pertanyaan per form_sheet.id
+    const questionsCache = new Map<PekpppFormCode, any[]>()
 
     for (const localEval of localEvals) {
       const localName = localEval.unit.name.toLowerCase().trim()
-      const matchedRemote = remoteRes.data.find((r) => {
-        const remoteName = r.name.toLowerCase().trim()
+      const matchedGroup = groupedRemotes.find((g) => {
+        const remoteName = g.remoteName.toLowerCase().trim()
         return (
           localName === remoteName ||
           localName.includes(remoteName) ||
@@ -225,32 +457,18 @@ export async function syncAllLokusFromMenpanAction(year: number) {
         )
       })
 
-      if (matchedRemote) {
-        let qList: any[] = []
-        const fsId = matchedRemote.form_sheet?.id || 1
+      if (matchedGroup) {
+        const existingLogs = ((localEval.syncLogs as any) || {}) as Record<string, any>
+        const formsMap: Partial<Record<PekpppFormCode, MenpanFormBindingInfo>> = {}
 
-        if (questionsCache.has(fsId)) {
-          qList = questionsCache.get(fsId)!
-        } else {
-          const qRes = await MenpanApiService.getRemoteQuestions(matchedRemote.uuid)
-          if (qRes.success && qRes.data) {
-            qList = qRes.data
-            questionsCache.set(fsId, qList)
-          }
-        }
-
-        await db.evaluation.update({
-          where: { id: localEval.id },
-          data: {
-            menpanEvaluationId: matchedRemote.uuid,
-            isPriority: Boolean(matchedRemote.is_priority),
-            syncLogs: {
-              action: 'AUTO_BATCH_LINK',
-              linkedAt: new Date().toISOString(),
-              uuid: matchedRemote.uuid,
-              formSheet: matchedRemote.form_sheet,
-              questionsCount: qList.length,
-              questionMap: qList.map((q) => ({
+        for (const formEntry of matchedGroup.formsList) {
+          let qList: any[] = []
+          if (questionsCache.has(formEntry.formCode)) {
+            qList = questionsCache.get(formEntry.formCode)!
+          } else {
+            const qRes = await MenpanApiService.getRemoteQuestions(formEntry.uuid)
+            if (qRes.success && qRes.data) {
+              qList = qRes.data.map((q) => ({
                 id: q.id,
                 index: q.index,
                 name: q.name,
@@ -259,6 +477,42 @@ export async function syncAllLokusFromMenpanAction(year: number) {
                 option_type: q.option_type,
                 options: q.options
               }))
+              questionsCache.set(formEntry.formCode, qList)
+            }
+          }
+
+          formsMap[formEntry.formCode] = {
+            formCode: formEntry.formCode,
+            uuid: formEntry.uuid,
+            remoteName: matchedGroup.remoteName,
+            formSheetId: formEntry.formSheetId,
+            formSheetName: formEntry.formSheetName,
+            questionsCount: qList.length,
+            questionMap: qList,
+            syncStatus: existingLogs?.forms?.[formEntry.formCode]?.syncStatus || 'IDLE',
+            syncedAt: existingLogs?.forms?.[formEntry.formCode]?.syncedAt || null
+          }
+        }
+
+        const primaryBinding = formsMap.F02 || formsMap.F01 || formsMap.F03
+
+        await db.evaluation.update({
+          where: { id: localEval.id },
+          data: {
+            menpanEvaluationId: primaryBinding?.uuid || matchedGroup.primaryUuid,
+            menpanEvaluationName: matchedGroup.remoteName,
+            menpanFormSheetName: matchedGroup.formSheetName,
+            isPriority: Boolean(matchedGroup.isPriority),
+            syncLogs: {
+              ...existingLogs,
+              action: 'AUTO_BATCH_LINK',
+              linkedAt: new Date().toISOString(),
+              uuid: primaryBinding?.uuid || matchedGroup.primaryUuid,
+              remoteName: matchedGroup.remoteName,
+              formSheetName: matchedGroup.formSheetName,
+              questionsCount: primaryBinding?.questionsCount || 31,
+              questionMap: primaryBinding?.questionMap || [],
+              forms: formsMap
             }
           }
         })
@@ -267,11 +521,14 @@ export async function syncAllLokusFromMenpanAction(year: number) {
     }
 
     revalidatePath('/admin/peserta')
+    revalidatePath('/admin/lokus')
+    revalidatePath(`/admin/periode/${year}`)
+
     return {
       success: true,
       matchedCount,
-      totalRemote: remoteRes.data.length,
-      message: `Berhasil menautkan otomatis ${matchedCount} dari ${localEvals.length} unit dengan lokus resmi MenPAN-RB!`
+      totalRemote: groupedRemotes.length,
+      message: `Berhasil menautkan otomatis ${matchedCount} dari ${localEvals.length} unit dengan paket lokus PEKPPP (F01, F02, F03) MenPAN-RB!`
     }
   } catch (err: any) {
     return {
@@ -281,18 +538,40 @@ export async function syncAllLokusFromMenpanAction(year: number) {
   }
 }
 
-export async function pushEvaluationSyncAction(evaluationId: string) {
-  // 1. First run validation
+export async function pushEvaluationSyncAction(
+  evaluationId: string,
+  targetForm: PekpppFormCode | 'ALL' = 'ALL'
+) {
+  // 1. Jalankan validasi kelengkapan sesuai target form yang akan dikirim
   const validation = await validateEvaluationForSync(evaluationId)
-  if (!validation.isEligible) {
+
+  if (targetForm === 'F01' && !validation.f01Complete) {
+    return {
+      success: false,
+      message: `Validasi F-01 gagal: F-01 Mandiri OPD belum lengkap (${validation.f01FilledCount}/31 indikator terisi).`
+    }
+  }
+  if (targetForm === 'F02' && !validation.f02Complete) {
+    return {
+      success: false,
+      message: `Validasi F-02 gagal: F-02 Penilaian Evaluator belum lengkap (${validation.f02FilledCount}/31 indikator dinilai).`
+    }
+  }
+  if (targetForm === 'F03' && !validation.f03Complete) {
+    return {
+      success: false,
+      message: `Validasi F-03 gagal: Kuota responden survei belum terpenuhi (${validation.f03FilledCount}/${validation.targetQuota} responden).`
+    }
+  }
+  if (targetForm === 'ALL' && !validation.isEligible) {
     return {
       success: false,
       message: `Validasi gagal: ${validation.errors.join(' ')}`
     }
   }
 
-  // 2. Perform push
-  const result = await MenpanApiService.pushEvaluation(evaluationId)
+  // 2. Eksekusi push ke MenPAN-RB
+  const result = await MenpanApiService.pushEvaluation(evaluationId, targetForm)
   revalidatePath('/admin/peserta')
   revalidatePath(`/evaluasi/${evaluationId}`)
   return result
@@ -305,6 +584,8 @@ export interface ReconciliationRowItem {
   remoteStatus: string
   isPriority: boolean
   formSheetName?: string
+  forms?: RemoteFormEntry[]
+  boundFormsCount?: number
   progressPercentage?: number
   status: 'ALREADY_BOUND' | 'EXACT_MATCH' | 'SUGGESTED_MATCH' | 'UNMATCHED'
   matchScore: number
@@ -321,6 +602,7 @@ export interface BulkReconciliationEntry {
   remoteUuid: string
   remoteName: string
   formSheetName?: string
+  forms?: RemoteFormEntry[]
   isPriority?: boolean
   unitId: string // UUID lokus lokal, 'CREATE_NEW', atau 'SKIP'
   newUnitName?: string
@@ -389,7 +671,7 @@ export async function getMenpanReconciliationDataAction(year: number) {
       }
     })
 
-    // 3. Ambil daftar lokus resmi dari MenPAN untuk tahun ini
+    // 3. Ambil seluruh halaman daftar evaluasi PEKPPP (F01, F02, F03) dari MenPAN untuk tahun ini
     const remoteRes = await MenpanApiService.getRemoteEvaluations(year)
     if (!remoteRes.success || !remoteRes.data) {
       return {
@@ -401,48 +683,67 @@ export async function getMenpanReconciliationDataAction(year: number) {
       }
     }
 
-    const remoteList = remoteRes.data
+    // 4. Kelompokkan 285 baris evaluasi menjadi 95 baris unik per Lokus (F01 + F02 + F03)
+    const groupedLokusList = groupRemoteEvaluationsByLokus(remoteRes.data)
     const rows: ReconciliationRowItem[] = []
 
-    // Map evaluasi lokal berdasarkan menpanEvaluationId & unitId
+    // Peta evaluasi lokal berdasarkan seluruh UUID yang terikat (baik menpanEvaluationId maupun syncLogs.forms)
     const boundByUuid = new Map<string, (typeof localEvals)[0]>()
     localEvals.forEach((ev) => {
       if (ev.menpanEvaluationId) {
         boundByUuid.set(ev.menpanEvaluationId, ev)
       }
+      const logs = (ev.syncLogs as any) || {}
+      const forms = logs.forms || {}
+      for (const code of PEKPPP_FORM_CODES) {
+        if (forms[code]?.uuid) {
+          boundByUuid.set(forms[code].uuid, ev)
+        }
+      }
     })
 
-    for (const remote of remoteList) {
-      const alreadyBound = boundByUuid.get(remote.uuid)
+    for (const group of groupedLokusList) {
+      const matchedEval = group.formsList
+        .map((f) => boundByUuid.get(f.uuid))
+        .find((ev) => Boolean(ev))
 
-      if (alreadyBound) {
+      if (matchedEval) {
+        const logs = (matchedEval.syncLogs as any) || {}
+        const storedForms = logs.forms || {}
+        const boundCount = group.formsList.filter(
+          (f) =>
+            storedForms[f.formCode]?.uuid === f.uuid ||
+            matchedEval.menpanEvaluationId === f.uuid
+        ).length
+
         rows.push({
-          remoteUuid: remote.uuid,
-          remoteName: remote.name,
-          remoteYear: remote.year,
-          remoteStatus: remote.status,
-          isPriority: Boolean(remote.is_priority),
-          formSheetName: remote.form_sheet?.name,
-          progressPercentage: remote.progress_percentage,
+          remoteUuid: group.primaryUuid,
+          remoteName: group.remoteName,
+          remoteYear: group.remoteYear,
+          remoteStatus: group.remoteStatus,
+          isPriority: group.isPriority,
+          formSheetName: group.formSheetName,
+          forms: group.formsList,
+          boundFormsCount: boundCount,
           status: 'ALREADY_BOUND',
           matchScore: 100,
-          evaluationId: alreadyBound.id,
-          unitId: alreadyBound.unitId,
-          unitName: alreadyBound.unit.name,
-          unitCategoryName: alreadyBound.unit.category?.name,
+          evaluationId: matchedEval.id,
+          unitId: matchedEval.unitId,
+          unitName: matchedEval.unit.name,
+          unitCategoryName: matchedEval.unit.category?.name,
           isEnrolled: true,
-          suggestedUnitId: alreadyBound.unitId,
-          suggestedUnitName: alreadyBound.unit.name
+          suggestedUnitId: matchedEval.unitId,
+          suggestedUnitName: matchedEval.unit.name
         })
         continue
       }
 
-      // Jika belum terikat secara pasti lewat UUID, cari kemiripan terbaik dengan Master Lokus
+      // Jika belum terikat lewat UUID, cari kemiripan terbaik dengan Master Lokus
       let bestUnit: (typeof allUnits)[0] | null = null
       let bestScore = 0
 
       for (const unit of allUnits) {
-        const score = computeSimilarityScore(remote.name, unit.name)
+        const score = computeSimilarityScore(group.remoteName, unit.name)
         if (score > bestScore) {
           bestScore = score
           bestUnit = unit
@@ -458,13 +759,14 @@ export async function getMenpanReconciliationDataAction(year: number) {
         : null
 
       rows.push({
-        remoteUuid: remote.uuid,
-        remoteName: remote.name,
-        remoteYear: remote.year,
-        remoteStatus: remote.status,
-        isPriority: Boolean(remote.is_priority),
-        formSheetName: remote.form_sheet?.name,
-        progressPercentage: remote.progress_percentage,
+        remoteUuid: group.primaryUuid,
+        remoteName: group.remoteName,
+        remoteYear: group.remoteYear,
+        remoteStatus: group.remoteStatus,
+        isPriority: group.isPriority,
+        formSheetName: group.formSheetName,
+        forms: group.formsList,
+        boundFormsCount: 0,
         status: isExact ? 'EXACT_MATCH' : isSuggested ? 'SUGGESTED_MATCH' : 'UNMATCHED',
         matchScore: matchScorePct,
         evaluationId: enrolledEval?.id || null,
@@ -521,13 +823,21 @@ export async function saveMenpanBulkReconciliationAction(data: {
 
     let linkedCount = 0
     let createdUnitsCount = 0
-    const questionsCache = new Map<string, any[]>() // cache remote questions per form_sheet name/uuid
+    // Cache pertanyaan per kode form ('F01' | 'F02' | 'F03') agar hanya memanggil maksimal 3 request ke server MenPAN
+    const questionsCache = new Map<string, any[]>()
 
     for (const entry of entries) {
+      const entryUuids = [
+        entry.remoteUuid,
+        ...(entry.forms?.map((f) => f.uuid) || [])
+      ].filter(Boolean)
+
       if (!entry.unitId || entry.unitId === 'SKIP') {
-        // Jika disetel lewati, jika sebelumnya ada yang terikat ke UUID ini di tahun ini, lepaskan
         const existing = await db.evaluation.findFirst({
-          where: { year, menpanEvaluationId: entry.remoteUuid }
+          where: {
+            year,
+            menpanEvaluationId: { in: entryUuids }
+          }
         })
         if (existing) {
           await db.evaluation.update({
@@ -536,7 +846,8 @@ export async function saveMenpanBulkReconciliationAction(data: {
               menpanEvaluationId: null,
               menpanEvaluationName: null,
               menpanFormSheetName: null,
-              syncStatus: 'IDLE'
+              syncStatus: 'IDLE',
+              syncLogs: {}
             }
           })
         }
@@ -564,20 +875,7 @@ export async function saveMenpanBulkReconciliationAction(data: {
         targetUnitId = existingUnit.id
       }
 
-      // Ambil pertanyaan dari MenPAN untuk lokus ini jika belum ada di cache
-      let qList: any[] = []
-      const cacheKey = entry.formSheetName || entry.remoteUuid
-      if (questionsCache.has(cacheKey)) {
-        qList = questionsCache.get(cacheKey)!
-      } else {
-        const qRes = await MenpanApiService.getRemoteQuestions(entry.remoteUuid)
-        if (qRes.success && qRes.data) {
-          qList = qRes.data
-          questionsCache.set(cacheKey, qList)
-        }
-      }
-
-      // Cari atau buat Evaluation record
+      // Cari existing Evaluation jika sudah ada
       const existingEval = await db.evaluation.findUnique({
         where: {
           year_unitId: {
@@ -587,31 +885,79 @@ export async function saveMenpanBulkReconciliationAction(data: {
         }
       })
 
+      const existingLogs = ((existingEval?.syncLogs as any) || {}) as Record<string, any>
+      const formsList: RemoteFormEntry[] =
+        entry.forms && entry.forms.length > 0
+          ? entry.forms
+          : [
+              {
+                formCode: normalizePekpppFormCode(entry.formSheetName) || 'F02',
+                uuid: entry.remoteUuid,
+                formSheetName: entry.formSheetName || 'F02'
+              }
+            ]
+
+      const formsMap: Partial<Record<PekpppFormCode, MenpanFormBindingInfo>> = {
+        ...(existingLogs.forms || {})
+      }
+
+      for (const fItem of formsList) {
+        let qList: any[] = []
+        const cacheKey = fItem.formCode
+        if (questionsCache.has(cacheKey)) {
+          qList = questionsCache.get(cacheKey)!
+        } else {
+          const qRes = await MenpanApiService.getRemoteQuestions(fItem.uuid)
+          if (qRes.success && qRes.data) {
+            qList = qRes.data.map((q) => ({
+              id: q.id,
+              index: q.index,
+              name: q.name,
+              bobot: q.bobot,
+              is_required: q.is_required,
+              option_type: q.option_type,
+              options: q.options
+            }))
+            questionsCache.set(cacheKey, qList)
+          }
+        }
+
+        formsMap[fItem.formCode] = {
+          formCode: fItem.formCode,
+          uuid: fItem.uuid,
+          remoteName: entry.remoteName,
+          formSheetId: fItem.formSheetId,
+          formSheetName: fItem.formSheetName,
+          questionsCount: qList.length,
+          questionMap: qList,
+          syncStatus: existingLogs?.forms?.[fItem.formCode]?.syncStatus || 'IDLE',
+          syncedAt: existingLogs?.forms?.[fItem.formCode]?.syncedAt || null
+        }
+      }
+
+      const primaryBinding = formsMap.F02 || formsMap.F01 || formsMap.F03
+      const primaryUuid = primaryBinding?.uuid || entry.remoteUuid
+      const joinedFormNames = formsList.map((f) => f.formCode).join(' · ')
+
       const syncLogsData = {
+        ...existingLogs,
         action: 'RECONCILIATION_BULK_LINK',
         linkedAt: new Date().toISOString(),
-        remoteUuid: entry.remoteUuid,
+        remoteUuid: primaryUuid,
         remoteName: entry.remoteName,
-        formSheetName: entry.formSheetName,
-        questionsCount: qList.length,
-        questionMap: qList.map((q) => ({
-          id: q.id,
-          index: q.index,
-          name: q.name,
-          bobot: q.bobot,
-          is_required: q.is_required,
-          option_type: q.option_type,
-          options: q.options
-        }))
+        formSheetName: joinedFormNames,
+        questionsCount: primaryBinding?.questionsCount || 31,
+        questionMap: primaryBinding?.questionMap || [],
+        forms: formsMap
       }
 
       if (existingEval) {
         await db.evaluation.update({
           where: { id: existingEval.id },
           data: {
-            menpanEvaluationId: entry.remoteUuid,
+            menpanEvaluationId: primaryUuid,
             menpanEvaluationName: entry.remoteName,
-            menpanFormSheetName: entry.formSheetName,
+            menpanFormSheetName: joinedFormNames,
             isPriority: Boolean(entry.isPriority),
             syncStatus: 'SYNCED',
             syncedAt: new Date(),
@@ -623,9 +969,9 @@ export async function saveMenpanBulkReconciliationAction(data: {
           data: {
             year,
             unitId: targetUnitId,
-            menpanEvaluationId: entry.remoteUuid,
+            menpanEvaluationId: primaryUuid,
             menpanEvaluationName: entry.remoteName,
-            menpanFormSheetName: entry.formSheetName,
+            menpanFormSheetName: joinedFormNames,
             isPriority: Boolean(entry.isPriority),
             syncStatus: 'SYNCED',
             syncedAt: new Date(),
@@ -642,7 +988,7 @@ export async function saveMenpanBulkReconciliationAction(data: {
     revalidatePath('/admin/lokus')
     revalidatePath('/admin/peserta')
 
-    let msg = `Berhasil merekonsiliasi ${linkedCount} lokus dengan portal MenPAN-RB.`
+    let msg = `Berhasil merekonsiliasi ${linkedCount} lokus (beserta paket UUID F01, F02, F03) dengan portal MenPAN-RB.`
     if (createdUnitsCount > 0) {
       msg += ` (${createdUnitsCount} unit baru otomatis ditambahkan ke Master Lokus)`
     }
@@ -669,7 +1015,8 @@ export async function unbindEvaluationFromMenpanAction(evaluationId: string) {
         menpanEvaluationId: null,
         menpanEvaluationName: null,
         menpanFormSheetName: null,
-        syncStatus: 'IDLE'
+        syncStatus: 'IDLE',
+        syncLogs: {}
       }
     })
     revalidatePath(`/admin/periode/${updated.year}`)
@@ -678,7 +1025,7 @@ export async function unbindEvaluationFromMenpanAction(evaluationId: string) {
     revalidatePath('/admin/peserta')
     return {
       success: true,
-      message: 'Tautan lokus dengan portal MenPAN-RB berhasil dilepaskan.'
+      message: 'Tautan lokus (F01, F02, F03) dengan portal MenPAN-RB berhasil dilepaskan.'
     }
   } catch (err: any) {
     return {

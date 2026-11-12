@@ -41,11 +41,23 @@ export function MenpanSyncModal({
 
   // Validation state for PUSH
   const [validation, setValidation] = useState<SyncValidationResult | null>(null)
+  const [targetForm, setTargetForm] = useState<'ALL' | 'F01' | 'F02' | 'F03'>('ALL')
   const [syncResponse, setSyncResponse] = useState<{ success: boolean; message: string; menpanRefId?: string } | null>(null)
 
   // Conflict / Linking state for PULL
   const [conflictData, setConflictData] = useState<any | null>(null)
   const [selectedRemoteUuid, setSelectedRemoteUuid] = useState<string>('')
+
+  const isTargetFormEligible = Boolean(
+    validation &&
+      (targetForm === 'ALL'
+        ? validation.isEligible
+        : targetForm === 'F01'
+        ? validation.f01Complete
+        : targetForm === 'F02'
+        ? validation.f02Complete
+        : validation.f03Complete)
+  )
 
   const loadData = async () => {
     if (!evaluationId) return
@@ -97,18 +109,19 @@ export function MenpanSyncModal({
   }
 
   const handlePush = async () => {
-    if (!validation?.isEligible) {
-      toast.error('Data evaluasi belum memenuhi syarat kelengkapan untuk dikirim.')
+    if (!isTargetFormEligible) {
+      toast.error('Data evaluasi untuk form yang dipilih belum memenuhi syarat kelengkapan untuk dikirim.')
       return
     }
 
     setPushing(true)
     setSyncResponse(null)
     try {
-      const res = await pushEvaluationSyncAction(evaluationId)
+      const res = await pushEvaluationSyncAction(evaluationId, targetForm)
       setSyncResponse(res)
       if (res.success) {
         toast.success(res.message)
+        await loadData()
       } else {
         toast.error(res.message)
       }
@@ -227,13 +240,26 @@ export function MenpanSyncModal({
                     </button>
                   </div>
 
-                  {/* Info Status Pemetaan Pertanyaan MenPAN */}
-                  {conflictData.localEval?.isQuestionsMapped && (
-                    <div className="flex items-center gap-1.5 p-2 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 text-[11px] font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>
-                        Struktur Soal MenPAN-RB: <strong>{conflictData.localEval.questionsCount} Butir Pertanyaan</strong> resmi terpetakan sempurna.
-                      </span>
+                  {/* Info Status Pemetaan Pertanyaan MenPAN per Form (F01, F02, F03) */}
+                  {conflictData.localEval?.boundForms && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                      {conflictData.localEval.boundForms.map((bf: any) => (
+                        <div
+                          key={bf.formCode}
+                          className={`p-2 rounded-lg border text-[11px] space-y-0.5 ${
+                            bf.isBound
+                              ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                              : 'bg-surface-subtle border-stroke/50 text-ink-muted'
+                          }`}>
+                          <div className="flex items-center justify-between font-bold">
+                            <span>Form {bf.formCode}</span>
+                            <span>{bf.questionsCount} Soal</span>
+                          </div>
+                          <div className="font-mono text-[10px] truncate" title={bf.uuid || ''}>
+                            {bf.uuid ? `${bf.uuid.slice(0, 12)}...` : 'Belum terikat'}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -352,28 +378,57 @@ export function MenpanSyncModal({
              ========================================================== */
           validation && (
             <div className="space-y-4 text-xs">
+              {/* Pilihan Form PEKPPP yang Akan Dikirim */}
+              <div className="p-3 rounded-xl border border-stroke/60 bg-surface space-y-2">
+                <label className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
+                  Pilih Instrumen Form PEKPPP yang Akan Dikirim:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(
+                    [
+                      { code: 'ALL', label: 'Semua (F01–F03)' },
+                      { code: 'F01', label: 'Form F01 (90 Soal)' },
+                      { code: 'F02', label: 'Form F02 (31 Soal)' },
+                      { code: 'F03', label: 'Form F03 (14 Soal)' }
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.code}
+                      type="button"
+                      onClick={() => setTargetForm(opt.code)}
+                      className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                        targetForm === opt.code
+                          ? 'bg-brand text-white border-brand'
+                          : 'bg-surface-subtle text-ink-secondary border-stroke/50 hover:text-ink'
+                      }`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Status Kelayakan */}
               <div
                 className={`p-3.5 rounded-xl border flex items-start gap-3 ${
-                  validation.isEligible
+                  isTargetFormEligible
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
                     : 'bg-rose-50 border-rose-200 text-rose-900'
                 }`}>
-                {validation.isEligible ? (
+                {isTargetFormEligible ? (
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 ) : (
                   <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                 )}
                 <div className="space-y-0.5">
                   <div className="font-bold text-xs">
-                    {validation.isEligible
-                      ? 'Data Lengkap - Memenuhi Syarat Pengiriman MenPAN-RB'
-                      : 'Berkas Belum Memenuhi Syarat Gate MenPAN-RB'}
+                    {isTargetFormEligible
+                      ? `Data Form ${targetForm === 'ALL' ? 'F01, F02 & F03' : targetForm} Lengkap - Siap Dikirim ke MenPAN-RB`
+                      : `Data Form ${targetForm === 'ALL' ? 'PEKPPP' : targetForm} Belum Memenuhi Syarat Gate MenPAN-RB`}
                   </div>
                   <p className="text-[11px] leading-relaxed">
-                    {validation.isEligible
-                      ? 'Seluruh 31 indikator F-01, F-02, dan kuota F-03 telah lengkap. Server MenPAN tidak akan menolak (reject 422).'
-                      : 'Sesuai spesifikasi MenPAN-RB, seluruh pertanyaan wajib (is_required) harus lengkap terisi sebelum dikirim.'}
+                    {isTargetFormEligible
+                      ? 'Seluruh butir wajib untuk instrumen yang dipilih telah terisi lengkap.'
+                      : 'Harap lengkapi pengisian instrumen yang dipilih terlebih dahulu sebelum melakukan pengiriman.'}
                   </p>
                 </div>
               </div>
@@ -489,7 +544,7 @@ export function MenpanSyncModal({
             <button
               type="button"
               onClick={handlePush}
-              disabled={!validation?.isEligible || pushing || !conflictData?.isConfigured}
+              disabled={!isTargetFormEligible || pushing || !conflictData?.isConfigured}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-xs transition-colors shadow-hz-button cursor-pointer disabled:opacity-50">
               {pushing ? (
                 <>
@@ -499,7 +554,9 @@ export function MenpanSyncModal({
               ) : (
                 <>
                   <Send className="w-3.5 h-3.5" />
-                  <span>Konfirmasi &amp; Kirim ke MenPAN-RB</span>
+                  <span>
+                    Konfirmasi &amp; Kirim {targetForm === 'ALL' ? 'Semua Form' : targetForm} ke MenPAN-RB
+                  </span>
                 </>
               )}
             </button>

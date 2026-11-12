@@ -248,6 +248,7 @@ export function MenpanReconciliationSheet({
         remoteUuid: r.remoteUuid,
         remoteName: r.remoteName,
         formSheetName: r.formSheetName,
+        forms: r.forms,
         isPriority: r.isPriority,
         unitId: draft.unitId,
         newUnitName: draft.newUnitName,
@@ -336,7 +337,7 @@ export function MenpanReconciliationSheet({
             )}
           </div>
           <p className="text-xs text-ink-muted">
-            Pemetaan massal daftar lokus resmi portal MenPAN-RB ke Master Lokus lokal.
+            Pemetaan massal lokus resmi PEKPPP (paket F01 · F02 · F03 per lokus) dari portal MenPAN-RB ke Master Lokus lokal.
           </p>
         </div>
 
@@ -517,7 +518,7 @@ export function MenpanReconciliationSheet({
 
                     {/* Lokus MenPAN-RB */}
                     <td className="px-4 py-3">
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-semibold text-ink text-xs">
                             {r.remoteName}
@@ -529,15 +530,33 @@ export function MenpanReconciliationSheet({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[10px] text-ink-muted">
-                          <span className="truncate max-w-[130px]" title={r.remoteUuid}>
-                            {r.remoteUuid.slice(0, 8)}...
-                          </span>
-                          <span>•</span>
-                          <span className="text-ink-muted truncate max-w-[140px]">
-                            {r.formSheetName || 'F-01'}
-                          </span>
-                        </div>
+                        {r.forms && r.forms.length > 0 ? (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {r.forms.map((f) => (
+                              <span
+                                key={f.uuid}
+                                title={`${f.formCode}: ${f.uuid}`}
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-subtle text-ink-secondary border border-stroke/50">
+                                <strong className="font-sans font-semibold text-ink">
+                                  {f.formCode}
+                                </strong>
+                                <span className="text-ink-muted">
+                                  {f.uuid.slice(0, 6)}...
+                                </span>
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-[10px] text-ink-muted">
+                            <span className="truncate max-w-[130px]" title={r.remoteUuid}>
+                              {r.remoteUuid.slice(0, 8)}...
+                            </span>
+                            <span>•</span>
+                            <span className="text-ink-muted truncate max-w-[140px]">
+                              {r.formSheetName || 'F01 · F02 · F03'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </td>
 
