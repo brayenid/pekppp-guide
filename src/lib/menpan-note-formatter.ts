@@ -5,6 +5,29 @@
  * dengan editor TipTap di portal resmi MenPAN-RB.
  */
 
+/**
+ * Mengekstrak teks catatan/rekomendasi aspek secara aman dari berbagai variasi tipe data:
+ * - string biasa: "..."
+ * - object BAP MenPAN: { rekomendasi?: string, catatan?: string, kondisi?: string, text?: string }
+ * - null / undefined / number
+ */
+export function extractAspectNoteString(val: any): string {
+  if (val === null || val === undefined) return ''
+  if (typeof val === 'string') return val.trim()
+  if (typeof val === 'object') {
+    const candidate =
+      val.rekomendasi ||
+      val.catatan ||
+      val.kondisi ||
+      val.note ||
+      val.text ||
+      ''
+    if (typeof candidate === 'string') return candidate.trim()
+    return ''
+  }
+  return String(val).trim()
+}
+
 export function formatLegacyPipeNotesToHtml(raw?: string | null): string {
   if (!raw || typeof raw !== 'string') return ''
   // Biarkan teks lama tampil apa adanya tanpa auto-transform

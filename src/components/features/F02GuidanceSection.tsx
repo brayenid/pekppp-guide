@@ -27,7 +27,8 @@ import { MenpanRichTextEditor } from '../editor/MenpanRichTextEditor'
 import {
   formatLegacyPipeNotesToHtml,
   buildAiRecommendationHtml,
-  appendHtmlNotes
+  appendHtmlNotes,
+  extractAspectNoteString
 } from '../../lib/menpan-note-formatter'
 
 interface F02GuidanceSectionProps {
@@ -99,19 +100,21 @@ export function F02GuidanceSection({
   const resolvedBaseScoreVal =
     resolvedServerScore !== undefined && resolvedServerScore !== null ? String(resolvedServerScore) : ''
 
-  const resolvedServerNotes = (
+  const resolvedServerNotes = extractAspectNoteString(
     serverNotes !== undefined && serverNotes !== null ? serverNotes : initialNotes || ''
-  ).trim()
+  )
   // If draftNotes is undefined, fallback to server notes
-  const resolvedDraftNotes = (draftNotes !== undefined && draftNotes !== null ? draftNotes : resolvedServerNotes).trim()
+  const resolvedDraftNotes = extractAspectNoteString(
+    draftNotes !== undefined && draftNotes !== null ? draftNotes : resolvedServerNotes
+  )
 
-  const resolvedServerAspect = (
+  const resolvedServerAspect = extractAspectNoteString(
     serverAspectNote !== undefined && serverAspectNote !== null ? serverAspectNote : initialAspectNote || ''
-  ).trim()
+  )
   // If draftAspectNote is undefined, fallback to server aspect note
-  const resolvedDraftAspect = (
+  const resolvedDraftAspect = extractAspectNoteString(
     draftAspectNote !== undefined && draftAspectNote !== null ? draftAspectNote : resolvedServerAspect
-  ).trim()
+  )
 
   const [selectedScore, setSelectedScore] = useState<string>(resolvedScoreVal)
   const [baseScore, setBaseScore] = useState<string>(resolvedBaseScoreVal)

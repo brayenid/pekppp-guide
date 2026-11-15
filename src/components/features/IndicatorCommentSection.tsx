@@ -2,15 +2,27 @@
 
 import { useState } from 'react'
 import { addCommentAction, toggleResolveCommentAction } from '../../actions/comment-actions'
-import { MessageSquare, Send, CheckCircle2, Reply, CornerDownRight, User, Loader2, ChevronUp, Plus } from 'lucide-react'
+import {
+  MessageSquare,
+  Send,
+  CheckCircle2,
+  Reply,
+  ShieldCheck,
+  Building2,
+  Loader2,
+  ChevronUp,
+  Plus
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 export interface CommentItem {
   id: string
   message: string
   isResolved: boolean
-  createdAt: Date
+  createdAt: Date | string
+  authorId?: string
   author: {
+    id?: string
     fullName: string
     role: string
   }
@@ -20,6 +32,28 @@ export interface CommentItem {
 function formatCommentDate(date: Date | string) {
   const d = new Date(date)
   return `${d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • ${d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
+}
+
+function getAuthorConfig(role?: string) {
+  const isEvaluator = role === 'SUPER_ADMIN' || role?.toLowerCase().includes('admin')
+  if (isEvaluator) {
+    return {
+      label: 'Evaluator',
+      isEvaluator: true,
+      badgeClass: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50',
+      avatarBg: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xs',
+      bubbleClass: 'bg-blue-50/70 border-blue-200/70 dark:bg-blue-950/25 dark:border-blue-900/40 text-ink',
+      replyBubbleClass: 'bg-blue-50/50 border-blue-200/60 dark:bg-blue-950/20 dark:border-blue-900/30 text-ink'
+    }
+  }
+  return {
+    label: 'OPD',
+    isEvaluator: false,
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50',
+    avatarBg: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-2xs',
+    bubbleClass: 'bg-surface-elevated border-stroke/80 text-ink shadow-2xs',
+    replyBubbleClass: 'bg-surface-elevated border-stroke/60 text-ink shadow-2xs'
+  }
 }
 
 export function IndicatorCommentSection({
@@ -124,9 +158,9 @@ export function IndicatorCommentSection({
 
       {/* CASE 2: Has comments OR User clicked CTA -> Compact modern thread */}
       {(hasComments || isOpen) && (
-        <div className="rounded-2xl border border-line bg-surface shadow-2xs p-4 sm:p-5 space-y-3.5">
+        <div className="rounded-2xl border border-line bg-surface shadow-2xs p-4 sm:p-5 space-y-4">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-line gap-2">
+          <div className="flex items-center justify-between pb-3 border-b border-line gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-7 h-7 rounded-lg bg-brand/10 dark:bg-brand/15 text-brand flex items-center justify-center shrink-0 border border-brand/20">
                 <MessageSquare className="w-3.5 h-3.5" />
@@ -157,8 +191,8 @@ export function IndicatorCommentSection({
             </div>
           </div>
 
-          {/* Form Input Komentar */}
-          <div className="space-y-1.5">
+          {/* Form Input Komentar (Modern Bubble Composer Style) */}
+          <div className="rounded-xl border border-stroke/70 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/15 bg-surface-elevated transition-all p-3 space-y-2.5 shadow-2xs">
             <textarea
               rows={2}
               value={message}
@@ -169,20 +203,20 @@ export function IndicatorCommentSection({
                   handleAddComment(e)
                 }
               }}
-              placeholder="Tulis catatan atau klarifikasi bukti dukung..."
-              className="w-full p-2.5 text-xs rounded-lg border border-stroke bg-surface-elevated text-ink placeholder:text-ink-muted/70 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none leading-relaxed transition-all shadow-2xs"
+              placeholder="Tulis catatan diskusi, tanggapan, atau klarifikasi bukti dukung..."
+              className="w-full text-xs text-ink placeholder:text-ink-muted/70 focus:outline-none bg-transparent resize-none leading-relaxed"
             />
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-1 border-t border-stroke/30">
               <span className="hidden sm:inline text-[10px] text-ink-muted">
-                Tekan <kbd className="px-1 py-0.2 rounded bg-surface border border-stroke font-mono text-[9px] text-ink">Ctrl+Enter</kbd> untuk kirim
+                Tekan <kbd className="px-1.5 py-0.5 rounded bg-surface border border-stroke font-mono text-[9px] text-ink">Ctrl+Enter</kbd> untuk kirim
               </span>
               <div className="flex items-center gap-1.5 ml-auto">
                 {!hasComments && (
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="px-2.5 py-1 text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-subtle rounded-md transition-colors cursor-pointer">
+                    className="px-2.5 py-1 text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-subtle rounded-lg transition-colors cursor-pointer">
                     Batal
                   </button>
                 )}
@@ -190,123 +224,189 @@ export function IndicatorCommentSection({
                   type="button"
                   onClick={() => handleAddComment()}
                   disabled={loading || !message.trim()}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
-                  {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                  {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   <span>Kirim</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* List of Comment Threads */}
+          {/* List of Comment Threads (Chat Bubble Stream) */}
           {hasComments && (
-            <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 divide-y divide-stroke/40 pt-1">
-              {comments.map((c) => (
-                <div
-                  key={c.id}
-                  className={`pt-2.5 first:pt-0 space-y-1.5 ${
-                    c.isResolved ? 'opacity-80' : ''
-                  }`}>
-                  {/* Author Header */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                      <div className="w-5 h-5 rounded-full bg-brand/10 dark:bg-brand/20 flex items-center justify-center text-brand shrink-0">
-                        <User className="w-3 h-3" />
+            <div className="space-y-4 max-h-[460px] overflow-y-auto pr-1 pt-1 divide-y divide-stroke/30">
+              {comments.map((c) => {
+                const authorConfig = getAuthorConfig(c.author?.role)
+
+                return (
+                  <div
+                    key={c.id}
+                    className={`pt-4 first:pt-0 space-y-2 transition-all ${
+                      c.isResolved ? 'opacity-85' : ''
+                    }`}>
+                    <div className="flex items-start gap-2.5">
+                      {/* Author Avatar Icon */}
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${authorConfig.avatarBg}`}
+                        title={authorConfig.label}>
+                        {authorConfig.isEvaluator ? (
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                        ) : (
+                          <Building2 className="w-3.5 h-3.5" />
+                        )}
                       </div>
-                      <span className="font-semibold text-xs text-ink truncate">
-                        {c.author?.fullName || 'Evaluator'}
-                      </span>
-                      <span className="text-[10px] text-ink-muted shrink-0 hidden xs:inline">
-                        • {formatCommentDate(c.createdAt)}
-                      </span>
-                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleToggleResolve(c.id, c.isResolved)}
-                      title={c.isResolved ? 'Thread ditandai selesai' : 'Tandai selesai'}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors cursor-pointer shrink-0 ${
-                        c.isResolved
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
-                          : 'bg-surface-elevated text-ink-muted border-stroke hover:text-ink hover:border-ink-muted'
-                      }`}>
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>{c.isResolved ? 'Selesai' : 'Tandai Selesai'}</span>
-                    </button>
-                  </div>
-
-                  {/* Mobile timestamp below header if screen is too narrow */}
-                  <div className="xs:hidden pl-6.5 text-[10px] text-ink-muted -mt-0.5">
-                    {formatCommentDate(c.createdAt)}
-                  </div>
-
-                  {/* Comment Body */}
-                  <p className="text-xs text-ink leading-relaxed pl-6.5">
-                    {c.message}
-                  </p>
-
-                  {/* Reply Button Trigger */}
-                  <div className="pl-6.5 pt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setReplyParentId(replyParentId === c.id ? null : c.id)}
-                      className="inline-flex items-center gap-1 text-[11px] text-ink-muted hover:text-brand font-medium cursor-pointer transition-colors">
-                      <Reply className="w-3 h-3" />
-                      <span>Balas</span>
-                    </button>
-                  </div>
-
-                  {/* Inline Reply Input */}
-                  {replyParentId === c.id && (
-                    <div className="ml-6.5 mt-1.5 pl-2.5 border-l-2 border-brand/40 flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={replyMessage}
-                        onChange={(e) => setReplyMessage(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            handleReply(c.id)
-                          }
-                        }}
-                        placeholder="Tulis balasan..."
-                        className="flex-1 px-2.5 py-1 text-xs rounded-md border border-stroke bg-surface-elevated focus:outline-none focus:border-brand text-ink placeholder:text-ink-muted/70"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleReply(c.id)}
-                        disabled={loading || !replyMessage.trim()}
-                        className="px-2.5 py-1 rounded-md bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-colors disabled:opacity-40 cursor-pointer shrink-0">
-                        Kirim
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Nested Replies Stream */}
-                  {c.replies && c.replies.length > 0 && (
-                    <div className="ml-6.5 mt-2 pl-2.5 border-l-2 border-brand/25 dark:border-brand/35 space-y-1.5">
-                      {c.replies.map((reply) => (
-                        <div key={reply.id} className="text-xs space-y-0.5 py-0.5">
+                      {/* Content Container */}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        {/* Header: Name, Badge, Date, Resolve Action */}
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <CornerDownRight className="w-3 h-3 text-brand/60 shrink-0" />
-                            <span className="font-semibold text-ink text-[11px]">
-                              {reply.author?.fullName || 'OPD'}
+                            <span className="font-semibold text-xs text-ink truncate max-w-[200px] sm:max-w-none">
+                              {c.author?.fullName || 'Pengguna'}
                             </span>
-                            {reply.createdAt && (
-                              <span className="text-[10px] text-ink-muted">
-                                • {formatCommentDate(reply.createdAt)}
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${authorConfig.badgeClass}`}>
+                              {authorConfig.label}
+                            </span>
+                            <span className="text-[10px] text-ink-muted">
+                              • {formatCommentDate(c.createdAt)}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleResolve(c.id, c.isResolved)}
+                            title={c.isResolved ? 'Thread ditandai selesai' : 'Tandai selesai'}
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium border transition-colors cursor-pointer shrink-0 ${
+                              c.isResolved
+                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                                : 'bg-surface-elevated text-ink-muted border-stroke hover:text-ink hover:border-ink-muted shadow-2xs'
+                            }`}>
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>{c.isResolved ? 'Selesai' : 'Tandai Selesai'}</span>
+                          </button>
+                        </div>
+
+                        {/* Speech Bubble Container */}
+                        <div
+                          className={`rounded-2xl rounded-tl-xs px-4 py-2.5 border text-xs sm:text-sm leading-relaxed transition-all ${authorConfig.bubbleClass}`}>
+                          <p className="whitespace-pre-wrap break-words">{c.message}</p>
+                        </div>
+
+                        {/* Action Footer: Reply Trigger */}
+                        <div className="flex items-center gap-2 pt-0.5 pl-1">
+                          <button
+                            type="button"
+                            onClick={() => setReplyParentId(replyParentId === c.id ? null : c.id)}
+                            className="inline-flex items-center gap-1.5 text-[11px] text-ink-muted hover:text-brand font-medium cursor-pointer transition-colors py-0.5">
+                            <Reply className="w-3 h-3" />
+                            <span>Balas</span>
+                            {c.replies && c.replies.length > 0 && (
+                              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-brand/10 text-brand font-semibold">
+                                {c.replies.length}
                               </span>
                             )}
-                          </div>
-                          <p className="text-ink-secondary dark:text-ink-muted text-xs pl-4.5 leading-relaxed">
-                            {reply.message}
-                          </p>
+                          </button>
                         </div>
-                      ))}
+
+                        {/* Inline Reply Composer */}
+                        {replyParentId === c.id && (
+                          <div className="mt-2.5 pl-3 border-l-2 border-brand/40 space-y-2 animate-in fade-in duration-150">
+                            <div className="flex items-start gap-2">
+                              <div className="w-6 h-6 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0 text-[10px] font-bold mt-1">
+                                <Reply className="w-3 h-3" />
+                              </div>
+                              <div className="flex-1 space-y-1.5">
+                                <input
+                                  type="text"
+                                  autoFocus
+                                  value={replyMessage}
+                                  onChange={(e) => setReplyMessage(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault()
+                                      handleReply(c.id)
+                                    }
+                                  }}
+                                  placeholder={`Balas catatan ${c.author?.fullName || ''}...`}
+                                  className="w-full px-3 py-2 text-xs rounded-xl border border-stroke bg-surface-elevated focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-ink placeholder:text-ink-muted/70 shadow-2xs"
+                                />
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setReplyParentId(null)
+                                      setReplyMessage('')
+                                    }}
+                                    className="px-2.5 py-1 text-xs text-ink-muted hover:text-ink rounded-lg transition-colors cursor-pointer">
+                                    Batal
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleReply(c.id)}
+                                    disabled={loading || !replyMessage.trim()}
+                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-medium transition-all disabled:opacity-40 cursor-pointer shadow-xs">
+                                    {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                                    <span>Kirim</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Nested Replies Stream (Bubble Replies) */}
+                        {c.replies && c.replies.length > 0 && (
+                          <div className="mt-2 pl-3 sm:pl-4 border-l-2 border-line/70 dark:border-line/40 space-y-2.5">
+                            {c.replies.map((reply) => {
+                              const replyConfig = getAuthorConfig(reply.author?.role)
+
+                              return (
+                                <div key={reply.id} className="flex items-start gap-2 pt-1">
+                                  {/* Mini Avatar */}
+                                  <div
+                                    className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${replyConfig.avatarBg}`}
+                                    title={replyConfig.label}>
+                                    {replyConfig.isEvaluator ? (
+                                      <ShieldCheck className="w-2.5 h-2.5" />
+                                    ) : (
+                                      <Building2 className="w-2.5 h-2.5" />
+                                    )}
+                                  </div>
+
+                                  <div className="flex-1 min-w-0 space-y-1">
+                                    {/* Reply Header */}
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className="font-semibold text-ink text-[11px] truncate">
+                                        {reply.author?.fullName || 'Pengguna'}
+                                      </span>
+                                      <span
+                                        className={`px-1.5 py-0.2 rounded-full text-[9px] font-medium border ${replyConfig.badgeClass}`}>
+                                        {replyConfig.label}
+                                      </span>
+                                      {reply.createdAt && (
+                                        <span className="text-[10px] text-ink-muted">
+                                          • {formatCommentDate(reply.createdAt)}
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Reply Speech Bubble */}
+                                    <div
+                                      className={`rounded-xl rounded-tl-xs px-3.5 py-2 border text-xs leading-relaxed ${replyConfig.replyBubbleClass}`}>
+                                      <p className="whitespace-pre-wrap break-words">{reply.message}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

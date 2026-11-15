@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getF01QuestionByNumber, F01Item } from '../../lib/f01-parser'
+import { getF01QuestionByNumber, F01Item, parseF01AnswerList } from '../../lib/f01-parser'
 import { saveF01DataAction } from '../../actions/evaluation-actions'
 import { Save, AlertCircle, Loader2, Info, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -135,7 +135,8 @@ export function F01QuestionForm({
     jumlahSpVal > jumlahLayananVal
 
   const handleMultiSelectToggle = (itemId: string, option: string) => {
-    const currentList: string[] = Array.isArray(f01State[itemId]) ? f01State[itemId] : []
+    const itemObj = f01Question?.items.find((i) => i.id === itemId)
+    const currentList = parseF01AnswerList(f01State[itemId], itemObj?.options)
     const newList = currentList.includes(option)
       ? currentList.filter((o) => o !== option)
       : [...currentList, option]
@@ -256,7 +257,7 @@ export function F01QuestionForm({
               {item.type === 'multi_select' && item.options && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
                   {item.options.map((opt) => {
-                    const selectedList: string[] = Array.isArray(f01State[item.id]) ? f01State[item.id] : []
+                    const selectedList = parseF01AnswerList(f01State[item.id], item.options)
                     const isChecked = selectedList.includes(opt)
                     return (
                       <label

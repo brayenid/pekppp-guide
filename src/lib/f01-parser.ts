@@ -61,3 +61,87 @@ export function getF01QuestionByNumber(indicatorNumber: number): F01Question | u
   const map = getAllF01Questions()
   return map.get(indicatorNumber)
 }
+
+/**
+ * Memecah string berdasarkan koma / titik koma tanpa merusak tanda kurung (...).
+ * Contoh: "Toiletries (tissue, sabun, tempat sampah), Media sosial"
+ * -> ["Toiletries (tissue, sabun, tempat sampah)", "Media sosial"]
+ */
+export function splitRespectingParentheses(str: string): string[] {
+  const result: string[] = []
+  let current = ''
+  let depth = 0
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i]
+    if (char === '(') depth++
+    else if (char === ')') depth = Math.max(0, depth - 1)
+
+    if ((char === ',' || char === ';' || char === '\n') && depth === 0) {
+      const trimmed = current.trim()
+      if (trimmed) result.push(trimmed)
+      current = ''
+    } else {
+      current += char
+    }
+  }
+
+  const lastTrimmed = current.trim()
+  if (lastTrimmed) result.push(lastTrimmed)
+
+  return result
+}
+
+/**
+ * Memetakan nilai jawaban F01 (baik array dari form lokal maupun string koma dari API MenPAN-RB)
+ * menjadi array opsi yang bersih dan terstandarisasi.
+ */
+export function parseF01AnswerList(val: any, options?: string[]): string[] {
+  if (val === null || val === undefined) return []
+
+  let rawList: string[] = []
+
+  if (Array.isArray(val)) {
+    for (const item of val) {
+      if (typeof item === 'string') {
+        rawList.push(...splitRespectingParentheses(item))
+      } else if (item !== null && item !== undefined) {
+        rawList.push(String(item).trim())
+      }
+    }
+  } else if (typeof val === 'string') {
+    rawList = splitRespectingParentheses(val)
+  } else {
+    rawList = [String(val).trim()]
+  }
+
+  // Bersihkan nilai kosong
+  rawList = rawList.filter((s) => Boolean(s && s.length > 0))
+
+  // Sinkronkan dengan kanonikal options jika disediakan
+  if (options && options.length > 0) {
+    const optMap = new Map<string, string>()
+    options.forEach((opt) => optMap.set(opt.trim().toLowerCase(), opt))
+
+    return rawList.map((item) => {
+      const match = optMap.get(item.toLowerCase())
+      return match || item
+    })
+  }
+
+  return rawList
+}
+
+/**
+ * Memeriksa apakah suatu jawaban merupakan bentuk multi-value / daftar pilihan.
+ */
+export function isF01MultiValue(val: any, item?: F01Item): boolean {
+  if (val === null || val === undefined) return false
+  if (item?.type === 'multi_select') return true
+  if (Array.isArray(val) && val.length > 0) return true
+  if (typeof val === 'string') {
+    const parsed = splitRespectingParentheses(val)
+    return parsed.length > 1
+  }
+  return false
+}

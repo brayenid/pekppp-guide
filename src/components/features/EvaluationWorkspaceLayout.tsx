@@ -38,6 +38,7 @@ import { F02GlobalSaveButton } from './F02GlobalSaveButton'
 import { ZoomableImageContainer } from './ZoomableImageContainer'
 import { formatScore } from '../../lib/utils'
 import { normalizeAspectCode, SlotUploadRule } from '../../core/domain/evidence-slots-preset'
+import { extractAspectNoteString } from '../../lib/menpan-note-formatter'
 import { NoticeBanner } from '../ui/NoticeBanner'
 import {
   getIndicatorEvidenceAction,
@@ -630,9 +631,21 @@ export function EvaluationWorkspaceLayout({
     return Object.values(map)
   }, [internalScores])
 
-  const [internalAspectNotes, setInternalAspectNotes] = useState<Record<string, string>>(aspectNotes || {})
+  const normalizeAspectNotesMap = (raw?: Record<string, any> | null): Record<string, string> => {
+    if (!raw || typeof raw !== 'object') return {}
+    const res: Record<string, string> = {}
+    for (const [k, v] of Object.entries(raw)) {
+      const text = extractAspectNoteString(v)
+      if (text) res[k] = text
+    }
+    return res
+  }
+
+  const [internalAspectNotes, setInternalAspectNotes] = useState<Record<string, string>>(() =>
+    normalizeAspectNotesMap(aspectNotes)
+  )
   useEffect(() => {
-    setInternalAspectNotes(aspectNotes || {})
+    setInternalAspectNotes(normalizeAspectNotesMap(aspectNotes))
   }, [aspectNotes])
 
   // In-memory draft states so user answers/scores persist across question navigation
@@ -1825,10 +1838,11 @@ export function EvaluationWorkspaceLayout({
                       {/* Catatan Rekomendasi Aspek dari Evaluator */}
                       {(() => {
                         const aspectCode = activeScoreItem.indicator.aspect.code
-                        const note =
+                        const note = extractAspectNoteString(
                           internalAspectNotes?.[aspectCode] ||
                           internalAspectNotes?.[normalizeAspectCode(aspectCode)] ||
                           ''
+                        )
                         if (!note) return null
                         return (
                           <NoticeBanner
@@ -1894,11 +1908,11 @@ export function EvaluationWorkspaceLayout({
                       draftNotes={draftF02[activeNumber]?.notes}
                       aspectCode={activeScoreItem.indicator.aspect.code}
                       aspectName={activeScoreItem.indicator.aspect.name}
-                      serverAspectNote={
+                      serverAspectNote={extractAspectNoteString(
                         internalAspectNotes?.[activeScoreItem.indicator.aspect.code] ||
                         internalAspectNotes?.[normalizeAspectCode(activeScoreItem.indicator.aspect.code)] ||
                         ''
-                      }
+                      )}
                       draftAspectNote={draftAspectNotes[activeScoreItem.indicator.aspect.code]}
                       unitId={unitId}
                       aiSuggestedScore={activeScoreItem.aiSuggestedScore}
@@ -1928,7 +1942,7 @@ export function EvaluationWorkspaceLayout({
                         }))
                       }}
                       onAspectNoteChange={(aspectCode, note) => {
-                        const serverNote = (
+                        const serverNote = extractAspectNoteString(
                           internalAspectNotes?.[aspectCode] ||
                           internalAspectNotes?.[normalizeAspectCode(aspectCode)] ||
                           ''

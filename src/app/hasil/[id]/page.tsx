@@ -6,6 +6,7 @@ import { Trophy, FileText, ArrowLeft, Folder, ExternalLink, MessageSquare, Check
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatScore } from '../../../lib/utils'
+import { extractAspectNoteString } from '../../../lib/menpan-note-formatter'
 import { PrintBeritaAcaraButton } from '../../../components/ui/PrintBeritaAcaraButton'
 import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
@@ -299,7 +300,7 @@ export default async function PublicHasilDetailPage({
         {Object.entries(groupedScores).map(([aspectCode, items]) => {
           const firstAspect = items[0]?.indicator.aspect
           const aspectResult = calculation.aspectResults[aspectCode]
-          const aspectNote = aspectNotesMap[aspectCode]
+          const aspectNote = extractAspectNoteString(aspectNotesMap[aspectCode])
 
           return (
             <div key={aspectCode} className="rounded-bento border border-stroke bg-surface overflow-hidden shadow-soft-card">

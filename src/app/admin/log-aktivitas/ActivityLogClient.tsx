@@ -27,6 +27,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Loader2,
   Info,
   CheckCircle2,
   AlertTriangle,
@@ -115,6 +117,7 @@ export function ActivityLogClient({
   const [totalPages, setTotalPages] = useState<number>(initialTotalPages)
   const [currentPage, setCurrentPage] = useState<number>(initialCurrentPage)
   const [stats, setStats] = useState<LogStats>(initialStats)
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
 
   // Filter States
   const [search, setSearch] = useState('')
@@ -157,6 +160,31 @@ export function ActivityLogClient({
         toast.error('Gagal memuat log aktivitas: ' + (err.message || 'Kesalahan jaringan'))
       }
     })
+  }
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || currentPage >= totalPages) return
+    const nextPage = currentPage + 1
+    setIsLoadingMore(true)
+    try {
+      const logsRes = await getActivityLogsAction({
+        page: nextPage,
+        pageSize: 20,
+        search,
+        category: selectedCategory,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined
+      })
+
+      setLogs((prev) => [...prev, ...(logsRes.logs as any)])
+      setTotal(logsRes.total)
+      setTotalPages(logsRes.totalPages)
+      setCurrentPage(nextPage)
+    } catch (err: any) {
+      toast.error('Gagal memuat log berikutnya: ' + (err.message || 'Kesalahan jaringan'))
+    } finally {
+      setIsLoadingMore(false)
+    }
   }
 
   const handleApplyFilter = (e?: React.FormEvent) => {
@@ -274,7 +302,7 @@ export function ActivityLogClient({
           {
             label: 'Segarkan Log',
             icon: <RefreshCw className="w-4 h-4" />,
-            onClick: () => fetchLogs(currentPage),
+            onClick: () => fetchLogs(1),
             variant: 'secondary'
           }
         ]}
@@ -284,7 +312,7 @@ export function ActivityLogClient({
               type="button"
               variant="secondary"
               size="sm"
-              onClick={() => fetchLogs(currentPage)}
+              onClick={() => fetchLogs(1)}
               disabled={isPending}
               isLoading={isPending}
               leftIcon={<RefreshCw className="w-3.5 h-3.5 text-ink-muted" />}>
@@ -513,37 +541,39 @@ export function ActivityLogClient({
           </table>
         </div>
 
-        {/* Pagination Footer */}
-        {totalPages > 1 && (
-          <div className="p-3.5 bg-surface-subtle/40 border-t border-stroke/50 flex items-center justify-between text-xs">
-            <span className="text-ink-muted">
-              Halaman <span className="font-bold text-ink">{currentPage}</span> dari{' '}
-              <span className="font-bold text-ink">{totalPages}</span>
-            </span>
+        {/* Pagination Footer (Load More Pattern No-Gimmick) */}
+        <div className="p-3.5 bg-surface-subtle/40 border-t border-stroke/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <span className="text-ink-muted">
+            Menampilkan <span className="font-semibold text-ink">{logs.length}</span> dari{' '}
+            <span className="font-semibold text-ink">{total}</span> total aktivitas
+          </span>
 
-            <div className="flex items-center gap-1.5">
-              <Button
+          <div className="flex items-center gap-2">
+            {currentPage < totalPages ? (
+              <button
                 type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => fetchLogs(currentPage - 1)}
-                disabled={currentPage <= 1 || isPending}
-                leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}>
-                Sebelumnya
-              </Button>
-
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => fetchLogs(currentPage + 1)}
-                disabled={currentPage >= totalPages || isPending}
-                rightIcon={<ChevronRight className="w-3.5 h-3.5" />}>
-                Selanjutnya
-              </Button>
-            </div>
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-surface border border-line hover:bg-surface-subtle text-ink font-semibold transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50">
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />
+                    <span>Memuat {Math.min(20, total - logs.length)} aktivitas berikutnya...</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-3.5 h-3.5 text-brand" />
+                    <span>Muat Lebih Banyak ({total - logs.length} tersisa)</span>
+                  </>
+                )}
+              </button>
+            ) : total > 0 ? (
+              <span className="text-[11px] text-ink-muted italic">
+                Semua log aktivitas telah ditampilkan ({total} aktivitas)
+              </span>
+            ) : null}
           </div>
-        )}
+        </div>
       </Card>
 
       {/* 5. MODAL DETAIL PAYLOAD AKTIVITAS */}
@@ -600,7 +630,7 @@ export function ActivityLogClient({
                 <span className="text-[11px] font-bold text-ink uppercase tracking-wider block">
                   Metadata Audit (JSON Payload):
                 </span>
-                <pre className="p-3 rounded-xl bg-zinc-900 text-emerald-400 font-mono text-[11px] overflow-x-auto max-h-[260px] leading-relaxed">
+                <pre className="p-3.5 rounded-xl bg-slate-100 dark:bg-zinc-900 text-slate-700 dark:text-emerald-400 border border-slate-200/80 dark:border-zinc-800 font-mono text-[11px] overflow-x-auto max-h-[260px] leading-relaxed">
                   {JSON.stringify(selectedLog.metadata, null, 2)}
                 </pre>
               </div>
