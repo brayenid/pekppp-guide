@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, AlertCircle } from 'lucide-react'
 
 export const metadata = {
-  title: 'Detail Tiket Laporan - Admin PEKPPP',
+  title: 'Detail Tiket Laporan - PEKPPP.ext',
   description: 'Telaah dan disposisi penanganan tiket laporan.'
 }
 

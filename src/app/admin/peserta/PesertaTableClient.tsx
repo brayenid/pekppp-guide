@@ -213,6 +213,7 @@ export default function PesertaTableClient({
           isOpen={Boolean(syncEv)}
           onClose={() => setSyncEv(null)}
           evaluationId={syncEv.id}
+          unitId={syncEv.unitId}
           unitName={syncEv.unit.name}
           year={targetYear}
         />

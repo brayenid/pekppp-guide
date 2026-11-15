@@ -1,7 +1,12 @@
 import { db } from '../../../services/db'
 import LokusClient from './LokusClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Master Lokus Pelayanan - PEKPPP.ext'
+}
 
 export default async function LokusPage() {
   const units = await db.unit.findMany({

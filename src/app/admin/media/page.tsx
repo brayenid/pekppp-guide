@@ -6,7 +6,7 @@ import { MediaManagerClient } from './MediaManagerClient'
 export const revalidate = 0
 
 export const metadata = {
-  title: 'Media Manager & Pustaka Berkas - Admin PEKPPP.ext',
+  title: 'Pustaka Media & Berkas - PEKPPP.ext',
   description: 'Pusat pengelolaan berkas agnostik, format template dokumen, dan meta data keterkaitan.'
 }
 

@@ -4,7 +4,7 @@ import { getAdminArticlesAction } from '../../../actions/article-actions'
 import { AdminArticleListClient } from './AdminArticleListClient'
 
 export const metadata = {
-  title: 'Kelola Artikel & Kabar Berita PEKPPP',
+  title: 'Kelola Artikel & Berita - PEKPPP.ext',
   description: 'Pengelolaan artikel, panduan praktis, dan kabar berita teroptimasi SEO.'
 }
 

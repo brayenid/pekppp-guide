@@ -1,7 +1,12 @@
 import { db } from '../../../services/db'
 import AkunClient from './AkunClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Manajemen Akun - PEKPPP.ext'
+}
 
 export default async function AkunPage() {
   const profiles = await db.profile.findMany({

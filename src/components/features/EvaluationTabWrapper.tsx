@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { ClipboardList, FolderHeart, Maximize2, Minimize2, UploadCloud } from 'lucide-react'
+import Link from 'next/link'
+import { ClipboardList, FileCheck2, FolderHeart, Maximize2, Minimize2, Send, UploadCloud } from 'lucide-react'
 import { EvaluationNavbarStatus } from '../layout/Navbar'
 import { UnderlineTabs } from '../ui/Tabs'
+import { MenpanSyncModal } from './MenpanSyncModal'
 
 export function EvaluationTabWrapper({
   f02Content,
@@ -12,7 +14,10 @@ export function EvaluationTabWrapper({
   f03Count = 0,
   userRole = 'SUPER_ADMIN',
   incompleteAspectsCount = 0,
-  evaluationId
+  evaluationId,
+  unitId,
+  unitName,
+  year
 }: {
   f02Content: React.ReactNode
   f03Content: React.ReactNode
@@ -20,9 +25,13 @@ export function EvaluationTabWrapper({
   userRole?: string
   incompleteAspectsCount?: number
   evaluationId?: string
+  unitId?: string
+  unitName?: string
+  year?: number
 }) {
   const [activeTab, setActiveTab] = useState<'f02' | 'evidence' | 'f03'>('f02')
   const [isFocusMode, setIsFocusMode] = useState<boolean>(false)
+  const [isMenpanSyncOpen, setIsMenpanSyncOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [incompleteCount, setIncompleteCount] = useState<number>(incompleteAspectsCount)
   const isOpd = userRole === 'OPD'
@@ -186,6 +195,29 @@ export function EvaluationTabWrapper({
               <EvaluationNavbarStatus userRole={userRole} variant="page" className="flex" />
             </div>
 
+            {/* Pintasan Langsung ke Berita Acara (BAP) */}
+            {unitId && (
+              <Link
+                href={`/evaluasi/${unitId}/berita-acara${year ? `?tahun=${year}` : ''}`}
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs select-none shrink-0"
+                title="Buka Generator & Sinkronisasi Berita Acara Penilaian (BAP)">
+                <FileCheck2 className="w-3.5 h-3.5 text-brand" />
+                <span>Berita Acara (BAP)</span>
+              </Link>
+            )}
+
+            {/* Tombol Sinkronisasi MenPAN-RB (Khusus Admin) */}
+            {(userRole?.toUpperCase() === 'SUPER_ADMIN' || userRole === 'ADMIN') && evaluationId && (
+              <button
+                type="button"
+                onClick={() => setIsMenpanSyncOpen(true)}
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border bg-surface-elevated hover:bg-surface-subtle text-ink border-stroke shadow-2xs select-none shrink-0 cursor-pointer"
+                title="Sinkronisasi Data Nilai & Berita Acara ke Portal MenPAN-RB">
+                <Send className="w-3.5 h-3.5 text-brand" />
+                <span>Sync MenPAN</span>
+              </button>
+            )}
+
             {/* Focus Mode Toggle Button */}
             <button
               type="button"
@@ -226,6 +258,18 @@ export function EvaluationTabWrapper({
           {f03Content}
         </div>
       </div>
+
+      {/* Modal Sinkronisasi MenPAN-RB (Khusus Admin) */}
+      {userRole === 'SUPER_ADMIN' && evaluationId && isMenpanSyncOpen && (
+        <MenpanSyncModal
+          isOpen={isMenpanSyncOpen}
+          onClose={() => setIsMenpanSyncOpen(false)}
+          evaluationId={evaluationId}
+          unitId={unitId}
+          unitName={unitName || 'Unit Pelayanan Publik'}
+          year={year || new Date().getFullYear()}
+        />
+      )}
     </div>
   )
 

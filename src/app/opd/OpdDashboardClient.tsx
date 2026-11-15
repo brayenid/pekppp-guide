@@ -283,6 +283,19 @@ export function OpdDashboardClient({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                  {ev?.id && (
+                    <Link href={`/evaluasi/${unitItem.id}/berita-acara${selectedYear ? `?tahun=${selectedYear}` : ''}`}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        leftIcon={<FileText className="w-3.5 h-3.5 text-brand" />}
+                        title="Lihat & Cetak Berita Acara Penilaian (BAP)">
+                        Berita Acara (BAP)
+                      </Button>
+                    </Link>
+                  )}
+
                   <Link
                     href={
                       selectedYear

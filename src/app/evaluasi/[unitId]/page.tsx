@@ -13,8 +13,25 @@ import { calculatePekpppScore } from '../../../core/domain/pekppp-calculator'
 import { ShieldAlert, ArrowLeft } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ unitId: string }>
+}): Promise<Metadata> {
+  const { unitId } = await params
+  const unit = await db.unit.findUnique({
+    where: { id: unitId },
+    select: { name: true }
+  })
+  if (!unit) return { title: 'Evaluasi Lokus - PEKPPP.ext' }
+  return {
+    title: `Evaluasi ${unit.name} - PEKPPP.ext`
+  }
+}
 
 export default async function EvaluasiUnitPage({
   params,
@@ -115,6 +132,9 @@ export default async function EvaluasiUnitPage({
         userRole={access.user?.role || 'OPD'}
         incompleteAspectsCount={incompleteAspectsCount}
         evaluationId={evaluation.id}
+        unitId={unitId}
+        unitName={evaluation.unit.name}
+        year={evaluation.year}
         f02Content={
           <EvaluationWorkspaceLayout
             scores={sanitizedScores as any}

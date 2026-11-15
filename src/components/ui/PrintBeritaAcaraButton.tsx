@@ -5,18 +5,22 @@ import { FileText, Loader2 } from 'lucide-react'
 
 export function PrintBeritaAcaraButton({
   evaluationId,
+  targetUrl,
   className
 }: {
   evaluationId: string
+  targetUrl?: string
   className?: string
 }) {
   const [printing, setPrinting] = useState(false)
   const [iframeSrc, setIframeSrc] = useState<string | null>(null)
 
+  const printUrl = targetUrl || `/hasil/${evaluationId}`
+
   const handlePrint = () => {
     setPrinting(true)
     // Set src to load the BA page inside hidden iframe
-    setIframeSrc(`/hasil/berita-acara/${evaluationId}`)
+    setIframeSrc(printUrl)
   }
 
   const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
@@ -28,7 +32,7 @@ export function PrintBeritaAcaraButton({
       }
     } catch {
       // Fallback if cross-origin or security blocks iframe print
-      window.open(`/hasil/berita-acara/${evaluationId}`, '_blank')
+      window.open(printUrl, '_blank')
     } finally {
       setPrinting(false)
       // Reset iframe after print dialog opens

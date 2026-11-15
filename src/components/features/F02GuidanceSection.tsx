@@ -23,6 +23,12 @@ import {
   ChevronUp
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { MenpanRichTextEditor } from '../editor/MenpanRichTextEditor'
+import {
+  formatLegacyPipeNotesToHtml,
+  buildAiRecommendationHtml,
+  appendHtmlNotes
+} from '../../lib/menpan-note-formatter'
 
 interface F02GuidanceSectionProps {
   indicatorNumber: number
@@ -50,6 +56,7 @@ interface F02GuidanceSectionProps {
   onScoreChange?: (score: number | null) => void
   onNotesChange?: (notes: string) => void
   onAspectNoteChange?: (aspectCode: string, note: string) => void
+  onAspectNoteSaved?: (aspectCode: string, savedNote: string) => void
   onSaveSuccess?: (savedData: { score: number | null; notes?: string }) => void
 }
 
@@ -78,6 +85,7 @@ export function F02GuidanceSection({
   onScoreChange,
   onNotesChange,
   onAspectNoteChange,
+  onAspectNoteSaved,
   onSaveSuccess
 }: F02GuidanceSectionProps) {
   const guidance = getF02GuidanceByNumber(indicatorNumber)
@@ -111,10 +119,10 @@ export function F02GuidanceSection({
   const [baseNotes, setBaseNotes] = useState<string>(resolvedServerNotes)
   const [isSaving, setIsSaving] = useState(false)
 
-  // Aspect Note State (Official MenPAN sync notes)
+  // Aspect Note State (Official MenPAN sync notes) - tampil apa adanya tanpa auto-transform
   const [activeNoteTab, setActiveNoteTab] = useState<'indicator' | 'aspect'>('indicator')
-  const [aspectNote, setAspectNote] = useState<string>(resolvedDraftAspect)
-  const [baseAspectNote, setBaseAspectNote] = useState<string>(resolvedServerAspect)
+  const [aspectNote, setAspectNote] = useState<string>(() => resolvedDraftAspect)
+  const [baseAspectNote, setBaseAspectNote] = useState<string>(() => resolvedServerAspect)
   const [isSavingAspect, setIsSavingAspect] = useState<boolean>(false)
 
   // Sync state when props change
@@ -144,6 +152,16 @@ export function F02GuidanceSection({
     }
   }
 
+  const normalizeNoteCompare = (s?: string | null): string => {
+    if (!s) return ''
+    return s
+      .replace(/<\/p>\s*<p>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
   const handleAspectNoteChange = (val: string) => {
     setAspectNote(val)
     if (onAspectNoteChange) {
@@ -153,7 +171,7 @@ export function F02GuidanceSection({
 
   const isDirty =
     (selectedScore !== baseScore && (selectedScore !== '' || baseScore !== '')) || notes.trim() !== baseNotes.trim()
-  const isAspectDirty = aspectNote.trim() !== baseAspectNote.trim()
+  const isAspectDirty = normalizeNoteCompare(aspectNote) !== normalizeNoteCompare(baseAspectNote)
 
   // Listener for global F02 save event
   useEffect(() => {
@@ -184,9 +202,11 @@ export function F02GuidanceSection({
       if (isAspectDirty) {
         setIsSavingAspect(true)
         try {
+          const cleanNote = aspectNote.trim()
           const { saveAspectNoteAction } = await import('../../actions/evaluation-actions')
-          await saveAspectNoteAction({ evaluationId, aspectCode, note: aspectNote.trim(), unitId })
-          setBaseAspectNote(aspectNote.trim())
+          await saveAspectNoteAction({ evaluationId, aspectCode, note: cleanNote, unitId })
+          setBaseAspectNote(cleanNote)
+          onAspectNoteSaved?.(aspectCode, cleanNote)
         } catch {
           // silent fail
         } finally {
@@ -237,10 +257,12 @@ export function F02GuidanceSection({
     if (!evaluationId) return
     setIsSavingAspect(true)
     try {
+      const cleanNote = aspectNote.trim()
       const { saveAspectNoteAction } = await import('../../actions/evaluation-actions')
-      await saveAspectNoteAction({ evaluationId, aspectCode, note: aspectNote.trim(), unitId })
-      setBaseAspectNote(aspectNote.trim())
-      toast.success(`Catatan resmi Aspek ${aspectCode} berhasil disimpan.`)
+      await saveAspectNoteAction({ evaluationId, aspectCode, note: cleanNote, unitId })
+      setBaseAspectNote(cleanNote)
+      onAspectNoteSaved?.(aspectCode, cleanNote)
+      toast.success(`Catatan resmi Aspek ${aspectName} berhasil disimpan dan disinkronkan.`)
     } catch {
       toast.error('Gagal menyimpan catatan aspek.')
     } finally {
@@ -266,11 +288,9 @@ export function F02GuidanceSection({
       toast.info('Catatan pertanyaan masih kosong.')
       return
     }
-    const prefix = `[#${indicatorNumber}] `
-    const newAspectText = aspectNote.trim()
-      ? `${aspectNote.trim()}\n${prefix}${notes.trim()}`
-      : `${prefix}${notes.trim()}`
-    setAspectNote(newAspectText)
+    const noteSnippet = `<p><strong>[Indikator #${indicatorNumber}]</strong> ${notes.trim()}</p>`
+    const newAspectText = appendHtmlNotes(aspectNote, noteSnippet)
+    handleAspectNoteChange(newAspectText)
     setActiveNoteTab('aspect')
     toast.success(`Catatan pertanyaan #${indicatorNumber} disalin ke Catatan Aspek MenPAN-RB!`)
   }
@@ -290,32 +310,23 @@ export function F02GuidanceSection({
   }
 
   const handleApplyAiToAspectNote = () => {
-    // Collect contextual recommendations and notes from AI
-    const parts: string[] = []
-    if (aiVerificationTips?.trim()) {
-      parts.push(`Rekomendasi Lapangan: ${aiVerificationTips.trim()}`)
-    }
-    if (aiWeaknessNotes?.trim() && !aiWeaknessNotes.toLowerCase().includes('tidak ada')) {
-      parts.push(`Catatan Perbaikan: ${aiWeaknessNotes.trim()}`)
-    }
-    if (aiCriticalAudit?.trim()) {
-      parts.push(`Catatan Bukti F-01: ${aiCriticalAudit.trim()}`)
-    }
+    const newAiHtml = buildAiRecommendationHtml({
+      indicatorNumber,
+      indicatorCode: guidance?.code,
+      tips: aiVerificationTips,
+      weakness: aiWeaknessNotes,
+      audit: aiCriticalAudit,
+      reason: aiConfidenceReason
+    })
 
-    // Fallback if none of the above are present but confidence reason exists
-    if (parts.length === 0 && aiConfidenceReason?.trim()) {
-      parts.push(aiConfidenceReason.trim())
-    }
-
-    if (parts.length === 0) {
+    if (!newAiHtml) {
       toast.info('Tidak ada rekomendasi AI yang relevan untuk disalin ke catatan aspek.')
       return
     }
 
-    const compiledText = `[#${indicatorNumber}] ${parts.join(' | ')}`
-    const newAspectText = aspectNote.trim() ? `${aspectNote.trim()}\n${compiledText}` : compiledText
+    const newAspectText = appendHtmlNotes(aspectNote, newAiHtml)
     handleAspectNoteChange(newAspectText)
-    toast.success(`Rekomendasi AI pertanyaan #${indicatorNumber} ditambahkan ke Catatan Rekomendasi Aspek!`)
+    toast.success(`Rekomendasi AI pertanyaan #${indicatorNumber} ditambahkan dalam format terstruktur ke Catatan Rekomendasi Aspek!`)
   }
 
   // State to toggle Petunjuk & Dokumen Acuan (Collapsible to save vertical space)
@@ -701,12 +712,11 @@ export function F02GuidanceSection({
           </div>
         </div>
 
-        <textarea
-          rows={2}
+        <MenpanRichTextEditor
           value={aspectNote}
-          onChange={(e) => handleAspectNoteChange(e.target.value)}
-          placeholder={`Tuliskan narasi catatan / rekomendasi resmi untuk Aspek ${aspectName}...`}
-          className="w-full px-3 py-2 text-xs font-normal rounded-lg border border-stroke/70 bg-surface-elevated text-ink placeholder:text-ink-muted/70 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-y min-h-[56px] shadow-2xs leading-relaxed"
+          onChange={(html) => handleAspectNoteChange(html)}
+          placeholder={`Tuliskan narasi catatan / rekomendasi resmi untuk Aspek ${aspectName} (bisa menggunakan bullet, penomoran, dan tebal)...`}
+          minHeight="85px"
         />
 
         <div className="flex items-center justify-between text-[10px] text-ink-muted">

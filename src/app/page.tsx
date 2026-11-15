@@ -27,6 +27,11 @@ import {
 } from 'lucide-react'
 import { ModernVectorBackground } from '../components/ui/ModernVectorBackground'
 import { getPublishedArticlesAction } from '../actions/article-actions'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Beranda - PEKPPP.ext'
+}
 
 export const revalidate = 0
 

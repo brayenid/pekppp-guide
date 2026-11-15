@@ -1,10 +1,10 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getCurrentUserAction } from '../../../actions/auth-actions'
 import { getContohBerkasListAction } from '../../../actions/contoh-berkas-actions'
 import { OpdContohBerkasClient } from './OpdContohBerkasClient'
 
 export const metadata = {
-  title: 'Format & Contoh Berkas - OPD PEKPPP',
+  title: 'Format & Contoh Berkas - PEKPPP.ext',
   description: 'Pusat format dokumen baku, regulasi, dan contoh instrumen bukti dukung PEKPPP Kabupaten Kutai Barat.'
 }
 

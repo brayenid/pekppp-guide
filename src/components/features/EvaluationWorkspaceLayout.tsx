@@ -630,6 +630,11 @@ export function EvaluationWorkspaceLayout({
     return Object.values(map)
   }, [internalScores])
 
+  const [internalAspectNotes, setInternalAspectNotes] = useState<Record<string, string>>(aspectNotes || {})
+  useEffect(() => {
+    setInternalAspectNotes(aspectNotes || {})
+  }, [aspectNotes])
+
   // In-memory draft states so user answers/scores persist across question navigation
   const [draftF02, setDraftF02] = useState<Record<number, { indicatorId: string; score: number | null; notes?: string }>>({})
   const [draftF01, setDraftF01] = useState<Record<number, { evaluationScoreId: string; f01Data: Record<string, any>; proofUrl?: string }>>({})
@@ -676,6 +681,14 @@ export function EvaluationWorkspaceLayout({
           for (const [aspectCode, note] of aspectEntries) {
             await saveAspectNoteAction({ evaluationId, aspectCode, note: note.trim(), unitId })
           }
+          setInternalAspectNotes((prev) => {
+            const next = { ...prev }
+            for (const [aspectCode, note] of aspectEntries) {
+              next[aspectCode] = note.trim()
+              next[normalizeAspectCode(aspectCode)] = note.trim()
+            }
+            return next
+          })
         }
 
         setDraftF02({})
@@ -1813,8 +1826,8 @@ export function EvaluationWorkspaceLayout({
                       {(() => {
                         const aspectCode = activeScoreItem.indicator.aspect.code
                         const note =
-                          aspectNotes?.[aspectCode] ||
-                          aspectNotes?.[normalizeAspectCode(aspectCode)] ||
+                          internalAspectNotes?.[aspectCode] ||
+                          internalAspectNotes?.[normalizeAspectCode(aspectCode)] ||
                           ''
                         if (!note) return null
                         return (
@@ -1882,8 +1895,8 @@ export function EvaluationWorkspaceLayout({
                       aspectCode={activeScoreItem.indicator.aspect.code}
                       aspectName={activeScoreItem.indicator.aspect.name}
                       serverAspectNote={
-                        aspectNotes?.[activeScoreItem.indicator.aspect.code] ||
-                        aspectNotes?.[normalizeAspectCode(activeScoreItem.indicator.aspect.code)] ||
+                        internalAspectNotes?.[activeScoreItem.indicator.aspect.code] ||
+                        internalAspectNotes?.[normalizeAspectCode(activeScoreItem.indicator.aspect.code)] ||
                         ''
                       }
                       draftAspectNote={draftAspectNotes[activeScoreItem.indicator.aspect.code]}
@@ -1915,10 +1928,39 @@ export function EvaluationWorkspaceLayout({
                         }))
                       }}
                       onAspectNoteChange={(aspectCode, note) => {
-                        setDraftAspectNotes((prev) => ({
+                        const serverNote = (
+                          internalAspectNotes?.[aspectCode] ||
+                          internalAspectNotes?.[normalizeAspectCode(aspectCode)] ||
+                          ''
+                        )
+                        const stripTags = (s: string) =>
+                          s.replace(/<\/p>\s*<p>/gi, '\n').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+
+                        if (stripTags(note) === stripTags(serverNote)) {
+                          setDraftAspectNotes((prev) => {
+                            if (!prev[aspectCode]) return prev
+                            const next = { ...prev }
+                            delete next[aspectCode]
+                            return next
+                          })
+                        } else {
+                          setDraftAspectNotes((prev) => ({
+                            ...prev,
+                            [aspectCode]: note
+                          }))
+                        }
+                      }}
+                      onAspectNoteSaved={(aspectCode, savedNote) => {
+                        setInternalAspectNotes((prev) => ({
                           ...prev,
-                          [aspectCode]: note
+                          [aspectCode]: savedNote,
+                          [normalizeAspectCode(aspectCode)]: savedNote
                         }))
+                        setDraftAspectNotes((prev) => {
+                          const next = { ...prev }
+                          delete next[aspectCode]
+                          return next
+                        })
                       }}
                       onSaveSuccess={(savedData) => {
                         setDraftF02((prev) => {

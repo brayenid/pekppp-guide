@@ -11,6 +11,7 @@ import {
   normalizeAspectCode
 } from '../../../../../core/domain/evidence-slots-preset'
 import { PublicEvidenceClient } from './PublicEvidenceClient'
+import { Metadata } from 'next'
 
 interface SharedEvidencePageProps {
   params: Promise<{
@@ -27,6 +28,17 @@ const ASPECT_TITLES: Record<string, string> = {
   'V': 'Konsultasi & Pengaduan',
   'VI': 'Inovasi Pelayanan Publik',
   'TAMBAHAN': 'Informasi & Pertanyaan Tambahan (Sistem Antrean)'
+}
+
+export async function generateMetadata({
+  params
+}: SharedEvidencePageProps): Promise<Metadata> {
+  const { evaluationId, aspectCode } = await params
+  const norm = normalizeAspectCode(aspectCode || '')
+  const aspectName = ASPECT_TITLES[norm] || `Aspek ${norm}`
+  return {
+    title: `Bukti Dukung ${aspectName} - PEKPPP.ext`
+  }
 }
 
 export default async function SharedEvidencePage({ params }: SharedEvidencePageProps) {

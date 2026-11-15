@@ -5,8 +5,25 @@ import { db } from '../../../../services/db'
 import { F03OpdClient } from '../../../../components/features/F03OpdClient'
 import { F03EvaluatorClient } from '../../../../components/features/F03EvaluatorClient'
 import { redirect } from 'next/navigation'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ unitId: string }>
+}): Promise<Metadata> {
+  const { unitId } = await params
+  const unit = await db.unit.findUnique({
+    where: { id: unitId },
+    select: { name: true }
+  })
+  if (!unit) return { title: 'Survei Kepuasan (F-03) - PEKPPP.ext' }
+  return {
+    title: `Survei Kepuasan (F-03) ${unit.name} - PEKPPP.ext`
+  }
+}
 
 export default async function F03Page({
   params

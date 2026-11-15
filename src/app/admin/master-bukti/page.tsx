@@ -11,8 +11,13 @@ import { getAllAspectEvidenceSlotsWithGuidesAction } from '../../../actions/evid
 import { getEvidenceSlotsRulesConfig } from '../../../services/system-setting-service'
 import { EvidenceComplianceService } from '../../../services/evidence-compliance-service'
 import MasterEvidenceClient from './MasterEvidenceClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Master Bukti Dukung - PEKPPP.ext'
+}
 
 export default async function MasterBuktiAdminPage({
   searchParams

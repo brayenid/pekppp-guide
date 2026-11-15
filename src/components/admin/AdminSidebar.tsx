@@ -129,6 +129,11 @@ const ADMIN_NAV_STRUCTURE: NavItem[] = [
         description: 'Integrasi API MenPAN-RB'
       },
       {
+        href: '/admin/log-aktivitas',
+        label: 'Log Aktivitas & Audit',
+        description: 'Audit trail & retensi riwayat aksi'
+      },
+      {
         href: '/admin/dokumentasi',
         label: 'Dokumentasi & Spec API',
         description: 'Fitur & skema JSON MenPAN-RB'

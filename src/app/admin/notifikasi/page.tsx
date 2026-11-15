@@ -6,7 +6,7 @@ import { AdminBroadcastClient } from './AdminBroadcastClient'
 import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
-  title: 'Pusat Notifikasi & Web Push | Admin PEKPPP Kutai Barat',
+  title: 'Pusat Notifikasi & Web Push - PEKPPP.ext',
   description: 'Pengiriman Web Push Notification dan Broadcast Pesan Evaluasi PEKPPP'
 }
 

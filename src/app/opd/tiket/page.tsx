@@ -5,7 +5,7 @@ import { db } from '../../../services/db'
 import { OpdTicketListClient } from './OpdTicketListClient'
 
 export const metadata = {
-  title: 'Tiket & Pengaduan Lokus - OPD PEKPPP',
+  title: 'Tiket & Pengaduan Lokus - PEKPPP.ext',
   description: 'Tindak lanjut laporan masyarakat dan pengaduan layanan publik unit lokus.'
 }
 

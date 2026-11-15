@@ -587,3 +587,42 @@ enum TicketPriority {
   HIGH
   URGENT
 }
+
+enum ActivityCategory {
+  AUTH          // Login, Logout, Gagal Login, Ubah Password
+  EVALUATION    // Pengisian F01, Penilaian F02, Survei F03, Reset Skor
+  SYNC_MENPAN   // PULL Jawaban, PUSH Jawaban, Tautkan UUID, Sync BAP
+  USER_MGMT     // Tambah Akun, Edit Akun, Hapus Akun, Ubah Lokus
+  SYSTEM        // Pengaturan Sistem, Konfigurasi API, Retensi Log, Periode
+}
+
+// 21. Log Aktivitas & Jejak Audit (Audit Trail & Activity Log)
+model ActivityLog {
+  id           String           @id @default(uuid())
+  createdAt    DateTime         @default(now())
+
+  // Data Aktor / Pelaku
+  userId       String?
+  userName     String           // Nama aktor snapshot (tetap ada walau user terhapus)
+  userRole     Role?
+
+  // Objek Target Terkait (Opsional)
+  unitId       String?
+  unitName     String?
+  evaluationId String?
+
+  // Klasifikasi & Jenis Aksi
+  category     ActivityCategory
+  action       String           // Kode aksi: LOGIN, LOGOUT, F01_SAVE, F02_SCORE_UPDATE, SYNC_PULL, SYNC_PUSH, RETENTION_PURGE, dll.
+  description  String           // Deskripsi narasi ramah pembaca
+
+  // Data Rinci & Perubahan
+  metadata     Json?            // Detail sebelum vs sesudah, jumlah skor, formCode, dsb.
+  ipAddress    String?
+  userAgent    String?
+
+  @@index([createdAt])
+  @@index([category])
+  @@index([userId])
+  @@index([unitId])
+}

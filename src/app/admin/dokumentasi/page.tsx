@@ -2,8 +2,13 @@ import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { getCurrentUserAction } from '../../../actions/auth-actions'
 import { DokumentasiClient } from './DokumentasiClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Dokumentasi Integrasi MenPAN-RB - PEKPPP.ext'
+}
 
 export default async function AdminDokumentasiPage() {
   const user = await getCurrentUserAction()

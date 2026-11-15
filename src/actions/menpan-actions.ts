@@ -7,9 +7,15 @@ import {
   MenpanFormBindingInfo,
   PekpppFormCode,
   PEKPPP_FORM_CODES,
-  normalizePekpppFormCode
+  normalizePekpppFormCode,
+  MENPAN_BAP_SECTION_CONFIG,
+  MenpanBapSectionItem,
+  MenpanBapSignerItem,
+  MenpanBapSigningLinks
 } from '../services/menpan-api-service'
 import { validateEvaluationForSync } from '../services/sync-validator-service'
+import { requireSuperAdmin } from '../services/auth-guard'
+import { ActivityLogService } from '../services/activity-log-service'
 import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
 
@@ -217,6 +223,66 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     syncLogs?.questionMap?.length ||
     31
 
+  let latestScoreUpdate = localEval.updatedAt
+  for (const s of localEval.scores) {
+    if (s.updatedAt && s.updatedAt > latestScoreUpdate) {
+      latestScoreUpdate = s.updatedAt
+    }
+  }
+
+  const lastPushedAt =
+    syncLogs.lastPushedAt ||
+    (syncLogs.syncedAt && syncLogs.lastPushedForms ? syncLogs.syncedAt : null)
+  const lastPulledAt = syncLogs.lastPulledAt || null
+  const lastSyncDirection =
+    syncLogs.lastSyncDirection ||
+    (lastPulledAt && !lastPushedAt ? 'PULL' : lastPushedAt ? 'PUSH' : null)
+  const lastPullSummary = syncLogs.lastPullSummary || null
+  const lastPushSummary = syncLogs.lastPushSummary || null
+  const localUpdatedAt = latestScoreUpdate ? latestScoreUpdate.toISOString() : null
+
+  let freshnessStatus: 'PULL_FRESH' | 'PUSH_FRESH' | 'LOCAL_MODIFIED' | 'NEVER_SYNCED' =
+    'NEVER_SYNCED'
+  let freshnessLabel = 'Belum Pernah Disinkronkan'
+  let freshnessDescription =
+    'Evaluasi lokal ini belum pernah ditarik (PULL) maupun dikirim (PUSH) ke server MenPAN-RB.'
+
+  if (lastPushedAt || lastPulledAt) {
+    const pushTime = lastPushedAt ? new Date(lastPushedAt).getTime() : 0
+    const pullTime = lastPulledAt ? new Date(lastPulledAt).getTime() : 0
+    const editTime = latestScoreUpdate ? new Date(latestScoreUpdate).getTime() : 0
+    const lastSyncTime = Math.max(pushTime, pullTime)
+
+    if (editTime > lastSyncTime + 5000) {
+      freshnessStatus = 'LOCAL_MODIFIED'
+      freshnessLabel = 'Data Lokal Lebih Baru (Ada Perubahan)'
+      freshnessDescription =
+        'Terdapat perubahan skor atau isian di sistem lokal setelah sinkronisasi terakhir. Lakukan PUSH jika ingin mengirim pembaruan ini ke MenPAN-RB.'
+    } else if (pullTime >= pushTime) {
+      freshnessStatus = 'PULL_FRESH'
+      freshnessLabel = 'Selaras (Hasil PULL MenPAN-RB)'
+      freshnessDescription =
+        'Data lokal saat ini adalah hasil tarikan (PULL) terbaru langsung dari portal MenPAN-RB.'
+    } else {
+      freshnessStatus = 'PUSH_FRESH'
+      freshnessLabel = 'Selaras (Hasil PUSH ke MenPAN-RB)'
+      freshnessDescription =
+        'Data lokal saat ini telah berhasil dikirimkan (PUSH) dan tersimpan di portal MenPAN-RB.'
+    }
+  }
+
+  const syncMeta = {
+    lastPushedAt,
+    lastPulledAt,
+    lastSyncDirection,
+    lastPullSummary,
+    lastPushSummary,
+    localUpdatedAt,
+    freshnessStatus,
+    freshnessLabel,
+    freshnessDescription
+  }
+
   const localEvalInfo = {
     id: localEval.id,
     name: localEval.unit.name,
@@ -230,7 +296,8 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     menpanFormSheetName: localEval.menpanFormSheetName,
     isQuestionsMapped,
     questionsCount,
-    boundForms: boundFormsSummary
+    boundForms: boundFormsSummary,
+    updatedAt: localUpdatedAt
   }
 
   // Bentuk daftar pilihan lokus terkelompok untuk dropdown (95 lokus, bukan 380 baris duplikat)
@@ -253,6 +320,7 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
       hasMatchedRemote: false,
       availableRemotes,
       localEval: localEvalInfo,
+      syncMeta,
       isConfigured,
       localName: localEval.unit.name,
       message:
@@ -278,6 +346,7 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     status: effectiveStatus,
     is_priority: matchedGroup.isPriority,
     progress_percentage: remoteDetail?.progress_percentage,
+    remoteUpdatedAt: (remoteDetail as any)?.updated_at || null,
     form_sheet: {
       id: 2,
       name: matchedGroup.formSheetName
@@ -291,6 +360,7 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     matchedRemote,
     availableRemotes,
     localEval: localEvalInfo,
+    syncMeta,
     isConfigured,
     remoteAnswersCount: remoteAnswers.length,
     hasConflict: Boolean(
@@ -399,6 +469,20 @@ export async function linkEvaluationToMenpanAction(
           questionMap: primaryBinding?.questionMap || [],
           forms: formsMap
         }
+      }
+    })
+
+    await ActivityLogService.log({
+      category: 'SYNC_MENPAN',
+      action: 'SYNC_LINK_UUID',
+      description: `Admin menautkan lokus "${localEval.unit.name}" dengan evaluasi MenPAN-RB "${remoteName}" (${primaryUuid}).`,
+      unitId: localEval.unitId,
+      unitName: localEval.unit.name,
+      evaluationId,
+      metadata: {
+        primaryUuid,
+        remoteName,
+        formSheetName: joinedFormNames
       }
     })
 
@@ -572,8 +656,71 @@ export async function pushEvaluationSyncAction(
 
   // 2. Eksekusi push ke MenPAN-RB
   const result = await MenpanApiService.pushEvaluation(evaluationId, targetForm)
+
+  const evaluation = await db.evaluation.findUnique({
+    where: { id: evaluationId },
+    select: { unitId: true, year: true, unit: { select: { name: true } } }
+  })
+
+  await ActivityLogService.log({
+    category: 'SYNC_MENPAN',
+    action: 'SYNC_PUSH',
+    description: `Admin mengirimkan hasil penilaian (${targetForm}) lokus "${evaluation?.unit.name || evaluationId}" ke server MenPAN-RB. Hasil: ${result.success ? 'Berhasil (202 Queued)' : 'Sebagian/Gagal'}.`,
+    unitId: evaluation?.unitId,
+    unitName: evaluation?.unit.name,
+    evaluationId,
+    metadata: {
+      targetForm,
+      success: result.success,
+      message: result.message
+    }
+  })
+
   revalidatePath('/admin/peserta')
   revalidatePath(`/evaluasi/${evaluationId}`)
+  return result
+}
+
+/**
+ * PULL SERVER ACTION: Menarik data jawaban dari server MenPAN-RB ke database lokal Kutai Barat.
+ * Hanya dapat dieksekusi oleh SUPER_ADMIN.
+ */
+export async function pullEvaluationAnswersFromMenpanAction(
+  evaluationId: string,
+  targetForm: PekpppFormCode | 'ALL' = 'ALL'
+) {
+  await requireSuperAdmin()
+  const result = await MenpanApiService.pullEvaluation(evaluationId, targetForm)
+
+  const evaluation = await db.evaluation.findUnique({
+    where: { id: evaluationId },
+    select: { unitId: true, year: true, unit: { select: { name: true } } }
+  })
+
+  await ActivityLogService.log({
+    category: 'SYNC_MENPAN',
+    action: 'SYNC_PULL',
+    description: `Admin menarik jawaban MenPAN-RB (${targetForm}) untuk lokus "${evaluation?.unit.name || evaluationId}". Hasil: ${result.success ? 'Berhasil ditarik & direkalkulasi' : 'Gagal'}.`,
+    unitId: evaluation?.unitId,
+    unitName: evaluation?.unit.name,
+    evaluationId,
+    metadata: {
+      targetForm,
+      success: result.success,
+      newScore: result.newScore,
+      newIpp: result.newIpp
+    }
+  })
+
+  if (evaluation?.unitId) {
+    revalidatePath(`/evaluasi/${evaluation.unitId}`)
+    revalidatePath(`/evaluasi/${evaluation.unitId}/berita-acara`)
+  }
+  if (evaluation?.year) {
+    revalidatePath(`/admin/periode/${evaluation.year}`)
+  }
+  revalidatePath('/admin/peserta')
+
   return result
 }
 
@@ -1031,6 +1178,338 @@ export async function unbindEvaluationFromMenpanAction(evaluationId: string) {
     return {
       success: false,
       message: err.message || 'Gagal melepaskan tautan lokus.'
+    }
+  }
+}
+
+// =============================================================================
+// SERVER ACTIONS UNTUK BERITA ACARA PENILAIAN (BAP) & SINKRONISASI MENPAN-RB
+// =============================================================================
+
+export async function getMenpanBapWorkspaceAction(evaluationId: string) {
+  try {
+    const config = await getMenpanApiConfig()
+    const isConfigured = Boolean(config.baseUrl && config.apiKey)
+
+    const evaluation = await db.evaluation.findUnique({
+      where: { id: evaluationId },
+      include: {
+        unit: { include: { category: true } },
+        scores: {
+          include: {
+            indicator: {
+              include: { aspect: true }
+            }
+          },
+          orderBy: { indicator: { indicatorNumber: 'asc' } }
+        }
+      }
+    })
+
+    if (!evaluation) {
+      return { success: false, message: 'Data evaluasi tidak ditemukan.' }
+    }
+
+    const syncLogs = ((evaluation.syncLogs as any) || {}) as Record<string, any>
+    const f02Binding = syncLogs.forms?.F02 as MenpanFormBindingInfo | undefined
+    const f02Questions = Array.isArray(f02Binding?.questionMap) ? f02Binding!.questionMap! : []
+
+    let groupUuid: string | null = syncLogs.evaluationGroupUuid || null
+    let remoteBap: any = null
+    let signingLinks: MenpanBapSigningLinks | null = null
+
+    if (isConfigured && (evaluation.menpanEvaluationId || syncLogs.forms?.F02?.uuid || syncLogs.forms?.F01?.uuid)) {
+      if (!groupUuid) {
+        const resGroup = await MenpanApiService.resolveEvaluationGroupUuid(evaluationId)
+        if (resGroup.success && resGroup.groupUuid) {
+          groupUuid = resGroup.groupUuid
+        }
+      }
+
+      if (groupUuid) {
+        const [bapRes, linksRes] = await Promise.all([
+          MenpanApiService.getRemoteBap(groupUuid),
+          MenpanApiService.getRemoteBapSigningLinks(groupUuid)
+        ])
+        if (bapRes.success && bapRes.data) {
+          remoteBap = bapRes.data
+        }
+        if (linksRes.success && linksRes.data) {
+          signingLinks = linksRes.data
+        }
+      }
+    }
+
+    const mergedSections: MenpanBapSectionItem[] = MenpanApiService.buildBapSectionsFromLocal(
+      evaluation,
+      f02Questions,
+      remoteBap?.sections || []
+    )
+
+    const localBapMeta = (syncLogs.bap || {}) as Record<string, any>
+    const localSigners = (syncLogs.bapSigners || { evaluators: [], knowers: [] }) as {
+      evaluators: MenpanBapSignerItem[]
+      knowers: MenpanBapSignerItem[]
+    }
+
+    const evaluators: MenpanBapSignerItem[] =
+      Array.isArray(remoteBap?.evaluators) && remoteBap.evaluators.length > 0
+        ? remoteBap.evaluators
+        : localSigners.evaluators || []
+
+    const knowers: MenpanBapSignerItem[] =
+      Array.isArray(remoteBap?.knowers) && remoteBap.knowers.length > 0
+        ? remoteBap.knowers
+        : localSigners.knowers || []
+
+    const todayStr = new Date().toISOString().slice(0, 10)
+
+    return {
+      success: true,
+      unitId: evaluation.unitId,
+      year: evaluation.year,
+      isConfigured,
+      groupUuid,
+      bapName: remoteBap?.name || localBapMeta.name || evaluation.menpanEvaluationName || evaluation.unit.name,
+      printedAt: remoteBap?.printed_at || localBapMeta.printed_at || todayStr,
+      bapNumber: localBapMeta.bapNumber || `800.1.11.1/BAP-PEKPPP/${evaluation.year}`,
+      bapFileUrl: remoteBap?.bap_file_url || null,
+      bapFileSource: remoteBap?.bap_file_source || null,
+      lastSyncedAt: localBapMeta.syncedAt || null,
+      sections: mergedSections,
+      evaluators,
+      knowers,
+      signingLinks
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || 'Gagal memuat workspace BAP.'
+    }
+  }
+}
+
+export async function saveAndSyncMenpanBapAction(
+  evaluationId: string,
+  payload: {
+    name: string
+    printed_at: string
+    bapNumber?: string
+    pushToMenpan?: boolean
+    sections: Array<{
+      section_id: number
+      kondisi: string
+      catatan: string
+      rekomendasi: string
+    }>
+  }
+) {
+  try {
+    const evaluation = await db.evaluation.findUnique({
+      where: { id: evaluationId },
+      select: { id: true, year: true, unitId: true, aspectNotes: true, syncLogs: true }
+    })
+
+    if (!evaluation) {
+      return { success: false, message: 'Evaluasi tidak ditemukan.' }
+    }
+
+    const currentAspectNotes = ((evaluation.aspectNotes as any) || {}) as Record<string, any>
+    const updatedAspectNotes: Record<string, any> = { ...currentAspectNotes }
+
+    for (const sec of payload.sections) {
+      const cfg = MENPAN_BAP_SECTION_CONFIG.find((c) => c.section_id === Number(sec.section_id))
+      if (!cfg) continue
+      const aspectItem = {
+        kondisi: sec.kondisi || '',
+        catatan: sec.catatan || '',
+        rekomendasi: sec.rekomendasi || ''
+      }
+      updatedAspectNotes[cfg.dbCode] = aspectItem
+      updatedAspectNotes[cfg.romanCode] = aspectItem
+    }
+
+    const syncLogs = ((evaluation.syncLogs as any) || {}) as Record<string, any>
+    const updatedLogs = {
+      ...syncLogs,
+      bap: {
+        ...(syncLogs.bap || {}),
+        name: payload.name.trim(),
+        printed_at: payload.printed_at.slice(0, 10),
+        bapNumber: payload.bapNumber || syncLogs.bap?.bapNumber || `800.1.11.1/BAP-PEKPPP/${evaluation.year}`,
+        savedLocallyAt: new Date().toISOString(),
+        sections: payload.sections
+      }
+    }
+
+    await db.evaluation.update({
+      where: { id: evaluationId },
+      data: {
+        aspectNotes: updatedAspectNotes,
+        syncLogs: updatedLogs
+      }
+    })
+
+    revalidatePath(`/evaluasi/${evaluation.unitId}/berita-acara`)
+    revalidatePath(`/evaluasi/${evaluation.unitId}`)
+    revalidatePath(`/hasil/${evaluationId}`)
+
+    if (payload.pushToMenpan !== false) {
+      const syncRes = await MenpanApiService.syncEvaluationBapToMenpan(evaluationId, {
+        name: payload.name,
+        printed_at: payload.printed_at,
+        sections: payload.sections
+      })
+
+      if (!syncRes.success) {
+        return {
+          success: true,
+          syncedToMenpan: false,
+          message: `Tersimpan di database lokal. Catatan sinkronisasi MenPAN-RB: ${syncRes.message}`
+        }
+      }
+
+      return {
+        success: true,
+        syncedToMenpan: true,
+        groupUuid: syncRes.groupUuid,
+        message: 'Data BAP & Catatan Rekomendasi 6 Aspek berhasil disimpan lokal dan disinkronkan ke server MenPAN-RB!'
+      }
+    }
+
+    return {
+      success: true,
+      syncedToMenpan: false,
+      message: 'Data BAP & Catatan Rekomendasi berhasil disimpan ke database lokal.'
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || 'Gagal menyimpan data BAP.'
+    }
+  }
+}
+
+export async function addMenpanBapSignerAction(
+  evaluationId: string,
+  signer: {
+    role: 'evaluator' | 'mengetahui'
+    name: string
+    position?: string
+    nip?: string
+  }
+) {
+  try {
+    if (!signer.name || !signer.name.trim()) {
+      return { success: false, message: 'Nama penandatangan wajib diisi.' }
+    }
+
+    const evaluation = await db.evaluation.findUnique({
+      where: { id: evaluationId },
+      select: { id: true, unitId: true, syncLogs: true }
+    })
+
+    if (!evaluation) {
+      return { success: false, message: 'Evaluasi tidak ditemukan.' }
+    }
+
+    const syncLogs = ((evaluation.syncLogs as any) || {}) as Record<string, any>
+    const currentSigners = (syncLogs.bapSigners || { evaluators: [], knowers: [] }) as {
+      evaluators: MenpanBapSignerItem[]
+      knowers: MenpanBapSignerItem[]
+    }
+
+    const newEntry: MenpanBapSignerItem = {
+      id: `local_${Date.now()}`,
+      role: signer.role,
+      name: signer.name.trim(),
+      position: (signer.position || '-').trim(),
+      nip: (signer.nip || '-').trim()
+    }
+
+    if (signer.role === 'evaluator') {
+      currentSigners.evaluators = [...(currentSigners.evaluators || []), newEntry]
+    } else {
+      currentSigners.knowers = [...(currentSigners.knowers || []), newEntry]
+    }
+
+    await db.evaluation.update({
+      where: { id: evaluationId },
+      data: {
+        syncLogs: {
+          ...syncLogs,
+          bapSigners: currentSigners
+        }
+      }
+    })
+
+    const groupRes = await MenpanApiService.resolveEvaluationGroupUuid(evaluationId)
+    if (groupRes.success && groupRes.groupUuid) {
+      const remoteRes = await MenpanApiService.addRemoteBapSigner(groupRes.groupUuid, signer)
+      revalidatePath(`/evaluasi/${evaluation.unitId}/berita-acara`)
+      if (remoteRes.success) {
+        return {
+          success: true,
+          syncedToMenpan: true,
+          message: remoteRes.message
+        }
+      } else {
+        return {
+          success: true,
+          syncedToMenpan: false,
+          message: `Tersimpan di BAP lokal (Info MenPAN-RB: ${remoteRes.message})`
+        }
+      }
+    }
+
+    revalidatePath(`/evaluasi/${evaluation.unitId}/berita-acara`)
+    return {
+      success: true,
+      syncedToMenpan: false,
+      message: 'Penandatangan berhasil disimpan pada BAP lokal.'
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || 'Gagal menambahkan penandatangan BAP.'
+    }
+  }
+}
+
+export async function uploadSignedBapPdfToMenpanAction(
+  evaluationId: string,
+  formData: FormData
+) {
+  try {
+    const file = formData.get('file') as File | null
+    if (!file) {
+      return { success: false, message: 'Pilih berkas PDF BAP terlebih dahulu.' }
+    }
+
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      return { success: false, message: 'Berkas yang diunggah wajib berformat PDF (.pdf).' }
+    }
+
+    const groupRes = await MenpanApiService.resolveEvaluationGroupUuid(evaluationId)
+    if (!groupRes.success || !groupRes.groupUuid) {
+      return {
+        success: false,
+        message: groupRes.message || 'Lokus ini belum terikat dengan Evaluation Group di portal MenPAN-RB.'
+      }
+    }
+
+    const arrayBuffer = await file.arrayBuffer()
+    const uploadRes = await MenpanApiService.uploadRemoteBapPdf(groupRes.groupUuid, arrayBuffer)
+
+    const ev = await db.evaluation.findUnique({ where: { id: evaluationId }, select: { unitId: true } })
+    if (ev?.unitId) {
+      revalidatePath(`/evaluasi/${ev.unitId}/berita-acara`)
+    }
+    return uploadRes
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || 'Gagal mengunggah berkas PDF BAP ke portal MenPAN-RB.'
     }
   }
 }

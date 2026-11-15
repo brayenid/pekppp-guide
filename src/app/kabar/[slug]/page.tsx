@@ -20,13 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!res.success || !res.article) {
     return {
-      title: 'Artikel Tidak Ditemukan - PEKPPP Kutai Barat',
+      title: 'Artikel Tidak Ditemukan - PEKPPP.ext',
       description: 'Halaman artikel yang Anda cari tidak tersedia atau belum dipublikasikan.'
     }
   }
 
   const { article } = res
-  const pageTitle = `${article.seoTitle || article.title} - PEKPPP Kutai Barat`
+  const pageTitle = `${article.seoTitle || article.title} - PEKPPP.ext`
   const pageDescription =
     article.seoDescription ||
     article.excerpt ||

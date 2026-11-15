@@ -4,8 +4,8 @@ import { PublicSurveyClient } from './PublicSurveyClient'
 import { AlertTriangle, Clock } from 'lucide-react'
 
 export const metadata = {
-  title: 'Formulir F03 - PEKPPP',
-  description: 'Lembar penilaian masyarakat Formulir F03 PEKPPP',
+  title: 'Kuesioner Survei Kepuasan (F-03) - PEKPPP.ext',
+  description: 'Lembar penilaian masyarakat Formulir F03 PEKPPP.ext',
 }
 
 interface PageProps {

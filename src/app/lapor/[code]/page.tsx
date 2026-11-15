@@ -6,6 +6,17 @@ import { ArrowLeft, AlertCircle } from 'lucide-react'
 
 export const revalidate = 0
 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ code: string }>
+}) {
+  const { code } = await params
+  return {
+    title: `Tiket #${code} - PEKPPP.ext`
+  }
+}
+
 export default async function PublicTicketDetailPage({
   params
 }: {

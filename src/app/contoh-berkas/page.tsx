@@ -7,7 +7,7 @@ import { ContohBerkasClient } from './ContohBerkasClient'
 export const revalidate = 0
 
 export const metadata = {
-  title: 'Format & Contoh Berkas PEKPPP - Kutai Barat',
+  title: 'Format & Contoh Berkas - PEKPPP.ext',
   description:
     'Pusat format dokumen baku, formulir isian, panduan teknis, dan regulasi resmi dalam bentuk PDF, DOCX, dan XLSX untuk seluruh unit lokus pelayanan di lingkungan Pemerintah Kabupaten Kutai Barat.'
 }

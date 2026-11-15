@@ -131,9 +131,16 @@ export function NoticeBanner({
               </div>
             )}
             {description && (
-              <div className={`leading-relaxed font-normal ${config.descColor}`}>
-                {description}
-              </div>
+              typeof description === 'string' && /<(p|ul|ol|li|strong|b|i|u|br)\b/i.test(description) ? (
+                <div
+                  className={`leading-relaxed font-normal prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:list-inside [&_ul]:space-y-1 [&_ul]:my-1 [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:space-y-1 [&_ol]:my-1 [&_p]:mb-1 [&_p:last-child]:mb-0 ${config.descColor}`}
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
+              ) : (
+                <div className={`leading-relaxed font-normal ${config.descColor}`}>
+                  {description}
+                </div>
+              )
             )}
             {children && (
               <div className={`leading-relaxed font-normal ${config.descColor}`}>

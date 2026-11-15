@@ -6,7 +6,7 @@ import { WikiAccordionClient, WikiAspectGroup } from './WikiAccordionClient'
 export const revalidate = 0
 
 export const metadata = {
-  title: 'Wiki 6 Aspek & 31 Pertanyaan PEKPPP - Kutai Barat',
+  title: 'Kamus Indikator (Wiki) - PEKPPP.ext',
   description: 'Katalog dan referensi resmi instrumen evaluasi 6 aspek indikator dan 31 pertanyaan penilaian kinerja pelayanan publik berdasarkan PermenPAN-RB Nomor 29 Tahun 2022.'
 }
 

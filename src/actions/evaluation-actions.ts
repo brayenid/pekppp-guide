@@ -3,6 +3,7 @@
 import { db } from '../services/db'
 import { EvaluationService } from '../services/evaluation-service'
 import { EvidenceMasterService } from '../services/evidence-master-service'
+import { ActivityLogService } from '../services/activity-log-service'
 import { revalidatePath } from 'next/cache'
 
 export async function getActivePeriodsAction() {
@@ -357,6 +358,20 @@ export async function saveScoresAction(
         type: 'F02_UPDATE',
         link: `/evaluasi/${evalData.unitId}${targetQuery}`
       })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: 'F02_SCORE_UPDATE',
+        description: `Evaluator memperbarui penilaian F-02 pada ${evalData.unit.name} (${validCount} indikator). Skor F-02: ${result.evaluation.percentage.toFixed(1)}%, IPP: ${result.evaluation.finalIppScore.toFixed(2)}.`,
+        unitId: evalData.unitId,
+        unitName: evalData.unit.name,
+        evaluationId,
+        metadata: {
+          scoresCount: validCount,
+          f02Percentage: result.evaluation.percentage,
+          finalIppScore: result.evaluation.finalIppScore
+        }
+      })
     }
   } catch (err) {
     console.error('Failed to trigger F02 notification:', err)
@@ -538,6 +553,21 @@ export async function saveF01DataAction({
         type: isPostEvaluation ? 'F01_REVISION' : 'F01_UPDATE',
         link: `/evaluasi/${updated.evaluation.unitId}?mode=questions&soal=${indNum}${targetItemQuery}`
       })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: isPostEvaluation ? 'F01_REVISION' : 'F01_SAVE',
+        description: `Pengisian Formulir F-01 Indikator #${indNum} (${indCode}) pada ${updated.evaluation.unit.name} disimpan.${isPostEvaluation ? ' (Revisi pasca-penilaian)' : ''}`,
+        unitId: updated.evaluation.unitId,
+        unitName: updated.evaluation.unit.name,
+        evaluationId: updated.evaluationId,
+        metadata: {
+          indicatorNumber: indNum,
+          indicatorCode: indCode,
+          changedKey,
+          isPostEvaluation
+        }
+      })
     }
   } catch (err) {
     console.error('Failed to trigger F01 notification:', err)
@@ -558,20 +588,50 @@ export async function saveAspectNoteAction({
   note: string
   unitId: string
 }) {
+  const { normalizeAspectCode, getDbAspectCode } = await import('../core/domain/evidence-slots-preset')
+  const romanKey = normalizeAspectCode(aspectCode)
+  const dbKey = getDbAspectCode(aspectCode)
+
   // Read current aspectNotes JSON
   const evaluation = await db.evaluation.findUnique({
     where: { id: evaluationId },
     select: { aspectNotes: true }
   })
   const current = (evaluation?.aspectNotes as Record<string, string>) || {}
-  const updated = { ...current, [aspectCode]: note }
+  const updated = {
+    ...current,
+    [aspectCode]: note,
+    [romanKey]: note,
+    [dbKey]: note
+  }
 
   await db.evaluation.update({
     where: { id: evaluationId },
     data: { aspectNotes: updated }
   })
 
+  // Sinkronkan juga ke server MenPAN-RB di latar belakang jika sudah tertaut
+  try {
+    const { MenpanApiService } = await import('../services/menpan-api-service')
+    await MenpanApiService.syncEvaluationBapToMenpan(evaluationId)
+  } catch (err) {
+    console.warn('Background BAP sync on saveAspectNote skipped:', err)
+  }
+
+  const unit = await db.unit.findUnique({ where: { id: unitId }, select: { name: true } })
+  await ActivityLogService.log({
+    category: 'EVALUATION',
+    action: 'BAP_NOTE_SAVE',
+    description: `Catatan rekomendasi evaluator untuk Aspek ${romanKey} pada ${unit?.name || unitId} disimpan.`,
+    unitId,
+    unitName: unit?.name,
+    evaluationId,
+    metadata: { aspectCode, romanKey }
+  })
+
   revalidatePath(`/evaluasi/${unitId}`)
+  revalidatePath(`/evaluasi/${unitId}/berita-acara`)
+  revalidatePath(`/hasil/${evaluationId}`)
   return { success: true }
 }
 
@@ -693,7 +753,7 @@ export async function toggleEvaluationFinishedAction(evaluationId: string, targe
     revalidatePath(`/evaluasi/${existing.unitId}`)
     revalidatePath('/hasil')
     revalidatePath(`/hasil/${evaluationId}`)
-    revalidatePath(`/hasil/berita-acara/${evaluationId}`)
+    revalidatePath(`/evaluasi/${existing.unitId}/berita-acara`)
     revalidatePath('/admin/peserta')
     revalidatePath('/opd')
     revalidatePath('/')

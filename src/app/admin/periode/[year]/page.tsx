@@ -3,8 +3,20 @@ import { db } from '../../../../services/db'
 import { requireSuperAdmin } from '../../../../services/auth-guard'
 import { notFound } from 'next/navigation'
 import PeriodDetailClient from './PeriodDetailClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ year: string }>
+}): Promise<Metadata> {
+  const { year } = await params
+  return {
+    title: `Evaluasi Tahun ${year} - PEKPPP.ext`
+  }
+}
 
 export default async function PeriodDetailPage({
   params

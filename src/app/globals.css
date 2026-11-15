@@ -837,3 +837,35 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ── Universal Document Print Styles (Berita Acara & Laporan A4) ── */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  /* Sembunyikan elemen dashboard & navigasi saat mencetak */
+  aside,
+  header,
+  nav,
+  .print\\:hidden,
+  [data-print-hidden="true"] {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    max-width: 100% !important;
+  }
+  #print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

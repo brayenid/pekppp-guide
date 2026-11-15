@@ -5,8 +5,13 @@ import { redirect } from 'next/navigation'
 import { PEKPPP_EVIDENCE_SLOTS } from '../../core/domain/evidence-slots-preset'
 import { EvidenceComplianceService } from '../../services/evidence-compliance-service'
 import { OpdDashboardClient } from './OpdDashboardClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Dashboard Perangkat Daerah - PEKPPP.ext'
+}
 
 export default async function OpdDashboardPage({
   searchParams

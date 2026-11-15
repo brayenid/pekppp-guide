@@ -2,8 +2,13 @@ import { getMenpanApiConfigAction } from '../../../actions/menpan-actions'
 import { ApiSettingsClient } from './ApiSettingsClient'
 import { redirect } from 'next/navigation'
 import { getCurrentUserAction } from '../../../actions/auth-actions'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Pengaturan API MenPAN-RB - PEKPPP.ext'
+}
 
 export default async function AdminPengaturanApiPage() {
   const user = await getCurrentUserAction()

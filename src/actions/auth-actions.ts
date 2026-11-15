@@ -13,6 +13,7 @@ import {
   hashPassword,
   verifyPassword
 } from '../lib/jwt-auth'
+import { ActivityLogService } from '../services/activity-log-service'
 
 export type UserSession = UserSessionPayload
 
@@ -29,12 +30,27 @@ export async function loginAction(formData: FormData) {
   })
 
   if (!profile) {
+    await ActivityLogService.log({
+      category: 'AUTH',
+      action: 'LOGIN_FAILED',
+      description: `Percobaan login gagal: akun dengan email "${email}" tidak ditemukan.`,
+      metadata: { email, reason: 'USER_NOT_FOUND' }
+    })
     return { success: false, error: 'Email atau password salah.' }
   }
 
   const { isValid, needsRehash } = await verifyPassword(password, profile.password)
 
   if (!isValid) {
+    await ActivityLogService.log({
+      category: 'AUTH',
+      action: 'LOGIN_FAILED',
+      description: `Percobaan login gagal: password salah untuk akun "${profile.fullName}" (${email}).`,
+      userId: profile.id,
+      userName: profile.fullName,
+      userRole: profile.role,
+      metadata: { email, reason: 'INVALID_PASSWORD' }
+    })
     return { success: false, error: 'Email atau password salah.' }
   }
 
@@ -68,11 +84,31 @@ export async function loginAction(formData: FormData) {
     path: '/'
   })
 
+  await ActivityLogService.log({
+    category: 'AUTH',
+    action: 'LOGIN_SUCCESS',
+    description: `${profile.fullName} (${profile.role}) berhasil login ke sistem.`,
+    userId: profile.id,
+    userName: profile.fullName,
+    userRole: profile.role
+  })
+
   revalidatePath('/')
   return { success: true, user: sessionData }
 }
 
 export async function logoutAction() {
+  const currentUser = await getCurrentUserAction()
+  if (currentUser) {
+    await ActivityLogService.log({
+      category: 'AUTH',
+      action: 'LOGOUT',
+      description: `${currentUser.fullName} (${currentUser.role}) keluar dari sistem (logout).`,
+      userId: currentUser.id,
+      userName: currentUser.fullName,
+      userRole: currentUser.role as any
+    })
+  }
   const cookieStore = await cookies()
   cookieStore.delete(SESSION_COOKIE_NAME)
   revalidatePath('/')

@@ -1,8 +1,13 @@
 import { db } from '../../../services/db'
 import { requireSuperAdmin } from '../../../services/auth-guard'
 import PeriodeClient from './PeriodeClient'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Tahun Penilaian PEKPPP - PEKPPP.ext'
+}
 
 export default async function PeriodePage() {
   await requireSuperAdmin()

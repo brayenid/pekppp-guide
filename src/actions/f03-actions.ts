@@ -4,6 +4,7 @@ import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
 import f03Schema from '../../data/f03.json'
 import { calculateEffectiveF03AndIpp } from '../core/domain/pekppp-calculator'
+import { ActivityLogService } from '../services/activity-log-service'
 
 export interface F03RespondentInput {
   respondentNo?: number
@@ -62,7 +63,18 @@ export async function getF03DataAction(evaluationId: string) {
 export async function togglePublicSurveyAction(evaluationId: string, isPublicSurveyOpen: boolean) {
   const evaluation = await db.evaluation.update({
     where: { id: evaluationId },
-    data: { isPublicSurveyOpen }
+    data: { isPublicSurveyOpen },
+    include: { unit: { select: { name: true } } }
+  })
+
+  await ActivityLogService.log({
+    category: 'EVALUATION',
+    action: isPublicSurveyOpen ? 'F03_SURVEY_OPEN' : 'F03_SURVEY_CLOSE',
+    description: `Akses kuesioner publik survei masyarakat (F-03) pada ${evaluation.unit.name} ${isPublicSurveyOpen ? 'dibuka' : 'ditutup'}.`,
+    unitId: evaluation.unitId,
+    unitName: evaluation.unit.name,
+    evaluationId,
+    metadata: { isPublicSurveyOpen }
   })
 
   revalidatePath(`/evaluasi/${evaluation.unitId}`)
@@ -127,8 +139,10 @@ export async function upsertF03RespondentAction(
   respondentId: string | null,
   input: F03RespondentInput
 ) {
+  const isEdit = Boolean(respondentId)
   const evaluation = await db.evaluation.findUnique({
-    where: { id: evaluationId }
+    where: { id: evaluationId },
+    include: { unit: { select: { name: true } } }
   })
 
   if (!evaluation) {
@@ -187,6 +201,21 @@ export async function upsertF03RespondentAction(
   // Recalculate F03 aggregates & Final IPP Score for evaluation
   await recalculateF03AndFinalIpp(evaluationId)
 
+  await ActivityLogService.log({
+    category: 'EVALUATION',
+    action: isEdit ? 'F03_RESPONDENT_UPDATE' : 'F03_RESPONDENT_CREATE',
+    description: `${isEdit ? 'Memperbarui' : 'Menambahkan'} isian survei masyarakat (F-03) responden "${input.name?.trim() || `Responden #${input.respondentNo}`}" pada ${evaluation.unit.name}. Nilai: ${scale5.toFixed(2)}/5.`,
+    unitId: evaluation.unitId,
+    unitName: evaluation.unit.name,
+    evaluationId,
+    metadata: {
+      respondentNo: input.respondentNo,
+      scale5,
+      totalScore,
+      isEdit
+    }
+  })
+
   revalidatePath(`/evaluasi/${evaluation.unitId}`)
   revalidatePath(`/lokus/${evaluation.unitId}/f03`)
   revalidatePath(`/admin/evaluasi/${evaluation.unitId}`)
@@ -197,7 +226,7 @@ export async function upsertF03RespondentAction(
 export async function deleteF03RespondentAction(respondentId: string) {
   const respondent = await db.f03Respondent.findUnique({
     where: { id: respondentId },
-    include: { evaluation: true }
+    include: { evaluation: { include: { unit: { select: { name: true } } } } }
   })
 
   if (!respondent) {
@@ -206,6 +235,8 @@ export async function deleteF03RespondentAction(respondentId: string) {
 
   const evaluationId = respondent.evaluationId
   const unitId = respondent.evaluation.unitId
+  const unitName = respondent.evaluation.unit.name
+  const respondentName = respondent.name
 
   await db.f03Respondent.delete({
     where: { id: respondentId }
@@ -213,6 +244,20 @@ export async function deleteF03RespondentAction(respondentId: string) {
 
   // Recalculate aggregates
   await recalculateF03AndFinalIpp(evaluationId)
+
+  await ActivityLogService.log({
+    category: 'EVALUATION',
+    action: 'F03_RESPONDENT_DELETE',
+    description: `Menghapus data responden survei masyarakat (F-03) "${respondentName}" pada ${unitName}.`,
+    unitId,
+    unitName,
+    evaluationId,
+    metadata: {
+      respondentId,
+      respondentName,
+      respondentNo: respondent.respondentNo
+    }
+  })
 
   revalidatePath(`/evaluasi/${unitId}`)
   revalidatePath(`/lokus/${unitId}/f03`)

@@ -7,7 +7,7 @@ import { AdminContohBerkasClient } from './AdminContohBerkasClient'
 export const revalidate = 0
 
 export const metadata = {
-  title: 'Pengelolaan Contoh Berkas - Admin PEKPPP',
+  title: 'Kurasi Contoh Berkas - PEKPPP.ext',
   description: 'Kurasi dan tentukan format berkas baku dari Pustaka Media yang ditampilkan ke unit lokus.'
 }
 

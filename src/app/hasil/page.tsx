@@ -8,6 +8,11 @@ import { PublicReportButton } from '../../components/features/PublicReportButton
 
 import { YearSelector } from './YearSelector'
 import { HasilLeaderboardClient } from './HasilLeaderboardClient'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Hasil Evaluasi Publik - PEKPPP.ext'
+}
 
 export const revalidate = 0
 

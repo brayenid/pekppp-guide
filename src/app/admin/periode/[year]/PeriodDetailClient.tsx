@@ -145,10 +145,12 @@ export default function PeriodDetailClient({
   const [syncModalState, setSyncModalState] = useState<{
     isOpen: boolean
     evaluationId: string
+    unitId?: string
     unitName: string
   }>({
     isOpen: false,
     evaluationId: '',
+    unitId: '',
     unitName: ''
   })
 
@@ -1097,7 +1099,15 @@ export default function PeriodDetailClient({
                             {activeMenuId === ev.id && (
                               <div
                                 ref={rowMenuRef}
-                                className="absolute right-0 top-full mt-1 w-44 bg-surface rounded-xl border border-stroke/60 shadow-soft-float p-1 z-30 text-left animate-fade-in-content">
+                                className="absolute right-0 top-full mt-1 w-48 bg-surface rounded-xl border border-stroke/60 shadow-soft-float p-1 z-30 text-left animate-fade-in-content">
+                                <Link
+                                  href={`/evaluasi/${ev.unit.id}/berita-acara?tahun=${period.year}`}
+                                  onClick={() => setActiveMenuId(null)}
+                                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-ink hover:bg-surface-subtle transition-colors cursor-pointer">
+                                  <FileText className="w-3.5 h-3.5 text-brand" />
+                                  <span>Berita Acara (BAP)</span>
+                                </Link>
+
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -1105,6 +1115,7 @@ export default function PeriodDetailClient({
                                     setSyncModalState({
                                       isOpen: true,
                                       evaluationId: ev.id,
+                                      unitId: ev.unit.id,
                                       unitName: ev.unit.name
                                     })
                                   }}
@@ -1335,9 +1346,10 @@ export default function PeriodDetailClient({
       <MenpanSyncModal
         isOpen={syncModalState.isOpen}
         onClose={() => {
-          setSyncModalState({ isOpen: false, evaluationId: '', unitName: '' })
+          setSyncModalState({ isOpen: false, evaluationId: '', unitId: '', unitName: '' })
         }}
         evaluationId={syncModalState.evaluationId}
+        unitId={syncModalState.unitId}
         unitName={syncModalState.unitName}
         year={period.year}
       />

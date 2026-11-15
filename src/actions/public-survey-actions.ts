@@ -4,6 +4,7 @@ import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
 import f03Schema from '../../data/f03.json'
 import { calculateEffectiveF03AndIpp } from '../core/domain/pekppp-calculator'
+import { ActivityLogService } from '../services/activity-log-service'
 
 export interface PublicSurveySubmitPayload {
   token: string
@@ -223,6 +224,23 @@ export async function submitPublicSurveyAction(payload: PublicSurveySubmitPayloa
         f03Scale5: avgF03Scale5,
         f03Percentage: avgF03Percentage,
         finalIppScore
+      }
+    })
+
+    await ActivityLogService.log({
+      category: 'EVALUATION',
+      action: 'F03_PUBLIC_SUBMIT',
+      description: `Masyarakat mengirimkan survei kepuasan (F-03) untuk ${evaluation.unit.name}. Nilai: ${scale5.toFixed(2)}/5 (Responden #${nextNo}).`,
+      userName: 'Masyarakat / Responden Publik',
+      unitId: evaluation.unitId,
+      unitName: evaluation.unit.name,
+      evaluationId: evaluation.id,
+      metadata: {
+        respondentNo: nextNo,
+        scale5,
+        totalScore,
+        f03Count,
+        newFinalIpp: finalIppScore
       }
     })
 

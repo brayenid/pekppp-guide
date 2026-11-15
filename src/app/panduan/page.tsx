@@ -4,7 +4,7 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { ArrowRight, FolderOpen } from 'lucide-react'
 
 export const metadata = {
-  title: 'Panduan Teknis PEKPPP - Kutai Barat',
+  title: 'Panduan Teknis - PEKPPP.ext',
   description: 'Petunjuk teknis pelaksanaan evaluasi kinerja penyelenggaraan pelayanan publik bagi Tim Evaluator dan Unit Lokus Pelayanan di Kabupaten Kutai Barat.'
 }
 

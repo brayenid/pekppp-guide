@@ -24,6 +24,7 @@ import {
   getRuleForSlot
 } from '../services/system-setting-service'
 import { createNotificationHelper } from './notification-actions'
+import { ActivityLogService } from '../services/activity-log-service'
 
 export type { EvidenceAttachmentItem, FileVersionItem }
 
@@ -291,6 +292,22 @@ export async function saveIndicatorEvidenceSlotAction(params: {
           type: isPostEvaluation ? 'F01_REVISION' : 'PROOF_TRIGGER',
           link: `/evaluasi/${evalData.unitId}?mode=evidence&aspek=${norm}&targetSlot=${encodeURIComponent(slotKey)}`
         })
+
+        await ActivityLogService.log({
+          category: 'EVALUATION',
+          action: existing ? 'EVIDENCE_UPDATE' : 'EVIDENCE_UPLOAD',
+          description: `${uploaderName || user?.fullName || 'Pengguna'} ${existing ? 'memperbarui tautan/judul' : 'menyematkan'} bukti dukung "${title}" pada Aspek ${norm} (${unitName}).`,
+          unitId: evalData.unitId,
+          unitName: unitName,
+          evaluationId,
+          metadata: {
+            slotKey,
+            aspectCode: norm,
+            title,
+            fileUrl: cleankedUrl,
+            isExisting: Boolean(existing)
+          }
+        })
       }
     } catch (notifErr) {
       console.error('Failed to trigger evidence notification:', notifErr)
@@ -410,6 +427,21 @@ export async function addCustomAdditionalEvidenceSlotAction(params: {
             : `OPD menambahkan dokumen bukti pendukung "${cleanTitle}" pada Aspek ${norm}.`,
           type: isPostEvaluation ? 'F01_REVISION' : 'PROOF_TRIGGER',
           link: `/evaluasi/${evalData.unitId}?mode=evidence&aspek=${norm}&targetSlot=${encodeURIComponent(slotKey)}`
+        })
+
+        await ActivityLogService.log({
+          category: 'EVALUATION',
+          action: 'EVIDENCE_CUSTOM_CREATE',
+          description: `${uploaderName || 'Admin OPD'} menambahkan dokumen bukti tambahan "${cleanTitle}" pada Aspek ${norm} (${unitName}).`,
+          unitId: evalData.unitId,
+          unitName: unitName,
+          evaluationId,
+          metadata: {
+            slotKey,
+            aspectCode: norm,
+            title: cleanTitle,
+            fileUrl: cleanUrl
+          }
         })
       }
     } catch (notifErr) {
@@ -535,6 +567,30 @@ export async function deleteEvidenceAttachmentAction(params: {
     // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
     await EvidenceMasterService.syncSubmissionToMaster(sub.evaluationId, sub.aspectCode, sub.slotKey)
 
+    try {
+      const evalData = await db.evaluation.findUnique({
+        where: { id: sub.evaluationId },
+        include: { unit: { select: { name: true } } }
+      })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: 'EVIDENCE_DELETE',
+        description: `Pengguna menghapus berkas lampiran bukti "${target.fileName}" pada Aspek ${norm} (${evalData?.unit.name || 'Lokus'}).`,
+        unitId: evalData?.unitId,
+        unitName: evalData?.unit.name,
+        evaluationId: sub.evaluationId,
+        metadata: {
+          slotKey,
+          aspectCode: norm,
+          deletedFileName: target.fileName,
+          remainingCount: remaining.length
+        }
+      })
+    } catch (logErr) {
+      console.warn('Failed to log evidence deletion:', logErr)
+    }
+
     if (path) revalidatePath(path)
     return { success: true, remainingCount: remaining.length }
   } catch (error: any) {
@@ -622,6 +678,29 @@ export async function deleteIndicatorEvidenceSlotAction(params: {
       }
     })
 
+    try {
+      const evalData = await db.evaluation.findUnique({
+        where: { id: sub.evaluationId },
+        include: { unit: { select: { name: true } } }
+      })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: 'EVIDENCE_SLOT_PURGE',
+        description: `Pengguna menghapus seluruh berkas bukti dukung "${sub.title || sub.slotKey}" pada Aspek ${sub.aspectCode} (${evalData?.unit.name || 'Lokus'}).`,
+        unitId: evalData?.unitId,
+        unitName: evalData?.unit.name,
+        evaluationId: sub.evaluationId,
+        metadata: {
+          slotKey: sub.slotKey,
+          aspectCode: sub.aspectCode,
+          title: sub.title
+        }
+      })
+    } catch (logErr) {
+      console.warn('Failed to log evidence slot purge:', logErr)
+    }
+
     if (path) revalidatePath(path)
 
     return { success: true }
@@ -685,6 +764,29 @@ export async function deleteHistoryItemAction(params: {
 
     // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
     await EvidenceMasterService.syncSubmissionToMaster(sub.evaluationId, sub.aspectCode, sub.slotKey)
+
+    try {
+      const evalData = await db.evaluation.findUnique({
+        where: { id: sub.evaluationId },
+        include: { unit: { select: { name: true } } }
+      })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: 'EVIDENCE_DELETE',
+        description: `Pengguna menghapus riwayat berkas bukti "${targetItem.fileName || 'Lampiran'}" pada Aspek ${sub.aspectCode} (${evalData?.unit.name || 'Lokus'}).`,
+        unitId: evalData?.unitId,
+        unitName: evalData?.unit.name,
+        evaluationId: sub.evaluationId,
+        metadata: {
+          slotKey: sub.slotKey,
+          aspectCode: sub.aspectCode,
+          activityId
+        }
+      })
+    } catch (logErr) {
+      console.warn('Failed to log evidence history deletion:', logErr)
+    }
 
     if (path) revalidatePath(path)
     return { success: true }
@@ -890,6 +992,32 @@ export async function uploadNewAttachmentVersionAction(formData: FormData) {
     // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
     await EvidenceMasterService.syncSubmissionToMaster(evaluationId, sub.aspectCode, sub.slotKey)
 
+    try {
+      const evalData = await db.evaluation.findUnique({
+        where: { id: evaluationId },
+        include: { unit: { select: { name: true } } }
+      })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: isOverwrite ? 'EVIDENCE_OVERWRITE' : 'EVIDENCE_VERSION_UPDATE',
+        description: `${uploaderName || 'Pengguna'} mengunggah ${isOverwrite ? 'timpaan berkas' : `versi baru (v${finalVersionNum})`} "${uploadResult.fileName}" pada Aspek ${norm} (${evalData?.unit.name || 'Lokus'}).`,
+        unitId: evalData?.unitId,
+        unitName: evalData?.unit.name,
+        evaluationId,
+        metadata: {
+          slotKey: sub.slotKey,
+          aspectCode: norm,
+          fileName: uploadResult.fileName,
+          version: finalVersionNum,
+          fileSize: uploadResult.fileSize,
+          isOverwrite
+        }
+      })
+    } catch (logErr) {
+      console.warn('Failed to log evidence version upload:', logErr)
+    }
+
     // SOKET AI PRE-EVALUATOR trigger
     try {
       const { AiEvaluatorService } = await import('../services/ai-evaluator-service')
@@ -1004,6 +1132,30 @@ export async function restoreAttachmentVersionAction(params: {
     // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
     await EvidenceMasterService.syncSubmissionToMaster(evaluationId, sub.aspectCode, sub.slotKey)
 
+    try {
+      const evalData = await db.evaluation.findUnique({
+        where: { id: evaluationId },
+        include: { unit: { select: { name: true } } }
+      })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: 'EVIDENCE_RESTORE',
+        description: `${uploaderName || 'Pengguna'} memulihkan berkas bukti "${selectedVer.fileName}" ke Versi ${selectedVer.version} pada Aspek ${norm} (${evalData?.unit.name || 'Lokus'}).`,
+        unitId: evalData?.unitId,
+        unitName: evalData?.unit.name,
+        evaluationId,
+        metadata: {
+          slotKey: sub.slotKey,
+          aspectCode: norm,
+          fileName: selectedVer.fileName,
+          restoredVersion: selectedVer.version
+        }
+      })
+    } catch (logErr) {
+      console.warn('Failed to log evidence restore:', logErr)
+    }
+
     if (path) revalidatePath(path)
     return { success: true, restoredVersion: selectedVer.version }
   } catch (error: any) {
@@ -1092,6 +1244,30 @@ export async function deleteAttachmentVersionAction(params: {
 
     // Dual-Sync ke Master Bukti Dukung Unit (Living Document)
     await EvidenceMasterService.syncSubmissionToMaster(evaluationId, sub.aspectCode, sub.slotKey)
+
+    try {
+      const evalData = await db.evaluation.findUnique({
+        where: { id: evaluationId },
+        include: { unit: { select: { name: true } } }
+      })
+
+      await ActivityLogService.log({
+        category: 'EVALUATION',
+        action: 'EVIDENCE_VERSION_DELETE',
+        description: `${actorName || 'Pengguna'} menghapus arsip Versi ${selectedVer.version} berkas "${selectedVer.fileName}" pada Aspek ${norm} (${evalData?.unit.name || 'Lokus'}).`,
+        unitId: evalData?.unitId,
+        unitName: evalData?.unit.name,
+        evaluationId,
+        metadata: {
+          slotKey: sub.slotKey,
+          aspectCode: norm,
+          fileName: selectedVer.fileName,
+          deletedVersion: selectedVer.version
+        }
+      })
+    } catch (logErr) {
+      console.warn('Failed to log evidence version deletion:', logErr)
+    }
 
     if (path) revalidatePath(path)
     return { success: true }

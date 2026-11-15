@@ -80,11 +80,25 @@ export function ApiSettingsClient({ initialConfig }: { initialConfig: MenpanApiC
         description="Konfigurasi endpoint dan kredensial akses resmi untuk sinkronisasi evaluasi ke portal nasional."
         speedDialItems={[
           {
+            label: saving ? 'Menyimpan...' : 'Simpan Pengaturan',
+            icon: <Save className="w-4 h-4" />,
+            onClick: () => {
+              const form = document.getElementById('api-settings-form') as HTMLFormElement | null
+              if (form) {
+                form.requestSubmit()
+              } else {
+                handleSave({ preventDefault: () => {} } as any)
+              }
+            },
+            disabled: saving,
+            variant: 'brand'
+          },
+          {
             label: testing ? 'Menguji...' : 'Uji Koneksi API',
             icon: <RefreshCw className={`w-4 h-4 ${testing ? 'animate-spin' : ''}`} />,
             onClick: handleTestConnection,
             disabled: testing,
-            variant: 'brand'
+            variant: 'secondary'
           }
         ]}
         actions={

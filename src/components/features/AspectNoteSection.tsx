@@ -5,6 +5,8 @@ import { MessageSquare, CheckCircle2, Loader2, AlertCircle, NotebookPen } from '
 import { toast } from 'sonner'
 import { saveAspectNoteAction } from '../../actions/evaluation-actions'
 import { NoticeBanner } from '../ui/NoticeBanner'
+import { MenpanRichTextEditor } from '../editor/MenpanRichTextEditor'
+import { formatLegacyPipeNotesToHtml } from '../../lib/menpan-note-formatter'
 
 export function AspectNoteSection({
   evaluationId,
@@ -21,8 +23,8 @@ export function AspectNoteSection({
   initialNote?: string
   isEvaluator: boolean
 }) {
-  const [note, setNote] = useState(initialNote || '')
-  const [savedNote, setSavedNote] = useState(initialNote || '')
+  const [note, setNote] = useState(() => initialNote || '')
+  const [savedNote, setSavedNote] = useState(() => initialNote || '')
   const [isSaving, setIsSaving] = useState(false)
 
   // Sync when server revalidates with new props
@@ -31,7 +33,14 @@ export function AspectNoteSection({
     setNote(initialNote || '')
   }, [initialNote, aspectCode])
 
-  const isDirty = note.trim() !== savedNote.trim()
+  const stripTags = (s?: string | null) =>
+    (s || '')
+      .replace(/<\/p>\s*<p>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+  const isDirty = stripTags(note) !== stripTags(savedNote)
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -85,12 +94,11 @@ export function AspectNoteSection({
         </div>
       </div>
 
-      <textarea
+      <MenpanRichTextEditor
         value={note}
-        onChange={(e) => setNote(e.target.value)}
+        onChange={(html) => setNote(html)}
         placeholder={`Tuliskan catatan evaluasi untuk Aspek ${aspectCode} - ${aspectName}...`}
-        rows={3}
-        className="w-full p-3 text-xs sm:text-sm font-normal rounded-xl border border-stroke/70 bg-surface text-ink focus:outline-none focus:border-brand resize-none leading-relaxed placeholder:text-ink-muted shadow-2xs"
+        minHeight="90px"
       />
 
       {isDirty && (

@@ -4,6 +4,7 @@ import { db } from '../services/db'
 import { revalidatePath } from 'next/cache'
 import { hashPassword } from '../lib/jwt-auth'
 import { requireSuperAdmin } from '../services/auth-guard'
+import { ActivityLogService } from '../services/activity-log-service'
 
 export async function listProfilesAction() {
   await requireSuperAdmin()
@@ -28,7 +29,7 @@ export async function createProfileAction(data: {
 
   const hashedPassword = await hashPassword(data.password.trim())
 
-  await db.profile.create({
+  const created = await db.profile.create({
     data: {
       email: emailLower,
       password: hashedPassword,
@@ -37,13 +38,32 @@ export async function createProfileAction(data: {
       role: data.role
     }
   })
+
+  await ActivityLogService.log({
+    category: 'USER_MGMT',
+    action: 'USER_CREATE',
+    description: `Admin membuat akun baru: "${created.fullName}" (${created.email}) dengan peran ${created.role}.`,
+    metadata: { targetUserId: created.id, email: created.email, role: created.role }
+  })
+
   revalidatePath('/admin/akun')
   return { success: true }
 }
 
 export async function deleteProfileAction(id: string) {
   await requireSuperAdmin()
+  const existing = await db.profile.findUnique({ where: { id } })
   await db.profile.delete({ where: { id } })
+
+  if (existing) {
+    await ActivityLogService.log({
+      category: 'USER_MGMT',
+      action: 'USER_DELETE',
+      description: `Admin menghapus akun pengguna: "${existing.fullName}" (${existing.email}).`,
+      metadata: { targetUserId: id, email: existing.email, role: existing.role }
+    })
+  }
+
   revalidatePath('/admin/akun')
   return { success: true }
 }
@@ -79,13 +99,21 @@ export async function updateProfileAction(
     updateData.phone = data.phone?.trim() ? data.phone.trim() : null
   }
 
-  if (data.password && data.password.trim() !== '') {
-    updateData.password = await hashPassword(data.password.trim())
+  const isPasswordChanged = Boolean(data.password && data.password.trim() !== '')
+  if (isPasswordChanged) {
+    updateData.password = await hashPassword(data.password!.trim())
   }
 
-  await db.profile.update({
+  const updated = await db.profile.update({
     where: { id },
     data: updateData
+  })
+
+  await ActivityLogService.log({
+    category: 'USER_MGMT',
+    action: 'USER_UPDATE',
+    description: `Admin memperbarui data akun "${updated.fullName}" (${updated.email}).${isPasswordChanged ? ' (Termasuk reset password)' : ''}`,
+    metadata: { targetUserId: id, email: updated.email, role: updated.role, isPasswordChanged }
   })
 
   revalidatePath('/admin/akun')
@@ -99,6 +127,21 @@ export async function bindUnitToProfileAction(userId: string, unitId: string) {
     update: {},
     create: { userId, unitId }
   })
+
+  const [profile, unit] = await Promise.all([
+    db.profile.findUnique({ where: { id: userId }, select: { fullName: true, email: true } }),
+    db.unit.findUnique({ where: { id: unitId }, select: { name: true } })
+  ])
+
+  await ActivityLogService.log({
+    category: 'USER_MGMT',
+    action: 'USER_BIND_UNIT',
+    description: `Admin menautkan akses lokus "${unit?.name || unitId}" ke akun "${profile?.fullName || userId}".`,
+    unitId,
+    unitName: unit?.name,
+    metadata: { targetUserId: userId, unitId }
+  })
+
   revalidatePath('/admin/akun')
   return { success: true }
 }
@@ -106,6 +149,21 @@ export async function bindUnitToProfileAction(userId: string, unitId: string) {
 export async function unbindUnitFromProfileAction(userId: string, unitId: string) {
   await requireSuperAdmin()
   await db.userUnit.deleteMany({ where: { userId, unitId } })
+
+  const [profile, unit] = await Promise.all([
+    db.profile.findUnique({ where: { id: userId }, select: { fullName: true, email: true } }),
+    db.unit.findUnique({ where: { id: unitId }, select: { name: true } })
+  ])
+
+  await ActivityLogService.log({
+    category: 'USER_MGMT',
+    action: 'USER_UNBIND_UNIT',
+    description: `Admin melepas akses lokus "${unit?.name || unitId}" dari akun "${profile?.fullName || userId}".`,
+    unitId,
+    unitName: unit?.name,
+    metadata: { targetUserId: userId, unitId }
+  })
+
   revalidatePath('/admin/akun')
   return { success: true }
 }

@@ -11,8 +11,27 @@ import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
 import { NoticeBanner } from '../../../components/ui/NoticeBanner'
 import { Breadcrumb } from '../../../components/ui/Breadcrumb'
+import { Metadata } from 'next'
 
 export const revalidate = 0
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const evaluation = await db.evaluation.findUnique({
+    where: { id },
+    include: { unit: { select: { name: true } } }
+  })
+  if (!evaluation) {
+    return { title: 'Hasil Evaluasi Tidak Ditemukan - PEKPPP.ext' }
+  }
+  return {
+    title: `Hasil Evaluasi ${evaluation.unit.name} (${evaluation.year}) - PEKPPP.ext`
+  }
+}
 
 const GRADE_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
   A: { label: 'Sangat Baik', bg: '#6ee7b7', text: '#064e3b' },
@@ -214,6 +233,7 @@ export default async function PublicHasilDetailPage({
               {isOwner && (
                 <PrintBeritaAcaraButton
                   evaluationId={evaluation.id}
+                  targetUrl={`/evaluasi/${evaluation.unitId}/berita-acara?tahun=${evaluation.year}`}
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-white/95 text-brand text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
                 />
               )}

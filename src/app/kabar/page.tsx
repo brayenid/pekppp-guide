@@ -5,7 +5,7 @@ import { getPublishedArticlesAction } from '../../actions/article-actions'
 import { KabarClient } from './KabarClient'
 
 export const metadata: Metadata = {
-  title: 'Kabar & Artikel PEKPPP - Pemerintah Kabupaten Kutai Barat',
+  title: 'Kabar & Artikel - PEKPPP.ext',
   description:
     'Pusat publikasi resmi seputar pemantauan evaluasi pelayanan publik, kiat pemenuhan bukti dukung, inovasi unit lokus, dan informasi terkini di Kabupaten Kutai Barat.',
   keywords: [

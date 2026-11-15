@@ -4,7 +4,7 @@ import { getAdminTicketsAction, getActiveUnitsForTicketAction } from '../../../a
 import { AdminTicketListClient } from './AdminTicketListClient'
 
 export const metadata = {
-  title: 'Manajemen Tiket & Pengaduan - Admin PEKPPP',
+  title: 'Manajemen Tiket & Pengaduan - PEKPPP.ext',
   description: 'Pusat pemantauan, telaah, dan disposisi tiket laporan pelayanan publik Kabupaten Kutai Barat.'
 }
 
