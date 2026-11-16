@@ -249,7 +249,7 @@ export default async function EvaluasiBeritaAcaraPage({
         showBackOnFirst
         items={[
           {
-            label: userRole === 'OPD' ? 'Dashboard OPD' : `Periode ${evaluation.year}`,
+            label: userRole === 'OPD' ? 'Dashboard OPD' : `Tahun Penilaian ${evaluation.year}`,
             href: userRole === 'OPD' ? '/opd' : `/admin/periode/${evaluation.year}`
           },
           {

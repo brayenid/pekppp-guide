@@ -119,8 +119,8 @@ export default async function EvaluasiUnitPage({
         showBackOnFirst
         items={[
           {
-            label: access.user?.role === 'OPD' ? 'Dashboard OPD' : 'Tahun Penilaian',
-            href: access.user?.role === 'OPD' ? '/opd' : '/admin/periode'
+            label: access.user?.role === 'OPD' ? 'Dashboard OPD' : `Tahun Penilaian ${evaluation.year}`,
+            href: access.user?.role === 'OPD' ? `/opd?tahun=${evaluation.year}&unitId=${unitId}` : `/admin/periode/${evaluation.year}`
           },
           { label: evaluation.unit.name }
         ]}

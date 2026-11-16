@@ -22,7 +22,8 @@ import {
   FileText,
   ExternalLink,
   Clock,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Star
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -483,7 +484,7 @@ export function MenpanSyncModal({
                       <option value="">-- Pilih Evaluasi dari Portal MenPAN-RB --</option>
                       {conflictData.availableRemotes?.map((rem: any) => (
                         <option key={rem.uuid} value={rem.uuid}>
-                          {rem.name} ({rem.form_sheet?.name || 'F01'} · Status: {rem.status})
+                          {rem.is_priority ? '⭐ ' : ''}{rem.name} ({rem.form_sheet?.name || 'F01'} · Status: {rem.status}{rem.is_priority ? ' · Prioritas MenPAN' : ''})
                         </option>
                       ))}
                     </select>
@@ -494,7 +495,7 @@ export function MenpanSyncModal({
                       disabled={linking || !selectedRemoteUuid || !conflictData.isConfigured}
                       className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer disabled:opacity-50 shrink-0 inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
                       <Link2 className="w-3.5 h-3.5" />
-                      <span>{linking ? 'Menautkan...' : 'Tautkan UUID'}</span>
+                      <span>{linking ? 'Menautkan...' : 'Tautkan'}</span>
                     </button>
                   </div>
 
@@ -548,6 +549,19 @@ export function MenpanSyncModal({
                           </span>
                         </div>
                         <div className="flex justify-between items-baseline gap-2">
+                          <span className="text-ink-muted text-[11px] shrink-0">Status Lokus:</span>
+                          <span className="font-semibold text-ink">
+                            {conflictData.localEval?.isPriority ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 font-semibold">
+                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
+                                Lokus Prioritas
+                              </span>
+                            ) : (
+                              <span className="text-ink-muted text-[11px]">Reguler</span>
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-baseline gap-2">
                           <span className="text-ink-muted text-[11px] shrink-0">Indikator Terisi:</span>
                           <span className="font-semibold text-ink">
                             {conflictData.localEval?.filledCount} / {conflictData.localEval?.totalIndicators}
@@ -583,6 +597,19 @@ export function MenpanSyncModal({
                             <span className="text-ink-muted text-[11px] shrink-0">Nama Evaluasi:</span>
                             <span className="font-semibold text-ink text-right truncate" title={conflictData.matchedRemote.name}>
                               {conflictData.matchedRemote.name}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-2">
+                            <span className="text-ink-muted text-[11px] shrink-0">Status Lokus:</span>
+                            <span className="font-semibold text-ink">
+                              {conflictData.matchedRemote.is_priority ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 font-semibold">
+                                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
+                                  Prioritas MenPAN
+                                </span>
+                              ) : (
+                                <span className="text-ink-muted text-[11px]">Reguler (Non-Prioritas)</span>
+                              )}
                             </span>
                           </div>
                           <div className="flex justify-between items-baseline gap-2">

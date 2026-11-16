@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowLeft, X, ChevronDown } from 'lucide-react'
 import {
   CalendarBlankDuotoneIcon,
@@ -161,6 +162,37 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Auto-close drawer on route change
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileOpen])
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Otomatis buka group jika salah satu sub-itemnya aktif
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
@@ -368,72 +400,81 @@ export function AdminSidebar({
     )
   }
 
+  const mobileDrawerContent = (
+    <div
+      className={`fixed inset-0 z-[100] lg:hidden transition-opacity duration-300 ${
+        mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}
+      aria-hidden={!mobileOpen}>
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-xs"
+        onClick={() => setMobileOpen(false)}
+      />
+
+      {/* Drawer Panel from Left */}
+      <aside
+        onClick={(e) => e.stopPropagation()}
+        className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand dark:bg-[#0B0C10] text-white dark:text-ink shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out pointer-events-auto ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+        {/* Drawer Header (Stay Pinned) */}
+        <div className="h-14 px-4 flex items-center justify-between gap-3 shrink-0">
+          <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5">
+            <div className="w-7 h-7 flex items-center justify-center shrink-0">
+              <Image
+                src="/kubar.png"
+                alt="Logo Kutai Barat"
+                width={28}
+                height={28}
+                className="w-full h-full object-contain dark:grayscale dark:contrast-125 dark:brightness-110"
+              />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="font-semibold text-sm tracking-tight text-white dark:text-ink">
+                PEKPPP<span className="text-sky-200 dark:text-brand font-medium">.ext</span>
+              </span>
+              <span className="text-[10px] font-medium tracking-wider text-sky-100 dark:text-ink-muted">
+                Kutai Barat
+              </span>
+            </div>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Tutup menu admin"
+            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:text-ink dark:border-stroke flex items-center justify-center transition-colors cursor-pointer border border-white/20">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Nav Items (Only Menu Scrolls) */}
+        <nav
+          onClick={(e) => e.stopPropagation()}
+          className="flex-1 overflow-y-auto min-h-0 p-2.5">
+          {renderNavItems(true)}
+        </nav>
+
+        {/* Back to Site (Stay Pinned) */}
+        <div className="p-3 shrink-0">
+          <Link
+            href="/"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 dark:bg-surface-elevated dark:border-stroke dark:text-ink dark:hover:bg-surface-subtle font-semibold transition-all min-h-[40px]">
+            <ArrowLeft className="w-3.5 h-3.5 text-white dark:text-ink" />
+            <span>Kembali ke Situs Publik</span>
+          </Link>
+        </div>
+      </aside>
+    </div>
+  )
+
   return (
     <>
-      {/* ── Mobile Drawer (≤ md) ────────────────────────────────────── */}
-      <div
-        className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${
-          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        aria-hidden={!mobileOpen}>
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-xs"
-          onClick={() => setMobileOpen(false)}
-        />
-
-        {/* Drawer Panel from Left */}
-        <aside
-          className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-[280px] bg-brand dark:bg-[#0B0C10] text-white dark:text-ink shadow-2xl flex flex-col justify-between overflow-hidden transition-transform duration-300 ease-out ${
-            mobileOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}>
-          {/* Drawer Header (Stay Pinned) */}
-          <div className="h-14 px-4 flex items-center justify-between gap-3 shrink-0">
-            <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5">
-              <div className="w-7 h-7 flex items-center justify-center shrink-0">
-                <Image
-                  src="/kubar.png"
-                  alt="Logo Kutai Barat"
-                  width={28}
-                  height={28}
-                  className="w-full h-full object-contain dark:grayscale dark:contrast-125 dark:brightness-110"
-                />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="font-semibold text-sm tracking-tight text-white dark:text-ink">
-                  PEKPPP<span className="text-sky-200 dark:text-brand font-medium">.ext</span>
-                </span>
-                <span className="text-[10px] font-medium tracking-wider text-sky-100 dark:text-ink-muted">
-                  Kutai Barat
-                </span>
-              </div>
-            </Link>
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              aria-label="Tutup menu admin"
-              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white dark:bg-surface-elevated dark:hover:bg-surface-subtle dark:text-ink dark:border-stroke flex items-center justify-center transition-colors cursor-pointer border border-white/20">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Nav Items (Only Menu Scrolls) */}
-          <nav className="flex-1 overflow-y-auto min-h-0 p-2.5">
-            {renderNavItems(true)}
-          </nav>
-
-          {/* Back to Site (Stay Pinned) */}
-          <div className="p-3 shrink-0">
-            <Link
-              href="/"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white hover:text-white hover:bg-white/20 dark:bg-surface-elevated dark:border-stroke dark:text-ink dark:hover:bg-surface-subtle font-semibold transition-all min-h-[40px]">
-              <ArrowLeft className="w-3.5 h-3.5 text-white dark:text-ink" />
-              <span>Kembali ke Situs Publik</span>
-            </Link>
-          </div>
-        </aside>
-      </div>
+      {/* ── Mobile Drawer (≤ md) rendered via Portal to prevent stacking context leaks ── */}
+      {mounted && typeof document !== 'undefined'
+        ? createPortal(mobileDrawerContent, document.body)
+        : mobileDrawerContent}
 
       {/* ── Desktop Persistent Sidebar (≥ lg) ───────────────────────── */}
       <aside className="hidden lg:flex w-64 h-screen shrink-0 bg-brand dark:bg-[#0B0C10] flex-col overflow-hidden z-20 transition-colors">

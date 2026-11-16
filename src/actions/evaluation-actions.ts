@@ -772,19 +772,12 @@ export async function toggleEvaluationPriorityAction(evaluationId: string, targe
     })
     if (!existing) return { success: false, error: 'Data evaluasi tidak ditemukan.' }
 
-    const isPriority = targetState !== undefined ? targetState : !existing.isPriority
-
-    const updated = await db.evaluation.update({
-      where: { id: evaluationId },
-      data: { isPriority }
-    })
-
-    revalidatePath(`/admin/periode/${existing.year}`)
-    revalidatePath('/admin/peserta')
-    revalidatePath('/hasil')
-    revalidatePath('/')
-
-    return { success: true, isPriority: updated.isPriority }
+    // Status prioritas ditetapkan secara terpusat oleh MenPAN-RB melalui alur penetapan evaluasi.menpan.go.id
+    // Tidak dapat diubah secara manual di tingkat lokal
+    return {
+      success: false,
+      error: 'Status Lokus Prioritas ditetapkan secara terpusat oleh MenPAN-RB dan hanya diperbarui otomatis melalui sinkronisasi MenPAN-RB.'
+    }
   } catch (error: any) {
     console.error('Failed to toggle evaluation priority status:', error)
     return { success: false, error: error.message || 'Gagal memperbarui status prioritas lokus.' }

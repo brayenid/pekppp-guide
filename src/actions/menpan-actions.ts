@@ -292,6 +292,7 @@ export async function checkEvaluationConflictAction(evaluationId: string) {
     finalIpp: localEval.finalIppScore,
     filledCount: localFilledCount,
     totalIndicators: 31,
+    isPriority: Boolean(localEval.isPriority),
     menpanEvaluationId: localEval.menpanEvaluationId,
     menpanFormSheetName: localEval.menpanFormSheetName,
     isQuestionsMapped,

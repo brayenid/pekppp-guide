@@ -51,7 +51,6 @@ import {
   enrollUnitsBulkAction,
   deleteEvaluationAction,
   toggleEvaluationFinishedAction,
-  toggleEvaluationPriorityAction,
   togglePeriodPublishAction,
   updatePeriodAction
 } from '../../../../actions/evaluation-actions'
@@ -75,6 +74,9 @@ export interface EvaluationRow {
   isFinished: boolean
   isPriority?: boolean
   syncStatus?: string | null
+  syncedAt?: Date | string | null
+  updatedAt?: Date | string | null
+  syncLogs?: any
   menpanEvaluationId?: string | null
   menpanEvaluationName?: string | null
   menpanFormSheetName?: string | null
@@ -83,6 +85,7 @@ export interface EvaluationRow {
     score: number | null
     f01Submitted: boolean
     proofUrl?: string | null
+    updatedAt?: Date | string | null
   }>
   _count: {
     f03Respondents: number
@@ -93,6 +96,105 @@ export interface EvaluationRow {
     isRead: boolean
     createdAt: Date
   } | null
+}
+
+export interface EvaluationSyncInfo {
+  status: 'UNBOUND' | 'NOT_SYNCED' | 'SYNCED' | 'LOCAL_AHEAD' | 'SERVER_AHEAD' | 'FAILED'
+  label: string
+  badgeClass: string
+  dotClass: string
+  tooltip: string
+}
+
+export function getEvaluationSyncInfo(ev: EvaluationRow): EvaluationSyncInfo {
+  if (!ev.menpanEvaluationId) {
+    return {
+      status: 'UNBOUND',
+      label: 'Belum Bind',
+      badgeClass: 'text-ink-muted bg-surface-subtle border-stroke/40',
+      dotClass: 'bg-slate-400',
+      tooltip: 'Lokus ini belum ditautkan dengan portal MenPAN-RB'
+    }
+  }
+
+  const syncLogs = (ev.syncLogs || {}) as Record<string, any>
+  const lastPushedAt =
+    syncLogs.lastPushedAt ||
+    (syncLogs.syncedAt && syncLogs.lastPushedForms ? syncLogs.syncedAt : null)
+  const lastPulledAt = syncLogs.lastPulledAt || null
+  const remoteUpdatedAt = syncLogs.remoteUpdatedAt || null
+
+  const pushTime = lastPushedAt ? new Date(lastPushedAt).getTime() : 0
+  const pullTime = lastPulledAt ? new Date(lastPulledAt).getTime() : 0
+  const syncedTime = ev.syncedAt ? new Date(ev.syncedAt).getTime() : 0
+  const lastSyncTime = Math.max(pushTime, pullTime, syncedTime)
+
+  if (ev.syncStatus === 'FAILED') {
+    return {
+      status: 'FAILED',
+      label: 'Gagal Sync',
+      badgeClass: 'text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800',
+      dotClass: 'bg-rose-500',
+      tooltip: 'Sinkronisasi terakhir mengalami kendala'
+    }
+  }
+
+  if (lastSyncTime === 0) {
+    return {
+      status: 'NOT_SYNCED',
+      label: 'Belum Sync',
+      badgeClass: 'text-slate-600 bg-slate-100 border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:border-slate-800',
+      dotClass: 'bg-slate-400',
+      tooltip: 'Sudah ditautkan ke MenPAN-RB tetapi belum pernah disinkronkan (PUSH/PULL)'
+    }
+  }
+
+  // Waktu pembaruan lokal terakhir
+  let latestLocalTime = ev.updatedAt ? new Date(ev.updatedAt).getTime() : 0
+  if (Array.isArray(ev.scores)) {
+    for (const s of ev.scores) {
+      if (s.updatedAt) {
+        const t = new Date(s.updatedAt).getTime()
+        if (t > latestLocalTime) latestLocalTime = t
+      }
+    }
+  }
+
+  // Waktu pembaruan remote MenPAN (jika ada data remoteUpdatedAt)
+  const remoteTime = remoteUpdatedAt ? new Date(remoteUpdatedAt).getTime() : 0
+
+  // 1. Lokal lebih dahulu / lebih baru dari sync terakhir (+ toleransi 5 detik)
+  if (latestLocalTime > lastSyncTime + 5000) {
+    return {
+      status: 'LOCAL_AHEAD',
+      label: 'Lokal Lebih Baru',
+      badgeClass: 'text-amber-800 bg-amber-50 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700',
+      dotClass: 'bg-amber-500 animate-pulse',
+      tooltip: `Selisih data: Terdapat perubahan nilai/isian lokal setelah sinkronisasi terakhir (${new Date(latestLocalTime).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}). Perlu PUSH ke MenPAN-RB.`
+    }
+  }
+
+  // 2. Server utama lebih dahulu / lebih baru dari sync terakhir
+  if (remoteTime > lastSyncTime + 5000) {
+    return {
+      status: 'SERVER_AHEAD',
+      label: 'Server Lebih Baru',
+      badgeClass: 'text-indigo-800 bg-indigo-50 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800',
+      dotClass: 'bg-indigo-500 animate-pulse',
+      tooltip: `Selisih data: Server utama MenPAN-RB diperbarui (${new Date(remoteTime).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}) setelah sinkronisasi lokal. Perlu PULL dari MenPAN-RB.`
+    }
+  }
+
+  // 3. Selaras / Sinkron
+  const lastSyncDate = new Date(lastSyncTime).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+  const direction = lastPulledAt && (!lastPushedAt || pullTime >= pushTime) ? 'PULL' : 'PUSH'
+  return {
+    status: 'SYNCED',
+    label: 'Sinkron',
+    badgeClass: 'text-emerald-800 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+    dotClass: 'bg-emerald-500',
+    tooltip: `Data lokal selaras dengan server utama MenPAN-RB (Terakhir ${direction}: ${lastSyncDate})`
+  }
 }
 
 import { PeriodTimelineManager } from '../../../../components/features/PeriodTimelineManager'
@@ -492,37 +594,6 @@ export default function PeriodDetailClient({
     }
   }
 
-  const handleTogglePriority = async (ev: EvaluationRow) => {
-    const nextState = !ev.isPriority
-    // Optimistic UI update (Instant feedback tanpa reload / refetch)
-    setItems((prev) =>
-      prev.map((item) => (item.id === ev.id ? { ...item, isPriority: nextState } : item))
-    )
-
-    try {
-      const res = await toggleEvaluationPriorityAction(ev.id, nextState)
-      if (res.success) {
-        toast.success(
-          nextState
-            ? `⭐ Lokus ${ev.unit.name} ditandai sebagai Lokus Prioritas.`
-            : `Tag prioritas lokus ${ev.unit.name} dilepaskan.`
-        )
-      } else {
-        // Rollback if failed
-        setItems((prev) =>
-          prev.map((item) => (item.id === ev.id ? { ...item, isPriority: ev.isPriority } : item))
-        )
-        toast.error('Gagal memperbarui status prioritas.')
-      }
-    } catch {
-      // Rollback if network error
-      setItems((prev) =>
-        prev.map((item) => (item.id === ev.id ? { ...item, isPriority: ev.isPriority } : item))
-      )
-      toast.error('Terjadi kesalahan koneksi.')
-    }
-  }
-
   const handleTogglePublish = async () => {
     setLoading(true)
     try {
@@ -730,7 +801,7 @@ export default function PeriodDetailClient({
           icon={<Building2 className="w-4 h-4 text-ink-muted" />}
           label="Total Lokus Peserta"
           value={totalUnits}
-          sublabel={priorityCount > 0 ? `${priorityCount} Lokus Prioritas (⭐)` : 'Unit kerja terdaftar'}
+          sublabel={priorityCount > 0 ? `${priorityCount} Prioritas MenPAN-RB` : 'Unit kerja terdaftar'}
         />
         <StatCard
           icon={<CheckCircle2 className="w-4 h-4 text-pastel-green-text" />}
@@ -793,7 +864,7 @@ export default function PeriodDetailClient({
                   onChange={(e) => setPriorityFilter(e.target.value as any)}
                   className="h-full bg-transparent hover:bg-surface-subtle transition-colors pl-3 pr-2 text-xs text-ink font-normal cursor-pointer focus:outline-none focus:bg-surface-subtle border-y-0 border-l-0 border-r border-stroke/50 rounded-l-full">
                   <option value="ALL" className="bg-surface-elevated text-ink">Semua Lokus</option>
-                  <option value="PRIORITY" className="bg-surface-elevated text-ink">⭐ Prioritas ({priorityCount})</option>
+                  <option value="PRIORITY" className="bg-surface-elevated text-ink">⭐ Prioritas MenPAN ({priorityCount})</option>
                   <option value="REGULAR" className="bg-surface-elevated text-ink">Non-Prioritas</option>
                 </select>
 
@@ -918,42 +989,32 @@ export default function PeriodDetailClient({
                   const f03Count = ev._count.f03Respondents || 0
                   const evidenceCount = ev._count.evidenceSubmissions || 0
                   const predicate = getPredicateBadge(ev.finalIppScore)
+                  const syncInfo = getEvaluationSyncInfo(ev)
 
                   return (
                     <tr key={ev.id} className="hover:bg-surface-subtle/30 transition-colors group">
                       <td className="pl-6 pr-4 py-2.5 max-w-xs sm:max-w-sm">
-                        <div className="flex items-start gap-1.5">
-                          {/* 1-Click Toggle Star Prioritas */}
-                          <button
-                            type="button"
-                            onClick={() => handleTogglePriority(ev)}
-                            title={ev.isPriority ? 'Lokus Prioritas (Klik untuk lepas status prioritas)' : 'Klik untuk jadikan Lokus Prioritas'}
-                            className={`p-1 rounded-md transition-all cursor-pointer shrink-0 mt-0.5 ${
-                              ev.isPriority
-                                ? 'text-amber-500 hover:text-amber-600 bg-amber-50 hover:bg-amber-100'
-                                : 'text-ink-muted/40 hover:text-amber-400 hover:bg-surface-subtle'
-                            }`}>
-                            <Star className={`w-3.5 h-3.5 ${ev.isPriority ? 'fill-amber-400 text-amber-500' : ''}`} />
-                          </button>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Link
+                              href={`/evaluasi/${ev.unit.id}`}
+                              className="font-medium text-xs text-ink hover:text-brand transition-colors inline-flex items-center gap-1">
+                              <span className="truncate">{ev.unit.name}</span>
+                              <ArrowUpRight className="w-3 h-3 text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                            </Link>
 
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <Link
-                                href={`/evaluasi/${ev.unit.id}`}
-                                className="font-medium text-xs text-ink hover:text-brand transition-colors inline-flex items-center gap-1">
-                                <span className="truncate">{ev.unit.name}</span>
-                                <ArrowUpRight className="w-3 h-3 text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                              </Link>
+                            {ev.isPriority && (
+                              <span
+                                title="Lokus Prioritas Nasional — Ditetapkan oleh MenPAN-RB (Read-Only via Sinkronisasi MenPAN)"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs select-none cursor-help">
+                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500 shrink-0" />
+                                Prioritas MenPAN
+                              </span>
+                            )}
+                          </div>
 
-                              {ev.isPriority && (
-                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-100 text-amber-800 border border-amber-300">
-                                  Prioritas
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Subtitle: Kategori & Status Update Ringkas */}
-                            <div className="flex items-center gap-1.5 text-[10px] text-ink-muted font-normal mt-0.5 flex-wrap">
+                          {/* Subtitle: Kategori & Status Update Ringkas */}
+                          <div className="flex items-center gap-1.5 text-[10px] text-ink-muted font-normal mt-0.5 flex-wrap">
                               <span>{ev.unit.category?.name || 'Perangkat Daerah'}</span>
 
                               <span className="text-ink-muted/40">•</span>
@@ -971,6 +1032,28 @@ export default function PeriodDetailClient({
                                   <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
                                   <span>Belum Bind</span>
                                 </span>
+                              )}
+
+                              {/* Status Sync Singkat (Sync / Selisih) */}
+                              {ev.menpanEvaluationId && (
+                                <>
+                                  <span className="text-ink-muted/40">•</span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setSyncModalState({
+                                        isOpen: true,
+                                        evaluationId: ev.id,
+                                        unitId: ev.unit.id,
+                                        unitName: ev.unit.name
+                                      })
+                                    }
+                                    className={`inline-flex items-center gap-1 font-medium text-[9px] px-1.5 py-0.2 rounded border transition-all cursor-pointer hover:opacity-85 active:scale-95 ${syncInfo.badgeClass}`}
+                                    title={`${syncInfo.tooltip} — Klik untuk buka sinkronisasi MenPAN-RB`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${syncInfo.dotClass}`} />
+                                    <span>{syncInfo.label}</span>
+                                  </button>
+                                </>
                               )}
 
                               {ev.recentUpdate && (
@@ -1008,7 +1091,6 @@ export default function PeriodDetailClient({
                                 </>
                               )}
                             </div>
-                          </div>
                         </div>
                       </td>
 

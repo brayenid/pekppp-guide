@@ -41,7 +41,7 @@ export default async function PeriodDetailPage({
           include: { category: true }
         },
         scores: {
-          select: { id: true, score: true, f01Submitted: true, proofUrl: true }
+          select: { id: true, score: true, f01Submitted: true, proofUrl: true, updatedAt: true }
         },
         _count: {
           select: { f03Respondents: true, evidenceSubmissions: true }
