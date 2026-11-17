@@ -37,9 +37,6 @@ interface TurnstileCaptchaProps {
   className?: string
 }
 
-// Kunci pengujian resmi Cloudflare Turnstile (Always Passes) untuk fallback lokal
-const CLOUDFLARE_TEST_SITEKEY = '1x00000000000000000000AA'
-
 export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
   function TurnstileCaptcha(
     { onVerify, onExpire, onError, theme: propTheme, className = '' },
@@ -50,12 +47,11 @@ export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
     const [scriptLoaded, setScriptLoaded] = useState(false)
     const [activeTheme, setActiveTheme] = useState<'light' | 'dark'>('light')
 
-    const siteKey =
-      process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || CLOUDFLARE_TEST_SITEKEY
+    const siteKey = process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY
 
     // Deteksi mode terang vs mode gelap secara aktif
     useEffect(() => {
-      if (typeof window === 'undefined') return
+      if (!siteKey || typeof window === 'undefined') return
 
       if (propTheme === 'light' || propTheme === 'dark') {
         setActiveTheme(propTheme)
@@ -71,7 +67,6 @@ export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
 
       detectTheme()
 
-      // Amati perubahan class 'dark' pada tag <html> jika pengguna mengubah tema
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
@@ -93,7 +88,7 @@ export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
         observer.disconnect()
         mediaQuery.removeEventListener('change', handleMediaChange)
       }
-    }, [propTheme])
+    }, [siteKey, propTheme])
 
     useImperativeHandle(ref, () => ({
       reset: () => {
@@ -109,7 +104,7 @@ export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
 
     // 1. Muat skrip Cloudflare Turnstile jika belum ada di document
     useEffect(() => {
-      if (typeof window === 'undefined') return
+      if (!siteKey || typeof window === 'undefined') return
 
       if (window.turnstile) {
         setScriptLoaded(true)
@@ -139,15 +134,14 @@ export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
         onError?.()
       }
       document.head.appendChild(script)
-    }, [onError])
+    }, [siteKey, onError])
 
     // 2. Render widget Turnstile ke dalam elemen container rata kiri
     useEffect(() => {
-      if (!scriptLoaded || !containerRef.current || typeof window === 'undefined' || !window.turnstile) {
+      if (!siteKey || !scriptLoaded || !containerRef.current || typeof window === 'undefined' || !window.turnstile) {
         return
       }
 
-      // Bersihkan widget sebelumnya jika sudah pernah ada (misal saat tema berubah)
       if (widgetIdRef.current) {
         try {
           window.turnstile.remove(widgetIdRef.current)
@@ -186,7 +180,12 @@ export const TurnstileCaptcha = forwardRef<TurnstileRef, TurnstileCaptchaProps>(
           }
         }
       }
-    }, [scriptLoaded, siteKey, activeTheme, onVerify, onExpire, onError])
+    }, [siteKey, scriptLoaded, activeTheme, onVerify, onExpire, onError])
+
+    // Jika siteKey tidak diatur di environment, jangan render apa pun
+    if (!siteKey) {
+      return null
+    }
 
     return (
       <div className={`flex flex-col items-start justify-start min-h-[65px] w-full ${className}`}>

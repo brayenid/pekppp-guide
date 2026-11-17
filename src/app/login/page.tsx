@@ -28,10 +28,12 @@ export default function LoginPage() {
   const turnstileRef = useRef<TurnstileRef>(null)
   const router = useRouter()
 
+  const isTurnstileConfigured = Boolean(process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY)
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!turnstileToken) {
+    if (isTurnstileConfigured && !turnstileToken) {
       toast.error('Harap selesaikan verifikasi keamanan (CAPTCHA) terlebih dahulu.')
       return
     }
@@ -40,7 +42,9 @@ export default function LoginPage() {
     const formData = new FormData()
     formData.append('email', email)
     formData.append('password', password)
-    formData.append('cf-turnstile-response', turnstileToken)
+    if (turnstileToken) {
+      formData.append('cf-turnstile-response', turnstileToken)
+    }
 
     try {
       const res = await loginAction(formData)
@@ -220,22 +224,24 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Cloudflare Turnstile CAPTCHA (Rata Kiri & Adaptif Mode Terang/Gelap) */}
-            <div className="pt-1 pb-0.5 flex justify-start text-left">
-              <TurnstileCaptcha
-                ref={turnstileRef}
-                onVerify={(token) => setTurnstileToken(token)}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => {
-                  setTurnstileToken(null)
-                  toast.error('Gagal memuat verifikasi keamanan. Silakan muat ulang halaman.')
-                }}
-              />
-            </div>
+            {/* Cloudflare Turnstile CAPTCHA (Hanya aktif jika diset di env) */}
+            {isTurnstileConfigured && (
+              <div className="pt-1 pb-0.5 flex justify-start text-left">
+                <TurnstileCaptcha
+                  ref={turnstileRef}
+                  onVerify={(token) => setTurnstileToken(token)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => {
+                    setTurnstileToken(null)
+                    toast.error('Gagal memuat verifikasi keamanan. Silakan muat ulang halaman.')
+                  }}
+                />
+              </div>
+            )}
 
             <button
               type="submit"
-              disabled={loading || !turnstileToken}
+              disabled={loading || (isTurnstileConfigured && !turnstileToken)}
               className="w-full py-2.5 px-4 rounded-xl bg-brand hover:bg-brand-hover active:scale-[0.99] disabled:opacity-50 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-1">
               {loading ? (
                 <>

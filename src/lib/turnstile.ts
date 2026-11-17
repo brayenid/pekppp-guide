@@ -10,9 +10,6 @@ interface TurnstileVerifyResponse {
   cdata?: string
 }
 
-// Kunci rahasia dummy bawaan Cloudflare khusus pengujian lokal (Always Passes)
-const CLOUDFLARE_TEST_SECRET = '1x0000000000000000000000000000000AA'
-
 /**
  * Memvalidasi token Cloudflare Turnstile yang dikirim dari klien.
  *
@@ -23,19 +20,15 @@ export async function verifyTurnstileToken(
   token: string | null | undefined,
   remoteIp?: string | null
 ): Promise<{ success: boolean; error?: string }> {
-  // Ambil secret key dari env, atau fallback ke test secret jika belum diset di development
-  const secretKey =
-    process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY ||
-    (process.env.NODE_ENV !== 'production' ? CLOUDFLARE_TEST_SECRET : undefined)
+  const secretKey = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
 
+  // Jika kunci rahasia belum diatur di server (baik di lokal maupun di production),
+  // otomatis bypass verifikasi secara aman agar tidak memblokir akses login pengguna.
   if (!secretKey) {
-    console.error('[Turnstile] CLOUDFLARE_TURNSTILE_SECRET_KEY belum diatur di environment variable.')
-    return {
-      success: false,
-      error: 'Konfigurasi Cloudflare Turnstile belum diatur di server.'
-    }
+    return { success: true }
   }
 
+  // Jika kunci rahasia telah diatur di server, token wajib dikirim
   if (!token) {
     return {
       success: false,
