@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { loginAction } from '../../actions/auth-actions'
+import { TurnstileCaptcha, TurnstileRef } from '../../components/auth/TurnstileCaptcha'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -23,14 +24,24 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [activeDemo, setActiveDemo] = useState<'admin' | 'opd' | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileRef>(null)
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!turnstileToken) {
+      toast.error('Harap selesaikan verifikasi keamanan (CAPTCHA) terlebih dahulu.')
+      return
+    }
+
     setLoading(true)
     const formData = new FormData()
     formData.append('email', email)
     formData.append('password', password)
+    formData.append('cf-turnstile-response', turnstileToken)
+
     try {
       const res = await loginAction(formData)
       if (res.success) {
@@ -43,9 +54,14 @@ export default function LoginPage() {
         router.refresh()
       } else {
         toast.error(res.error || 'Email atau kata sandi tidak sesuai.')
+        // Reset CAPTCHA saat login gagal agar token baru dibuat
+        setTurnstileToken(null)
+        turnstileRef.current?.reset()
       }
     } catch {
       toast.error('Terjadi gangguan saat memproses login.')
+      setTurnstileToken(null)
+      turnstileRef.current?.reset()
     } finally {
       setLoading(false)
     }
@@ -204,9 +220,22 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Cloudflare Turnstile CAPTCHA (Rata Kiri & Adaptif Mode Terang/Gelap) */}
+            <div className="pt-1 pb-0.5 flex justify-start text-left">
+              <TurnstileCaptcha
+                ref={turnstileRef}
+                onVerify={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => {
+                  setTurnstileToken(null)
+                  toast.error('Gagal memuat verifikasi keamanan. Silakan muat ulang halaman.')
+                }}
+              />
+            </div>
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !turnstileToken}
               className="w-full py-2.5 px-4 rounded-xl bg-brand hover:bg-brand-hover active:scale-[0.99] disabled:opacity-50 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-1">
               {loading ? (
                 <>

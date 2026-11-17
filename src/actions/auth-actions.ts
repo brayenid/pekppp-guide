@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '../services/db'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {
@@ -14,12 +14,35 @@ import {
   verifyPassword
 } from '../lib/jwt-auth'
 import { ActivityLogService } from '../services/activity-log-service'
+import { verifyTurnstileToken } from '../lib/turnstile'
 
 export type UserSession = UserSessionPayload
 
 export async function loginAction(formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const password = (formData.get('password') as string)?.trim()
+  const turnstileToken = (formData.get('cf-turnstile-response') as string)?.trim()
+
+  // 1. Verifikasi CAPTCHA Cloudflare Turnstile
+  const headerList = await headers()
+  const clientIp =
+    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    headerList.get('x-real-ip') ||
+    null
+
+  const turnstileResult = await verifyTurnstileToken(turnstileToken, clientIp)
+  if (!turnstileResult.success) {
+    await ActivityLogService.log({
+      category: 'AUTH',
+      action: 'LOGIN_FAILED',
+      description: `Percobaan login ditolak: verifikasi keamanan CAPTCHA gagal untuk email "${email || 'tidak diisi'}".`,
+      metadata: { email, reason: 'CAPTCHA_FAILED' }
+    })
+    return {
+      success: false,
+      error: turnstileResult.error || 'Verifikasi keamanan (CAPTCHA) gagal. Silakan coba lagi.'
+    }
+  }
 
   if (!email || !password) {
     return { success: false, error: 'Email dan password wajib diisi.' }
