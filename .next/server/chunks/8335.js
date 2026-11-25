@@ -1,0 +1,1 @@
+"use strict";exports.id=8335,exports.ids=[8335],exports.modules={48335:(a,b,c)=>{c.d(b,{deletePeriodWindowAction:()=>e});var d=c(85708);let e=(0,d.createServerReference)("70755c5ed9454cde64aaeb3303150a87c59a932df8",d.callServer,void 0,d.findSourceMapURL,"deletePeriodWindowAction")}};

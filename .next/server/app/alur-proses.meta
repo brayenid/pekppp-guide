@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/alur-proses/layout,_N_T_/alur-proses/page,_N_T_/alur-proses"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/5367237533f278c63e1c8b00427c48ce9ab397bb4f311904e3bc0e9dadd474af/$/alur-proses",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/alur-proses/page"
+    },
+    "isFallback": false
+  }
+}

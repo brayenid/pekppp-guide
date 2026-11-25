@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/panduan/layout,_N_T_/panduan/page,_N_T_/panduan"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/c85e92b5716de5a74220fef4fb118ee2422b1236d1fa8aee1245ef566d92fd36/$/panduan",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/panduan/page"
+    },
+    "isFallback": false
+  }
+}

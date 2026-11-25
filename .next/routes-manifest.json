@@ -1,0 +1,391 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/admin/artikel/[id]/edit",
+      "regex": "^/admin/artikel/([^/]+?)/edit(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/artikel/(?<nxtPid>[^/]+?)/edit(?:/)?$"
+    },
+    {
+      "page": "/admin/periode/[year]",
+      "regex": "^/admin/periode/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPyear": "nxtPyear"
+      },
+      "namedRegex": "^/admin/periode/(?<nxtPyear>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/admin/tiket/[id]",
+      "regex": "^/admin/tiket/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/tiket/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/admin/periode/[year]/evaluations",
+      "regex": "^/api/admin/periode/([^/]+?)/evaluations(?:/)?$",
+      "routeKeys": {
+        "nxtPyear": "nxtPyear"
+      },
+      "namedRegex": "^/api/admin/periode/(?<nxtPyear>[^/]+?)/evaluations(?:/)?$"
+    },
+    {
+      "page": "/api/kabar/[id]/view",
+      "regex": "^/api/kabar/([^/]+?)/view(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/kabar/(?<nxtPid>[^/]+?)/view(?:/)?$"
+    },
+    {
+      "page": "/api/media/[id]/download",
+      "regex": "^/api/media/([^/]+?)/download(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/media/(?<nxtPid>[^/]+?)/download(?:/)?$"
+    },
+    {
+      "page": "/api/media/[id]/preview",
+      "regex": "^/api/media/([^/]+?)/preview(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/media/(?<nxtPid>[^/]+?)/preview(?:/)?$"
+    },
+    {
+      "page": "/api/menpan/bap-pdf/[evaluationId]",
+      "regex": "^/api/menpan/bap\\-pdf/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPevaluationId": "nxtPevaluationId"
+      },
+      "namedRegex": "^/api/menpan/bap\\-pdf/(?<nxtPevaluationId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/evaluasi/[unitId]",
+      "regex": "^/evaluasi/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPunitId": "nxtPunitId"
+      },
+      "namedRegex": "^/evaluasi/(?<nxtPunitId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/evaluasi/[unitId]/berita-acara",
+      "regex": "^/evaluasi/([^/]+?)/berita\\-acara(?:/)?$",
+      "routeKeys": {
+        "nxtPunitId": "nxtPunitId"
+      },
+      "namedRegex": "^/evaluasi/(?<nxtPunitId>[^/]+?)/berita\\-acara(?:/)?$"
+    },
+    {
+      "page": "/evaluasi/[unitId]/f03",
+      "regex": "^/evaluasi/([^/]+?)/f03(?:/)?$",
+      "routeKeys": {
+        "nxtPunitId": "nxtPunitId"
+      },
+      "namedRegex": "^/evaluasi/(?<nxtPunitId>[^/]+?)/f03(?:/)?$"
+    },
+    {
+      "page": "/hasil/[id]",
+      "regex": "^/hasil/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/hasil/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/kabar/[slug]",
+      "regex": "^/kabar/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/kabar/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/lapor/[code]",
+      "regex": "^/lapor/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcode": "nxtPcode"
+      },
+      "namedRegex": "^/lapor/(?<nxtPcode>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/opd/tiket/[id]",
+      "regex": "^/opd/tiket/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/opd/tiket/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/shared/evidence/[evaluationId]",
+      "regex": "^/shared/evidence/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPevaluationId": "nxtPevaluationId"
+      },
+      "namedRegex": "^/shared/evidence/(?<nxtPevaluationId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/shared/evidence/[evaluationId]/[aspectCode]",
+      "regex": "^/shared/evidence/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPevaluationId": "nxtPevaluationId",
+        "nxtPaspectCode": "nxtPaspectCode"
+      },
+      "namedRegex": "^/shared/evidence/(?<nxtPevaluationId>[^/]+?)/(?<nxtPaspectCode>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/survei/[token]",
+      "regex": "^/survei/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtoken": "nxtPtoken"
+      },
+      "namedRegex": "^/survei/(?<nxtPtoken>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/akun",
+      "regex": "^/admin/akun(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/akun(?:/)?$"
+    },
+    {
+      "page": "/admin/artikel",
+      "regex": "^/admin/artikel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/artikel(?:/)?$"
+    },
+    {
+      "page": "/admin/artikel/tulis",
+      "regex": "^/admin/artikel/tulis(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/artikel/tulis(?:/)?$"
+    },
+    {
+      "page": "/admin/contoh-berkas",
+      "regex": "^/admin/contoh\\-berkas(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/contoh\\-berkas(?:/)?$"
+    },
+    {
+      "page": "/admin/dokumentasi",
+      "regex": "^/admin/dokumentasi(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/dokumentasi(?:/)?$"
+    },
+    {
+      "page": "/admin/log-aktivitas",
+      "regex": "^/admin/log\\-aktivitas(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/log\\-aktivitas(?:/)?$"
+    },
+    {
+      "page": "/admin/lokus",
+      "regex": "^/admin/lokus(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/lokus(?:/)?$"
+    },
+    {
+      "page": "/admin/master-bukti",
+      "regex": "^/admin/master\\-bukti(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/master\\-bukti(?:/)?$"
+    },
+    {
+      "page": "/admin/media",
+      "regex": "^/admin/media(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/media(?:/)?$"
+    },
+    {
+      "page": "/admin/notifikasi",
+      "regex": "^/admin/notifikasi(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/notifikasi(?:/)?$"
+    },
+    {
+      "page": "/admin/panduan-bukti",
+      "regex": "^/admin/panduan\\-bukti(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/panduan\\-bukti(?:/)?$"
+    },
+    {
+      "page": "/admin/pengaturan-ai",
+      "regex": "^/admin/pengaturan\\-ai(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/pengaturan\\-ai(?:/)?$"
+    },
+    {
+      "page": "/admin/pengaturan-api",
+      "regex": "^/admin/pengaturan\\-api(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/pengaturan\\-api(?:/)?$"
+    },
+    {
+      "page": "/admin/pengaturan-bukti",
+      "regex": "^/admin/pengaturan\\-bukti(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/pengaturan\\-bukti(?:/)?$"
+    },
+    {
+      "page": "/admin/periode",
+      "regex": "^/admin/periode(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/periode(?:/)?$"
+    },
+    {
+      "page": "/admin/peserta",
+      "regex": "^/admin/peserta(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/peserta(?:/)?$"
+    },
+    {
+      "page": "/admin/tiket",
+      "regex": "^/admin/tiket(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/tiket(?:/)?$"
+    },
+    {
+      "page": "/admin/units",
+      "regex": "^/admin/units(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/units(?:/)?$"
+    },
+    {
+      "page": "/alur-proses",
+      "regex": "^/alur\\-proses(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/alur\\-proses(?:/)?$"
+    },
+    {
+      "page": "/contoh-berkas",
+      "regex": "^/contoh\\-berkas(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contoh\\-berkas(?:/)?$"
+    },
+    {
+      "page": "/hasil",
+      "regex": "^/hasil(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/hasil(?:/)?$"
+    },
+    {
+      "page": "/kabar",
+      "regex": "^/kabar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/kabar(?:/)?$"
+    },
+    {
+      "page": "/lapor",
+      "regex": "^/lapor(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/lapor(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/notifikasi",
+      "regex": "^/notifikasi(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/notifikasi(?:/)?$"
+    },
+    {
+      "page": "/opd",
+      "regex": "^/opd(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/opd(?:/)?$"
+    },
+    {
+      "page": "/opd/contoh-berkas",
+      "regex": "^/opd/contoh\\-berkas(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/opd/contoh\\-berkas(?:/)?$"
+    },
+    {
+      "page": "/opd/master-bukti",
+      "regex": "^/opd/master\\-bukti(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/opd/master\\-bukti(?:/)?$"
+    },
+    {
+      "page": "/opd/tiket",
+      "regex": "^/opd/tiket(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/opd/tiket(?:/)?$"
+    },
+    {
+      "page": "/panduan",
+      "regex": "^/panduan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panduan(?:/)?$"
+    },
+    {
+      "page": "/wiki",
+      "regex": "^/wiki(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/wiki(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

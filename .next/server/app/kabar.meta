@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/kabar/layout,_N_T_/kabar/page,_N_T_/kabar"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/d28434be0738c9b61871ca7d60a9caba503604d80c5181892d9a54477d12e4f7/$/kabar",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/kabar/page"
+    },
+    "isFallback": false
+  }
+}

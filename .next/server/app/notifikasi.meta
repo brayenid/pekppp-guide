@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/notifikasi/layout,_N_T_/notifikasi/page,_N_T_/notifikasi"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/a13a2a44951c8c2fb423ccf99491c262bdb7ad527d80d7d2ddb1e7edfb49fcce/$/notifikasi",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/notifikasi/page"
+    },
+    "isFallback": false
+  }
+}
