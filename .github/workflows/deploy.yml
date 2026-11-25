@@ -37,17 +37,19 @@ jobs:
       - name: 5. Prepare Standalone Deployment Package
         run: |
           mkdir -p deploy-pkg
-          # Salin isi standalone (server.js, node_modules minimal, code)
-          cp -r .next/standalone/* deploy-pkg/
-          # Salin static assets ke .next/static
+          # 1. Salin seluruh isi standalone termasuk folder tersembunyi .next (menggunakan ./)
+          cp -r .next/standalone/. deploy-pkg/
+          # 2. Salin static assets ke .next/static
           mkdir -p deploy-pkg/.next/static
           cp -r .next/static/* deploy-pkg/.next/static/
-          # Salin folder public
+          # 3. Salin folder public
           cp -r public deploy-pkg/public
-          # Buat trigger restart untuk Phusion Passenger cPanel
+          # 4. Buat file app.js (symlink) agar Passenger cPanel otomatis mendeteksi server.js
+          ln -sf server.js deploy-pkg/app.js
+          # 5. Buat trigger restart untuk Phusion Passenger cPanel
           mkdir -p deploy-pkg/tmp
           touch deploy-pkg/tmp/restart.txt
-          # Buat .gitignore agar .env dan .htaccess di cPanel tidak tertimpa/terhapus
+          # 6. Buat .gitignore agar .env dan .htaccess di cPanel tidak tertimpa/terhapus
           cat << 'EOF' > deploy-pkg/.gitignore
           .env
           .env.*
