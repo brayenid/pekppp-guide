@@ -1,13 +1,16 @@
-name: Deploy Pekppp to cPanel
+name: Build and Push Standalone to Deploy Branch
 
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
-    name: Build & Deploy to cPanel (pekppp only)
+    name: Build Next.js & Publish Deploy Branch
     runs-on: ubuntu-latest
 
     steps:
@@ -34,40 +37,32 @@ jobs:
       - name: 5. Prepare Standalone Deployment Package
         run: |
           mkdir -p deploy-pkg
-          # 1. Salin seluruh isi standalone (server.js, node_modules minimal, bundle)
+          # Salin isi standalone (server.js, node_modules minimal, code)
           cp -r .next/standalone/* deploy-pkg/
-          # 2. Salin folder static assets ke .next/static
+          # Salin static assets ke .next/static
           mkdir -p deploy-pkg/.next/static
           cp -r .next/static/* deploy-pkg/.next/static/
-          # 3. Salin folder public
+          # Salin folder public
           cp -r public deploy-pkg/public
-          # 4. Buat trigger restart untuk Phusion Passenger cPanel
+          # Buat trigger restart untuk Phusion Passenger cPanel
           mkdir -p deploy-pkg/tmp
           touch deploy-pkg/tmp/restart.txt
+          # Buat .gitignore agar .env dan .htaccess di cPanel tidak tertimpa/terhapus
+          cat << 'EOF' > deploy-pkg/.gitignore
+          .env
+          .env.*
+          .htaccess
+          EOF
 
-      - name: 6. Deploy Strictly to pekppp.kutaibaratkab.go.id via SSH / rsync
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.CPANEL_HOST }}
-          REMOTE_USER: ${{ secrets.CPANEL_USER }}
-          REMOTE_PORT: ${{ secrets.CPANEL_PORT || 22 }}
-          # SOURCE dari folder paket lokal
-          SOURCE: "deploy-pkg/"
-          # TARGET DIKUNCI HANYA ke direktori subdomain pekppp (TIDAK menyentuh folder tetangga seperti dashboardrealisasi)
-          TARGET: "/home/${{ secrets.CPANEL_USER }}/public_html/pekppp.kutaibaratkab.go.id/"
-          # Parameter rsync aman: TANPA flag --delete agar TIDAK ADA file apapun yang dihapus di server
-          ARGS: "-rlgoDzvc"
-          # Pengecualian: Lindungi file .env dan .htaccess agar tidak terhapus/tertimpa
-          EXCLUDE: "/.env, /.env.*, /.htaccess, /tmp/restart.txt"
-
-      - name: 7. Restart Application in cPanel
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USER }}
-          port: ${{ secrets.CPANEL_PORT || 22 }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # Trigger restart hanya pada folder pekppp
-          script: |
-            touch /home/${{ secrets.CPANEL_USER }}/public_html/pekppp.kutaibaratkab.go.id/tmp/restart.txt
+      - name: 6. Push Compiled Output to 'production-deploy' Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd deploy-pkg
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b production-deploy
+          git add -A
+          git commit -m "deploy: standalone build for commit ${{ github.sha }}"
+          git push -f https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git production-deploy
