@@ -1,73 +1,37 @@
-# React + TypeScript + Vite
+# PEKPPP Kutai Barat (Platform Evaluasi Kinerja Penyelenggaraan Pelayanan Publik)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Platform pemantauan dan evaluasi kinerja penyelenggaraan pelayanan publik Kabupaten Kutai Barat berbasis Next.js 15, Prisma ORM, dan PostgreSQL (Supabase).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📖 Dokumentasi Deployment & Troubleshooting Produksi
 
-## React Compiler
+Untuk panduan lengkap mengenai arsitektur server, alur CI/CD, daftar 9 isu produksi & cara mengatasinya, serta SOP push update ke server cPanel, silakan baca:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+👉 **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Alur Push Update Cepat (Quick Summary)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Lokal (Developer):**
+   ```bash
+   git add .
+   git commit -m "Update deskripsi"
+   git push origin main
+   ```
+2. **GitHub Actions:**
+   Otomatis mengompilasi standalone Next.js dan mem-push artefak ke branch `production-deploy`.
+3. **Server (cPanel Terminal):**
+   ```bash
+   cd /home/aptikakutaibarat/public_html/pekppp.kutaibaratkab.go.id && git fetch origin production-deploy && git reset --hard origin/production-deploy && pkill -f "PORT=3005" ; PORT=3005 nohup /opt/cpanel/ea-nodejs22/bin/node --env-file=.env server.js > ~/app.log 2>&1 & disown -h
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Tech Stack
+- **Framework:** Next.js 15 (App Router, Server Actions, Standalone Output)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS, Lucide React
+- **Database & ORM:** PostgreSQL (Supabase) via Prisma ORM
+- **Hosting / Web Server:** cPanel EasyApache 4 (Reverse Proxy `mod_proxy`) + Node.js 22 LTS
