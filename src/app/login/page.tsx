@@ -10,9 +10,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Eye,
-  EyeOff,
-  CheckCircle2,
-  Sparkles
+  EyeOff
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { loginAction } from '../../actions/auth-actions'
@@ -23,7 +21,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [activeDemo, setActiveDemo] = useState<'admin' | 'opd' | null>(null)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const turnstileRef = useRef<TurnstileRef>(null)
   const router = useRouter()
@@ -69,12 +66,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const fillDemo = (role: 'admin' | 'opd', demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail)
-    setPassword(demoPass)
-    setActiveDemo(role)
   }
 
   return (
@@ -126,53 +117,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Quick Demo Credentials Switcher */}
-          <div className="p-3 rounded-xl bg-surface-subtle/70 border border-line space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span>Kredensial Demo Cepat</span>
-              </span>
-              <span className="text-[10px] text-ink-muted">Klik untuk isi</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo('admin', 'admin@kubar.go.id', 'admin123')}
-                className={`p-2 rounded-lg border text-left transition-all cursor-pointer ${
-                  activeDemo === 'admin'
-                    ? 'bg-brand/10 border-brand text-brand shadow-xs'
-                    : 'bg-surface border-line hover:border-brand/40 hover:bg-surface-subtle text-ink'
-                }`}>
-                <div className="text-xs font-semibold flex items-center justify-between">
-                  <span>Super Admin</span>
-                  {activeDemo === 'admin' && <CheckCircle2 className="w-3 h-3 text-brand" />}
-                </div>
-                <div className="text-[10px] text-ink-muted font-mono truncate mt-0.5">
-                  admin@kubar.go.id
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fillDemo('opd', 'opd@kubar.go.id', 'opd123')}
-                className={`p-2 rounded-lg border text-left transition-all cursor-pointer ${
-                  activeDemo === 'opd'
-                    ? 'bg-brand/10 border-brand text-brand shadow-xs'
-                    : 'bg-surface border-line hover:border-brand/40 hover:bg-surface-subtle text-ink'
-                }`}>
-                <div className="text-xs font-semibold flex items-center justify-between">
-                  <span>Unit Lokus (OPD)</span>
-                  {activeDemo === 'opd' && <CheckCircle2 className="w-3 h-3 text-brand" />}
-                </div>
-                <div className="text-[10px] text-ink-muted font-mono truncate mt-0.5">
-                  opd@kubar.go.id
-                </div>
-              </button>
-            </div>
-          </div>
-
           {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-3">
             <div className="space-y-1">
@@ -184,10 +128,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    setActiveDemo(null)
-                  }}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="nama@kutaibaratkab.go.id"
                   className="w-full pl-9 pr-3.5 py-2 sm:py-2.5 rounded-xl border border-line text-xs sm:text-sm text-ink placeholder:text-ink-muted bg-surface focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all shadow-2xs"
                   required
@@ -206,10 +147,7 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value)
-                    setActiveDemo(null)
-                  }}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full pl-9 pr-9 py-2 sm:py-2.5 rounded-xl border border-line text-xs sm:text-sm text-ink placeholder:text-ink-muted bg-surface focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all shadow-2xs"
                   required
